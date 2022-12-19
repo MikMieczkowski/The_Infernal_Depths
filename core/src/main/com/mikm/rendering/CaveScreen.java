@@ -59,7 +59,7 @@ public class CaveScreen extends Screen {
         DynamicTiledMapTileLayer tiledMapTileLayer = new DynamicTiledMapTileLayer(16, 16, 16, 16);
 
 
-        //DynamicCell dynamicCaveCell = createCaveDynamicCell();
+        DynamicCell dynamicCaveCell = createCaveDynamicCell();
 //        for (int x = 0; x < 16; x++) {
 //            for (int y = 0; y < 16; y++) {
 //                tiledMapTileLayer.setDynamicCell(x, y, dynamicCaveCell);
@@ -72,8 +72,8 @@ public class CaveScreen extends Screen {
     }
 
     private DynamicCell createCaveDynamicCell() {
-        DynamicCellMetadata metadata = DynamicCellMetadataReader.createMetadataFromFile("images/caveTiles.meta.txt");
-        DynamicCell dynamicCell = new DynamicCell(caveTileset, metadata);
-        return dynamicCell;
+        DynamicCellMetadataReader metadataReader = new DynamicCellMetadataReader();
+        DynamicCellMetadata metadata = metadataReader.createMetadataFromFile("images/caveTiles.meta.txt");
+        return new DynamicCell(caveTileset, metadata);
     }
 }
