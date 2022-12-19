@@ -8,17 +8,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DynamicCellMetadata {
-    HashMap<Vector2, DynamicTileRuleset[]> tilesMetadata = new HashMap<>();
+    HashMap<Vector2, TileRuleset[]> tilesMetadata = new HashMap<>();
 
-    public void addTileRulesetsForPosition(Vector2 position, DynamicTileRuleset[] tileRulesets) {
+    public void addTileRulesetsForPosition(Vector2 position, TileRuleset[] tileRulesets) {
         tilesMetadata.put(position, tileRulesets);
     }
 
     public void prettyPrint() {
-        for (Map.Entry<Vector2, DynamicTileRuleset[]> entry : tilesMetadata.entrySet()) {
+        for (Map.Entry<Vector2, TileRuleset[]> entry : tilesMetadata.entrySet()) {
             Vector2 key = entry.getKey();
-            DynamicTileRuleset[] value = entry.getValue();
-            for (DynamicTileRuleset tileRuleset : value) {
+            TileRuleset[] value = entry.getValue();
+            for (TileRuleset tileRuleset : value) {
                 System.out.println("Position: " + key.x + ", " + key.y + ". TileRuleset: " + Arrays.deepToString(tileRuleset.array));
             }
         }
