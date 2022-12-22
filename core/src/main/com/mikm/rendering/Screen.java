@@ -20,7 +20,7 @@ public abstract class Screen extends ScreenAdapter {
         this.application = application;
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        camera.zoom = 2;
+        camera.zoom = .5f;
         stage = new Stage(new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera));
     }
 

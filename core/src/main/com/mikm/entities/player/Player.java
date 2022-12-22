@@ -9,7 +9,7 @@ import com.mikm.entities.Entity;
 public class Player extends Entity {
     private TextureRegion img;
     public float xVel, yVel;
-    public final float speed = 5;
+    public final float speed = 2;
 
     public Group group;
     private PlayerHeldItem playerHeldItem;
