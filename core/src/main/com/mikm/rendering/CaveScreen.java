@@ -7,28 +7,33 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.mikm.Vector2Int;
 import com.mikm.entities.player.Player;
-import com.mikm.rendering.tilemap.DynamicCell;
-import com.mikm.rendering.tilemap.DynamicCellMetadata;
-import com.mikm.rendering.tilemap.DynamicCellMetadataReader;
-import com.mikm.rendering.tilemap.DynamicTiledMapTileLayer;
+import com.mikm.rendering.tilemap.CaveGenerator;
+import com.mikm.rendering.tilemap.ruleCell.RuleCell;
+import com.mikm.rendering.tilemap.ruleCell.RuleCellMetadata;
+import com.mikm.rendering.tilemap.ruleCell.RuleCellMetadataReader;
+import com.mikm.rendering.tilemap.ruleCell.RuleCellTiledMapTileLayer;
 
 public class CaveScreen extends Screen {
     private Player player;
     private OrthogonalTiledMapRenderer tiledMapRenderer;
     private TiledMap tiledMap;
-    Texture caveTileset;
+    TextureRegion[][] caveTileset;
     CaveScreen(Application application, AssetManager assetManager) {
         super(application, assetManager);
 
-        caveTileset = assetManager.get("images/caveTiles.png", Texture.class);
-        TextureRegion temporaryImage = new TextureRegion(caveTileset, 0, 0, 16, 16);
+        Texture caveTilesetSpritesheet = assetManager.get("images/caveTiles.png", Texture.class);
+        caveTileset = TextureRegion.split(caveTilesetSpritesheet, 16, 16);
+        TextureRegion temporaryImage = caveTileset[2][4];
 
-        createTiledMapRenderer(caveTileset);
+        createTiledMapRenderer();
 
 
-        player = new Player(150, 150, temporaryImage);
+        player = new Player(1000, 1000, temporaryImage);
         stage.addActor(player.group);
 
     }
@@ -36,6 +41,9 @@ public class CaveScreen extends Screen {
     @Override
     public void render(float delta) {
         application.batch.begin();
+        camera.position.set(new Vector3(player.x, player.y, 0));
+        camera.update();
+        tiledMapRenderer.setView(camera);
         ScreenUtils.clear(Color.DARK_GRAY);
         drawAssets();
         application.batch.end();
@@ -53,27 +61,22 @@ public class CaveScreen extends Screen {
         tiledMap.dispose();
     }
 
-    private void createTiledMapRenderer(Texture caveTileset) {
+    private void createTiledMapRenderer() {
         tiledMap = new TiledMap();
         MapLayers mapLayers = tiledMap.getLayers();
-        DynamicTiledMapTileLayer tiledMapTileLayer = new DynamicTiledMapTileLayer(16, 16, 16, 16);
 
-
-        DynamicCell dynamicCaveCell = createCaveDynamicCell();
-//        for (int x = 0; x < 16; x++) {
-//            for (int y = 0; y < 16; y++) {
-//                tiledMapTileLayer.setDynamicCell(x, y, dynamicCaveCell);
-//            }
-//        }
+        CaveGenerator caveGenerator = new CaveGenerator();
+        RuleCell ruleCell = createCaveRuleCell();
+        RuleCellTiledMapTileLayer tiledMapTileLayer = caveGenerator.generateMap(ruleCell);
 
         mapLayers.add(tiledMapTileLayer);
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, 2);
         tiledMapRenderer.setView(camera);
     }
 
-    private DynamicCell createCaveDynamicCell() {
-        DynamicCellMetadataReader metadataReader = new DynamicCellMetadataReader();
-        DynamicCellMetadata metadata = metadataReader.createMetadataFromFile("images/caveTiles.meta.txt");
-        return new DynamicCell(caveTileset, metadata);
+    private RuleCell createCaveRuleCell() {
+        RuleCellMetadataReader metadataReader = new RuleCellMetadataReader();
+        RuleCellMetadata metadata = metadataReader.createMetadataFromFile("images/caveTiles.meta.txt");
+        return new RuleCell(caveTileset, metadata);
     }
 }

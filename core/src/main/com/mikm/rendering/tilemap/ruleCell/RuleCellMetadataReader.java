@@ -1,13 +1,16 @@
-package com.mikm.rendering.tilemap;
+package com.mikm.rendering.tilemap.ruleCell;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.math.Vector2;
+import com.mikm.Vector2Int;
+import com.mikm.rendering.tilemap.CellPresence;
+import com.mikm.rendering.tilemap.TileRuleset;
+import com.mikm.rendering.tilemap.TileRulesetTransformer;
 
-public class DynamicCellMetadataReader {
-    private DynamicCellMetadata metadata;
+public class RuleCellMetadataReader {
+    private RuleCellMetadata metadata;
 
-    public DynamicCellMetadata createMetadataFromFile(String directory) {
+    public RuleCellMetadata createMetadataFromFile(String directory) {
         String rawMetadata = getTextFromFile(directory);
         return readMetadataString(rawMetadata);
     }
@@ -18,9 +21,9 @@ public class DynamicCellMetadataReader {
         return handle.readString().replaceAll(newLineOrSpaceRegex, "");
     }
 
-    private DynamicCellMetadata readMetadataString(String rawMetadata) {
-        metadata = new DynamicCellMetadata();
-        Vector2 tilePosition;
+    private RuleCellMetadata readMetadataString(String rawMetadata) {
+        metadata = new RuleCellMetadata();
+        Vector2Int tilePosition;
         TileRuleset[] tileRulesets;
         for (int i = 0; i < rawMetadata.length(); i++) {
             if (rawMetadata.charAt(i) == '[') {
@@ -33,7 +36,7 @@ public class DynamicCellMetadataReader {
         return metadata;
     }
 
-    private Vector2 getNextTwoNumbers(int i, String rawMetadata) {
+    private Vector2Int getNextTwoNumbers(int i, String rawMetadata) {
         String firstNumberString;
         String secondNumberString;
 
@@ -67,11 +70,8 @@ public class DynamicCellMetadataReader {
     }
 
     private int iPositionAfterRightBracket(int i, String rawMetadata) {
-        //has side effects but whatever
-        try {
-            rawMetadata.charAt(i+5);
-        } catch (Exception e) {
-            throw new RuntimeException("Dynamic Cell Reader tried to read position after \"]\" character but went out of bounds.");
+        if (i+5 > rawMetadata.length()-1) {
+            throw new RuntimeException("Rule Cell Reader tried to read position after \"]\" character but went out of bounds.");
         }
         boolean firstNumberIsOneDigit = (rawMetadata.charAt(i+2) == ',');
         boolean secondNumberIsOneDigit = (rawMetadata.charAt(i+4) == ']');
@@ -80,13 +80,13 @@ public class DynamicCellMetadataReader {
         return i + 3 + totalDigits;
     }
 
-    private Vector2 numberStringToIntegers(String first, String second) {
-        Vector2 output = new Vector2();
+    private Vector2Int numberStringToIntegers(String first, String second) {
+        Vector2Int output = new Vector2Int();
         try {
             output.x = Integer.parseInt(first);
             output.y = Integer.parseInt(second);
         } catch (NumberFormatException e) {
-            throw new RuntimeException("Couldn't read Dynamic cell tile position");
+            throw new RuntimeException("Couldn't read Rule cell tile position");
         }
         return output;
     }
@@ -107,23 +107,23 @@ public class DynamicCellMetadataReader {
         if (charAtI == 'V') {
             return TileRulesetTransformer.createVerticallyFlippedRulesetsFrom(originalRuleset);
         }
-        throw new RuntimeException("Couldn't rotate or flip dynamic cell ruleset");
+        throw new RuntimeException("Couldn't rotate or flip rule cell ruleset");
     }
 
     private TileRuleset getTileRulesetFromRawData(int i, String rawMetadata) {
         CellPresence[][] rules = new CellPresence[3][3];
         int totalIteration = 0;
-        for (int x = 0; x < 3; x++) {
-            for (int y = 0; y < 3; y++) {
+        for (int y = 2; y >= 0; y--) {
+            for (int x = 0; x < 3; x++) {
                 if (rawMetadata.charAt(i + totalIteration) == 'o') {
-                    rules[x][y] = CellPresence.Empty;
+                    rules[y][x] = CellPresence.Empty;
                 } else if (rawMetadata.charAt(i + totalIteration) == 'x') {
-                    rules[x][y] = CellPresence.Full;
+                    rules[y][x] = CellPresence.Full;
                 } else if (rawMetadata.charAt(i + totalIteration) == '-') {
-                    rules[x][y] = CellPresence.Either;
+                    rules[y][x] = CellPresence.Either;
                 } else {
                     metadata.prettyPrint();
-                    throw new RuntimeException("Couldn't read dynamic cell ruleset, tried to read \"" + rawMetadata.charAt(i + totalIteration) + "\"");
+                    throw new RuntimeException("Couldn't read rule cell ruleset, tried to read \"" + rawMetadata.charAt(i + totalIteration) + "\"");
                 }
                 totalIteration++;
             }
