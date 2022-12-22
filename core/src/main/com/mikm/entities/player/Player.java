@@ -32,7 +32,7 @@ public class Player extends Entity {
 
     @Override
     public void render(Batch batch) {
-        batch.draw(img, x, y, 64, 64);
+        batch.draw(img, x, y);
     }
 
     private void handleInput() {

@@ -37,6 +37,11 @@ class TileRulesetTransformerTest {
         assertTrue(Arrays.deepEquals(expected[1].array, actual[1].array));
         assertTrue(Arrays.deepEquals(expected[2].array, actual[2].array));
         assertTrue(Arrays.deepEquals(expected[3].array, actual[3].array));
+
+        assertEquals(0, actual[0].rotation);
+        assertEquals(1, actual[1].rotation);
+        assertEquals(2, actual[2].rotation);
+        assertEquals(3, actual[3].rotation);
     }
 
     @Test
