@@ -4,9 +4,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -15,28 +13,23 @@ import com.mikm.rendering.tilemap.CaveLevelGenerator;
 import com.mikm.rendering.tilemap.ruleCell.RuleCell;
 import com.mikm.rendering.tilemap.ruleCell.RuleCellMetadata;
 import com.mikm.rendering.tilemap.ruleCell.RuleCellMetadataReader;
-import com.mikm.rendering.tilemap.ruleCell.RuleCellTiledMapTileLayer;
 
-public class CaveScreen extends Screen {
-    private Player player;
-    private OrthogonalTiledMapRenderer tiledMapRenderer;
-    private TiledMap tiledMap;
-    TextureRegion[][] caveTileset;
+public class CaveScreen extends GameScreen {
+
+    private final TextureRegion[][] caveTileset;
     private final Color caveWallColor = new Color(41/255f, 16/255f, 16/255f, 1);
 
     CaveScreen(Application application, AssetManager assetManager) {
         super(application, assetManager);
 
         Texture caveTilesetSpritesheet = assetManager.get("images/caveTiles.png", Texture.class);
-        caveTileset = TextureRegion.split(caveTilesetSpritesheet, 16, 16);
+        caveTileset = TextureRegion.split(caveTilesetSpritesheet, Application.defaultTileWidth, Application.defaultTileHeight);
         TextureRegion temporaryImage = caveTileset[2][1];
 
         createTiledMapRenderer();
 
-
         player = new Player(1000, 1000, temporaryImage);
         stage.addActor(player.group);
-
     }
 
     @Override
@@ -46,20 +39,16 @@ public class CaveScreen extends Screen {
         camera.position.set(new Vector3(player.x, player.y, 0));
         camera.update();
         tiledMapRenderer.setView(camera);
-        drawAssets();
+        super.drawAssets();
         application.batch.end();
     }
 
-    private void drawAssets() {
-        tiledMapRenderer.render();
-        stage.draw();
-    }
+
 
     @Override
     public void dispose() {
         super.dispose();
-        tiledMapRenderer.dispose();
-        tiledMap.dispose();
+
     }
 
     private void createTiledMapRenderer() {
