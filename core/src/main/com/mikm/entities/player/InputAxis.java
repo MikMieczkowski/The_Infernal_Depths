@@ -1,4 +1,4 @@
-package com.mikm;
+package com.mikm.entities.player;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;

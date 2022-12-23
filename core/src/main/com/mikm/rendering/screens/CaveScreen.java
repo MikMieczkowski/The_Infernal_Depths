@@ -1,10 +1,9 @@
-package com.mikm.rendering;
+package com.mikm.rendering.screens;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -28,7 +27,6 @@ public class CaveScreen extends GameScreen {
 
         createTiledMapRenderer();
 
-        player = new Player(1000, 1000, temporaryImage);
         stage.addActor(player.group);
     }
 
@@ -36,19 +34,16 @@ public class CaveScreen extends GameScreen {
     public void render(float delta) {
         application.batch.begin();
         ScreenUtils.clear(caveWallColor);
-        camera.position.set(new Vector3(player.x, player.y, 0));
         camera.update();
-        tiledMapRenderer.setView(camera);
+        tiledMapRenderer.setView(camera.orthographicCamera);
         super.drawAssets();
+        application.batch.draw(player.img, player.x, player.y);
         application.batch.end();
     }
-
-
 
     @Override
     public void dispose() {
         super.dispose();
-
     }
 
     private void createTiledMapRenderer() {
@@ -56,7 +51,6 @@ public class CaveScreen extends GameScreen {
         CaveLevelGenerator caveLevelGenerator = new CaveLevelGenerator(ruleCell);
         tiledMap = caveLevelGenerator.createTiledMap();
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, 1);
-        tiledMapRenderer.setView(camera);
     }
 
     private RuleCell createCaveRuleCell() {

@@ -1,22 +1,28 @@
-package com.mikm.rendering;
+package com.mikm.rendering.screens;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.mikm.entities.player.Player;
 
 public class Application extends Game {
 	public static final int defaultTileWidth = 16, defaultTileHeight = 16;
 	SpriteBatch batch;
-	public static Texture img;
+	public static TextureRegion img;
 	private CaveScreen caveScreen;
+
+	public Player player;
 
 	@Override
 	public void create() {
 		batch = new SpriteBatch();
-		img = new Texture("images/sand.png");
 
 		AssetManager assetManager = createAssetManager();
+		img = new TextureRegion(assetManager.get("images/sand.png", Texture.class));
+
+		player = new Player(1000, 1000, img);
 		caveScreen = new CaveScreen(this, assetManager);
 		setScreen(caveScreen);
 	}
@@ -29,7 +35,6 @@ public class Application extends Game {
 	@Override
 	public void dispose () {
 		batch.dispose();
-		img.dispose();
 		caveScreen.dispose();
 	}
 
@@ -40,6 +45,7 @@ public class Application extends Game {
 	private AssetManager createAssetManager() {
 		AssetManager assetManager = new AssetManager();
 		assetManager.load("images/caveTiles.png", Texture.class);
+		assetManager.load("images/sand.png", Texture.class);
 		assetManager.finishLoading();
 		return assetManager;
 	}
