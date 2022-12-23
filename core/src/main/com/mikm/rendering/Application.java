@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class Application extends Game {
+	public static final int defaultTileWidth = 16, defaultTileHeight = 16;
 	SpriteBatch batch;
 	public static Texture img;
 	private CaveScreen caveScreen;

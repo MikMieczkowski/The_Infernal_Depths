@@ -5,6 +5,7 @@ import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
+import com.mikm.rendering.Application;
 import com.mikm.rendering.tilemap.ruleCell.RuleCell;
 import com.mikm.rendering.tilemap.ruleCell.RuleCellTiledMapTileLayer;
 
@@ -101,7 +102,7 @@ public class CaveLevelGenerator {
     }
 
     private RuleCellTiledMapTileLayer createRuleCellLayerFromRuleCellPositions() {
-        RuleCellTiledMapTileLayer ruleCellLayer = new RuleCellTiledMapTileLayer(mapWidth, mapHeight, 16, 16);
+        RuleCellTiledMapTileLayer ruleCellLayer = new RuleCellTiledMapTileLayer(mapWidth, mapHeight, Application.defaultTileWidth, Application.defaultTileHeight);
         for (int y = mapHeight - 1; y >= 0; y--) {
             for (int x = 0; x < mapWidth; x++) {
                 if (ruleCellPositions[y][x]) {
@@ -114,7 +115,7 @@ public class CaveLevelGenerator {
     }
 
     private TiledMapTileLayer createUncollidableLayer() {
-        TiledMapTileLayer uncollidableLayer = new TiledMapTileLayer(mapWidth, mapHeight, 16, 16);
+        TiledMapTileLayer uncollidableLayer = new TiledMapTileLayer(mapWidth, mapHeight, Application.defaultTileWidth, Application.defaultTileHeight);
         TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
         StaticTiledMapTile tile = new StaticTiledMapTile(floorImage);
         cell.setTile(tile);
