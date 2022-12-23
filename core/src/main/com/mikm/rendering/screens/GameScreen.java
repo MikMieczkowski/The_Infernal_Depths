@@ -1,4 +1,4 @@
-package com.mikm.rendering;
+package com.mikm.rendering.screens;
 
 
 import com.badlogic.gdx.Gdx;
@@ -8,14 +8,15 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.mikm.entities.player.Player;
+import com.mikm.rendering.Camera;
 
 public abstract class GameScreen extends ScreenAdapter {
     Application application;
     Stage stage;
     AssetManager assetManager;
-    OrthographicCamera camera;
+    Camera camera;
 
     Player player;
     OrthogonalTiledMapRenderer tiledMapRenderer;
@@ -24,12 +25,12 @@ public abstract class GameScreen extends ScreenAdapter {
     GameScreen(Application application, AssetManager assetManager) {
         this.assetManager = assetManager;
         this.application = application;
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        camera.zoom = .5f;
-        stage = new Stage(new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera));
+        this.player = application.player;
+
+        camera = new Camera(player);
+        stage = new Stage(new ScreenViewport(camera.orthographicCamera));
     }
-    
+
     void drawAssets() {
         tiledMapRenderer.render();
         stage.draw();

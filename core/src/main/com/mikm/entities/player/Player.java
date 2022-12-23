@@ -3,11 +3,10 @@ package com.mikm.entities.player;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.mikm.InputAxis;
 import com.mikm.entities.Entity;
 
 public class Player extends Entity {
-    private TextureRegion img;
+    public TextureRegion img;
     public float xVel, yVel;
     public final float speed = 2;
 
@@ -48,4 +47,6 @@ public class Player extends Entity {
         group.addActor(playerBackItem);
         group.addActor(playerHeldItem);
     }
+
+
 }

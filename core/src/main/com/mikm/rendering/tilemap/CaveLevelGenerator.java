@@ -5,7 +5,7 @@ import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
-import com.mikm.rendering.Application;
+import com.mikm.rendering.screens.Application;
 import com.mikm.rendering.tilemap.ruleCell.RuleCell;
 import com.mikm.rendering.tilemap.ruleCell.RuleCellTiledMapTileLayer;
 

@@ -2,14 +2,14 @@ package com.mikm;
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import com.mikm.rendering.Application;
+import com.mikm.rendering.screens.Application;
 
 // Please note that on macOS your application needs to be started with the -XstartOnFirstThread JVM argument
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 		config.setForegroundFPS(60);
-		config.setWindowedMode(800, 600);
+		config.setWindowedMode(1000, 800);
 		config.setTitle("The Infernal Depths");
 		new Lwjgl3Application(new Application(), config);
 	}
