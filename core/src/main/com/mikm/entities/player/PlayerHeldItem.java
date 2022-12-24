@@ -2,10 +2,11 @@ package com.mikm.entities.player;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.mikm.entities.Entity;
+import com.mikm.entities.Image;
 
-public class PlayerHeldItem extends Entity {
+public class PlayerHeldItem extends Image {
     @Override
-    public void tick() {
+    public void update() {
 
     }
 

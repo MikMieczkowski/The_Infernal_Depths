@@ -21,8 +21,8 @@ public class Camera {
         orthographicCamera = new OrthographicCamera();
         orthographicCamera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         orthographicCamera.zoom = zoom;
-        x = player.x - Gdx.graphics.getWidth() / 2f + player.getBounds().width / 2;
-        y = player.y - Gdx.graphics.getHeight() / 2f + player.getBounds().height / 2;
+        x = player.x + player.getBounds().width / 2;
+        y = player.y + player.getBounds().height / 2;
     }
 
     public void update() {

@@ -1,6 +1,7 @@
 package com.mikm.rendering.screens;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -12,7 +13,6 @@ public class Application extends Game {
 	SpriteBatch batch;
 	public static TextureRegion img;
 	private CaveScreen caveScreen;
-
 	public Player player;
 
 	@Override
@@ -22,8 +22,9 @@ public class Application extends Game {
 		AssetManager assetManager = createAssetManager();
 		img = new TextureRegion(assetManager.get("images/sand.png", Texture.class));
 
-		player = new Player(1000, 1000, img);
+		player = new Player(500, 500, img);
 		caveScreen = new CaveScreen(this, assetManager);
+		player.setScreen(caveScreen);
 		setScreen(caveScreen);
 	}
 

@@ -1,13 +1,14 @@
 package com.mikm.entities.player;
 
+
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.mikm.entities.Entity;
+import com.mikm.rendering.screens.GameScreen;
 
 public class Player extends Entity {
     public TextureRegion img;
-    public float xVel, yVel;
     public final float speed = 2;
 
     public Group group;
@@ -22,9 +23,14 @@ public class Player extends Entity {
         createGroup();
     }
 
+    public void setScreen(GameScreen screen) {
+        this.screen = screen;
+    }
+
     @Override
-    public void tick() {
+    public void update() {
         handleInput();
+        checkWallCollisions();
         x += xVel;
         y += yVel;
     }
