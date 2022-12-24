@@ -5,9 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.mikm.entities.player.Player;
 import com.mikm.rendering.tilemap.CaveLevelGenerator;
 import com.mikm.rendering.tilemap.ruleCell.RuleCell;
 import com.mikm.rendering.tilemap.ruleCell.RuleCellMetadata;
@@ -31,14 +29,25 @@ public class CaveScreen extends GameScreen {
     }
 
     @Override
+    public int getCollidableTiledMapTileLayerID() {
+        return 1;
+    }
+
+    @Override
     public void render(float delta) {
         application.batch.begin();
         ScreenUtils.clear(caveWallColor);
         camera.update();
         tiledMapRenderer.setView(camera.orthographicCamera);
-        super.drawAssets();
-        application.batch.draw(player.img, player.x, player.y);
+        drawAssets();
         application.batch.end();
+    }
+
+    @Override
+    void drawAssets() {
+        tiledMapRenderer.render();
+        stage.draw();
+        application.batch.draw(player.img, player.x, player.y);
     }
 
     @Override

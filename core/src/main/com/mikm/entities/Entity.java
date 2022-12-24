@@ -1,20 +1,29 @@
 package com.mikm.entities;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.maps.MapObjects;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.mikm.Vector2Int;
 import com.mikm.rendering.screens.Application;
+import com.mikm.rendering.screens.GameScreen;
 
 public abstract class Entity extends Actor {
+    public GameScreen screen;
     public float x, y;
+    public float xVel, yVel;
 
     @Override
     public void draw(Batch batch, float alpha) {
-        tick();
+        update();
         render(batch);
     }
 
-    public abstract void tick();
+    public abstract void update();
 
     public abstract void render(Batch batch);
 
@@ -28,5 +37,59 @@ public abstract class Entity extends Actor {
 
     public Rectangle getBounds() {
         return new Rectangle(x, y, Application.defaultTileWidth, Application.defaultTileHeight);
+    }
+
+    public Rectangle getOffsetBoundsH() {
+        return new Rectangle(x + xVel, y, getBounds().width, getBounds().height);
+    }
+
+    public Rectangle getOffsetBoundsV() {
+        return new Rectangle(x, y + yVel, getBounds().width, getBounds().height);
+    }
+
+    public void checkWallCollisions() {
+        TiledMapTileLayer collideableLayer = (TiledMapTileLayer) screen.tiledMap.getLayers().get(screen.getCollidableTiledMapTileLayerID());
+
+        //Check tiles in a 5x5 grid around player
+        for (int i = -2; i <= 2; i++) {
+            for (int j = -2; j <= 2; j++) {
+                Vector2Int wallPositionInTiles = new Vector2Int(getXInt() / Application.defaultTileWidth + i, getYInt() / Application.defaultTileHeight + j);
+                TiledMapTileLayer.Cell wall = collideableLayer.getCell(wallPositionInTiles.x , wallPositionInTiles.y);
+                Vector2Int wallPosition = new Vector2Int(wallPositionInTiles.x * Application.defaultTileWidth, wallPositionInTiles.y * Application.defaultTileHeight);
+                if (wall != null) {
+                    setPositionBasedOnWallIntersection(wallPosition);
+                }
+            }
+        }
+
+
+    }
+
+    private void setPositionBasedOnWallIntersection(Vector2Int cellPosition) {
+        Rectangle wallBounds = new Rectangle(cellPosition.x, cellPosition.y, Application.defaultTileWidth, Application.defaultTileHeight);
+        if (Intersector.overlaps(getOffsetBoundsH(), wallBounds)) {
+            setXPositionToWall(wallBounds);
+        }
+        if (Intersector.overlaps(getOffsetBoundsV(), wallBounds)) {
+            setYPositionToWall(wallBounds);
+        }
+    }
+
+    private void setXPositionToWall(Rectangle wallBounds) {
+        if (xVel > 0) {
+            x = wallBounds.x - getBounds().width;
+        } else if (xVel < 0) {
+            x = wallBounds.x + wallBounds.width;
+        }
+        xVel = 0;
+    }
+
+    private void setYPositionToWall(Rectangle wallBounds) {
+        if (yVel > 0) {
+            y = wallBounds.y - getBounds().height;
+        } else if (yVel < 0) {
+            y = wallBounds.y + wallBounds.height;
+        }
+        yVel = 0;
     }
 }
