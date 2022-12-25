@@ -12,10 +12,10 @@ import com.mikm.rendering.Camera;
 
 public abstract class GameScreen extends ScreenAdapter {
     Application application;
-    Stage stage;
     AssetManager assetManager;
     Camera camera;
 
+    public Stage stage;
     public Player player;
     public OrthogonalTiledMapRenderer tiledMapRenderer;
     public TiledMap tiledMap;
@@ -29,7 +29,7 @@ public abstract class GameScreen extends ScreenAdapter {
         stage = new Stage(new ScreenViewport(camera.orthographicCamera));
     }
 
-    public abstract int getCollidableTiledMapTileLayerID();
+    public abstract int[] getCollidableTiledMapTileLayerIDs();
 
     abstract void drawAssets();
 
