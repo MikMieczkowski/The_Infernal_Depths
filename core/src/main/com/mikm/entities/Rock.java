@@ -1,11 +1,13 @@
-package com.mikm.entities.player;
+package com.mikm.entities;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.mikm.entities.Entity;
-import com.mikm.entities.Image;
 
-public class PlayerHeldItem extends Image {
+public class Rock extends Image {
+    TextureRegion img;
+    public Rock(TextureRegion img) {
+        this.img = img;
+    }
 
     @Override
     public void update() {
@@ -14,6 +16,6 @@ public class PlayerHeldItem extends Image {
 
     @Override
     public void render(Batch batch) {
-
+        batch.draw(img, x, y);
     }
 }

@@ -13,8 +13,9 @@ import com.mikm.rendering.tilemap.ruleCell.RuleCellMetadataReader;
 
 public class CaveScreen extends GameScreen {
 
-    private final TextureRegion[][] caveTileset;
     private final Color caveWallColor = new Color(41/255f, 16/255f, 16/255f, 1);
+    public final TextureRegion[][] caveTileset;
+    public final TextureRegion[][] rockImages;
 
     CaveScreen(Application application, AssetManager assetManager) {
         super(application, assetManager);
@@ -23,14 +24,17 @@ public class CaveScreen extends GameScreen {
         caveTileset = TextureRegion.split(caveTilesetSpritesheet, Application.defaultTileWidth, Application.defaultTileHeight);
         TextureRegion temporaryImage = caveTileset[2][1];
 
+        Texture rockSpritesheet = assetManager.get("images/rocks.png", Texture.class);
+        rockImages = TextureRegion.split(rockSpritesheet, Application.defaultTileWidth, Application.defaultTileHeight);
+
         createTiledMapRenderer();
 
         stage.addActor(player.group);
     }
 
     @Override
-    public int getCollidableTiledMapTileLayerID() {
-        return 1;
+    public int[] getCollidableTiledMapTileLayerIDs() {
+        return new int[]{1, 2};
     }
 
     @Override
@@ -56,15 +60,10 @@ public class CaveScreen extends GameScreen {
     }
 
     private void createTiledMapRenderer() {
-        RuleCell ruleCell = createCaveRuleCell();
-        CaveLevelGenerator caveLevelGenerator = new CaveLevelGenerator(ruleCell);
+        CaveLevelGenerator caveLevelGenerator = new CaveLevelGenerator(this);
         tiledMap = caveLevelGenerator.createTiledMap();
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, 1);
     }
 
-    private RuleCell createCaveRuleCell() {
-        RuleCellMetadataReader metadataReader = new RuleCellMetadataReader();
-        RuleCellMetadata metadata = metadataReader.createMetadataFromFile("images/caveTiles.meta.txt");
-        return new RuleCell(caveTileset, metadata);
-    }
+
 }

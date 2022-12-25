@@ -32,7 +32,7 @@ public class TileRulesetTransformer {
         TileRuleset[] outputRulesets = new TileRuleset[2];
         CellPresence[][] flippedArray = TileRulesetTransformer.flipArrayVertical(originalRuleset.array);
         TileRuleset flippedRuleset = new TileRuleset(flippedArray);
-        flippedRuleset.flippedVertically = false;
+        flippedRuleset.flippedVertically = true;
 
         outputRulesets[0] = originalRuleset;
         outputRulesets[1] = flippedRuleset;

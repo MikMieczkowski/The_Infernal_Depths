@@ -47,6 +47,7 @@ public class Application extends Game {
 		AssetManager assetManager = new AssetManager();
 		assetManager.load("images/caveTiles.png", Texture.class);
 		assetManager.load("images/sand.png", Texture.class);
+		assetManager.load("images/rocks.png", Texture.class);
 		assetManager.finishLoading();
 		return assetManager;
 	}

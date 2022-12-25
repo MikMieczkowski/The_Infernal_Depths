@@ -1,6 +1,7 @@
 package com.mikm.entities.player;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mikm.entities.Entity;
 import com.mikm.entities.Image;
 
