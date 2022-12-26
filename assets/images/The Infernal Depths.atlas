@@ -1,0 +1,11 @@
+The Infernal Depths.png
+size:256,256
+repeat:none
+caveTiles
+bounds:1,35,96,192
+player
+bounds:99,139,44,88
+rocks
+bounds:1,1,48,32
+sand
+bounds:99,121,16,16

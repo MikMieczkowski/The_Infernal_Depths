@@ -3,6 +3,7 @@ package com.mikm.rendering.screens;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -17,15 +18,13 @@ public class CaveScreen extends GameScreen {
     public final TextureRegion[][] caveTileset;
     public final TextureRegion[][] rockImages;
 
-    CaveScreen(Application application, AssetManager assetManager) {
-        super(application, assetManager);
+    CaveScreen(Application application, TextureAtlas textureAtlas) {
+        super(application, textureAtlas);
 
-        Texture caveTilesetSpritesheet = assetManager.get("images/caveTiles.png", Texture.class);
-        caveTileset = TextureRegion.split(caveTilesetSpritesheet, Application.defaultTileWidth, Application.defaultTileHeight);
-        TextureRegion temporaryImage = caveTileset[2][1];
 
-        Texture rockSpritesheet = assetManager.get("images/rocks.png", Texture.class);
-        rockImages = TextureRegion.split(rockSpritesheet, Application.defaultTileWidth, Application.defaultTileHeight);
+        caveTileset = textureAtlas.findRegion("caveTiles").split(Application.defaultTileWidth, Application.defaultTileHeight);
+
+        rockImages = textureAtlas.findRegion("rocks").split(Application.defaultTileWidth, Application.defaultTileHeight);
 
         createTiledMapRenderer();
 
@@ -41,8 +40,8 @@ public class CaveScreen extends GameScreen {
     public void render(float delta) {
         application.batch.begin();
         ScreenUtils.clear(caveWallColor);
-        camera.update();
         tiledMapRenderer.setView(camera.orthographicCamera);
+        camera.update();
         drawAssets();
         application.batch.end();
     }
@@ -51,7 +50,6 @@ public class CaveScreen extends GameScreen {
     void drawAssets() {
         tiledMapRenderer.render();
         stage.draw();
-        application.batch.draw(player.img, player.x, player.y);
     }
 
     @Override
