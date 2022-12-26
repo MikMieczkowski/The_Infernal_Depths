@@ -37,11 +37,11 @@ public abstract class Entity extends Actor {
     }
 
     public Rectangle getOffsetBoundsH() {
-        return new Rectangle(x + xVel, y, getBounds().width, getBounds().height);
+        return new Rectangle(getBounds().x + xVel, getBounds().y, getBounds().width, getBounds().height);
     }
 
     public Rectangle getOffsetBoundsV() {
-        return new Rectangle(x, y + yVel, getBounds().width, getBounds().height);
+        return new Rectangle(getBounds().x, getBounds().y + yVel, getBounds().width, getBounds().height);
     }
 
     public void checkWallCollisions() {
@@ -79,18 +79,18 @@ public abstract class Entity extends Actor {
 
     private void setXPositionToWall(Rectangle wallBounds) {
         if (xVel > 0) {
-            x = wallBounds.x - getBounds().width;
+            x = wallBounds.x - getBounds().width + (x - getBounds().x);
         } else if (xVel < 0) {
-            x = wallBounds.x + wallBounds.width;
+            x = wallBounds.x + wallBounds.width + (x - getBounds().x);
         }
         xVel = 0;
     }
 
     private void setYPositionToWall(Rectangle wallBounds) {
         if (yVel > 0) {
-            y = wallBounds.y - getBounds().height;
+            y = wallBounds.y - getBounds().height + (y - getBounds().y);
         } else if (yVel < 0) {
-            y = wallBounds.y + wallBounds.height;
+            y = wallBounds.y + wallBounds.height + (y - getBounds().y);
         }
         yVel = 0;
     }

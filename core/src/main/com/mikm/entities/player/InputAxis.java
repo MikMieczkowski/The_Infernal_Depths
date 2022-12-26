@@ -32,4 +32,8 @@ public class InputAxis {
             return 1;
         }
     }
+
+    public static boolean isMoving() {
+        return getHorizontalAxis() != 0 || getVerticalAxis() != 0;
+    }
 }

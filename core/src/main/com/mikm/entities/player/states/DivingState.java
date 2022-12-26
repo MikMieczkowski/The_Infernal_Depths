@@ -2,6 +2,8 @@ package com.mikm.entities.player.states;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.entities.player.InputAxis;
@@ -21,6 +23,7 @@ public class DivingState extends State {
         super.enter();
         player.xVel = 0;
         player.yVel = 0;
+        animationTime = 0;
         sinCounter = player.diveStartingSinCount;
         diveForce.setZero();
         diveDirection.setZero();
@@ -28,6 +31,19 @@ public class DivingState extends State {
         diveForce = new Vector2(player.diveSpeed * MathUtils.sin(sinCounter) * InputAxis.getHorizontalAxis() * InputAxis.movementVectorNormalizationMultiplier(),
                 player.diveSpeed * MathUtils.sin(sinCounter) * InputAxis.getVerticalAxis() * InputAxis.movementVectorNormalizationMultiplier());
         diveDirection = new Vector2(InputAxis.getHorizontalAxis(), InputAxis.getVerticalAxis());
+    }
+
+    @Override
+    void createAnimation() {
+        TextureRegion[] animationFrames = new TextureRegion[4];
+        animationFrames[0] = player.spritesheet[0][1];
+        animationFrames[1] = player.spritesheet[1][0];
+        //animationFrames[2] = player.spritesheet[1][1];
+        animationFrames[2] = player.spritesheet[2][0];
+        animationFrames[3] = player.spritesheet[2][1];
+
+        animation = new Animation<>(.07f, animationFrames);
+        animation.setPlayMode(Animation.PlayMode.NORMAL);
     }
 
     @Override
@@ -50,6 +66,9 @@ public class DivingState extends State {
         } else {
             player.walkingState.enter();
             return;
+        }
+        if (sinCounter >= MathUtils.PI) {
+            sinCounter = MathUtils.PI;
         }
         diveForce = new Vector2(player.diveSpeed * MathUtils.sin(sinCounter) * diveDirection.x * InputAxis.movementVectorNormalizationMultiplier(),
                 player.diveSpeed * MathUtils.sin(sinCounter) * diveDirection.y * InputAxis.movementVectorNormalizationMultiplier());
