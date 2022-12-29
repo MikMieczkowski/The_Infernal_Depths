@@ -1,13 +1,14 @@
 package com.mikm.rendering.screens;
 
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mikm.entities.player.Player;
+import com.mikm.rendering.TextureAtlasUtils;
+
+import java.util.ArrayList;
 
 public class Application extends Game {
 	public static final int defaultTileWidth = 16, defaultTileHeight = 16;
@@ -21,15 +22,13 @@ public class Application extends Game {
 		batch = new SpriteBatch();
 
 		AssetManager assetManager = createAssetManager();
-
-//		Texture playerSpritesheetTexture = assetManager.get("images/player.png", Texture.class);
-//		TextureRegion[][] playerSpritesheet = TextureRegion.split(playerSpritesheetTexture, Player.playerWidthPixels, Player.playerHeightPixels);
-//		testTexture = assetManager.get("images/sand.png", Texture.class);
 		TextureAtlas textureAtlas = assetManager.get("images/The Infernal Depths.atlas", TextureAtlas.class);
-		TextureRegion[][] playerSpritesheet = textureAtlas.findRegion("player").split(Player.playerWidthPixels, Player.playerHeightPixels);
 		testTexture = textureAtlas.findRegion("sand").split(defaultTileWidth, defaultTileHeight)[0][0];
 
-		player = new Player(500, 500, playerSpritesheet);
+		ArrayList<TextureAtlas.AtlasRegion> atlasRegions = TextureAtlasUtils.findRegionsStartingWith("Character", textureAtlas);
+		ArrayList<TextureRegion[]> playerSpritesheets = TextureAtlasUtils.splitAtlasRegionsTo1DArrays(atlasRegions, 32, 32);
+		player = new Player(500, 500, playerSpritesheets);
+
 		caveScreen = new CaveScreen(this, textureAtlas);
 		player.setScreen(caveScreen);
 		setScreen(caveScreen);

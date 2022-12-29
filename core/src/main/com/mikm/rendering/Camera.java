@@ -25,13 +25,9 @@ public class Camera {
     }
 
     public void update() {
-        Vector2 targetPosition = new Vector2((player.x - x) + player.getBounds().width / 2, (player.y - y) + player.getBounds().height / 2);
-        if (player.x - x < 1f && player.y - y < 1f) {
-            setPositionDirectlyToPlayerPosition();
-        } else {
-            x += MathUtils.round(targetPosition.x) * cameraSpeed;
-            y += MathUtils.round(targetPosition.y) * cameraSpeed;
-        }
+        Vector2 targetPosition = new Vector2((player.x - x) + Player.playerWidthPixels / 2f, (player.y - y) + Player.playerHeightPixels / 2f);
+        x += MathUtils.round(targetPosition.x) * cameraSpeed;
+        y += MathUtils.round(targetPosition.y) * cameraSpeed;
         orthographicCamera.position.set(new Vector3(x, y, 0));
     }
 

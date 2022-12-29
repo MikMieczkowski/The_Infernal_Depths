@@ -2,6 +2,7 @@ package com.mikm.entities.player;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.mikm.Vector2Int;
 
 public class InputAxis {
     public static int getHorizontalAxis() {
@@ -31,6 +32,10 @@ public class InputAxis {
         } else {
             return 1;
         }
+    }
+
+    public static Vector2Int getDirection() {
+        return new Vector2Int(getHorizontalAxis(), getVerticalAxis());
     }
 
     public static boolean isMoving() {

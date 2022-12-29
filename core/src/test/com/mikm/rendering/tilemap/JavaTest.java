@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class Arrays2DTest
+public class JavaTest
 {
     /*
     2D ARRAY STUFF:
@@ -45,4 +45,11 @@ public class Arrays2DTest
         }
         assertTrue(Arrays.deepEquals(array, redoArray));
     }
+
+    //@Test
+    //public void arrayListSetDoesntFillInData() {
+        //ArrayList<Integer> list = new ArrayList<>();
+        // out of bounds - list.set(102, 21);
+        // assertNotEquals(list.get(0), 0);
+    //}
 }
