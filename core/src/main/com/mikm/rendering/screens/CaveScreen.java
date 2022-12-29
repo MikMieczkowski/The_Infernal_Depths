@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.mikm.rendering.tilemap.CaveLevelGenerator;
+import com.mikm.rendering.tilemap.CaveTilemap;
 
 public class CaveScreen extends GameScreen {
 
@@ -13,7 +13,7 @@ public class CaveScreen extends GameScreen {
     public final TextureRegion[][] caveTileset;
     public final TextureRegion[][] rockImages;
 
-    CaveLevelGenerator caveLevelGenerator;
+    CaveTilemap caveTilemap;
 
     CaveScreen(Application application, TextureAtlas textureAtlas) {
         super(application, textureAtlas);
@@ -22,7 +22,6 @@ public class CaveScreen extends GameScreen {
         rockImages = textureAtlas.findRegion("rocks").split(Application.defaultTileWidth, Application.defaultTileHeight);
 
         createTiledMapRenderer();
-        stage.addActor(player.group);
     }
 
     @Override
@@ -52,12 +51,8 @@ public class CaveScreen extends GameScreen {
     }
 
     private void createTiledMapRenderer() {
-        caveLevelGenerator = new CaveLevelGenerator(this);
-        tiledMap = caveLevelGenerator.createTiledMap();
+        caveTilemap = new CaveTilemap(this);
+        tiledMap = caveTilemap.createTiledMap();
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, 1);
-    }
-
-    public boolean canPlayerSpawnAt(int x, int y) {
-        return caveLevelGenerator.playerCanSpawnAt(x, y);
     }
 }

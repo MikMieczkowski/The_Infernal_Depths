@@ -2,11 +2,8 @@ package com.mikm.entities.player;
 
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.controllers.Controller;
-import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.mikm.Vector2Int;
@@ -15,17 +12,17 @@ import com.mikm.entities.player.states.DivingState;
 import com.mikm.entities.player.states.StandingState;
 import com.mikm.entities.player.states.State;
 import com.mikm.entities.player.states.WalkingState;
-import com.mikm.rendering.screens.Application;
 import com.mikm.rendering.screens.GameScreen;
 
 import java.util.ArrayList;
 
 public class Player extends Entity {
     public Vector2Int direction = Vector2Int.DOWN;
-
     public ArrayList<TextureRegion[]> spritesheets;
+
     public static final int playerWidthPixels = 32, playerHeightPixels = 32;
     public final float speed = 2;
+    private final boolean noClip = false;
 
     public final float diveSpeed = 6;
     public final float diveFriction = .3f;
@@ -56,6 +53,7 @@ public class Player extends Entity {
 
     public void setScreen(GameScreen screen) {
         this.screen = screen;
+        screen.stage.addActor(group);
     }
 
     @Override
@@ -95,15 +93,11 @@ public class Player extends Entity {
         group.addActor(playerHeldItem);
     }
 
-
-    public Rectangle getFullBounds() {
-        //return new Rectangle(0, 0, 0,0);
-        return new Rectangle(x, y, playerWidthPixels, playerHeightPixels);
-    }
-
     @Override
     public Rectangle getBounds() {
-        //return new Rectangle(0, 0, 0,0);
-        return new Rectangle(x+8, y+8, 16, 16);
+        if (noClip) {
+            return new Rectangle(0, 0, 0,0);
+        }
+        return new Rectangle(x+8, y+9, 16, 15);
     }
 }
