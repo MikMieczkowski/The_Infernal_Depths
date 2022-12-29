@@ -5,13 +5,15 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.mikm.Vector2Int;
 import com.mikm.entities.player.ANIMATIONS;
 import com.mikm.entities.player.InputAxis;
 import com.mikm.entities.player.Player;
+import com.mikm.rendering.screens.Application;
 
 public class DivingState extends State {
     private Vector2 diveForce = new Vector2();
-    private Vector2 diveDirection = new Vector2();
+    private Vector2Int diveDirection = new Vector2Int();
     private float sinCounter;
 
     public DivingState(Player player) {
@@ -26,14 +28,15 @@ public class DivingState extends State {
         animationTime = 0;
         sinCounter = player.diveStartingSinCount;
 
-        diveForce = new Vector2(player.diveSpeed * MathUtils.sin(sinCounter) * InputAxis.getHorizontalAxis() * InputAxis.movementVectorNormalizationMultiplier(),
-                player.diveSpeed * MathUtils.sin(sinCounter) * InputAxis.getVerticalAxis() * InputAxis.movementVectorNormalizationMultiplier());
-        diveDirection = new Vector2(player.direction.x, player.direction.y);
+        diveForce = new Vector2(player.diveSpeed * MathUtils.sin(sinCounter) * InputAxis.getHorizontalAxis(),
+                player.diveSpeed * MathUtils.sin(sinCounter) * InputAxis.getVerticalAxis());
+        diveDirection = new Vector2Int(player.direction.x, player.direction.y);
+        super.update();
     }
 
     @Override
     void createAnimations() {
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 5; i++) {
             int indexOfAnimation = i + ANIMATIONS.Character_RollDown.ordinal();
             animations.add(new Animation<>(.07f, player.spritesheets.get(indexOfAnimation)));
             animations.get(i).setPlayMode(Animation.PlayMode.NORMAL);
@@ -41,9 +44,9 @@ public class DivingState extends State {
     }
 
 
+
     @Override
     public void update() {
-        super.update();
         player.xVel = diveForce.x;
         player.yVel = diveForce.y;
         setDiveForce();
@@ -51,7 +54,7 @@ public class DivingState extends State {
 
     @Override
     public void handleInput() {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.E) && sinCounter > MathUtils.PI - player.diveEndTimeFrame) {
+        if (InputAxis.isDiveButtonPressed() && sinCounter > MathUtils.PI - player.diveEndTimeFrame) {
             player.walkingState.enter();
         }
     }
@@ -66,7 +69,19 @@ public class DivingState extends State {
         if (sinCounter >= MathUtils.PI) {
             sinCounter = MathUtils.PI;
         }
-        diveForce = new Vector2(player.diveSpeed * MathUtils.sin(sinCounter) * diveDirection.x * InputAxis.movementVectorNormalizationMultiplier(),
-                player.diveSpeed * MathUtils.sin(sinCounter) * diveDirection.y * InputAxis.movementVectorNormalizationMultiplier());
+
+        Vector2 normalizedDiveDirection = getNormalizedDiveDirection(diveDirection);
+        System.out.println(normalizedDiveDirection.x);
+        diveForce = new Vector2(player.diveSpeed * MathUtils.sin(sinCounter) * normalizedDiveDirection.x,
+                player.diveSpeed * MathUtils.sin(sinCounter) * normalizedDiveDirection.y);
+    }
+
+    private Vector2 getNormalizedDiveDirection(Vector2Int diveDirection) {
+        Vector2 diveDirectionVector2 = new Vector2(diveDirection.x, diveDirection.y);
+        float magnitude = diveDirectionVector2.len();
+        if (magnitude > 1) {
+            magnitude = 1;
+        }
+        return new Vector2(diveDirectionVector2.nor().x * magnitude, diveDirectionVector2.nor().y * magnitude);
     }
 }

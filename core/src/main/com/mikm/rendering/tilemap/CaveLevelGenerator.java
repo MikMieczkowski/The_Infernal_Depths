@@ -17,7 +17,7 @@ import java.util.Random;
 
 public class CaveLevelGenerator {
     public static final int mapWidth = 80, mapHeight = 60;
-    private final int randomFillPercent = 50;
+    private final int randomFillPercent = 40;
     //must be rounded to tenths
     private final float randomRockSpawnPercent = .5f;
     private final long seed = 21;
@@ -200,5 +200,9 @@ public class CaveLevelGenerator {
             }
         }
         return rockLayer;
+    }
+
+    public boolean playerCanSpawnAt(int x, int y) {
+        return ruleCellPositions[x/Application.defaultTileWidth - 1][y/Application.defaultTileHeight - 1];
     }
 }

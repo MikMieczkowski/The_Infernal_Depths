@@ -48,7 +48,6 @@ public abstract class State {
     public void setCurrentAnimation() {
         for (Vector2Int direction : Vector2Int.DIRECTIONS) {
             if (player.direction.equals(direction)) {
-                System.out.println(direction.animationIndex);
                 currentAnimation = animations.get(direction.animationIndex);
             }
         }

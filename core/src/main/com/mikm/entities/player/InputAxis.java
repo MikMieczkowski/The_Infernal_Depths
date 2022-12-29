@@ -2,10 +2,36 @@ package com.mikm.entities.player;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.mikm.Vector2Int;
+import com.badlogic.gdx.math.Vector2;
+import com.mikm.rendering.screens.Application;
 
 public class InputAxis {
-    public static int getHorizontalAxis() {
+    private final static float deadzone = .2f;
+
+    public static int getHorizontalAxisInt() {
+        if (Application.usingController) {
+            float controllerXAxis = Application.controller.getAxis(0);
+            if (controllerXAxis > deadzone) {
+                return 1;
+            }
+            if (controllerXAxis < -deadzone) {
+                return -1;
+            }
+            return 0;
+        } else {
+            return keyboardHorizontalAxisInt();
+        }
+    }
+
+    public static float getHorizontalAxis() {
+        float magnitude = movementVector().len();
+        if (magnitude > 1) {
+            magnitude = 1;
+        }
+        return movementVector().nor().x * magnitude;
+    }
+
+    private static int keyboardHorizontalAxisInt() {
         if (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
             return 1;
         }
@@ -15,7 +41,30 @@ public class InputAxis {
         return 0;
     }
 
-    public static int getVerticalAxis() {
+    public static int getVerticalAxisInt() {
+        if (Application.usingController) {
+            float controllerYAxis = Application.controller.getAxis(1);
+            if (controllerYAxis > deadzone) {
+                return -1;
+            }
+            if (controllerYAxis < -deadzone) {
+                return 1;
+            }
+            return 0;
+        } else {
+            return keyboardVerticalAxisInt();
+        }
+    }
+
+    public static float getVerticalAxis() {
+        float magnitude = movementVector().len();
+        if (magnitude > 1) {
+            magnitude = 1;
+        }
+        return movementVector().nor().y * magnitude;
+    }
+
+    private static int keyboardVerticalAxisInt() {
         if (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)) {
             return 1;
         }
@@ -25,20 +74,43 @@ public class InputAxis {
         return 0;
     }
 
-    public static float movementVectorNormalizationMultiplier() {
-        final float oneOverSqrtTwo = 1 / (float)Math.sqrt(2);
-        if (getHorizontalAxis() != 0 && getVerticalAxis() != 0) {
-            return oneOverSqrtTwo;
+    private static Vector2 movementVector() {
+        Vector2 vector;
+        if (Application.usingController) {
+            vector = new Vector2(controllerXAxis(), controllerYAxis());
         } else {
-            return 1;
+            vector = new Vector2(keyboardHorizontalAxisInt(), keyboardVerticalAxisInt());
         }
+        return vector;
     }
 
-    public static Vector2Int getDirection() {
-        return new Vector2Int(getHorizontalAxis(), getVerticalAxis());
+    private static float controllerXAxis() {
+        float controllerXAxis = Application.controller.getAxis(0);
+        if (Math.abs(controllerXAxis) > deadzone) {
+            return controllerXAxis;
+        }
+        return 0;
+    }
+
+    private static float controllerYAxis() {
+        float controllerYAxis = Application.controller.getAxis(1);
+        if (Math.abs(controllerYAxis) > deadzone) {
+            return -controllerYAxis;
+        }
+        return 0;
     }
 
     public static boolean isMoving() {
-        return getHorizontalAxis() != 0 || getVerticalAxis() != 0;
+        if (Application.usingController) {
+            float controllerXAxis = Application.controller.getAxis(0);
+            float controllerYAxis = Application.controller.getAxis(1);
+            return Math.abs(controllerXAxis) > .2f || (Math.abs(controllerYAxis) > .2f) || getHorizontalAxis() != 0 || getVerticalAxis() != 0;
+        } else {
+            return getHorizontalAxis() != 0 || getVerticalAxis() != 0;
+        }
+    }
+
+    public static boolean isDiveButtonPressed() {
+        return Gdx.input.isKeyJustPressed(Input.Keys.E) || Application.xPressed;
     }
 }
