@@ -2,8 +2,11 @@ package com.mikm.entities.player;
 
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.controllers.Controller;
+import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.mikm.Vector2Int;
@@ -12,6 +15,7 @@ import com.mikm.entities.player.states.DivingState;
 import com.mikm.entities.player.states.StandingState;
 import com.mikm.entities.player.states.State;
 import com.mikm.entities.player.states.WalkingState;
+import com.mikm.rendering.screens.Application;
 import com.mikm.rendering.screens.GameScreen;
 
 import java.util.ArrayList;
@@ -27,7 +31,7 @@ public class Player extends Entity {
     public final float diveFriction = .3f;
     public final float diveFrictionSpeed = .317f;
     public final float diveStartingSinCount = 1;
-    public final float diveEndTimeFrame = .3f;
+    public final float diveEndTimeFrame = 0.2f;
 
     public Group group;
     private PlayerHeldItem playerHeldItem;
@@ -60,7 +64,7 @@ public class Player extends Entity {
         currentState.handleInput();
         checkWallCollisions();
         if (InputAxis.isMoving()) {
-            direction = new Vector2Int(InputAxis.getHorizontalAxis(), InputAxis.getVerticalAxis());
+            direction = new Vector2Int(InputAxis.getHorizontalAxisInt(), InputAxis.getVerticalAxisInt());
         }
         x += xVel;
         y += yVel;

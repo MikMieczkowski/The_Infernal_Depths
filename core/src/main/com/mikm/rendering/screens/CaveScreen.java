@@ -13,6 +13,8 @@ public class CaveScreen extends GameScreen {
     public final TextureRegion[][] caveTileset;
     public final TextureRegion[][] rockImages;
 
+    CaveLevelGenerator caveLevelGenerator;
+
     CaveScreen(Application application, TextureAtlas textureAtlas) {
         super(application, textureAtlas);
 
@@ -50,8 +52,12 @@ public class CaveScreen extends GameScreen {
     }
 
     private void createTiledMapRenderer() {
-        CaveLevelGenerator caveLevelGenerator = new CaveLevelGenerator(this);
+        caveLevelGenerator = new CaveLevelGenerator(this);
         tiledMap = caveLevelGenerator.createTiledMap();
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, 1);
+    }
+
+    public boolean canPlayerSpawnAt(int x, int y) {
+        return caveLevelGenerator.playerCanSpawnAt(x, y);
     }
 }

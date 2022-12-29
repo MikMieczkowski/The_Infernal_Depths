@@ -18,7 +18,7 @@ public class StandingState extends State{
 
     @Override
     void createAnimations() {
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 5; i++) {
             int indexOfAnimation = i + ANIMATIONS.Character_WalkDown.ordinal();
             TextureRegion firstImageInAnimation = player.spritesheets.get(indexOfAnimation)[0];
             animations.add(new Animation<>(2f, firstImageInAnimation));

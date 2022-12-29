@@ -23,14 +23,14 @@ public class Vector2Int {
 
     public static Vector2Int ZERO = new Vector2Int(0, 0);
 
-    public static Vector2Int LEFT = new Vector2Int(-1, 0, 4);
-    public static Vector2Int RIGHT = new Vector2Int(1, 0, 4);
-    public static Vector2Int UP = new Vector2Int(0, 1, 5);
+    public static Vector2Int LEFT = new Vector2Int(-1, 0, 2);
+    public static Vector2Int RIGHT = new Vector2Int(1, 0, 2);
+    public static Vector2Int UP = new Vector2Int(0, 1, 3);
     public static Vector2Int DOWN = new Vector2Int(0, -1, 0);
-    public static Vector2Int UPLEFT = new Vector2Int(-1, 1, 7);
-    public static Vector2Int UPRIGHT = new Vector2Int(1, 1, 7);
-    public static Vector2Int DOWNLEFT = new Vector2Int(-1, -1, 2);
-    public static Vector2Int DOWNRIGHT = new Vector2Int(1, -1, 2);
+    public static Vector2Int UPLEFT = new Vector2Int(-1, 1, 4);
+    public static Vector2Int UPRIGHT = new Vector2Int(1, 1, 4);
+    public static Vector2Int DOWNLEFT = new Vector2Int(-1, -1, 1);
+    public static Vector2Int DOWNRIGHT = new Vector2Int(1, -1, 1);
     public static Vector2Int[] DIRECTIONS = new Vector2Int[]{LEFT, RIGHT, UP, DOWN, UPLEFT, UPRIGHT, DOWNLEFT, DOWNRIGHT};
 
 

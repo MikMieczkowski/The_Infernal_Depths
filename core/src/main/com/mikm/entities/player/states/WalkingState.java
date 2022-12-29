@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.mikm.entities.player.ANIMATIONS;
 import com.mikm.entities.player.InputAxis;
 import com.mikm.entities.player.Player;
+import com.mikm.rendering.screens.Application;
 
 
 public class WalkingState extends State{
@@ -15,7 +16,7 @@ public class WalkingState extends State{
 
     @Override
     void createAnimations() {
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 5; i++) {
             int indexOfAnimation = i + ANIMATIONS.Character_WalkDown.ordinal();
             animations.add(new Animation<>(.33f, player.spritesheets.get(indexOfAnimation)));
             animations.get(i).setPlayMode(Animation.PlayMode.LOOP);
@@ -26,13 +27,13 @@ public class WalkingState extends State{
     @Override
     public void update() {
         super.update();
-        player.xVel = InputAxis.getHorizontalAxis() * player.speed * InputAxis.movementVectorNormalizationMultiplier();
-        player.yVel = InputAxis.getVerticalAxis() * player.speed * InputAxis.movementVectorNormalizationMultiplier();
+        player.xVel = InputAxis.getHorizontalAxis() * player.speed;
+        player.yVel = InputAxis.getVerticalAxis() * player.speed;
     }
 
     @Override
     public void handleInput() {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+        if (InputAxis.isDiveButtonPressed()) {
             player.divingState.enter();
         }
         if (!InputAxis.isMoving()) {
