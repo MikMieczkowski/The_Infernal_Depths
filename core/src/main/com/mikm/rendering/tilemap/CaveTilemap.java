@@ -17,7 +17,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 public class CaveTilemap {
-    public static final int mapWidth = 80, mapHeight = 60;
+    public static final int mapWidth = 200, mapHeight = 200;
     final static int randomFillPercent = 50;
     //must be rounded to tenths
     private final float randomRockSpawnPercent = .5f;
@@ -36,7 +36,11 @@ public class CaveTilemap {
 
     public CaveTilemap(CaveScreen caveScreen) {
         ruleCell = createCaveRuleCell(caveScreen.caveTileset);
-        wallImages = Arrays.copyOfRange(caveScreen.caveTileset[2], 0, 3 + 1);
+        wallImages = new TextureRegion[5];
+        for (int i = 0; i < 4; i++) {
+            wallImages[i] = caveScreen.caveTileset[2][i];
+        }
+        wallImages[4] = caveScreen.caveTileset[1][2];
         floorImage = ruleCell.spritesheet[2][4];
         rockImages = caveScreen.rockImages;
         random = new Random();
@@ -100,8 +104,8 @@ public class CaveTilemap {
     }
 
     private void fillUncollidableLayerWithWallsAt(int y, int x, TiledMapTileLayer uncollidableLayer) {
-        TiledMapTileLayer.Cell[] wallCell = new TiledMapTileLayer.Cell[4];
-        for (int i = 0; i < 4; i++) {
+        TiledMapTileLayer.Cell[] wallCell = new TiledMapTileLayer.Cell[5];
+        for (int i = 0; i < 5; i++) {
             wallCell[i] = new TiledMapTileLayer.Cell();
             wallCell[i].setTile(new StaticTiledMapTile(wallImages[i]));
         }
@@ -117,7 +121,7 @@ public class CaveTilemap {
     private TiledMapTileLayer.Cell getCorrectWallCell(int y, int x, TiledMapTileLayer.Cell[] wallCell) {
         if (x - 1 < 0 || !ruleCellPositions[y+1][x-1]) {
             if (x+1 > mapWidth - 1 || !ruleCellPositions[y+1][x+1]) {
-                return wallCell[2];
+                return wallCell[4];
             }
             return wallCell[0];
         }

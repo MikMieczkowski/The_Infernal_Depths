@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.mikm.entities.player.Player;
 
 public class Camera {
-    private final float zoom = .5f;
+    private final float zoom = .3333f;
     private final float cameraSpeed = .2f;
 
     public OrthographicCamera orthographicCamera;
