@@ -5,6 +5,7 @@ import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
+import com.mikm.Vector2Int;
 import com.mikm.rendering.screens.Application;
 import com.mikm.rendering.screens.CaveScreen;
 import com.mikm.rendering.tilemap.ruleCell.RuleCell;
@@ -15,9 +16,9 @@ import com.mikm.rendering.tilemap.ruleCell.RuleCellTiledMapTileLayer;
 import java.util.Arrays;
 import java.util.Random;
 
-public class CaveLevelGenerator {
+public class CaveTilemap {
     public static final int mapWidth = 80, mapHeight = 60;
-    private final int randomFillPercent = 40;
+    final static int randomFillPercent = 50;
     //must be rounded to tenths
     private final float randomRockSpawnPercent = .5f;
     private final long seed = 21;
@@ -28,12 +29,12 @@ public class CaveLevelGenerator {
     private final TextureRegion[][] rockImages;
 
     private final Random random;
-    private boolean[][] ruleCellPositions;
+    private static boolean[][] ruleCellPositions;
 
     private boolean useWallCell1 = false;
 
 
-    public CaveLevelGenerator(CaveScreen caveScreen) {
+    public CaveTilemap(CaveScreen caveScreen) {
         ruleCell = createCaveRuleCell(caveScreen.caveTileset);
         wallImages = Arrays.copyOfRange(caveScreen.caveTileset[2], 0, 3 + 1);
         floorImage = ruleCell.spritesheet[2][4];
@@ -65,58 +66,10 @@ public class CaveLevelGenerator {
     }
 
     private RuleCellTiledMapTileLayer createRuleCellTiledMapTileLayer() {
-        ruleCellPositions = new boolean[mapHeight][mapWidth];
+        RuleCellPositionGenerator ruleCellPositionGenerator = new RuleCellPositionGenerator(random);
+        ruleCellPositions = ruleCellPositionGenerator.createRuleCellPositions();
 
-        fillRuleCellPositionsRandomly();
-        for (int i = 0; i < 5; i++) {
-            smoothRuleCellPositions();
-        }
         return createRuleCellLayerFromRuleCellPositions();
-    }
-
-    private void fillRuleCellPositionsRandomly() {
-        for (int y = mapHeight - 1; y >= 0; y--) {
-            for (int x = 0; x < mapWidth; x++) {
-                if (x == 0 || x == mapWidth - 1 || y == 0 || y == mapHeight - 1) {
-                    ruleCellPositions[y][x] = true;
-                } else {
-                    ruleCellPositions[y][x] = (random.nextInt(100) < randomFillPercent);
-                }
-            }
-        }
-    }
-
-    private void smoothRuleCellPositions() {
-        for (int y = mapHeight - 1; y >= 0; y--) {
-            for (int x = 0; x < mapWidth; x++) {
-                int neighboringWallCount = getNeighboringCellCount(y, x);
-                if (neighboringWallCount > 4) {
-                    ruleCellPositions[y][x] = true;
-                } else if (neighboringWallCount < 4){
-                    ruleCellPositions[y][x] = false;
-                }
-            }
-        }
-    }
-
-    private int getNeighboringCellCount(int y, int x) {
-        int count = 0;
-        for (int i = -1; i <= 1; i++) {
-            for (int j = -1; j <= 1; j++) {
-                if (i == 0 && j == 0) {
-                    continue;
-                }
-                boolean outOfBounds = (x+j < 0 || x+j > mapWidth - 1 || y+i < 0 || y+i > mapHeight - 1);
-                if (outOfBounds) {
-                    count++;
-                    continue;
-                }
-                if (ruleCellPositions[y + i][x + j]) {
-                    count++;
-                }
-            }
-        }
-        return count;
     }
 
     private RuleCellTiledMapTileLayer createRuleCellLayerFromRuleCellPositions() {
@@ -202,7 +155,12 @@ public class CaveLevelGenerator {
         return rockLayer;
     }
 
-    public boolean playerCanSpawnAt(int x, int y) {
-        return ruleCellPositions[x/Application.defaultTileWidth - 1][y/Application.defaultTileHeight - 1];
+    public static boolean isRuleCellAtPosition(int x, int y) {
+        Vector2Int tilePos = new Vector2Int(x/Application.defaultTileWidth, y/Application.defaultTileHeight);
+        boolean outOfBounds = (tilePos.x < 0 || tilePos.x > mapWidth - 1 || tilePos.y < 0 || tilePos.y > mapHeight - 1);
+        if (outOfBounds) {
+            return true;
+        }
+        return ruleCellPositions[tilePos.y][tilePos.x];
     }
 }

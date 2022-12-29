@@ -7,12 +7,10 @@ import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Vector2;
 import com.mikm.Vector2Int;
-import com.mikm.entities.player.InputAxis;
 import com.mikm.entities.player.Player;
 import com.mikm.rendering.TextureAtlasUtils;
-import com.mikm.rendering.tilemap.CaveLevelGenerator;
+import com.mikm.rendering.tilemap.CaveTilemap;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -46,6 +44,7 @@ public class Application extends Game {
 		Vector2Int playerPosition = spawnablePosition();
 		player.x = playerPosition.x;
 		player.y = playerPosition.y;
+		caveScreen.camera.setPositionDirectlyToPlayerPosition();
 		setScreen(caveScreen);
 
 
@@ -86,14 +85,20 @@ public class Application extends Game {
 	}
 
 	private Vector2Int spawnablePosition() {
-//		Random random = new Random();
-//		int randomX;
-//		int randomY;
-//		do {
-//			randomX = random.nextInt(CaveLevelGenerator.mapWidth * 16);
-//			randomY = random.nextInt(CaveLevelGenerator.mapHeight * 16);
-//		} while (!caveScreen.canPlayerSpawnAt(randomX, randomY));
-//		return new Vector2Int(randomX, randomY);
-		return new Vector2Int(500, 500);
+		Random random = new Random();
+		int randomX;
+		int randomY;
+		int count = 0;
+		do {
+			randomX = random.nextInt(CaveTilemap.mapWidth * Application.defaultTileWidth);
+			randomY = random.nextInt(CaveTilemap.mapHeight * Application.defaultTileHeight);
+			randomX = randomX/Application.defaultTileWidth*Application.defaultTileWidth;
+			randomY = randomY/Application.defaultTileHeight*Application.defaultTileHeight;
+			count++;
+			if (count > 500) {
+				return new Vector2Int(0, 0);
+			}
+		} while (CaveTilemap.isRuleCellAtPosition(randomX, randomY));
+		return new Vector2Int(randomX-8, randomY-8);
 	}
 }

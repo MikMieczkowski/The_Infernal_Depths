@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.mikm.entities.player.Player;
 
 public class Camera {
-    private final float zoom = .25f;
+    private final float zoom = .5f;
     private final float cameraSpeed = .2f;
 
     public OrthographicCamera orthographicCamera;
@@ -31,7 +31,7 @@ public class Camera {
         orthographicCamera.position.set(new Vector3(x, y, 0));
     }
 
-    private void setPositionDirectlyToPlayerPosition() {
+    public void setPositionDirectlyToPlayerPosition() {
         x = player.x + Player.playerWidthPixels / 2f;
         y = player.y + Player.playerHeightPixels / 2f;
     }

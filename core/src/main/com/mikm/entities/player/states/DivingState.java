@@ -71,7 +71,6 @@ public class DivingState extends State {
         }
 
         Vector2 normalizedDiveDirection = getNormalizedDiveDirection(diveDirection);
-        System.out.println(normalizedDiveDirection.x);
         diveForce = new Vector2(player.diveSpeed * MathUtils.sin(sinCounter) * normalizedDiveDirection.x,
                 player.diveSpeed * MathUtils.sin(sinCounter) * normalizedDiveDirection.y);
     }
