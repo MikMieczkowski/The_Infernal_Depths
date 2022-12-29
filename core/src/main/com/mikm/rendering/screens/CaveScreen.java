@@ -1,5 +1,7 @@
 package com.mikm.rendering.screens;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -12,6 +14,7 @@ public class CaveScreen extends GameScreen {
     private final Color caveWallColor = new Color(41/255f, 16/255f, 16/255f, 1);
     public final TextureRegion[][] caveTileset;
     public final TextureRegion[][] rockImages;
+    private Music caveSong;
 
     CaveTilemap caveTilemap;
 
@@ -20,6 +23,9 @@ public class CaveScreen extends GameScreen {
 
         caveTileset = textureAtlas.findRegion("caveTiles").split(Application.defaultTileWidth, Application.defaultTileHeight);
         rockImages = textureAtlas.findRegion("rocks").split(Application.defaultTileWidth, Application.defaultTileHeight);
+        Music caveSong = Gdx.audio.newMusic(Gdx.files.internal("sound/caveTheme.mp3"));
+        caveSong.play();
+        caveSong.setLooping(true);
 
         createTiledMapRenderer();
     }
@@ -48,6 +54,7 @@ public class CaveScreen extends GameScreen {
     @Override
     public void dispose() {
         super.dispose();
+        caveSong.dispose();
     }
 
     private void createTiledMapRenderer() {
