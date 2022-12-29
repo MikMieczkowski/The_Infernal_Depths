@@ -1,16 +1,11 @@
 package com.mikm.rendering.screens;
 
-import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.mikm.rendering.tilemap.CaveLevelGenerator;
-import com.mikm.rendering.tilemap.ruleCell.RuleCell;
-import com.mikm.rendering.tilemap.ruleCell.RuleCellMetadata;
-import com.mikm.rendering.tilemap.ruleCell.RuleCellMetadataReader;
 
 public class CaveScreen extends GameScreen {
 
@@ -21,13 +16,10 @@ public class CaveScreen extends GameScreen {
     CaveScreen(Application application, TextureAtlas textureAtlas) {
         super(application, textureAtlas);
 
-
         caveTileset = textureAtlas.findRegion("caveTiles").split(Application.defaultTileWidth, Application.defaultTileHeight);
-
         rockImages = textureAtlas.findRegion("rocks").split(Application.defaultTileWidth, Application.defaultTileHeight);
 
         createTiledMapRenderer();
-
         stage.addActor(player.group);
     }
 
@@ -62,6 +54,4 @@ public class CaveScreen extends GameScreen {
         tiledMap = caveLevelGenerator.createTiledMap();
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, 1);
     }
-
-
 }
