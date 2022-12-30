@@ -27,6 +27,8 @@ public class Application extends Game {
 	private static boolean xPressedLastFrame = false;
 	public static boolean xPressed = false;
 
+	public static final boolean playMusic = false;
+
 	@Override
 	public void create() {
 		batch = new SpriteBatch();

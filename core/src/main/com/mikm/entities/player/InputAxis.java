@@ -3,6 +3,7 @@ package com.mikm.entities.player;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
+import com.mikm.Vector2Utils;
 import com.mikm.rendering.screens.Application;
 
 public class InputAxis {
@@ -24,11 +25,8 @@ public class InputAxis {
     }
 
     public static float getHorizontalAxis() {
-        float magnitude = movementVector().len();
-        if (magnitude > 1) {
-            magnitude = 1;
-        }
-        return movementVector().nor().x * magnitude;
+        Vector2 normalizedMovementVector = Vector2Utils.normalizeAndScale(movementVector());
+        return normalizedMovementVector.x;
     }
 
     private static int keyboardHorizontalAxisInt() {
@@ -57,11 +55,8 @@ public class InputAxis {
     }
 
     public static float getVerticalAxis() {
-        float magnitude = movementVector().len();
-        if (magnitude > 1) {
-            magnitude = 1;
-        }
-        return movementVector().nor().y * magnitude;
+        Vector2 normalizedMovementVector = Vector2Utils.normalizeAndScale(movementVector());
+        return normalizedMovementVector.y;
     }
 
     private static int keyboardVerticalAxisInt() {

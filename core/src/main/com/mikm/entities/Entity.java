@@ -1,18 +1,34 @@
 package com.mikm.entities;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.mikm.Vector2Int;
+import com.mikm.entities.states.State;
 import com.mikm.rendering.screens.Application;
 import com.mikm.rendering.screens.GameScreen;
 
+import java.util.ArrayList;
+
 public abstract class Entity extends Actor {
     public GameScreen screen;
+
     public float x, y;
     public float xVel, yVel;
+    public float height;
+    public Vector2Int direction = Vector2Int.DOWN;
+    public ArrayList<TextureRegion[]> spritesheets;
+
+    public State<?> currentState;
+
+    public Entity(int x, int y, ArrayList<TextureRegion[]> spritesheets) {
+        this.x = x;
+        this.y = y;
+        this.spritesheets = spritesheets;
+    }
 
     @Override
     public void draw(Batch batch, float alpha) {
@@ -33,6 +49,10 @@ public abstract class Entity extends Actor {
     }
 
     public Rectangle getBounds() {
+        return new Rectangle(x, y, Application.defaultTileWidth, Application.defaultTileHeight);
+    }
+
+    public Rectangle getFullBounds() {
         return new Rectangle(x, y, Application.defaultTileWidth, Application.defaultTileHeight);
     }
 
