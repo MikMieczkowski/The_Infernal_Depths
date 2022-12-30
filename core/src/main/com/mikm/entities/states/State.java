@@ -12,6 +12,7 @@ public abstract class State<E extends Entity> {
     }
 
     public void enter() {
+        animationSet.setCurrentAnimation();
         entity.currentState = this;
     }
 
