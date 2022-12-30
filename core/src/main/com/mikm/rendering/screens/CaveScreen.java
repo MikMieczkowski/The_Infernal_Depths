@@ -24,8 +24,10 @@ public class CaveScreen extends GameScreen {
         caveTileset = textureAtlas.findRegion("caveTiles").split(Application.defaultTileWidth, Application.defaultTileHeight);
         rockImages = textureAtlas.findRegion("rocks").split(Application.defaultTileWidth, Application.defaultTileHeight);
         caveSong = Gdx.audio.newMusic(Gdx.files.internal("sound/caveTheme.mp3"));
-        caveSong.play();
-        caveSong.setLooping(true);
+        if (Application.playMusic) {
+            caveSong.play();
+            caveSong.setLooping(true);
+        }
 
         createTiledMapRenderer();
     }

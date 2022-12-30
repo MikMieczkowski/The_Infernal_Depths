@@ -1,25 +1,23 @@
 package com.mikm.entities.player;
 
 
-import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.mikm.Vector2Int;
 import com.mikm.entities.Entity;
-import com.mikm.entities.player.states.DivingState;
-import com.mikm.entities.player.states.StandingState;
-import com.mikm.entities.player.states.State;
-import com.mikm.entities.player.states.WalkingState;
+import com.mikm.entities.animation.EightDirectionalAnimationSet;
+import com.mikm.entities.player.states.PlayerDivingState;
+import com.mikm.entities.player.states.PlayerRollingState;
+import com.mikm.entities.player.states.PlayerWalkingState;
+import com.mikm.entities.player.states.PlayerStandingState;
 import com.mikm.rendering.screens.GameScreen;
 
 import java.util.ArrayList;
 
 public class Player extends Entity {
-    public Vector2Int direction = Vector2Int.DOWN;
-    public ArrayList<TextureRegion[]> spritesheets;
-
     public static final int playerWidthPixels = 32, playerHeightPixels = 32;
     public final float speed = 2;
     private final boolean noClip = false;
@@ -30,23 +28,28 @@ public class Player extends Entity {
     public final float diveStartingSinCount = 1;
     public final float diveEndTimeFrame = 0.2f;
 
+    public final float rollSpeed = 4;
+    public final float rollStartingSinCount = 0;
+    public final float rollFriction = .3f;
+    public final float rollFrictionSpeed = .317f;
+    public final float rollEndingTime = 0.35f;
+    public final float rollJumpSpeed = .25f;
+    public final float rollJumpHeight = 12f;
+
     public Group group;
     private PlayerHeldItem playerHeldItem;
     private PlayerBackItem playerBackItem;
 
-    public WalkingState walkingState;
-    public DivingState divingState;
-    public StandingState standingState;
-    public State currentState;
+    public PlayerStandingState standingState;
+    public PlayerWalkingState walkingState;
+    public PlayerDivingState divingState;
+    public PlayerRollingState rollingState;
 
     public Player(int x, int y, ArrayList<TextureRegion[]> spritesheets) {
-        this.x = x;
-        this.y = y;
-        this.spritesheets = spritesheets;
+        super(x, y, spritesheets);
 
-        walkingState = new WalkingState(this);
-        divingState = new DivingState(this);
-        standingState = new StandingState(this);
+        createStates();
+
         currentState = standingState;
         createGroup();
     }
@@ -70,18 +73,7 @@ public class Player extends Entity {
 
     @Override
     public void render(Batch batch) {
-        currentState.animationTime += Gdx.graphics.getDeltaTime();
-        drawCurrentAnimation(batch);
-    }
-
-    private void drawCurrentAnimation(Batch batch) {
-        if (currentState.currentAnimation != null) {
-            if (currentState.animationIsFlipped) {
-                batch.draw(currentState.currentAnimation.getKeyFrame(currentState.animationTime), x + playerWidthPixels, y, -playerWidthPixels, playerHeightPixels);
-            } else {
-                batch.draw(currentState.currentAnimation.getKeyFrame(currentState.animationTime), x, y, playerWidthPixels, playerHeightPixels);
-            }
-        }
+        currentState.animationSet.draw(batch);
     }
 
     private void createGroup() {
@@ -99,5 +91,17 @@ public class Player extends Entity {
             return new Rectangle(0, 0, 0,0);
         }
         return new Rectangle(x+8, y+9, 16, 15);
+    }
+
+    @Override
+    public Rectangle getFullBounds() {
+        return new Rectangle(x, y, playerWidthPixels, playerHeightPixels);
+    }
+
+    private void createStates() {
+        walkingState = new PlayerWalkingState(this);
+        divingState = new PlayerDivingState(this);
+        standingState = new PlayerStandingState(this);
+        rollingState = new PlayerRollingState(this);
     }
 }

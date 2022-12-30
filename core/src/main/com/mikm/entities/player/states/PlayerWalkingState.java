@@ -1,26 +1,27 @@
 package com.mikm.entities.player.states;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.mikm.entities.player.ANIMATIONS;
+import com.mikm.entities.animation.EightDirectionalAnimationSet;
 import com.mikm.entities.player.InputAxis;
 import com.mikm.entities.player.Player;
-import com.mikm.rendering.screens.Application;
+import com.mikm.entities.player.PlayerAnimationNames;
+import com.mikm.entities.states.State;
 
 
-public class WalkingState extends State{
-    public WalkingState(Player player) {
+public class PlayerWalkingState extends State<Player> {
+    private final Player player;
+    public PlayerWalkingState(Player player) {
         super(player);
+        this.player = player;
+        animationSet = new EightDirectionalAnimationSet(player, .33f, Animation.PlayMode.LOOP);
+        animationSet.createAnimationsFromSpritesheetRange(5, PlayerAnimationNames.WALK_DOWN.ordinal());
     }
 
     @Override
-    void createAnimations() {
-        for (int i = 0; i < 5; i++) {
-            int indexOfAnimation = i + ANIMATIONS.Character_WalkDown.ordinal();
-            animations.add(new Animation<>(.33f, player.spritesheets.get(indexOfAnimation)));
-            animations.get(i).setPlayMode(Animation.PlayMode.LOOP);
-        }
+    public void enter() {
+        super.enter();
+        //Prevents frame of being in wrong state
+        handleInput();
     }
 
 
