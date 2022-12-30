@@ -18,10 +18,8 @@ public class InputAxis {
             if (controllerXAxis < -deadzone) {
                 return -1;
             }
-            return 0;
-        } else {
-            return keyboardHorizontalAxisInt();
         }
+        return keyboardHorizontalAxisInt();
     }
 
     public static float getHorizontalAxis() {
@@ -48,10 +46,8 @@ public class InputAxis {
             if (controllerYAxis < -deadzone) {
                 return 1;
             }
-            return 0;
-        } else {
-            return keyboardVerticalAxisInt();
         }
+        return keyboardVerticalAxisInt();
     }
 
     public static float getVerticalAxis() {
@@ -72,11 +68,18 @@ public class InputAxis {
     private static Vector2 movementVector() {
         Vector2 vector;
         if (Application.usingController) {
-            vector = new Vector2(controllerXAxis(), controllerYAxis());
+            vector = new Vector2(nonZeroValue(keyboardHorizontalAxisInt(), controllerXAxis()), nonZeroValue(keyboardVerticalAxisInt(), controllerYAxis()));
         } else {
             vector = new Vector2(keyboardHorizontalAxisInt(), keyboardVerticalAxisInt());
         }
         return vector;
+    }
+
+    private static float nonZeroValue(float num1, float num2) {
+        if (num1 != 0) {
+            return num1;
+        }
+        return num2;
     }
 
     private static float controllerXAxis() {
@@ -96,13 +99,7 @@ public class InputAxis {
     }
 
     public static boolean isMoving() {
-        if (Application.usingController) {
-            float controllerXAxis = Application.controller.getAxis(0);
-            float controllerYAxis = Application.controller.getAxis(1);
-            return Math.abs(controllerXAxis) > .2f || (Math.abs(controllerYAxis) > .2f) || getHorizontalAxis() != 0 || getVerticalAxis() != 0;
-        } else {
-            return getHorizontalAxis() != 0 || getVerticalAxis() != 0;
-        }
+        return getHorizontalAxisInt() != 0 || getVerticalAxisInt() != 0;
     }
 
     public static boolean isDiveButtonPressed() {

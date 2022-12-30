@@ -18,7 +18,7 @@ public class PlayerRollingState extends State<Player> {
     public PlayerRollingState(Player player) {
         super(player);
         this.player = player;
-        animationSet = new EightDirectionalAnimationSet(player, .07f, Animation.PlayMode.NORMAL);
+        animationSet = new EightDirectionalAnimationSet(player, .055f, Animation.PlayMode.NORMAL);
         animationSet.createAnimationsFromSpritesheetRange(5, PlayerAnimationNames.ROLL_DOWN.ordinal());
     }
 

@@ -54,7 +54,6 @@ public class Application extends Game {
 			usingController = true;
 			controller = Controllers.getControllers().first();
 		}
-		System.out.println(usingController);
 	}
 
 	@Override

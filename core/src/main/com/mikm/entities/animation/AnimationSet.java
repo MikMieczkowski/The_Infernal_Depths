@@ -35,12 +35,10 @@ public abstract class AnimationSet {
 
     public void draw(Batch batch) {
         animationTime += Gdx.graphics.getDeltaTime();
-        if (currentAnimation != null) {
-            if (animationIsFlipped) {
-                batch.draw(currentAnimation.getKeyFrame(animationTime), entity.x + entity.getFullBounds().width, entity.y+entity.height, -entity.getFullBounds().width, entity.getFullBounds().height);
-            } else {
-                batch.draw(currentAnimation.getKeyFrame(animationTime), entity.x, entity.y+entity.height, entity.getFullBounds().width, entity.getFullBounds().height);
-            }
+        if (animationIsFlipped) {
+            batch.draw(currentAnimation.getKeyFrame(animationTime), entity.x + entity.getFullBounds().width, entity.y+entity.height, -entity.getFullBounds().width, entity.getFullBounds().height);
+        } else {
+            batch.draw(currentAnimation.getKeyFrame(animationTime), entity.x, entity.y+entity.height, entity.getFullBounds().width, entity.getFullBounds().height);
         }
     }
 

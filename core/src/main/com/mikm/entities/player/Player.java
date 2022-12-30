@@ -1,14 +1,12 @@
 package com.mikm.entities.player;
 
 
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.mikm.Vector2Int;
 import com.mikm.entities.Entity;
-import com.mikm.entities.animation.EightDirectionalAnimationSet;
 import com.mikm.entities.player.states.PlayerDivingState;
 import com.mikm.entities.player.states.PlayerRollingState;
 import com.mikm.entities.player.states.PlayerWalkingState;
@@ -50,7 +48,7 @@ public class Player extends Entity {
 
         createStates();
 
-        currentState = standingState;
+        standingState.enter();
         createGroup();
     }
 
