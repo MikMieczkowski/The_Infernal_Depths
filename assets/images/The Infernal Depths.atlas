@@ -35,9 +35,11 @@ Character_WalkUp
 bounds:229,155,128,32
 Character_WalkUpRight
 bounds:229,53,128,32
+Weapons
+bounds:1,1,16,16
 caveTiles
 bounds:1,63,96,192
 rocks
 bounds:391,223,48,32
 sand
-bounds:1,1,16,16
+bounds:19,1,16,16

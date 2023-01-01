@@ -4,13 +4,14 @@ package com.mikm.entities.player;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.scenes.scene2d.Group;
 import com.mikm.Vector2Int;
 import com.mikm.entities.Entity;
 import com.mikm.entities.player.states.PlayerDivingState;
 import com.mikm.entities.player.states.PlayerRollingState;
 import com.mikm.entities.player.states.PlayerWalkingState;
 import com.mikm.entities.player.states.PlayerStandingState;
+import com.mikm.entities.player.weapons.Weapon;
+import com.mikm.entities.player.weapons.WeaponInstances;
 import com.mikm.rendering.screens.GameScreen;
 
 import java.util.ArrayList;
@@ -34,27 +35,32 @@ public class Player extends Entity {
     public final float rollJumpSpeed = .25f;
     public final float rollJumpHeight = 12f;
 
-    public Group group;
-    private PlayerHeldItem playerHeldItem;
-    private PlayerBackItem playerBackItem;
-
     public PlayerStandingState standingState;
     public PlayerWalkingState walkingState;
     public PlayerDivingState divingState;
     public PlayerRollingState rollingState;
 
+    private Weapon currentWeapon;
+    private WeaponInstances WEAPONS;
+    public final ArrayList<TextureRegion[]> spritesheets;
+
+
     public Player(int x, int y, ArrayList<TextureRegion[]> spritesheets) {
-        super(x, y, spritesheets);
+        super(x, y);
+        this.spritesheets = spritesheets;
 
         createStates();
-
         standingState.enter();
-        createGroup();
+    }
+
+    public void setWeapons(WeaponInstances weapons) {
+        this.WEAPONS = weapons;
+        currentWeapon = weapons.sword;
     }
 
     public void setScreen(GameScreen screen) {
         this.screen = screen;
-        screen.stage.addActor(group);
+        screen.stage.addActor(this);
     }
 
     @Override
@@ -71,16 +77,8 @@ public class Player extends Entity {
 
     @Override
     public void render(Batch batch) {
-        currentState.animationSet.draw(batch);
-    }
-
-    private void createGroup() {
-        group = new Group();
-        playerBackItem = new PlayerBackItem();
-        playerHeldItem = new PlayerHeldItem();
-        group.addActor(this);
-        group.addActor(playerBackItem);
-        group.addActor(playerHeldItem);
+        currentState.animationManager.draw(batch);
+        currentWeapon.draw(batch);
     }
 
     @Override
