@@ -5,8 +5,12 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import java.util.ArrayList;
 
-public class TextureAtlasUtils {
-    public static ArrayList<TextureAtlas.AtlasRegion> findRegionsStartingWith(String startsWith, TextureAtlas atlas) {
+public class SpritesheetUtils {
+    private SpritesheetUtils() {
+
+    }
+
+    public static ArrayList<TextureAtlas.AtlasRegion> findAtlasRegionsStartingWith(String startsWith, TextureAtlas atlas) {
         ArrayList<TextureAtlas.AtlasRegion> matched = new ArrayList<>();
         for (int i = 0, n = atlas.getRegions().size; i < n; i++) {
             TextureAtlas.AtlasRegion region = atlas.getRegions().get(i);

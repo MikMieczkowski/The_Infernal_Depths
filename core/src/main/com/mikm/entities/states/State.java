@@ -1,23 +1,23 @@
 package com.mikm.entities.states;
 
 import com.mikm.entities.Entity;
-import com.mikm.entities.animation.AnimationSet;
+import com.mikm.entities.animation.AnimationManager;
 
-public abstract class State<E extends Entity> {
-    public AnimationSet animationSet;
-    public E entity;
+public abstract class State {
+    public AnimationManager animationManager;
+    private final Entity entity;
 
-    public State(E entity) {
+    public State(Entity entity) {
         this.entity = entity;
     }
 
     public void enter() {
-        animationSet.setCurrentAnimation();
+        animationManager.setCurrentAnimation();
         entity.currentState = this;
     }
 
     public void update() {
-        animationSet.setCurrentAnimation();
+        animationManager.setCurrentAnimation();
     }
 
     public abstract void handleInput();

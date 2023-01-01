@@ -9,7 +9,8 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mikm.Vector2Int;
 import com.mikm.entities.player.Player;
-import com.mikm.rendering.TextureAtlasUtils;
+import com.mikm.entities.player.weapons.WeaponInstances;
+import com.mikm.rendering.SpritesheetUtils;
 import com.mikm.rendering.tilemap.CaveTilemap;
 
 import java.util.ArrayList;
@@ -37,18 +38,8 @@ public class Application extends Game {
 		TextureAtlas textureAtlas = assetManager.get("images/The Infernal Depths.atlas", TextureAtlas.class);
 		testTexture = textureAtlas.findRegion("sand").split(defaultTileWidth, defaultTileHeight)[0][0];
 
-		ArrayList<TextureAtlas.AtlasRegion> atlasRegions = TextureAtlasUtils.findRegionsStartingWith("Character", textureAtlas);
-		ArrayList<TextureRegion[]> playerSpritesheets = TextureAtlasUtils.splitAtlasRegionsTo1DArrays(atlasRegions, 32, 32);
-
-		player = new Player(500, 500, playerSpritesheets);
-		caveScreen = new CaveScreen(this, textureAtlas);
-		player.setScreen(caveScreen);
-		Vector2Int playerPosition = spawnablePosition();
-		player.x = playerPosition.x;
-		player.y = playerPosition.y;
-		caveScreen.camera.setPositionDirectlyToPlayerPosition();
+		createPlayerAndCaveScreen(textureAtlas);
 		setScreen(caveScreen);
-
 
 		if (Controllers.getControllers().size != 0) {
 			usingController = true;
@@ -83,6 +74,20 @@ public class Application extends Game {
 		assetManager.load("images/The Infernal Depths.atlas", TextureAtlas.class);
 		assetManager.finishLoading();
 		return assetManager;
+	}
+
+	private void createPlayerAndCaveScreen(TextureAtlas textureAtlas) {
+		ArrayList<TextureAtlas.AtlasRegion> atlasRegions = SpritesheetUtils.findAtlasRegionsStartingWith("Character", textureAtlas);
+		ArrayList<TextureRegion[]> playerSpritesheets = SpritesheetUtils.splitAtlasRegionsTo1DArrays(atlasRegions, 32, 32);
+
+		player = new Player(500, 500, playerSpritesheets);
+		player.setWeapons(new WeaponInstances(textureAtlas, player));
+		caveScreen = new CaveScreen(this, textureAtlas);
+		player.setScreen(caveScreen);
+		Vector2Int playerPosition = spawnablePosition();
+		player.x = playerPosition.x;
+		player.y = playerPosition.y;
+		caveScreen.camera.setPositionDirectlyToPlayerPosition();
 	}
 
 	private Vector2Int spawnablePosition() {

@@ -3,6 +3,9 @@ package com.mikm;
 import com.badlogic.gdx.math.Vector2;
 
 public class Vector2Utils {
+    private Vector2Utils() {
+
+    }
     public static Vector2 normalizeAndScale(Vector2 vector2) {
         float magnitude = vector2.len();
         if (magnitude > 1) {

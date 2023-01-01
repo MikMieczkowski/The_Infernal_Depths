@@ -1,59 +1,26 @@
 package com.mikm.entities;
 
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.mikm.Vector2Int;
 import com.mikm.entities.states.State;
 import com.mikm.rendering.screens.Application;
-import com.mikm.rendering.screens.GameScreen;
 
 import java.util.ArrayList;
 
-public abstract class Entity extends Actor {
-    public GameScreen screen;
+public abstract class Entity extends Image {
 
-    public float x, y;
+
     public float xVel, yVel;
     public float height;
     public Vector2Int direction = Vector2Int.DOWN;
-    public ArrayList<TextureRegion[]> spritesheets;
 
-    public State<?> currentState;
+    public State currentState;
 
-    public Entity(int x, int y, ArrayList<TextureRegion[]> spritesheets) {
+    public Entity(int x, int y) {
         this.x = x;
         this.y = y;
-        this.spritesheets = spritesheets;
-    }
-
-    @Override
-    public void draw(Batch batch, float alpha) {
-        update();
-        render(batch);
-    }
-
-    public abstract void update();
-
-    public abstract void render(Batch batch);
-
-    public int getXInt() {
-        return (int)x;
-    }
-
-    public int getYInt() {
-        return (int)y;
-    }
-
-    public Rectangle getBounds() {
-        return new Rectangle(x, y, Application.defaultTileWidth, Application.defaultTileHeight);
-    }
-
-    public Rectangle getFullBounds() {
-        return new Rectangle(x, y, Application.defaultTileWidth, Application.defaultTileHeight);
     }
 
     public Rectangle getOffsetBoundsH() {
@@ -64,31 +31,13 @@ public abstract class Entity extends Actor {
         return new Rectangle(getBounds().x, getBounds().y + yVel, getBounds().width, getBounds().height);
     }
 
-    public void checkWallCollisions() {
-        TiledMapTileLayer[] collideableLayers = new TiledMapTileLayer[screen.getCollidableTiledMapTileLayerIDs().length];
-        for (int i = 0; i < screen.getCollidableTiledMapTileLayerIDs().length; i++) {
-            collideableLayers[i] = (TiledMapTileLayer) screen.tiledMap.getLayers().get(screen.getCollidableTiledMapTileLayerIDs()[i]);
-        }
-
-        //Check tiles in a 5x5 grid around player
-        for (int i = -2; i <= 2; i++) {
-            for (int j = -2; j <= 2; j++) {
-                for (TiledMapTileLayer collideableLayer : collideableLayers){
-                    Vector2Int wallPositionInTiles = new Vector2Int(getXInt() / Application.defaultTileWidth + i, getYInt() / Application.defaultTileHeight + j);
-                    TiledMapTileLayer.Cell wall = collideableLayer.getCell(wallPositionInTiles.x, wallPositionInTiles.y);
-                    Vector2Int wallPosition = new Vector2Int(wallPositionInTiles.x * Application.defaultTileWidth, wallPositionInTiles.y * Application.defaultTileHeight);
-                    if (wall != null) {
-                        setPositionBasedOnWallIntersection(wallPosition);
-                    }
-                }
-            }
-        }
-
-
+    @Override
+    public void onWallCollision(Vector2Int wallPosition) {
+        setPositionBasedOnWallIntersection(wallPosition);
     }
 
-    private void setPositionBasedOnWallIntersection(Vector2Int cellPosition) {
-        Rectangle wallBounds = new Rectangle(cellPosition.x, cellPosition.y, Application.defaultTileWidth, Application.defaultTileHeight);
+    private void setPositionBasedOnWallIntersection(Vector2Int wallPosition) {
+        Rectangle wallBounds = new Rectangle(wallPosition.x, wallPosition.y, Application.defaultTileWidth, Application.defaultTileHeight);
         if (Intersector.overlaps(getOffsetBoundsH(), wallBounds)) {
             setXPositionToWall(wallBounds);
         }
