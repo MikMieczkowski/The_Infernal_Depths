@@ -1,17 +1,18 @@
 package com.mikm.entities;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.mikm.Vector2Int;
+import com.mikm.entities.states.State;
 import com.mikm.rendering.screens.Application;
 import com.mikm.rendering.screens.GameScreen;
 
-public abstract class Image extends Actor {
+public abstract class Image extends Actor{
     public GameScreen screen;
     public float x, y;
+    public State currentState;
 
     @Override
     public void draw(Batch batch, float alpha) {

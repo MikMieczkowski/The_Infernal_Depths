@@ -1,13 +1,10 @@
 package com.mikm.entities;
 
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.mikm.Vector2Int;
-import com.mikm.entities.states.State;
 import com.mikm.rendering.screens.Application;
 
-import java.util.ArrayList;
 
 public abstract class Entity extends Image {
 
@@ -15,8 +12,6 @@ public abstract class Entity extends Image {
     public float xVel, yVel;
     public float height;
     public Vector2Int direction = Vector2Int.DOWN;
-
-    public State currentState;
 
     public Entity(int x, int y) {
         this.x = x;

@@ -4,14 +4,13 @@ package com.mikm.entities.player;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.mikm.Vector2Int;
 import com.mikm.entities.Entity;
-import com.mikm.entities.player.states.PlayerDivingState;
-import com.mikm.entities.player.states.PlayerRollingState;
-import com.mikm.entities.player.states.PlayerWalkingState;
-import com.mikm.entities.player.states.PlayerStandingState;
+import com.mikm.entities.player.states.*;
 import com.mikm.entities.player.weapons.Weapon;
 import com.mikm.entities.player.weapons.WeaponInstances;
+import com.mikm.input.InputAxis;
 import com.mikm.rendering.screens.GameScreen;
 
 import java.util.ArrayList;
@@ -39,8 +38,9 @@ public class Player extends Entity {
     public PlayerWalkingState walkingState;
     public PlayerDivingState divingState;
     public PlayerRollingState rollingState;
+    public PlayerAttackingState attackingState;
 
-    private Weapon currentWeapon;
+    public Weapon currentWeapon;
     private WeaponInstances WEAPONS;
     public final ArrayList<TextureRegion[]> spritesheets;
 
@@ -65,18 +65,28 @@ public class Player extends Entity {
 
     @Override
     public void update() {
-        currentState.update();
-        currentState.handleInput();
-        checkWallCollisions();
         if (InputAxis.isMoving()) {
             direction = new Vector2Int(InputAxis.getHorizontalAxisInt(), InputAxis.getVerticalAxisInt());
         }
+        currentWeapon.update();
+        currentState.update();
+        currentState.checkForStateTransition();
+        checkWallCollisions();
         x += xVel;
         y += yVel;
     }
 
     @Override
     public void render(Batch batch) {
+        drawPlayerAndWeaponBasedOnZIndex(batch);
+    }
+
+    private void drawPlayerAndWeaponBasedOnZIndex(Batch batch) {
+        if (currentWeapon.zIndex == 0) {
+            currentWeapon.draw(batch);
+            currentState.animationManager.draw(batch);
+            return;
+        }
         currentState.animationManager.draw(batch);
         currentWeapon.draw(batch);
     }
@@ -94,10 +104,15 @@ public class Player extends Entity {
         return new Rectangle(x, y, playerWidthPixels, playerHeightPixels);
     }
 
+    public Vector2 getCenteredPosition() {
+        return new Vector2(x + getFullBounds().width/2, y + getFullBounds().height/2);
+    }
+
     private void createStates() {
         walkingState = new PlayerWalkingState(this);
         divingState = new PlayerDivingState(this);
         standingState = new PlayerStandingState(this);
         rollingState = new PlayerRollingState(this);
+        attackingState = new PlayerAttackingState(this);
     }
 }

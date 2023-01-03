@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.mikm.Vector2Int;
 import com.mikm.entities.player.Player;
 
 public class Camera {
@@ -34,5 +35,9 @@ public class Camera {
     public void setPositionDirectlyToPlayerPosition() {
         x = player.x + Player.playerWidthPixels / 2f;
         y = player.y + Player.playerHeightPixels / 2f;
+    }
+
+    public Vector2Int playerCenteredPositionInScreenCoordinates() {
+        return new Vector2Int((int)(player.getCenteredPosition().x - x) + Gdx.graphics.getWidth() / 2, (int)(player.getCenteredPosition().y - y) + Gdx.graphics.getHeight() / 2);
     }
 }

@@ -4,11 +4,11 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.Vector2Int;
-import com.mikm.Vector2Utils;
+import com.mikm.ExtraMathUtils;
 import com.mikm.entities.animation.AnimationManager;
 import com.mikm.entities.animation.DirectionalAnimationSet;
 import com.mikm.entities.player.PlayerAnimationNames;
-import com.mikm.entities.player.InputAxis;
+import com.mikm.input.InputAxis;
 import com.mikm.entities.player.Player;
 import com.mikm.entities.states.State;
 
@@ -31,7 +31,6 @@ public class PlayerDivingState extends State {
         super.enter();
         player.xVel = 0;
         player.yVel = 0;
-        animationManager.resetTimer();
         sinCounter = player.diveStartingSinCount;
 
         diveForce = new Vector2(player.diveSpeed * MathUtils.sin(sinCounter) * InputAxis.getHorizontalAxis(),
@@ -48,7 +47,7 @@ public class PlayerDivingState extends State {
     }
 
     @Override
-    public void handleInput() {
+    public void checkForStateTransition() {
         if (InputAxis.isDiveButtonPressed() && sinCounter > MathUtils.PI - player.diveEndTimeFrame) {
             player.rollingState.enter();
         }
@@ -65,7 +64,7 @@ public class PlayerDivingState extends State {
             sinCounter = MathUtils.PI;
         }
 
-        Vector2 normalizedDiveDirection = Vector2Utils.normalizeAndScale(diveDirection);
+        Vector2 normalizedDiveDirection = ExtraMathUtils.normalizeAndScale(diveDirection);
         diveForce = new Vector2(player.diveSpeed * MathUtils.sin(sinCounter) * normalizedDiveDirection.x,
                 player.diveSpeed * MathUtils.sin(sinCounter) * normalizedDiveDirection.y);
     }

@@ -12,6 +12,7 @@ public abstract class State {
     }
 
     public void enter() {
+        animationManager.resetTimer();
         animationManager.setCurrentAnimation();
         entity.currentState = this;
     }
@@ -20,5 +21,5 @@ public abstract class State {
         animationManager.setCurrentAnimation();
     }
 
-    public abstract void handleInput();
+    public abstract void checkForStateTransition();
 }

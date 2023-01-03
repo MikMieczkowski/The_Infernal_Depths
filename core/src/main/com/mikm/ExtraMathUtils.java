@@ -1,11 +1,16 @@
 package com.mikm;
 
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
-public class Vector2Utils {
-    private Vector2Utils() {
+public class ExtraMathUtils {
+    private ExtraMathUtils() {
 
     }
+    public static float roundToTenths(float num) {
+        return MathUtils.round(num * 10)/10f;
+    }
+
     public static Vector2 normalizeAndScale(Vector2 vector2) {
         float magnitude = vector2.len();
         if (magnitude > 1) {

@@ -3,7 +3,7 @@ package com.mikm.entities.player.states;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.mikm.entities.animation.AnimationManager;
 import com.mikm.entities.animation.DirectionalAnimationSet;
-import com.mikm.entities.player.InputAxis;
+import com.mikm.input.InputAxis;
 import com.mikm.entities.player.Player;
 import com.mikm.entities.player.PlayerAnimationNames;
 import com.mikm.entities.states.State;
@@ -11,10 +11,12 @@ import com.mikm.entities.states.State;
 
 public class PlayerWalkingState extends State {
     private final Player player;
+    public DirectionalAnimationSet directionalAnimationSet;
+
     public PlayerWalkingState(Player player) {
         super(player);
         this.player = player;
-        DirectionalAnimationSet directionalAnimationSet = new DirectionalAnimationSet(.33f, Animation.PlayMode.LOOP, player.spritesheets, 5, PlayerAnimationNames.WALK_DOWN.ordinal());
+        directionalAnimationSet = new DirectionalAnimationSet(.33f, Animation.PlayMode.LOOP, player.spritesheets, 5, PlayerAnimationNames.WALK_DOWN.ordinal());
         animationManager = new AnimationManager(player, directionalAnimationSet);
     }
 
@@ -22,7 +24,7 @@ public class PlayerWalkingState extends State {
     public void enter() {
         super.enter();
         //Prevents frame of being in wrong state
-        handleInput();
+        checkForStateTransition();
     }
 
 
@@ -34,12 +36,15 @@ public class PlayerWalkingState extends State {
     }
 
     @Override
-    public void handleInput() {
+    public void checkForStateTransition() {
         if (InputAxis.isDiveButtonPressed()) {
             player.divingState.enter();
         }
         if (!InputAxis.isMoving()) {
             player.standingState.enter();
+        }
+        if (InputAxis.isAttackButtonPressed()) {
+            player.attackingState.enter();
         }
     }
 }
