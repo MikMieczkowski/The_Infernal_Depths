@@ -3,7 +3,7 @@ package com.mikm.entities.player.states;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.mikm.entities.animation.AnimationManager;
 import com.mikm.entities.animation.DirectionalAnimationSet;
-import com.mikm.entities.player.InputAxis;
+import com.mikm.input.InputAxis;
 import com.mikm.entities.player.Player;
 import com.mikm.entities.player.PlayerAnimationNames;
 import com.mikm.entities.states.State;
@@ -22,14 +22,19 @@ public class PlayerStandingState extends State {
     @Override
     public void enter() {
         super.enter();
+        player.xVel = 0;
+        player.yVel = 0;
         //Prevents frame of being in wrong state
-        handleInput();
+        checkForStateTransition();
     }
 
     @Override
-    public void handleInput() {
+    public void checkForStateTransition() {
         if (InputAxis.isMoving()) {
             player.walkingState.enter();
+        }
+        if (InputAxis.isAttackButtonPressed()) {
+            player.attackingState.enter();
         }
     }
 }

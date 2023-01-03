@@ -2,7 +2,6 @@ package com.mikm.rendering.screens;
 
 
 import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
@@ -42,7 +41,6 @@ public abstract class GameScreen extends ScreenAdapter {
     @Override
     public void dispose() {
         stage.dispose();
-        textureAtlas.dispose();
         tiledMapRenderer.dispose();
         tiledMap.dispose();
     }

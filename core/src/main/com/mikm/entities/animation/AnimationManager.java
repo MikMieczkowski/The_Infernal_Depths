@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mikm.Vector2Int;
 import com.mikm.entities.Entity;
+import com.mikm.rendering.BatchUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +31,7 @@ public class AnimationManager {
     public void draw(Batch batch) {
         animationTime += Gdx.graphics.getDeltaTime();
         if (animationIsFlipped) {
-            batch.draw(currentAnimation.getKeyFrame(animationTime), entity.x + entity.getFullBounds().width, entity.y+entity.height, -entity.getFullBounds().width, entity.getFullBounds().height);
+            BatchUtils.drawFlipped(batch, currentAnimation.getKeyFrame(animationTime), entity.x, entity.y+entity.height, entity.getFullBounds().width, entity.getFullBounds().height);
         } else {
             batch.draw(currentAnimation.getKeyFrame(animationTime), entity.x, entity.y+entity.height, entity.getFullBounds().width, entity.getFullBounds().height);
         }

@@ -2,14 +2,13 @@ package com.mikm.rendering.screens;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.controllers.Controller;
-import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mikm.Vector2Int;
 import com.mikm.entities.player.Player;
 import com.mikm.entities.player.weapons.WeaponInstances;
+import com.mikm.input.InputAxis;
 import com.mikm.rendering.SpritesheetUtils;
 import com.mikm.rendering.tilemap.CaveTilemap;
 
@@ -22,11 +21,8 @@ public class Application extends Game {
 	private CaveScreen caveScreen;
 	public Player player;
 	public static TextureRegion testTexture;
-
-	public static boolean usingController = false;
-	public static Controller controller;
-	private static boolean xPressedLastFrame = false;
-	public static boolean xPressed = false;
+	private AssetManager assetManager;
+	private TextureAtlas textureAtlas;
 
 	public static final boolean playMusic = false;
 
@@ -34,33 +30,26 @@ public class Application extends Game {
 	public void create() {
 		batch = new SpriteBatch();
 
-		AssetManager assetManager = createAssetManager();
-		TextureAtlas textureAtlas = assetManager.get("images/The Infernal Depths.atlas", TextureAtlas.class);
+		assetManager = createAssetManager();
+		textureAtlas = assetManager.get("images/The Infernal Depths.atlas", TextureAtlas.class);
 		testTexture = textureAtlas.findRegion("sand").split(defaultTileWidth, defaultTileHeight)[0][0];
+		InputAxis.checkForControllers();
 
 		createPlayerAndCaveScreen(textureAtlas);
 		setScreen(caveScreen);
-
-		if (Controllers.getControllers().size != 0) {
-			usingController = true;
-			controller = Controllers.getControllers().first();
-		}
 	}
 
 	@Override
 	public void render() {
-		if (usingController && !xPressedLastFrame && controller.getButton(0)) {
-			xPressed = true;
-		}
+		InputAxis.handleLastFrameInput();
 		renderScreens();
-		if (usingController) {
-			xPressed = false;
-			xPressedLastFrame = controller.getButton(0);
-		}
+		InputAxis.handleThisFrameInput();
 	}
 
 	@Override
-	public void dispose () {
+	public void dispose() {
+		textureAtlas.dispose();
+		assetManager.dispose();
 		batch.dispose();
 		caveScreen.dispose();
 	}
@@ -83,6 +72,7 @@ public class Application extends Game {
 		player = new Player(500, 500, playerSpritesheets);
 		player.setWeapons(new WeaponInstances(textureAtlas, player));
 		caveScreen = new CaveScreen(this, textureAtlas);
+		InputAxis.setCamera(caveScreen.camera);
 		player.setScreen(caveScreen);
 		Vector2Int playerPosition = spawnablePosition();
 		player.x = playerPosition.x;
@@ -107,4 +97,6 @@ public class Application extends Game {
 		} while (CaveTilemap.isRuleCellAtPosition(randomX, randomY));
 		return new Vector2Int(randomX-8, randomY-8);
 	}
+
+
 }

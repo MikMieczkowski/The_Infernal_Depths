@@ -5,7 +5,6 @@ import java.util.HashMap;
 public class Vector2Int {
     public int x;
     public int y;
-    public int animationIndex;
 
     public Vector2Int(int x, int y) {
         this.x = x;
@@ -43,10 +42,10 @@ public class Vector2Int {
         EIGHT_DIRECTIONAL_MAPPINGS.put(DOWNRIGHT, 1);
 
         FOUR_DIRECTIONAL_MAPPINGS = new HashMap<>();
-        FOUR_DIRECTIONAL_MAPPINGS.put(LEFT, 1);
-        FOUR_DIRECTIONAL_MAPPINGS.put(RIGHT, 1);
-        FOUR_DIRECTIONAL_MAPPINGS.put(UP, 2);
-        FOUR_DIRECTIONAL_MAPPINGS.put(DOWN, 0);
+        FOUR_DIRECTIONAL_MAPPINGS.put(LEFT, 0);
+        FOUR_DIRECTIONAL_MAPPINGS.put(RIGHT, 0);
+        FOUR_DIRECTIONAL_MAPPINGS.put(UP, 1);
+        FOUR_DIRECTIONAL_MAPPINGS.put(DOWN, 1);
         FOUR_DIRECTIONAL_MAPPINGS.put(UPLEFT, 1);
         FOUR_DIRECTIONAL_MAPPINGS.put(UPRIGHT, 1);
         FOUR_DIRECTIONAL_MAPPINGS.put(DOWNLEFT, 0);

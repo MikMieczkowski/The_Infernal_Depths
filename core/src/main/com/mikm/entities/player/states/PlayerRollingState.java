@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.entities.animation.AnimationManager;
 import com.mikm.entities.animation.DirectionalAnimationSet;
-import com.mikm.entities.player.InputAxis;
+import com.mikm.input.InputAxis;
 import com.mikm.entities.player.PlayerAnimationNames;
 import com.mikm.entities.player.Player;
 import com.mikm.entities.states.State;
@@ -29,7 +29,6 @@ public class PlayerRollingState extends State {
         super.enter();
         player.xVel = 0;
         player.yVel = 0;
-        animationManager.resetTimer();
         heightSinCounter = 0;
         jumpDone = false;
         rollSpeedSinCounter = player.rollStartingSinCount;
@@ -45,7 +44,7 @@ public class PlayerRollingState extends State {
     }
 
     @Override
-    public void handleInput() {
+    public void checkForStateTransition() {
 
     }
 
