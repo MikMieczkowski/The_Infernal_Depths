@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import java.util.Random;
 
 public class ExtraMathUtils {
-    private static final long seed = 21;
+    private static final long SEED = 21;
     private static final Random random = new Random();
 
     private ExtraMathUtils() {

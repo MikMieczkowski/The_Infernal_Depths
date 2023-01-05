@@ -31,10 +31,10 @@ public class PlayerDivingState extends State {
         super.enter();
         player.xVel = 0;
         player.yVel = 0;
-        sinCounter = player.diveStartingSinCount;
+        sinCounter = player.DIVE_STARTING_SIN_COUNT;
 
-        diveForce = new Vector2(player.diveSpeed * MathUtils.sin(sinCounter) * InputAxis.getHorizontalAxis(),
-                player.diveSpeed * MathUtils.sin(sinCounter) * InputAxis.getVerticalAxis());
+        diveForce = new Vector2(player.DIVE_SPEED * MathUtils.sin(sinCounter) * InputAxis.getHorizontalAxis(),
+                player.DIVE_SPEED * MathUtils.sin(sinCounter) * InputAxis.getVerticalAxis());
         diveDirection = new Vector2Int(player.direction.x, player.direction.y);
         super.update();
     }
@@ -48,14 +48,14 @@ public class PlayerDivingState extends State {
 
     @Override
     public void checkForStateTransition() {
-        if (InputAxis.isDiveButtonPressed() && sinCounter > MathUtils.PI - player.diveEndTimeFrame) {
+        if (InputAxis.isDiveButtonPressed() && sinCounter > MathUtils.PI - player.DIVE_END_TIME_FRAME) {
             player.rollingState.enter();
         }
     }
 
     private void setDiveForce() {
         if (sinCounter < MathUtils.PI) {
-            sinCounter += player.diveFriction - (player.diveFrictionSpeed * player.diveFriction * sinCounter);
+            sinCounter += player.DIVE_FRICTION - (player.DIVE_FRICTION_SPEED * player.DIVE_FRICTION * sinCounter);
         } else {
             player.rollingState.enter();
             return;
@@ -65,7 +65,7 @@ public class PlayerDivingState extends State {
         }
 
         Vector2 normalizedDiveDirection = ExtraMathUtils.normalizeAndScale(diveDirection);
-        diveForce = new Vector2(player.diveSpeed * MathUtils.sin(sinCounter) * normalizedDiveDirection.x,
-                player.diveSpeed * MathUtils.sin(sinCounter) * normalizedDiveDirection.y);
+        diveForce = new Vector2(player.DIVE_SPEED * MathUtils.sin(sinCounter) * normalizedDiveDirection.x,
+                player.DIVE_SPEED * MathUtils.sin(sinCounter) * normalizedDiveDirection.y);
     }
 }

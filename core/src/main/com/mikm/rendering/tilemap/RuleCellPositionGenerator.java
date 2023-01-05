@@ -5,15 +5,15 @@ import com.mikm.Vector2Int;
 
 import java.util.*;
 
-import static com.mikm.rendering.tilemap.CaveTilemap.mapWidth;
-import static com.mikm.rendering.tilemap.CaveTilemap.mapHeight;
+import static com.mikm.rendering.tilemap.CaveTilemap.MAP_WIDTH;
+import static com.mikm.rendering.tilemap.CaveTilemap.MAP_HEIGHT;
 
 //Thanks to Sebastian Lague
 
 class RuleCellPositionGenerator {
-    public final int wallThresholdSize = 50, roomThresholdSize = 50, passageWidth = 1;
+    public final int WALL_THRESHOLD_SIZE = 50, ROOM_THRESHOLD_SIZE = 50, PASSAGE_WIDTH = 1;
 
-    private final boolean[][] ruleCellPositions = new boolean[mapHeight][mapWidth];
+    private final boolean[][] ruleCellPositions = new boolean[MAP_HEIGHT][MAP_WIDTH];
 
     public boolean[][] createRuleCellPositions() {
         fillRuleCellPositionsRandomly();
@@ -25,20 +25,20 @@ class RuleCellPositionGenerator {
     }
 
     private void fillRuleCellPositionsRandomly() {
-        for (int y = mapHeight - 1; y >= 0; y--) {
-            for (int x = 0; x < mapWidth; x++) {
-                if (x == 0 || x == mapWidth - 1 || y == 0 || y == mapHeight - 1) {
+        for (int y = MAP_HEIGHT - 1; y >= 0; y--) {
+            for (int x = 0; x < MAP_WIDTH; x++) {
+                if (x == 0 || x == MAP_WIDTH - 1 || y == 0 || y == MAP_HEIGHT - 1) {
                     ruleCellPositions[y][x] = true;
                 } else {
-                    ruleCellPositions[y][x] = (ExtraMathUtils.randomInt(100) < CaveTilemap.randomFillPercent);
+                    ruleCellPositions[y][x] = (ExtraMathUtils.randomInt(100) < CaveTilemap.FILL_CELL_PERCENT_CHANCE);
                 }
             }
         }
     }
 
     private void smoothRuleCellPositions() {
-        for (int y = mapHeight - 1; y >= 0; y--) {
-            for (int x = 0; x < mapWidth; x++) {
+        for (int y = MAP_HEIGHT - 1; y >= 0; y--) {
+            for (int x = 0; x < MAP_WIDTH; x++) {
                 int neighboringWallCount = getNeighboringCellCount(y, x);
                 if (neighboringWallCount > 4) {
                     ruleCellPositions[y][x] = true;
@@ -56,7 +56,7 @@ class RuleCellPositionGenerator {
                 if (i == 0 && j == 0) {
                     continue;
                 }
-                boolean outOfBounds = (x+j < 0 || x+j > mapWidth - 1 || y+i < 0 || y+i > mapHeight - 1);
+                boolean outOfBounds = (x+j < 0 || x+j > MAP_WIDTH - 1 || y+i < 0 || y+i > MAP_HEIGHT - 1);
                 if (outOfBounds) {
                     count++;
                     continue;
@@ -71,11 +71,12 @@ class RuleCellPositionGenerator {
 
     private void ProcessMap()
     {
+
         List<List<Vector2Int>> wallRegions = GetRegions(true);
 
         for(List<Vector2Int> wallRegion : wallRegions)
         {
-            if (wallRegion.size() < wallThresholdSize)
+            if (wallRegion.size() < WALL_THRESHOLD_SIZE)
             {
                 for(Vector2Int tile : wallRegion)
                 {
@@ -89,7 +90,7 @@ class RuleCellPositionGenerator {
 
         for (List<Vector2Int> roomRegion : roomRegions)
         {
-            if (roomRegion.size() < roomThresholdSize)
+            if (roomRegion.size() < ROOM_THRESHOLD_SIZE)
             {
                 for (Vector2Int tile : roomRegion)
                 {
@@ -100,7 +101,10 @@ class RuleCellPositionGenerator {
                 survivingRooms.add(new CaveRoom(roomRegion, ruleCellPositions));
             }
         }
-
+        if (survivingRooms.size() == 0) {
+            System.out.println("Map was empty");
+            return;
+        }
         survivingRooms.sort(Comparator.naturalOrder());
         survivingRooms.get(0).isMainRoom = true;
         survivingRooms.get(0).isAccesibleFromMainRoom = true;
@@ -197,7 +201,7 @@ class RuleCellPositionGenerator {
         List<Vector2Int> line = GetLine(tileA, tileB);
         for (Vector2Int c : line)
         {
-            DrawCircle(c, passageWidth);
+            DrawCircle(c, PASSAGE_WIDTH);
         }
 
     }
@@ -278,11 +282,11 @@ class RuleCellPositionGenerator {
     private List<List<Vector2Int>> GetRegions(boolean tileType)
     {
         List<List<Vector2Int>> regions = new ArrayList<>();
-        boolean[][] mapFlags = new boolean[mapHeight][mapWidth];
+        boolean[][] mapFlags = new boolean[MAP_HEIGHT][MAP_WIDTH];
 
-        for (int y = mapHeight - 1; y >= 0; y--)
+        for (int y = MAP_HEIGHT - 1; y >= 0; y--)
         {
-            for (int x = 0; x < mapWidth; x++)
+            for (int x = 0; x < MAP_WIDTH; x++)
             {
                 if (!mapFlags[y][x] && ruleCellPositions[y][x] == tileType)
                 {
@@ -302,7 +306,7 @@ class RuleCellPositionGenerator {
     private List<Vector2Int> getRegionTiles(int startY, int startX)
     {
         List<Vector2Int> tiles = new ArrayList<>();
-        boolean[][] mapFlags = new boolean[mapHeight][mapWidth];
+        boolean[][] mapFlags = new boolean[MAP_HEIGHT][MAP_WIDTH];
         boolean tileType = ruleCellPositions[startY][startX];
 
         LinkedList<Vector2Int> queue = new LinkedList<>();
@@ -334,7 +338,7 @@ class RuleCellPositionGenerator {
 
     private boolean IsInMapRange(int y, int x)
     {
-        return x >= 0 && x < mapWidth && y >= 0 && y < mapHeight;
+        return x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT;
     }
 
     private int sign(int n) {

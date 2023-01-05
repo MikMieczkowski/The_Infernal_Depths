@@ -31,7 +31,7 @@ public class PlayerRollingState extends State {
         player.yVel = 0;
         heightSinCounter = 0;
         jumpDone = false;
-        rollSpeedSinCounter = player.rollStartingSinCount;
+        rollSpeedSinCounter = player.ROLL_STARTING_SIN_COUNT;
     }
 
     @Override
@@ -49,8 +49,8 @@ public class PlayerRollingState extends State {
     }
 
     private void setRollForce() {
-        if (rollSpeedSinCounter < MathUtils.PI - player.rollEndingTime) {
-            rollSpeedSinCounter += player.rollFriction - (player.rollFrictionSpeed * player.rollFriction * rollSpeedSinCounter);
+        if (rollSpeedSinCounter < MathUtils.PI - player.ROLL_ENDING_TIME) {
+            rollSpeedSinCounter += player.ROLL_FRICTION - (player.ROLL_FRICTION_SPEED * player.ROLL_FRICTION * rollSpeedSinCounter);
         } else {
             player.height = 0;
             player.walkingState.enter();
@@ -61,21 +61,21 @@ public class PlayerRollingState extends State {
         }
 
 
-        rollForce = new Vector2(player.rollSpeed * MathUtils.sin(rollSpeedSinCounter) * InputAxis.getHorizontalAxis(),
-                player.rollSpeed * MathUtils.sin(rollSpeedSinCounter) * InputAxis.getVerticalAxis());
+        rollForce = new Vector2(player.ROLL_SPEED * MathUtils.sin(rollSpeedSinCounter) * InputAxis.getHorizontalAxis(),
+                player.ROLL_SPEED * MathUtils.sin(rollSpeedSinCounter) * InputAxis.getVerticalAxis());
     }
 
     private void setJumpHeight() {
         if (!jumpDone) {
             if (heightSinCounter < MathUtils.PI) {
-                heightSinCounter += player.rollJumpSpeed;
+                heightSinCounter += player.ROLL_JUMP_SPEED;
             }
             if (heightSinCounter >= MathUtils.PI) {
                 heightSinCounter = 0;
                 player.startSquish(0.01f, 1.2f);
                 jumpDone = true;
             }
-            player.height = player.rollJumpHeight * MathUtils.sin(heightSinCounter);
+            player.height = player.ROLL_JUMP_HEIGHT * MathUtils.sin(heightSinCounter);
         }
     }
 }

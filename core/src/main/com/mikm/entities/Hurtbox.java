@@ -8,6 +8,7 @@ public class Hurtbox extends UnanimatedEntity {
     private TextureRegion image;
     private boolean breaksByWalls;
     public Hurtbox(TextureRegion image, boolean breaksByWalls) {
+        super(0, 0);
         this.image = image;
         this.breaksByWalls = breaksByWalls;
     }

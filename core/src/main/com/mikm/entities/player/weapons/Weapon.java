@@ -78,13 +78,13 @@ public abstract class Weapon {
             weaponAngle += angleOffset;
         }
 
-        x = ExtraMathUtils.roundToTenths(player.getCenteredPosition().x + orbitDistance * MathUtils.cos(weaponAngle) - getFullBounds().width/2);
-        y = ExtraMathUtils.roundToTenths(player.getCenteredPosition().y + orbitDistance * MathUtils.sin(weaponAngle) - getFullBounds().height/2) - 6;
+        x = player.getCenteredPosition().x + orbitDistance * MathUtils.cos(weaponAngle) - getFullBounds().width/2;
+        y = player.getCenteredPosition().y + orbitDistance * MathUtils.sin(weaponAngle) - getFullBounds().height/2 - 6;
         return new Vector2(x, y);
     }
 
     public Rectangle getFullBounds() {
-        return new Rectangle(x, y, Application.defaultTileWidth, Application.defaultTileHeight);
+        return new Rectangle(x, y, Application.TILE_WIDTH, Application.TILE_HEIGHT);
     }
 
     public void draw(Batch batch) {
