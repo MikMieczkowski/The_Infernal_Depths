@@ -9,7 +9,7 @@ public class WeaponInstances {
     public Sword sword;
 
     public WeaponInstances(TextureAtlas atlas, Player player) {
-        TextureRegion swordSprite = atlas.findRegion("Weapons").split(Application.defaultTileWidth, Application.defaultTileHeight)[0][0];
+        TextureRegion swordSprite = atlas.findRegion("Weapons").split(Application.TILE_WIDTH, Application.TILE_HEIGHT)[0][0];
         TextureRegion[] sliceSpritesheet = atlas.findRegion("swordSlice").split(32, 32)[0];
         sword = new Sword(swordSprite, sliceSpritesheet, player);
     }

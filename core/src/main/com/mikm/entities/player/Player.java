@@ -1,40 +1,36 @@
 package com.mikm.entities.player;
 
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.jogamp.opengl.util.glsl.ShaderProgram;
 import com.mikm.Vector2Int;
 import com.mikm.entities.Entity;
 import com.mikm.entities.player.states.*;
 import com.mikm.entities.player.weapons.Weapon;
 import com.mikm.entities.player.weapons.WeaponInstances;
 import com.mikm.input.InputAxis;
-import com.mikm.rendering.screens.Application;
 
 import java.util.ArrayList;
 
 public class Player extends Entity {
-    public static final int playerWidthPixels = 32, playerHeightPixels = 32;
-    private final boolean noClip = false;
+    public static final int PLAYER_WIDTH_PIXELS = 32, PLAYER_HEIGHT_PIXELS = 32;
+    private final boolean NO_CLIP = false;
 
-    public final float diveSpeed = 6;
-    public final float diveFriction = .3f;
-    public final float diveFrictionSpeed = .317f;
-    public final float diveStartingSinCount = 1;
-    public final float diveEndTimeFrame = 0.2f;
+    public final float DIVE_SPEED = 6;
+    public final float DIVE_FRICTION = .3f;
+    public final float DIVE_FRICTION_SPEED = .317f;
+    public final float DIVE_STARTING_SIN_COUNT = 1;
+    public final float DIVE_END_TIME_FRAME = 0.2f;
 
-    public final float rollSpeed = 4;
-    public final float rollStartingSinCount = 0;
-    public final float rollFriction = .3f;
-    public final float rollFrictionSpeed = .317f;
-    public final float rollEndingTime = 0.35f;
-    public final float rollJumpSpeed = .25f;
-    public final float rollJumpHeight = 12f;
+    public final float ROLL_SPEED = 4;
+    public final float ROLL_STARTING_SIN_COUNT = 0;
+    public final float ROLL_FRICTION = .3f;
+    public final float ROLL_FRICTION_SPEED = .317f;
+    public final float ROLL_ENDING_TIME = 0.35f;
+    public final float ROLL_JUMP_SPEED = .25f;
+    public final float ROLL_JUMP_HEIGHT = 12f;
 
     public PlayerStandingState standingState;
     public PlayerWalkingState walkingState;
@@ -43,18 +39,18 @@ public class Player extends Entity {
     public PlayerAttackingState attackingState;
 
     public Weapon currentWeapon;
-    private WeaponInstances WEAPONS;
+    private WeaponInstances weaponInstances;
 
 
     public Player(int x, int y, ArrayList<TextureRegion[]> spritesheets) {
         super(x, y, spritesheets);
-        originX = playerWidthPixels/2f;
+        originX = PLAYER_WIDTH_PIXELS/2f;
         originY = 0;
         speed = 2;
     }
 
     public void setWeapons(WeaponInstances weapons) {
-        this.WEAPONS = weapons;
+        this.weaponInstances = weapons;
         currentWeapon = weapons.sword;
     }
 
@@ -67,15 +63,8 @@ public class Player extends Entity {
         super.update();
     }
 
-    float time;
     @Override
     public void render(Batch batch) {
-        time += Gdx.graphics.getDeltaTime();
-        batch.setShader(Application.shader);
-        Application.shader.bind();
-        Application.shader.setUniformf("u_amount", 1f);
-        Application.shader.setUniformf("u_speed", 2f);
-        Application.shader.setUniformf("u_time", time);
         drawPlayerAndWeaponBasedOnZIndex(batch);
     }
 
@@ -91,7 +80,7 @@ public class Player extends Entity {
 
     @Override
     public Rectangle getBounds() {
-        if (noClip) {
+        if (NO_CLIP) {
             return new Rectangle(0, 0, 0,0);
         }
         return new Rectangle(x+8, y+9, 16, 15);
@@ -99,7 +88,7 @@ public class Player extends Entity {
 
     @Override
     public Rectangle getFullBounds() {
-        return new Rectangle(x, y, playerWidthPixels, playerHeightPixels);
+        return new Rectangle(x, y, PLAYER_WIDTH_PIXELS, PLAYER_HEIGHT_PIXELS);
     }
 
     public Vector2 getCenteredPosition() {

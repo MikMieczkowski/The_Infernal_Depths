@@ -1,13 +1,12 @@
 package com.mikm.rendering.screens;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.mikm.Vector2Int;
 import com.mikm.rendering.tilemap.CaveTilemap;
 
 import java.util.ArrayList;
@@ -22,7 +21,6 @@ public class CaveScreen extends GameScreen {
     public ArrayList<TextureRegion[]> slimeSpritesheet;
     private Music caveSong;
 
-
     CaveScreen(Application application, Music caveSong, TextureAtlas textureAtlas) {
         super(application, textureAtlas);
 
@@ -31,14 +29,15 @@ public class CaveScreen extends GameScreen {
 
         createTiledMapRenderer();
         caveTilemap.spawnEnemies();
+
     }
 
     private void createImages(TextureAtlas textureAtlas) {
-        caveTileset = textureAtlas.findRegion("caveTiles").split(Application.defaultTileWidth, Application.defaultTileHeight);
-        rockImages = textureAtlas.findRegion("rocks").split(Application.defaultTileWidth, Application.defaultTileHeight);
+        caveTileset = textureAtlas.findRegion("caveTiles").split(Application.TILE_WIDTH, Application.TILE_HEIGHT);
+        rockImages = textureAtlas.findRegion("rocks").split(Application.TILE_WIDTH, Application.TILE_HEIGHT);
 
         slimeSpritesheet = new ArrayList<>();
-        TextureRegion[] slimeSpritesheetSplit = textureAtlas.findRegion("slime").split(Application.defaultTileWidth, Application.defaultTileHeight)[0];
+        TextureRegion[] slimeSpritesheetSplit = textureAtlas.findRegion("slime").split(Application.TILE_WIDTH, Application.TILE_HEIGHT)[0];
         slimeSpritesheet.add(new TextureRegion[]{slimeSpritesheetSplit[0]});
         slimeSpritesheet.add(new TextureRegion[]{slimeSpritesheetSplit[0], slimeSpritesheetSplit[1]});
         slimeSpritesheet.add(new TextureRegion[]{slimeSpritesheetSplit[2], slimeSpritesheetSplit[3], slimeSpritesheetSplit[4]});
@@ -57,13 +56,15 @@ public class CaveScreen extends GameScreen {
         return new int[]{1, 2};
     }
 
-    float time = 1;
     @Override
     public void render(float delta) {
         ScreenUtils.clear(caveWallColor);
         application.batch.begin();
-        tiledMapRenderer.setView(camera.orthographicCamera);
+        application.batch.disableBlending();
         camera.update();
+        application.batch.setProjectionMatrix(camera.orthographicCamera.combined);
+        //omitting stage.getBatch().setProjectionMatrix(camera.orthographicCamera.combined);
+        tiledMapRenderer.setView(camera.orthographicCamera);
         drawAssets();
         application.batch.end();
     }
@@ -84,5 +85,9 @@ public class CaveScreen extends GameScreen {
         caveTilemap = new CaveTilemap(this);
         tiledMap = caveTilemap.createTiledMap();
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, 1);
+    }
+
+    public ArrayList<Vector2Int> getOpenTilePositions() {
+        return caveTilemap.getOpenTilePositions();
     }
 }
