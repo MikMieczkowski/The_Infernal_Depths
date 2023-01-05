@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mikm.Vector2Int;
 
-public class Hurtbox extends Image {
+public class Hurtbox extends UnanimatedEntity {
     private TextureRegion image;
     private boolean breaksByWalls;
     public Hurtbox(TextureRegion image, boolean breaksByWalls) {

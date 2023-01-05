@@ -8,7 +8,7 @@ import com.mikm.entities.animation.DirectionalAnimationSet;
 import com.mikm.input.InputAxis;
 import com.mikm.entities.player.PlayerAnimationNames;
 import com.mikm.entities.player.Player;
-import com.mikm.entities.states.State;
+import com.mikm.entities.State;
 
 public class PlayerRollingState extends State {
     private final Player player;
@@ -72,6 +72,7 @@ public class PlayerRollingState extends State {
             }
             if (heightSinCounter >= MathUtils.PI) {
                 heightSinCounter = 0;
+                player.startSquish(0.01f, 1.2f);
                 jumpDone = true;
             }
             player.height = player.rollJumpHeight * MathUtils.sin(heightSinCounter);

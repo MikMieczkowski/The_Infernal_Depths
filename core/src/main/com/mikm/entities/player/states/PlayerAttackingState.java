@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.mikm.entities.animation.AnimationManager;
 import com.mikm.entities.animation.DirectionalAnimationSet;
 import com.mikm.entities.player.Player;
-import com.mikm.entities.states.State;
+import com.mikm.entities.State;
 import com.mikm.input.InputAxis;
 
 public class PlayerAttackingState extends State {
@@ -30,6 +30,7 @@ public class PlayerAttackingState extends State {
     @Override
     public void update() {
         player.currentWeapon.attackUpdate();
+        player.currentWeapon.checkForHit();
         attackTimer += Gdx.graphics.getDeltaTime();
         player.xVel = InputAxis.getHorizontalAxis() * player.speed;
         player.yVel = InputAxis.getVerticalAxis() * player.speed;

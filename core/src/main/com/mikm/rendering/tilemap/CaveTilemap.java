@@ -5,6 +5,7 @@ import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
+import com.mikm.ExtraMathUtils;
 import com.mikm.Vector2Int;
 import com.mikm.rendering.screens.Application;
 import com.mikm.rendering.screens.CaveScreen;
@@ -19,31 +20,30 @@ import java.util.Random;
 public class CaveTilemap {
     public static final int mapWidth = 200, mapHeight = 200;
     final static int randomFillPercent = 50;
-    //must be rounded to tenths
-    private final float randomRockSpawnPercent = .5f;
-    private final long seed = 21;
 
     private final RuleCell ruleCell;
-    private final TextureRegion[] wallImages;
-    private final TextureRegion floorImage;
-    private final TextureRegion[][] rockImages;
+    private TextureRegion[] wallImages;
+    private TextureRegion floorImage;
 
-    private final Random random;
     private static boolean[][] ruleCellPositions;
-
     private boolean useWallCell1 = false;
 
+    private CaveTilemapEntitySpawner spawner;
 
     public CaveTilemap(CaveScreen caveScreen) {
         ruleCell = createCaveRuleCell(caveScreen.caveTileset);
+        createImages(caveScreen);
+
+        RuleCellPositionGenerator ruleCellPositionGenerator = new RuleCellPositionGenerator();
+        ruleCellPositions = ruleCellPositionGenerator.createRuleCellPositions();
+        spawner = new CaveTilemapEntitySpawner(caveScreen, ruleCellPositions);
+    }
+
+    private void createImages(CaveScreen caveScreen) {
         wallImages = new TextureRegion[5];
-        for (int i = 0; i < 4; i++) {
-            wallImages[i] = caveScreen.caveTileset[2][i];
-        }
+        System.arraycopy(caveScreen.caveTileset[2], 0, wallImages, 0, 4);
         wallImages[4] = caveScreen.caveTileset[1][2];
         floorImage = ruleCell.spritesheet[2][4];
-        rockImages = caveScreen.rockImages;
-        random = new Random();
     }
 
     private RuleCell createCaveRuleCell(TextureRegion[][] caveTileset) {
@@ -52,10 +52,11 @@ public class CaveTilemap {
         return new RuleCell(caveTileset, metadata);
     }
 
+    //Called by CaveScreen
     public TiledMap createTiledMap() {
-        RuleCellTiledMapTileLayer ruleCellLayer = createRuleCellTiledMapTileLayer();
+        RuleCellTiledMapTileLayer ruleCellLayer = createRuleCellLayerFromRuleCellPositions();
         TiledMapTileLayer uncollidableLayer = createUncollidableLayer();
-        TiledMapTileLayer rockLayer = createRockLayer();
+        TiledMapTileLayer rockLayer = spawner.createRockLayer();
 
         return createMapFromLayers(ruleCellLayer, uncollidableLayer, rockLayer);
     }
@@ -67,13 +68,6 @@ public class CaveTilemap {
         mapLayers.add(ruleCellLayer);
         mapLayers.add(rockLayer);
         return tiledMap;
-    }
-
-    private RuleCellTiledMapTileLayer createRuleCellTiledMapTileLayer() {
-        RuleCellPositionGenerator ruleCellPositionGenerator = new RuleCellPositionGenerator(random);
-        ruleCellPositions = ruleCellPositionGenerator.createRuleCellPositions();
-
-        return createRuleCellLayerFromRuleCellPositions();
     }
 
     private RuleCellTiledMapTileLayer createRuleCellLayerFromRuleCellPositions() {
@@ -136,29 +130,6 @@ public class CaveTilemap {
         }
     }
 
-    private TiledMapTileLayer createRockLayer() {
-        TiledMapTileLayer rockLayer = new TiledMapTileLayer(mapWidth, mapHeight, Application.defaultTileWidth, Application.defaultTileHeight);
-        TiledMapTileLayer.Cell[] rockCells = new TiledMapTileLayer.Cell[3];
-
-        for (int i = 0; i < 3; i++) {
-            rockCells[i] = new TiledMapTileLayer.Cell();
-            rockCells[i].setTile(new StaticTiledMapTile(rockImages[0][i]));
-        }
-
-        for (int y = mapHeight - 1; y >= 0; y--) {
-            for (int x = 0; x < mapWidth; x++) {
-                boolean inOpenTile = !ruleCellPositions[y][x] && y + 1 <= mapHeight - 1 && !ruleCellPositions[y+1][x];
-                if (inOpenTile) {
-                    if (random.nextInt(1000) < 10 * randomRockSpawnPercent) {
-                        TiledMapTileLayer.Cell randomRockCell = rockCells[random.nextInt(3)];
-                        rockLayer.setCell(x, y, randomRockCell);
-                    }
-                }
-            }
-        }
-        return rockLayer;
-    }
-
     public static boolean isRuleCellAtPosition(int x, int y) {
         Vector2Int tilePos = new Vector2Int(x/Application.defaultTileWidth, y/Application.defaultTileHeight);
         boolean outOfBounds = (tilePos.x < 0 || tilePos.x > mapWidth - 1 || tilePos.y < 0 || tilePos.y > mapHeight - 1);
@@ -166,5 +137,9 @@ public class CaveTilemap {
             return true;
         }
         return ruleCellPositions[tilePos.y][tilePos.x];
+    }
+
+    public void spawnEnemies() {
+        spawner.spawnEnemies();
     }
 }

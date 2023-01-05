@@ -1,4 +1,4 @@
-package com.mikm.rendering.tilemap;
+package com.mikm.rendering.tilemap.ruleCell;
 
 public class TileRulesetTransformer {
     public static TileRuleset[] createRotatedRulesetsFrom(TileRuleset originalRuleset) {

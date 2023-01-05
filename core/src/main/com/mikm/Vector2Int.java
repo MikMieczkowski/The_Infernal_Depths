@@ -29,6 +29,7 @@ public class Vector2Int {
 
     public static HashMap<Vector2Int, Integer> EIGHT_DIRECTIONAL_MAPPINGS;
     public static HashMap<Vector2Int, Integer> FOUR_DIRECTIONAL_MAPPINGS;
+    public static HashMap<Vector2Int, Integer> TWO_DIRECTIONAL_MAPPINGS;
 
     static {
         EIGHT_DIRECTIONAL_MAPPINGS = new HashMap<>();
@@ -50,6 +51,16 @@ public class Vector2Int {
         FOUR_DIRECTIONAL_MAPPINGS.put(UPRIGHT, 1);
         FOUR_DIRECTIONAL_MAPPINGS.put(DOWNLEFT, 0);
         FOUR_DIRECTIONAL_MAPPINGS.put(DOWNRIGHT, 0);
+
+        TWO_DIRECTIONAL_MAPPINGS = new HashMap<>();
+        TWO_DIRECTIONAL_MAPPINGS.put(LEFT, 0);
+        TWO_DIRECTIONAL_MAPPINGS.put(RIGHT, 0);
+        TWO_DIRECTIONAL_MAPPINGS.put(UP, 0);
+        TWO_DIRECTIONAL_MAPPINGS.put(DOWN, 0);
+        TWO_DIRECTIONAL_MAPPINGS.put(UPLEFT, 0);
+        TWO_DIRECTIONAL_MAPPINGS.put(UPRIGHT, 0);
+        TWO_DIRECTIONAL_MAPPINGS.put(DOWNLEFT, 0);
+        TWO_DIRECTIONAL_MAPPINGS.put(DOWNRIGHT, 0);
     }
 
     @Override

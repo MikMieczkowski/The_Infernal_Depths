@@ -4,8 +4,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.mikm.Vector2Int;
-import com.mikm.rendering.tilemap.CellPresence;
-import com.mikm.rendering.tilemap.TileRuleset;
 
 import java.util.Map;
 

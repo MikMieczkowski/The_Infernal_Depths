@@ -136,7 +136,10 @@ public class InputAxis {
     }
 
     public static boolean isAttackButtonPressed() {
-        return Gdx.input.justTouched() || isR2JustPressed;
+        if (usingController) {
+            return Gdx.input.isTouched() || controller.getAxis(DS4Buttons.AXIS_R2) > 0;
+        }
+        return Gdx.input.isTouched();
     }
 
     public static void handleLastFrameInput() {

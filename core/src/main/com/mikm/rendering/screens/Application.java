@@ -1,10 +1,13 @@
 package com.mikm.rendering.screens;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.mikm.Vector2Int;
 import com.mikm.entities.player.Player;
 import com.mikm.entities.player.weapons.WeaponInstances;
@@ -26,9 +29,15 @@ public class Application extends Game {
 
 	public static final boolean playMusic = false;
 
+	public static ShaderProgram shader;
+
 	@Override
 	public void create() {
 		batch = new SpriteBatch();
+		shader = new ShaderProgram(batch.getShader().getVertexShaderSource(), Gdx.files.internal("images/underwater.frag").readString());
+		if (!shader.isCompiled()){
+			throw new RuntimeException(shader.getLog());
+		}
 
 		assetManager = createAssetManager();
 		textureAtlas = assetManager.get("images/The Infernal Depths.atlas", TextureAtlas.class);
@@ -52,6 +61,7 @@ public class Application extends Game {
 		assetManager.dispose();
 		batch.dispose();
 		caveScreen.dispose();
+		shader.dispose();
 	}
 
 	private void renderScreens() {
@@ -61,6 +71,7 @@ public class Application extends Game {
 	private AssetManager createAssetManager() {
 		AssetManager assetManager = new AssetManager();
 		assetManager.load("images/The Infernal Depths.atlas", TextureAtlas.class);
+		assetManager.load("sound/caveTheme.mp3", Music.class);
 		assetManager.finishLoading();
 		return assetManager;
 	}
@@ -71,7 +82,7 @@ public class Application extends Game {
 
 		player = new Player(500, 500, playerSpritesheets);
 		player.setWeapons(new WeaponInstances(textureAtlas, player));
-		caveScreen = new CaveScreen(this, textureAtlas);
+		caveScreen = new CaveScreen(this, assetManager.get("sound/caveTheme.mp3", Music.class), textureAtlas);
 		InputAxis.setCamera(caveScreen.camera);
 		player.setScreen(caveScreen);
 		Vector2Int playerPosition = spawnablePosition();

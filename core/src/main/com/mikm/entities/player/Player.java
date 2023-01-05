@@ -1,23 +1,25 @@
 package com.mikm.entities.player;
 
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.jogamp.opengl.util.glsl.ShaderProgram;
 import com.mikm.Vector2Int;
 import com.mikm.entities.Entity;
 import com.mikm.entities.player.states.*;
 import com.mikm.entities.player.weapons.Weapon;
 import com.mikm.entities.player.weapons.WeaponInstances;
 import com.mikm.input.InputAxis;
-import com.mikm.rendering.screens.GameScreen;
+import com.mikm.rendering.screens.Application;
 
 import java.util.ArrayList;
 
 public class Player extends Entity {
     public static final int playerWidthPixels = 32, playerHeightPixels = 32;
-    public final float speed = 2;
     private final boolean noClip = false;
 
     public final float diveSpeed = 6;
@@ -42,25 +44,18 @@ public class Player extends Entity {
 
     public Weapon currentWeapon;
     private WeaponInstances WEAPONS;
-    public final ArrayList<TextureRegion[]> spritesheets;
 
 
     public Player(int x, int y, ArrayList<TextureRegion[]> spritesheets) {
-        super(x, y);
-        this.spritesheets = spritesheets;
-
-        createStates();
-        standingState.enter();
+        super(x, y, spritesheets);
+        originX = playerWidthPixels/2f;
+        originY = 0;
+        speed = 2;
     }
 
     public void setWeapons(WeaponInstances weapons) {
         this.WEAPONS = weapons;
         currentWeapon = weapons.sword;
-    }
-
-    public void setScreen(GameScreen screen) {
-        this.screen = screen;
-        screen.stage.addActor(this);
     }
 
     @Override
@@ -69,15 +64,18 @@ public class Player extends Entity {
             direction = new Vector2Int(InputAxis.getHorizontalAxisInt(), InputAxis.getVerticalAxisInt());
         }
         currentWeapon.update();
-        currentState.update();
-        currentState.checkForStateTransition();
-        checkWallCollisions();
-        x += xVel;
-        y += yVel;
+        super.update();
     }
 
+    float time;
     @Override
     public void render(Batch batch) {
+        time += Gdx.graphics.getDeltaTime();
+        batch.setShader(Application.shader);
+        Application.shader.bind();
+        Application.shader.setUniformf("u_amount", 1f);
+        Application.shader.setUniformf("u_speed", 2f);
+        Application.shader.setUniformf("u_time", time);
         drawPlayerAndWeaponBasedOnZIndex(batch);
     }
 
@@ -108,11 +106,18 @@ public class Player extends Entity {
         return new Vector2(x + getFullBounds().width/2, y + getFullBounds().height/2);
     }
 
-    private void createStates() {
+    @Override
+    public void createStates() {
         walkingState = new PlayerWalkingState(this);
         divingState = new PlayerDivingState(this);
         standingState = new PlayerStandingState(this);
         rollingState = new PlayerRollingState(this);
         attackingState = new PlayerAttackingState(this);
+        standingState.enter();
+    }
+
+    @Override
+    public int getMaxHp() {
+        return 3;
     }
 }

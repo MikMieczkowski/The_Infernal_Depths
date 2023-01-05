@@ -1,9 +1,10 @@
 package com.mikm.rendering.tilemap;
 
+import com.mikm.rendering.tilemap.ruleCell.TileRuleset;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static com.mikm.rendering.tilemap.CellPresence.*;
+import static com.mikm.rendering.tilemap.ruleCell.CellPresence.*;
 
 class TileRulesetTest {
     @Test

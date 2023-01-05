@@ -6,7 +6,7 @@ import com.mikm.entities.animation.DirectionalAnimationSet;
 import com.mikm.input.InputAxis;
 import com.mikm.entities.player.Player;
 import com.mikm.entities.player.PlayerAnimationNames;
-import com.mikm.entities.states.State;
+import com.mikm.entities.State;
 
 
 public class PlayerWalkingState extends State {
