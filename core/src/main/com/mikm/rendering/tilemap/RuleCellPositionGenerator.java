@@ -1,5 +1,6 @@
 package com.mikm.rendering.tilemap;
 
+import com.mikm.ExtraMathUtils;
 import com.mikm.Vector2Int;
 
 import java.util.*;
@@ -10,15 +11,9 @@ import static com.mikm.rendering.tilemap.CaveTilemap.mapHeight;
 //Thanks to Sebastian Lague
 
 class RuleCellPositionGenerator {
-    private final Random random;
-
     public final int wallThresholdSize = 50, roomThresholdSize = 50, passageWidth = 1;
 
-    private boolean[][] ruleCellPositions = new boolean[mapHeight][mapWidth];
-
-    RuleCellPositionGenerator(Random random) {
-        this.random = random;
-    }
+    private final boolean[][] ruleCellPositions = new boolean[mapHeight][mapWidth];
 
     public boolean[][] createRuleCellPositions() {
         fillRuleCellPositionsRandomly();
@@ -35,7 +30,7 @@ class RuleCellPositionGenerator {
                 if (x == 0 || x == mapWidth - 1 || y == 0 || y == mapHeight - 1) {
                     ruleCellPositions[y][x] = true;
                 } else {
-                    ruleCellPositions[y][x] = (random.nextInt(100) < CaveTilemap.randomFillPercent);
+                    ruleCellPositions[y][x] = (ExtraMathUtils.randomInt(100) < CaveTilemap.randomFillPercent);
                 }
             }
         }

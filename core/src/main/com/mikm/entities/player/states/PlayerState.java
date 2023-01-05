@@ -1,7 +1,7 @@
 package com.mikm.entities.player.states;
 
 import com.mikm.entities.player.Player;
-import com.mikm.entities.states.State;
+import com.mikm.entities.State;
 
 public class PlayerState extends State {
     final Player player;

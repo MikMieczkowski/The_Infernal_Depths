@@ -3,10 +3,36 @@ package com.mikm;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
+import java.util.Random;
+
 public class ExtraMathUtils {
+    private static final long seed = 21;
+    private static final Random random = new Random();
+
     private ExtraMathUtils() {
 
     }
+
+    public static int randomInt(int min, int max) {
+        return random.nextInt(min, max);
+    }
+
+    public static int randomInt(int max) {
+        return random.nextInt(max);
+    }
+
+    public static float randomFloat(float min, float max) {
+        return min + random.nextFloat() * (max - min);
+    }
+
+    public static boolean randomBoolean() {
+        return random.nextBoolean();
+    }
+
+    public static float randomFloatOneDecimalPlace(int max) {
+        return random.nextInt(max * 10)/10f;
+    }
+
     public static float roundToTenths(float num) {
         return MathUtils.round(num * 10)/10f;
     }

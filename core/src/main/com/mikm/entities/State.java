@@ -1,11 +1,10 @@
-package com.mikm.entities.states;
+package com.mikm.entities;
 
-import com.mikm.entities.Entity;
 import com.mikm.entities.animation.AnimationManager;
 
 public abstract class State {
     public AnimationManager animationManager;
-    private final Entity entity;
+    public final Entity entity;
 
     public State(Entity entity) {
         this.entity = entity;
@@ -13,12 +12,12 @@ public abstract class State {
 
     public void enter() {
         animationManager.resetTimer();
-        animationManager.setCurrentAnimation();
+        animationManager.setCurrentAnimationDirectionally();
         entity.currentState = this;
     }
 
     public void update() {
-        animationManager.setCurrentAnimation();
+        animationManager.setCurrentAnimationDirectionally();
     }
 
     public abstract void checkForStateTransition();

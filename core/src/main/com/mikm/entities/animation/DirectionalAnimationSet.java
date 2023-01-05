@@ -58,6 +58,6 @@ public class DirectionalAnimationSet {
         if (animations.size() == 5) {
             return Vector2Int.EIGHT_DIRECTIONAL_MAPPINGS;
         }
-        return Vector2Int.FOUR_DIRECTIONAL_MAPPINGS;
+        return Vector2Int.TWO_DIRECTIONAL_MAPPINGS;
     }
 }

@@ -14,14 +14,21 @@ import java.util.Map;
 public class AnimationManager {
     private float animationTime;
     private boolean animationIsFlipped = false;
-    Animation<TextureRegion> currentAnimation;
+    private Animation<TextureRegion> currentAnimation;
+    private final boolean nonDirectional;
 
     Entity entity;
-    private final DirectionalAnimationSet directionalAnimationSet;
+    private DirectionalAnimationSet directionalAnimationSet;
+
+    public AnimationManager(Entity entity) {
+        this.entity = entity;
+        nonDirectional = true;
+    }
 
     public AnimationManager(Entity entity, DirectionalAnimationSet directionalAnimationSet) {
         this.entity = entity;
         this.directionalAnimationSet = directionalAnimationSet;
+        nonDirectional = false;
     }
 
     void checkIfFlipped() {
@@ -29,11 +36,14 @@ public class AnimationManager {
     }
 
     public void draw(Batch batch) {
+        entity.updateSquish();
         animationTime += Gdx.graphics.getDeltaTime();
         if (animationIsFlipped) {
-            BatchUtils.drawFlipped(batch, currentAnimation.getKeyFrame(animationTime), entity.x, entity.y+entity.height, entity.getFullBounds().width, entity.getFullBounds().height);
+            BatchUtils.drawFlipped(batch, currentAnimation.getKeyFrame(animationTime), entity.x, entity.y+entity.height,
+                    entity.originX, entity.originY, entity.getFullBounds().width, entity.getFullBounds().height, entity.xScale, entity.yScale, entity.rotation, true);
         } else {
-            batch.draw(currentAnimation.getKeyFrame(animationTime), entity.x, entity.y+entity.height, entity.getFullBounds().width, entity.getFullBounds().height);
+            batch.draw(currentAnimation.getKeyFrame(animationTime), entity.x, entity.y+entity.height, entity.originX,
+                    entity.originY, entity.getFullBounds().width, entity.getFullBounds().height, entity.xScale, entity.yScale, entity.rotation);
         }
     }
 
@@ -41,7 +51,10 @@ public class AnimationManager {
         animationTime = 0;
     }
 
-    public void setCurrentAnimation() {
+    public void setCurrentAnimationDirectionally() {
+        if (nonDirectional) {
+            throw new RuntimeException("Can't set a directional animation without a DirectionalAnimationSet.");
+        }
         checkIfFlipped();
         HashMap<Vector2Int, Integer> directionToAnimationIndexMap = directionalAnimationSet.getDirectionToAnimationIndexMap();
         for (Map.Entry<Vector2Int, Integer> mapping : directionToAnimationIndexMap.entrySet()) {
@@ -51,5 +64,9 @@ public class AnimationManager {
                 currentAnimation = directionalAnimationSet.getAnimation(animationIndex);
             }
         }
+    }
+
+    public void setCurrentAnimation(Animation<TextureRegion> animation) {
+        currentAnimation = animation;
     }
 }

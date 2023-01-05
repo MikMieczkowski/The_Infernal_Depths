@@ -29,6 +29,11 @@ public class Sword extends Weapon {
     }
 
     @Override
+    public void checkForHit() {
+        //if (player.screen.)
+    }
+
+    @Override
     public void enterAttackState() {
         showSlice = true;
         sliceAnimationTimer = 0;

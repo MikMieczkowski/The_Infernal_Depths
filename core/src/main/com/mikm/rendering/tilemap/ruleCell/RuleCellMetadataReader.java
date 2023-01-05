@@ -3,9 +3,6 @@ package com.mikm.rendering.tilemap.ruleCell;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.mikm.Vector2Int;
-import com.mikm.rendering.tilemap.CellPresence;
-import com.mikm.rendering.tilemap.TileRuleset;
-import com.mikm.rendering.tilemap.TileRulesetTransformer;
 
 public class RuleCellMetadataReader {
     private RuleCellMetadata metadata;

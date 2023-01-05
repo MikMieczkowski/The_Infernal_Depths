@@ -31,6 +31,8 @@ public abstract class Weapon {
         this.player = player;
     }
 
+    public abstract void checkForHit();
+
     public abstract void enterAttackState();
 
     public abstract void exitAttackState();

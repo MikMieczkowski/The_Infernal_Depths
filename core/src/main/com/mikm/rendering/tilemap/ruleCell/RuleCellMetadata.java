@@ -3,7 +3,6 @@ package com.mikm.rendering.tilemap.ruleCell;
 
 
 import com.mikm.Vector2Int;
-import com.mikm.rendering.tilemap.TileRuleset;
 
 import java.util.Arrays;
 import java.util.HashMap;
