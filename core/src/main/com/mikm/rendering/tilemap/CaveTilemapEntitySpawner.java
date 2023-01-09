@@ -5,6 +5,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.mikm.ExtraMathUtils;
 import com.mikm.Vector2Int;
+import com.mikm.entities.animation.EntityActionSpritesheets;
 import com.mikm.entities.enemies.Slime;
 import com.mikm.rendering.screens.Application;
 import com.mikm.rendering.screens.CaveScreen;
@@ -18,7 +19,7 @@ public class CaveTilemapEntitySpawner {
     private final CaveScreen caveScreen;
 
     private final TextureRegion[][] rockImages;
-    private final ArrayList<TextureRegion[]> slimeSpritesheet;
+    private final EntityActionSpritesheets slimeActionSpritesheets;
     private final boolean[][] ruleCellPositions;
     public final ArrayList<Vector2Int> openTilePositions;
 
@@ -30,7 +31,7 @@ public class CaveTilemapEntitySpawner {
         this.ruleCellPositions = ruleCellPositions;
 
         rockImages = caveScreen.rockImages;
-        slimeSpritesheet = caveScreen.slimeSpritesheet;
+        slimeActionSpritesheets = caveScreen.slimeActionSpritesheets;
         openTilePositions = findOpenTilePositions();
 
     }
@@ -43,7 +44,7 @@ public class CaveTilemapEntitySpawner {
         int enemyAmount = ExtraMathUtils.randomInt(MIN_ENEMIES, MAX_ENEMIES + 1);
         for (int i = 0; i < enemyAmount; i++) {
             Vector2Int randomTilePosition = openTilePositions.get(ExtraMathUtils.randomInt(openTilePositions.size()));
-            Slime slime = new Slime(slimeSpritesheet, randomTilePosition.x * Application.TILE_WIDTH, randomTilePosition.y * Application.TILE_HEIGHT);
+            Slime slime = new Slime(randomTilePosition.x * Application.TILE_WIDTH, randomTilePosition.y * Application.TILE_HEIGHT, slimeActionSpritesheets);
             slime.setScreen(caveScreen);
         }
     }

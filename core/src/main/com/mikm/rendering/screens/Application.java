@@ -12,16 +12,22 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.mikm.ExtraMathUtils;
 import com.mikm.Vector2Int;
-import com.mikm.entities.enemies.Rat;
+import com.mikm.entities.animation.ActionSpritesheetsAllDirections;
+import com.mikm.entities.animation.EntityActionSpritesheets;
+import com.mikm.entities.animation.AnimationsAlphabeticalIndex;
 import com.mikm.entities.player.Player;
 import com.mikm.entities.player.weapons.WeaponInstances;
-import com.mikm.input.InputAxis;
-import com.mikm.rendering.SpritesheetUtils;
+import com.mikm.input.GameInput;
+import com.mikm.input.InputRaw;
+import com.mikm.rendering.TextureAtlasUtils;
 
 import java.util.ArrayList;
 
 public class Application extends Game {
 	public static final int TILE_WIDTH = 16, TILE_HEIGHT = 16;
+	//480,270
+	public static final int WORLD_WIDTH = 1440, WORLD_HEIGHT = 810;
+
 	SpriteBatch batch;
 	private CaveScreen caveScreen;
 	public Player player;
@@ -45,7 +51,6 @@ public class Application extends Game {
 		assetManager = createAssetManager();
 		textureAtlas = assetManager.get("images/The Infernal Depths.atlas", TextureAtlas.class);
 		testTexture = textureAtlas.findRegion("sand").split(TILE_WIDTH, TILE_HEIGHT)[0][0];
-		InputAxis.checkForControllers();
 
 		createPlayerAndCaveScreen(textureAtlas);
 		setScreen(caveScreen);
@@ -53,9 +58,10 @@ public class Application extends Game {
 
 	@Override
 	public void render() {
-		InputAxis.handleLastFrameInput();
+		InputRaw.checkForControllers();
+		InputRaw.handleLastFrameInput();
 		renderScreens();
-		InputAxis.handleThisFrameInput();
+		InputRaw.handleThisFrameInput();
 	}
 
 	@Override
@@ -80,18 +86,30 @@ public class Application extends Game {
 	}
 
 	private void createPlayerAndCaveScreen(TextureAtlas textureAtlas) {
-		ArrayList<TextureAtlas.AtlasRegion> atlasRegions = SpritesheetUtils.findAtlasRegionsStartingWith("Character", textureAtlas);
-		ArrayList<TextureRegion[]> playerSpritesheets = SpritesheetUtils.splitAtlasRegionsTo1DArrays(atlasRegions, 32, 32);
-
-		player = new Player(500, 500, playerSpritesheets);
+		EntityActionSpritesheets playerActionSpritesheets = createPlayerActionSpritesheets();
+		player = new Player(500, 500, playerActionSpritesheets);
 		player.setWeapons(new WeaponInstances(textureAtlas, player));
 		caveScreen = new CaveScreen(this, assetManager.get("sound/caveTheme.mp3", Music.class), textureAtlas);
-		InputAxis.setCamera(caveScreen.camera);
+		GameInput.setCamera(caveScreen.camera);
 		player.setScreen(caveScreen);
 		Vector2Int playerPosition = spawnablePosition();
 		player.x = playerPosition.x;
 		player.y = playerPosition.y;
 		caveScreen.camera.setPositionDirectlyToPlayerPosition();
+	}
+
+	private EntityActionSpritesheets createPlayerActionSpritesheets() {
+		ArrayList<TextureRegion[]> playerSpritesheetsRaw = TextureAtlasUtils.findSplitTextureRegionsStartingWith("Character", textureAtlas, 32, 32);
+
+		EntityActionSpritesheets output = new EntityActionSpritesheets();
+		//output.hit = ActionSpritesheetsAllDirections.createFromSpritesheetRange(playerSpritesheetsRaw, 1, 0);
+		output.standing = ActionSpritesheetsAllDirections.createFromSpritesheetRange(playerSpritesheetsRaw, AnimationsAlphabeticalIndex.PLAYER_WALK_STARTING_INDEX, true);
+		output.walking = ActionSpritesheetsAllDirections.createFromSpritesheetRange(playerSpritesheetsRaw, AnimationsAlphabeticalIndex.PLAYER_WALK_STARTING_INDEX);
+
+		output.playerAttacking = ActionSpritesheetsAllDirections.createFromSpritesheetRange(playerSpritesheetsRaw, AnimationsAlphabeticalIndex.PLAYER_WALK_STARTING_INDEX);
+		output.playerDiving = ActionSpritesheetsAllDirections.createFromSpritesheetRange(playerSpritesheetsRaw, AnimationsAlphabeticalIndex.PLAYER_DIVE_STARTING_INDEX);
+		output.playerRolling = ActionSpritesheetsAllDirections.createFromSpritesheetRange(playerSpritesheetsRaw, AnimationsAlphabeticalIndex.PLAYER_ROLL_STARTING_INDEX);
+		return output;
 	}
 
 	private Vector2Int spawnablePosition() {

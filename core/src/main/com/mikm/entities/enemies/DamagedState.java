@@ -5,14 +5,14 @@ import com.mikm.entities.DamageInformation;
 import com.mikm.entities.Entity;
 import com.mikm.entities.State;
 import com.mikm.entities.animation.AnimationManager;
-import com.mikm.entities.animation.DirectionalAnimationSet;
+import com.mikm.entities.animation.ActionAnimationAllDirections;
 
 public class DamagedState extends State {
     private DamageInformation damageInformation;
     public DamagedState(Entity entity) {
         super(entity);
-        DirectionalAnimationSet directionalAnimationSet = new DirectionalAnimationSet(1, Animation.PlayMode.NORMAL, entity.spritesheets, 3, 2);
-        animationManager = new AnimationManager(entity, directionalAnimationSet);
+        ActionAnimationAllDirections actionAnimationAllDirections = new ActionAnimationAllDirections(1, Animation.PlayMode.NORMAL, entity.entityActionSpritesheets.hit);
+        animationManager = new AnimationManager(entity, actionAnimationAllDirections);
     }
 
     @Override

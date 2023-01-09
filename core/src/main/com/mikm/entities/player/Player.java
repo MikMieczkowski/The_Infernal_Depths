@@ -2,17 +2,16 @@ package com.mikm.entities.player;
 
 
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.Vector2Int;
 import com.mikm.entities.Entity;
+import com.mikm.entities.animation.EntityActionSpritesheets;
 import com.mikm.entities.player.states.*;
 import com.mikm.entities.player.weapons.Weapon;
 import com.mikm.entities.player.weapons.WeaponInstances;
-import com.mikm.input.InputAxis;
-
-import java.util.ArrayList;
+import com.mikm.input.GameInput;
+import com.mikm.rendering.screens.Application;
 
 public class Player extends Entity {
     public static final int PLAYER_WIDTH_PIXELS = 32, PLAYER_HEIGHT_PIXELS = 32;
@@ -42,8 +41,8 @@ public class Player extends Entity {
     private WeaponInstances weaponInstances;
 
 
-    public Player(int x, int y, ArrayList<TextureRegion[]> spritesheets) {
-        super(x, y, spritesheets);
+    public Player(int x, int y, EntityActionSpritesheets entityActionSpritesheets) {
+        super(x, y, entityActionSpritesheets);
         originX = PLAYER_WIDTH_PIXELS/2f;
         originY = 0;
         speed = 2;
@@ -56,8 +55,8 @@ public class Player extends Entity {
 
     @Override
     public void update() {
-        if (InputAxis.isMoving()) {
-            direction = new Vector2Int(InputAxis.getHorizontalAxisInt(), InputAxis.getVerticalAxisInt());
+        if (GameInput.isMoving()) {
+            direction = new Vector2Int(GameInput.getHorizontalAxisInt(), GameInput.getVerticalAxisInt());
         }
         currentWeapon.update();
         super.update();

@@ -4,9 +4,8 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.entities.animation.AnimationManager;
-import com.mikm.entities.animation.DirectionalAnimationSet;
-import com.mikm.input.InputAxis;
-import com.mikm.entities.player.PlayerAnimationNames;
+import com.mikm.entities.animation.ActionAnimationAllDirections;
+import com.mikm.input.GameInput;
 import com.mikm.entities.player.Player;
 import com.mikm.entities.State;
 
@@ -19,9 +18,9 @@ public class PlayerRollingState extends State {
     public PlayerRollingState(Player player) {
         super(player);
         this.player = player;
-        DirectionalAnimationSet directionalAnimationSet = new DirectionalAnimationSet(.055f, Animation.PlayMode.NORMAL,
-                player.spritesheets, 5, PlayerAnimationNames.ROLL_DOWN.ordinal());
-        animationManager = new AnimationManager(player, directionalAnimationSet);
+        ActionAnimationAllDirections actionAnimationAllDirections = new ActionAnimationAllDirections(.055f, Animation.PlayMode.NORMAL,
+                player.entityActionSpritesheets.playerRolling);
+        animationManager = new AnimationManager(player, actionAnimationAllDirections);
     }
 
     @Override
@@ -61,8 +60,8 @@ public class PlayerRollingState extends State {
         }
 
 
-        rollForce = new Vector2(player.ROLL_SPEED * MathUtils.sin(rollSpeedSinCounter) * InputAxis.getHorizontalAxis(),
-                player.ROLL_SPEED * MathUtils.sin(rollSpeedSinCounter) * InputAxis.getVerticalAxis());
+        rollForce = new Vector2(player.ROLL_SPEED * MathUtils.sin(rollSpeedSinCounter) * GameInput.getHorizontalAxis(),
+                player.ROLL_SPEED * MathUtils.sin(rollSpeedSinCounter) * GameInput.getVerticalAxis());
     }
 
     private void setJumpHeight() {
