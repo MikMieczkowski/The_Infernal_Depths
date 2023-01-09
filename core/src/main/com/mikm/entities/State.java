@@ -12,12 +12,14 @@ public abstract class State {
 
     public void enter() {
         animationManager.resetTimer();
-        animationManager.setCurrentAnimationDirectionally();
+        animationManager.setCurrentAnimation();
         entity.currentState = this;
+        entity.xVel = 0;
+        entity.yVel = 0;
     }
 
     public void update() {
-        animationManager.setCurrentAnimationDirectionally();
+        animationManager.setCurrentAnimation();
     }
 
     public abstract void checkForStateTransition();

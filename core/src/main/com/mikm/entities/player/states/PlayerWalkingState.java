@@ -2,22 +2,21 @@ package com.mikm.entities.player.states;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.mikm.entities.animation.AnimationManager;
-import com.mikm.entities.animation.DirectionalAnimationSet;
-import com.mikm.input.InputAxis;
+import com.mikm.entities.animation.ActionAnimationAllDirections;
+import com.mikm.input.GameInput;
 import com.mikm.entities.player.Player;
-import com.mikm.entities.player.PlayerAnimationNames;
 import com.mikm.entities.State;
 
 
 public class PlayerWalkingState extends State {
     private final Player player;
-    public DirectionalAnimationSet directionalAnimationSet;
+    public ActionAnimationAllDirections actionAnimationAllDirections;
 
     public PlayerWalkingState(Player player) {
         super(player);
         this.player = player;
-        directionalAnimationSet = new DirectionalAnimationSet(.33f, Animation.PlayMode.LOOP, player.spritesheets, 5, PlayerAnimationNames.WALK_DOWN.ordinal());
-        animationManager = new AnimationManager(player, directionalAnimationSet);
+        actionAnimationAllDirections = new ActionAnimationAllDirections(.33f, Animation.PlayMode.LOOP, player.entityActionSpritesheets.walking);
+        animationManager = new AnimationManager(player, actionAnimationAllDirections);
     }
 
     @Override
@@ -31,19 +30,19 @@ public class PlayerWalkingState extends State {
     @Override
     public void update() {
         super.update();
-        player.xVel = InputAxis.getHorizontalAxis() * player.speed;
-        player.yVel = InputAxis.getVerticalAxis() * player.speed;
+        player.xVel = GameInput.getHorizontalAxis() * player.speed;
+        player.yVel = GameInput.getVerticalAxis() * player.speed;
     }
 
     @Override
     public void checkForStateTransition() {
-        if (InputAxis.isDiveButtonPressed()) {
+        if (GameInput.isDiveButtonJustPressed()) {
             player.divingState.enter();
         }
-        if (!InputAxis.isMoving()) {
+        if (!GameInput.isMoving()) {
             player.standingState.enter();
         }
-        if (InputAxis.isAttackButtonPressed()) {
+        if (GameInput.isAttackButtonPressed()) {
             player.attackingState.enter();
         }
     }

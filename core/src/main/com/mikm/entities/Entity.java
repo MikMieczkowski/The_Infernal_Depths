@@ -9,8 +9,8 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.Vector2Int;
+import com.mikm.entities.animation.EntityActionSpritesheets;
 import com.mikm.rendering.screens.Application;
-import com.mikm.rendering.screens.GameScreen;
 
 import java.util.ArrayList;
 
@@ -30,7 +30,7 @@ public abstract class Entity extends UnanimatedEntity {
     public State walkingState;
     public State standingState;
     public State currentState;
-    public ArrayList<TextureRegion[]> spritesheets;
+    public EntityActionSpritesheets entityActionSpritesheets;
 
     private final float SQUISH_SPEED = .5f;
     private float squishTime;
@@ -45,9 +45,9 @@ public abstract class Entity extends UnanimatedEntity {
     private int flashTimerFrames;
     private Color flashColor;
 
-    public Entity(int x, int y, ArrayList<TextureRegion[]> spritesheets) {
+    public Entity(int x, int y, EntityActionSpritesheets entityActionSpritesheets) {
         super(x,y);
-        this.spritesheets = spritesheets;
+        this.entityActionSpritesheets = entityActionSpritesheets;
         createStates();
     }
 

@@ -2,13 +2,14 @@ package com.mikm.entities.enemies;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mikm.entities.Entity;
+import com.mikm.entities.animation.EntityActionSpritesheets;
 
 import java.util.ArrayList;
 
 public class Slime extends Entity {
 
-    public Slime(ArrayList<TextureRegion[]> spritesheets, int x, int y) {
-        super(x, y, spritesheets);
+    public Slime(int x, int y, EntityActionSpritesheets entityActionSpritesheets) {
+        super(x, y, entityActionSpritesheets);
         speed = 1f;
     }
 

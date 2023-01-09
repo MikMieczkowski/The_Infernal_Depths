@@ -5,10 +5,9 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.mikm.ExtraMathUtils;
 import com.mikm.entities.Hurtbox;
 import com.mikm.entities.player.Player;
-import com.mikm.input.InputAxis;
+import com.mikm.input.GameInput;
 import com.mikm.rendering.screens.Application;
 
 public abstract class Weapon {
@@ -61,7 +60,7 @@ public abstract class Weapon {
 
     private Vector2 getPlayerPositionOrbitedAroundMouse() {
         float x, y;
-        angleToMouse = InputAxis.getAttackingAngle();
+        angleToMouse = GameInput.getAttackingAngle();
         mouseIsLeftOfPlayer = -MathUtils.HALF_PI < angleToMouse && angleToMouse < MathUtils.HALF_PI;
 
         float weaponAngle = angleToMouse - MathUtils.HALF_PI;

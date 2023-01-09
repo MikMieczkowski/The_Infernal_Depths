@@ -11,9 +11,11 @@ import com.mikm.entities.player.Player;
 import com.mikm.rendering.Camera;
 
 public abstract class GameScreen extends ScreenAdapter {
+    public ScreenViewport viewport;
+
     Application application;
     TextureAtlas textureAtlas;
-    Camera camera;
+    public Camera camera;
 
     public Stage stage;
     public Player player;
@@ -26,7 +28,9 @@ public abstract class GameScreen extends ScreenAdapter {
         this.player = application.player;
 
         camera = new Camera(player);
-        stage = new Stage(new ScreenViewport(camera.orthographicCamera));
+        viewport = new ScreenViewport(camera.orthographicCamera);
+        viewport.setUnitsPerPixel(Camera.VIEWPORT_ZOOM);
+        stage = new Stage(viewport);
     }
 
     public abstract int[] getCollidableTiledMapTileLayerIDs();
@@ -35,7 +39,9 @@ public abstract class GameScreen extends ScreenAdapter {
 
     @Override
     public void resize (int width, int height) {
-        stage.getViewport().update(width%2==0?width : width - 1, height%2==0?height : height -1, true);
+        int realWidth = width%2==0?width : width - 1;
+        int realHeight = height%2==0?height : height -1;
+        viewport.update(realWidth, realHeight, true);
     }
 
     @Override

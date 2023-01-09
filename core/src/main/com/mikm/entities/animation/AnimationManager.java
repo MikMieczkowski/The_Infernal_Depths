@@ -15,20 +15,13 @@ public class AnimationManager {
     private float animationTime;
     private boolean animationIsFlipped = false;
     private Animation<TextureRegion> currentAnimation;
-    private final boolean nonDirectional;
 
     Entity entity;
-    private DirectionalAnimationSet directionalAnimationSet;
+    private final ActionAnimationAllDirections actionAnimationAllDirections;
 
-    public AnimationManager(Entity entity) {
+    public AnimationManager(Entity entity, ActionAnimationAllDirections actionAnimationAllDirections) {
         this.entity = entity;
-        nonDirectional = true;
-    }
-
-    public AnimationManager(Entity entity, DirectionalAnimationSet directionalAnimationSet) {
-        this.entity = entity;
-        this.directionalAnimationSet = directionalAnimationSet;
-        nonDirectional = false;
+        this.actionAnimationAllDirections = actionAnimationAllDirections;
     }
 
     void checkIfFlipped() {
@@ -51,22 +44,15 @@ public class AnimationManager {
         animationTime = 0;
     }
 
-    public void setCurrentAnimationDirectionally() {
-        if (nonDirectional) {
-            throw new RuntimeException("Can't set a directional animation without a DirectionalAnimationSet.");
-        }
+    public void setCurrentAnimation() {
         checkIfFlipped();
-        HashMap<Vector2Int, Integer> directionToAnimationIndexMap = directionalAnimationSet.getDirectionToAnimationIndexMap();
+        HashMap<Vector2Int, Integer> directionToAnimationIndexMap = actionAnimationAllDirections.getDirectionToAnimationIndexMap();
         for (Map.Entry<Vector2Int, Integer> mapping : directionToAnimationIndexMap.entrySet()) {
             Vector2Int direction = mapping.getKey();
             Integer animationIndex = mapping.getValue();
             if (entity.direction.equals(direction)) {
-                currentAnimation = directionalAnimationSet.getAnimation(animationIndex);
+                currentAnimation = actionAnimationAllDirections.getAnimation(animationIndex);
             }
         }
-    }
-
-    public void setCurrentAnimation(Animation<TextureRegion> animation) {
-        currentAnimation = animation;
     }
 }

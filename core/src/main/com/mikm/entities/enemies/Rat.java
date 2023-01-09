@@ -1,27 +1,23 @@
 package com.mikm.entities.enemies;
 
-import com.badlogic.gdx.graphics.g2d.Batch;
-import com.mikm.Vector2Int;
-import com.mikm.entities.UnanimatedEntity;
-import com.mikm.rendering.screens.Application;
+import com.mikm.entities.Entity;
+import com.mikm.entities.animation.EntityActionSpritesheets;
 
-public class Rat extends UnanimatedEntity {
-    public Rat(int x, int y) {
-        super(x, y);
+public class Rat extends Entity {
+
+    public Rat(int x, int y, EntityActionSpritesheets entityActionSpritesheets) {
+        super(x, y, entityActionSpritesheets);
     }
 
     @Override
-    public void update() {
-
+    public void createStates() {
+        walkingState = new WanderingState(this);
+        standingState = new StandingState(this);
+        standingState.enter();
     }
 
     @Override
-    public void render(Batch batch) {
-        batch.draw(Application.testTexture, x, y);
-    }
-
-    @Override
-    public void onWallCollision(Vector2Int wallPosition) {
-
+    public int getMaxHp() {
+        return 0;
     }
 }

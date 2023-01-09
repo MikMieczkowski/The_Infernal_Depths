@@ -6,7 +6,7 @@ import com.mikm.ExtraMathUtils;
 import com.mikm.entities.Entity;
 import com.mikm.entities.State;
 import com.mikm.entities.animation.AnimationManager;
-import com.mikm.entities.animation.DirectionalAnimationSet;
+import com.mikm.entities.animation.ActionAnimationAllDirections;
 
 public class StandingState extends State {
     private float wanderTimer;
@@ -15,8 +15,8 @@ public class StandingState extends State {
 
     public StandingState(Entity entity) {
         super(entity);
-        DirectionalAnimationSet directionalAnimationSet = new DirectionalAnimationSet(.33f, Animation.PlayMode.LOOP, entity.spritesheets, 1, 0);
-        animationManager = new AnimationManager(entity, directionalAnimationSet);
+        ActionAnimationAllDirections actionAnimationAllDirections = new ActionAnimationAllDirections(.33f, Animation.PlayMode.LOOP, entity.entityActionSpritesheets.standing);
+        animationManager = new AnimationManager(entity, actionAnimationAllDirections);
     }
 
     @Override
