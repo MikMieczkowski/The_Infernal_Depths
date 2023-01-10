@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.ControllerMapping;
 import com.badlogic.gdx.controllers.Controllers;
+import com.mikm.rendering.Camera;
 
 public class InputRaw {
     static boolean usingController = false;
@@ -38,7 +39,7 @@ public class InputRaw {
     }
 
     private static void setControllerHasInput() {
-        if (Gdx.input.isKeyPressed(Input.Keys.ANY_KEY)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.ANY_KEY) || Gdx.input.isTouched()) {
             controllerHasInput = false;
         }
         if (!controllerHasInput && isAnyControllerInputMoved()) {
@@ -91,12 +92,12 @@ public class InputRaw {
         throw new RuntimeException("unimplemented button release");
     }
 
-    static float mouseXPosition() {
-        return Gdx.input.getX();
+    public static float mouseXPosition() {
+        return Gdx.input.getX() * Camera.VIEWPORT_ZOOM;
     }
 
-    static float mouseYPosition() {
-        return Gdx.graphics.getHeight() - Gdx.input.getY();
+    public static float mouseYPosition() {
+        return (Gdx.graphics.getHeight() - Gdx.input.getY())* Camera.VIEWPORT_ZOOM;
     }
 
     private static boolean isAnyControllerInputMoved() {

@@ -13,6 +13,29 @@ public class ExtraMathUtils {
 
     }
 
+    public static float sinLerp(float timer, float maxTime, float peakValue) {
+        if (timer > maxTime) {
+            return 0;
+        }
+        final float timeStretch = (1f/maxTime) * MathUtils.PI;
+        return peakValue * MathUtils.sin(timeStretch * timer);
+    }
+
+    public static float sinLerp(float timer, float maxTime, float startProportion, float endProportion, float peakValue) {
+        final float startTime = startProportion * maxTime;
+        final float endTime = endProportion * maxTime;
+
+        final float timeStretch = (1f/maxTime) * MathUtils.PI;
+        if (timer + startTime> endTime) {
+            return peakValue * MathUtils.sin(timeStretch * endTime);
+        }
+        return peakValue * MathUtils.sin(timeStretch * (timer + startTime));
+    }
+
+    public static Vector2 sinLerpVector2(float timer, float maxTime, float startProportion, float endProportion, Vector2 peakValue) {
+        return new Vector2(sinLerp(timer, maxTime, startProportion, endProportion, peakValue.x), sinLerp(timer, maxTime, startProportion, endProportion, peakValue.y));
+    }
+
     public static int randomInt(int min, int max) {
         return random.nextInt(min, max);
     }

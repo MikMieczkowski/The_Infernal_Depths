@@ -23,7 +23,7 @@ public class CaveTilemap {
     private TextureRegion[] wallImages;
     private TextureRegion floorImage;
 
-    private static boolean[][] ruleCellPositions;
+    private final boolean[][] ruleCellPositions;
     private boolean useWallCell1 = false;
 
     private final CaveTilemapEntitySpawner spawner;
@@ -54,17 +54,16 @@ public class CaveTilemap {
     public TiledMap createTiledMap() {
         RuleCellTiledMapTileLayer ruleCellLayer = createRuleCellLayerFromRuleCellPositions();
         TiledMapTileLayer uncollidableLayer = createUncollidableLayer();
-        TiledMapTileLayer rockLayer = spawner.createRockLayer();
+        spawner.createRockLayer();
 
-        return createMapFromLayers(ruleCellLayer, uncollidableLayer, rockLayer);
+        return createMapFromLayers(ruleCellLayer, uncollidableLayer);
     }
 
-    private TiledMap createMapFromLayers(RuleCellTiledMapTileLayer ruleCellLayer, TiledMapTileLayer uncollidableLayer, TiledMapTileLayer rockLayer) {
+    private TiledMap createMapFromLayers(RuleCellTiledMapTileLayer ruleCellLayer, TiledMapTileLayer uncollidableLayer) {
         TiledMap tiledMap = new TiledMap();
         MapLayers mapLayers = tiledMap.getLayers();
         mapLayers.add(uncollidableLayer);
         mapLayers.add(ruleCellLayer);
-        mapLayers.add(rockLayer);
         return tiledMap;
     }
 
@@ -130,6 +129,10 @@ public class CaveTilemap {
 
     public ArrayList<Vector2Int> getOpenTilePositions() {
         return spawner.openTilePositions;
+    }
+
+    public boolean[][] getCollidableTilePositions() {
+        return spawner.getCollidableTilePositions();
     }
 
     public void spawnEnemies() {

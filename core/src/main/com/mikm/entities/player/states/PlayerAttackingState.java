@@ -30,7 +30,6 @@ public class PlayerAttackingState extends State {
     @Override
     public void update() {
         player.currentWeapon.attackUpdate();
-        player.currentWeapon.checkForHit();
         attackTimer += Gdx.graphics.getDeltaTime();
         player.xVel = GameInput.getHorizontalAxis() * player.speed;
         player.yVel = GameInput.getVerticalAxis() * player.speed;

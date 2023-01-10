@@ -35,13 +35,13 @@ Character_WalkUp
 bounds:100,72,128,32
 Character_WalkUpRight
 bounds:52,4,128,32
-Slime_HitRight
+Slime_HitUp
 bounds:360,54,16,16
 Slime_HitDown
 bounds:360,54,16,16
 Slime_HitDownRight
 bounds:360,54,16,16
-Slime_HitUp
+Slime_HitRight
 bounds:360,54,16,16
 Slime_HitUpRight
 bounds:360,54,16,16
@@ -69,5 +69,7 @@ rocks
 bounds:2,14,48,32
 sand
 bounds:392,188,16,16
+shadow
+bounds:426,206,16,16
 swordSlice
 bounds:262,174,128,32

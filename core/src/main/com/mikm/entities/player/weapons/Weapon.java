@@ -5,14 +5,15 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.mikm.entities.Hurtbox;
+import com.mikm.entities.DamageInformation;
+import com.mikm.entities.projectiles.StaticHurtbox;
 import com.mikm.entities.player.Player;
 import com.mikm.input.GameInput;
 import com.mikm.rendering.screens.Application;
 
 public abstract class Weapon {
     TextureRegion image;
-    Hurtbox hurtbox;
+    StaticHurtbox staticHurtbox;
     Player player;
 
     float x, y;
@@ -41,6 +42,8 @@ public abstract class Weapon {
     public abstract void attackUpdate();
 
     public abstract float getTotalAttackTime();
+
+    public abstract DamageInformation getDamageInformation();
 
     void orbitAroundMouse() {
         Vector2 playerPositionOrbitedAroundMouse = getPlayerPositionOrbitedAroundMouse();

@@ -3,19 +3,18 @@ package com.mikm.entities;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.Vector2Int;
 import com.mikm.entities.animation.EntityActionSpritesheets;
+import com.mikm.entities.enemies.states.DamagedState;
 import com.mikm.rendering.screens.Application;
+import com.mikm.rendering.screens.GameScreen;
 
-import java.util.ArrayList;
 
-
-public abstract class Entity extends UnanimatedEntity {
+public abstract class Entity extends InanimateEntity {
 
     public float originX, originY;
     public float rotation;
@@ -29,6 +28,7 @@ public abstract class Entity extends UnanimatedEntity {
 
     public State walkingState;
     public State standingState;
+    public DamagedState damagedState;
     public State currentState;
     public EntityActionSpritesheets entityActionSpritesheets;
 
@@ -40,7 +40,7 @@ public abstract class Entity extends UnanimatedEntity {
     private boolean triggerSquish = false;
     private float squishDelay;
 
-    private final int MAX_FLASH_TIME = 2;
+    private final int MAX_FLASH_TIME = 1;
     private boolean shouldFlash;
     private int flashTimerFrames;
     private Color flashColor;
@@ -48,7 +48,14 @@ public abstract class Entity extends UnanimatedEntity {
     public Entity(int x, int y, EntityActionSpritesheets entityActionSpritesheets) {
         super(x,y);
         this.entityActionSpritesheets = entityActionSpritesheets;
+        damagedState = new DamagedState(this);
+        hp = getMaxHp();
         createStates();
+    }
+
+    public void setScreen(GameScreen screen) {
+        this.screen = screen;
+        screen.entities.add(this);
     }
 
     @Override
@@ -61,16 +68,16 @@ public abstract class Entity extends UnanimatedEntity {
     }
 
     @Override
-    public void render(Batch batch) {
+    public void draw(Batch batch) {
         handleFlash(batch);
         currentState.animationManager.draw(batch);
     }
 
     private void handleFlash(Batch batch) {
         if (shouldFlash) {
+            Application.setFillColorShader(batch, flashColor);
             flashTimerFrames++;
             if (flashTimerFrames >= MAX_FLASH_TIME) {
-                Application.setFillColorShader(batch, flashColor);
                 shouldFlash = false;
                 flashTimerFrames = 0;
             }
@@ -78,6 +85,12 @@ public abstract class Entity extends UnanimatedEntity {
             batch.setShader(null);
         }
     }
+
+    public void die() {
+        screen.entities.remove(this);
+    }
+
+    public abstract boolean isAttackable();
 
     public abstract void createStates();
 

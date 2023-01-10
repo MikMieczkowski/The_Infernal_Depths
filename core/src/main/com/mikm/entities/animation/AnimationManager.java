@@ -32,10 +32,10 @@ public class AnimationManager {
         entity.updateSquish();
         animationTime += Gdx.graphics.getDeltaTime();
         if (animationIsFlipped) {
-            BatchUtils.drawFlipped(batch, currentAnimation.getKeyFrame(animationTime), entity.x, entity.y+entity.height,
+            BatchUtils.drawFlipped(batch, currentAnimation.getKeyFrame(animationTime), entity.x, entity.y+ entity.height,
                     entity.originX, entity.originY, entity.getFullBounds().width, entity.getFullBounds().height, entity.xScale, entity.yScale, entity.rotation, true);
         } else {
-            batch.draw(currentAnimation.getKeyFrame(animationTime), entity.x, entity.y+entity.height, entity.originX,
+            batch.draw(currentAnimation.getKeyFrame(animationTime), entity.x, entity.y+ entity.height, entity.originX,
                     entity.originY, entity.getFullBounds().width, entity.getFullBounds().height, entity.xScale, entity.yScale, entity.rotation);
         }
     }

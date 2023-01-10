@@ -1,8 +1,6 @@
 package com.mikm.rendering.tilemap;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.mikm.ExtraMathUtils;
 import com.mikm.Vector2Int;
 import com.mikm.entities.animation.EntityActionSpritesheets;
@@ -20,7 +18,9 @@ public class CaveTilemapEntitySpawner {
 
     private final TextureRegion[][] rockImages;
     private final EntityActionSpritesheets slimeActionSpritesheets;
+
     private final boolean[][] ruleCellPositions;
+    private final boolean[][] isCollidable;
     public final ArrayList<Vector2Int> openTilePositions;
 
     private final float ROCK_PERCENT_CHANCE = 1f;
@@ -29,6 +29,7 @@ public class CaveTilemapEntitySpawner {
     CaveTilemapEntitySpawner(CaveScreen caveScreen, boolean[][] ruleCellPositions) {
         this.caveScreen = caveScreen;
         this.ruleCellPositions = ruleCellPositions;
+        isCollidable = ruleCellPositions.clone();
 
         rockImages = caveScreen.rockImages;
         slimeActionSpritesheets = caveScreen.slimeActionSpritesheets;
@@ -49,40 +50,38 @@ public class CaveTilemapEntitySpawner {
         }
     }
 
-    public TiledMapTileLayer createRockLayer() {
-        TiledMapTileLayer rockLayer = new TiledMapTileLayer(MAP_WIDTH, MAP_HEIGHT, Application.TILE_WIDTH, Application.TILE_HEIGHT);
+    public void createRockLayer() {
         if (openTilePositions.size() == 0) {
-            return rockLayer;
-        }
-
-        TiledMapTileLayer.Cell[] rockCells = new TiledMapTileLayer.Cell[3];
-        for (int i = 0; i < 3; i++) {
-            rockCells[i] = new TiledMapTileLayer.Cell();
-            rockCells[i].setTile(new StaticTiledMapTile(rockImages[0][i]));
+            return;
         }
 
         ArrayList<Vector2Int> positionsToDelete = new ArrayList<>();
         for (Vector2Int tilePosition : openTilePositions) {
             if (ExtraMathUtils.randomFloatOneDecimalPlace(100) < ROCK_PERCENT_CHANCE) {
-                TiledMapTileLayer.Cell randomRockCell = rockCells[ExtraMathUtils.randomInt(3)];
-                rockLayer.setCell(tilePosition.x, tilePosition.y, randomRockCell);
+                TextureRegion randomRockImage = rockImages[0][ExtraMathUtils.randomInt(3)];
+                caveScreen.rocks.add(new Rock(randomRockImage, tilePosition.x * Application.TILE_WIDTH, tilePosition.y * Application.TILE_HEIGHT));
+                isCollidable[tilePosition.y][tilePosition.x] = true;
                 positionsToDelete.add(tilePosition);
             }
         }
         openTilePositions.removeAll(positionsToDelete);
-        return rockLayer;
     }
 
     private ArrayList<Vector2Int> findOpenTilePositions() {
          ArrayList<Vector2Int> output = new ArrayList<>();
         for (int y = MAP_HEIGHT - 1; y >= 0; y--) {
             for (int x = 0; x < MAP_WIDTH; x++) {
-                boolean inOpenTile = !ruleCellPositions[y][x] && y + 1 <= MAP_HEIGHT - 1 && !ruleCellPositions[y + 1][x];
+                boolean isNotInWallTile = y + 1 <= MAP_HEIGHT - 1 && !ruleCellPositions[y + 1][x];
+                boolean inOpenTile = !ruleCellPositions[y][x] && isNotInWallTile;
                 if (inOpenTile) {
                     output.add(new Vector2Int(x, y));
                 }
             }
         }
         return output;
+    }
+
+    public boolean[][] getCollidableTilePositions() {
+        return isCollidable;
     }
 }

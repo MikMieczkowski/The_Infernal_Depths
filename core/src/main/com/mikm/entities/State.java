@@ -11,6 +11,9 @@ public abstract class State {
     }
 
     public void enter() {
+        if (entity.currentState == this) {
+            return;
+        }
         animationManager.resetTimer();
         animationManager.setCurrentAnimation();
         entity.currentState = this;
