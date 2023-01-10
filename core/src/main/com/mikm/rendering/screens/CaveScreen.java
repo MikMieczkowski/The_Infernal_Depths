@@ -2,21 +2,24 @@ package com.mikm.rendering.screens;
 
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.mikm.Vector2Int;
+import com.mikm.entities.RemovableArray;
 import com.mikm.entities.animation.ActionSpritesheetsAllDirections;
 import com.mikm.entities.animation.AnimationsAlphabeticalIndex;
 import com.mikm.entities.animation.EntityActionSpritesheets;
+import com.mikm.rendering.Camera;
 import com.mikm.rendering.TextureAtlasUtils;
 import com.mikm.rendering.tilemap.CaveTilemap;
+import com.mikm.rendering.tilemap.Rock;
 
 import java.util.ArrayList;
 
 public class CaveScreen extends GameScreen {
+    public final RemovableArray<Rock> rocks = new RemovableArray<>();
 
     private final Color caveWallColor = new Color(41/255f, 16/255f, 16/255f, 1);
     CaveTilemap caveTilemap;
@@ -57,17 +60,13 @@ public class CaveScreen extends GameScreen {
     }
 
     @Override
-    public int[] getCollidableTiledMapTileLayerIDs() {
-        return new int[]{1, 2};
-    }
-
-    @Override
     public void render(float delta) {
         ScreenUtils.clear(caveWallColor);
         application.batch.begin();
-        application.batch.disableBlending();
+        //application.batch.disableBlending();
         camera.update();
-        tiledMapRenderer.setView(camera.orthographicCamera);
+        application.batch.setProjectionMatrix(Camera.orthographicCamera.combined);
+        tiledMapRenderer.setView(Camera.orthographicCamera);
         drawAssets();
         application.batch.end();
     }
@@ -75,7 +74,8 @@ public class CaveScreen extends GameScreen {
     @Override
     void drawAssets() {
         tiledMapRenderer.render();
-        stage.draw();
+        rocks.render(application.batch);
+        entities.render(application.batch);
     }
 
     @Override
@@ -88,10 +88,15 @@ public class CaveScreen extends GameScreen {
         caveTilemap = new CaveTilemap(this);
         tiledMap = caveTilemap.createTiledMap();
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, 1);
-        tiledMapRenderer.setView(camera.orthographicCamera);
+        tiledMapRenderer.setView(Camera.orthographicCamera);
     }
 
     public ArrayList<Vector2Int> getOpenTilePositions() {
         return caveTilemap.getOpenTilePositions();
+    }
+
+    @Override
+    public boolean[][] getCollidableTilePositions() {
+        return caveTilemap.getCollidableTilePositions();
     }
 }

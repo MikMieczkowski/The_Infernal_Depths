@@ -5,31 +5,28 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.mikm.Vector2Int;
 import com.mikm.entities.player.Player;
 import com.mikm.input.GameInput;
-import com.mikm.rendering.screens.Application;
 
 public class Camera {
     public static final float VIEWPORT_ZOOM = .25f;
     private final float CAMERA_SPEED = .2f;
-    private final float LEAD_MULTIPLIER = 8;
+    private final float LEAD_MULTIPLIER = 45;
     private final float CAMERA_LEAD_SPEED = .3f;
-    private final float IGNORED_BOX_WIDTH = Application.WORLD_WIDTH / 64f;
-    private final float IGNORED_BOX_HEIGHT = Application.WORLD_HEIGHT / 64f;
+    private final float IGNORED_BOX_WIDTH = 1440 / 64f;
+    private final float IGNORED_BOX_HEIGHT = 810 / 64f;
 
-    public OrthographicCamera orthographicCamera;
+    public static OrthographicCamera orthographicCamera;
     public float x, y;
     private float lookDirectionX, lookDirectionY;
-    private Vector2 ignoredBoxOffset = new Vector2();
+    private final Vector2 ignoredBoxOffset = new Vector2();
 
     private final Player player;
-    private Vector2 targetPosition = new Vector2();
 
     public Camera(Player player) {
         this.player = player;
         orthographicCamera = new OrthographicCamera();
-        orthographicCamera.setToOrtho(false, Application.WORLD_WIDTH, Application.WORLD_HEIGHT);
+        orthographicCamera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         orthographicCamera.zoom = 1;
 
         setPositionDirectlyToPlayerPosition();
@@ -39,7 +36,7 @@ public class Camera {
         lookDirectionX += (GameInput.getAttackingVector().x * LEAD_MULTIPLIER - lookDirectionX) * CAMERA_LEAD_SPEED;
         lookDirectionY += (GameInput.getAttackingVector().y * LEAD_MULTIPLIER - lookDirectionY) * CAMERA_LEAD_SPEED;
 
-        targetPosition = new Vector2(player.getCenteredPosition().x - x, player.getCenteredPosition().y - y);
+        Vector2 targetPosition = new Vector2(player.getCenteredPosition().x - x, player.getCenteredPosition().y - y);
 
         setIgnoredBoxOffsetAndMoveCamera(targetPosition);
         updateOrthographicCamera();
@@ -75,9 +72,5 @@ public class Camera {
         x = player.getCenteredPosition().x;
         y = player.getCenteredPosition().y;
         updateOrthographicCamera();
-    }
-
-    public Vector2Int playerCenteredPositionInScreenCoordinates() {
-        return new Vector2Int((int)(player.getCenteredPosition().x - x) + Gdx.graphics.getWidth() / 2, (int)(player.getCenteredPosition().y - y) + Gdx.graphics.getHeight() / 2);
     }
 }

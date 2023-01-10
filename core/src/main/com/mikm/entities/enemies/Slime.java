@@ -1,16 +1,20 @@
 package com.mikm.entities.enemies;
 
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mikm.entities.Entity;
 import com.mikm.entities.animation.EntityActionSpritesheets;
-
-import java.util.ArrayList;
+import com.mikm.entities.enemies.states.StandingState;
+import com.mikm.entities.enemies.states.WanderingState;
 
 public class Slime extends Entity {
 
     public Slime(int x, int y, EntityActionSpritesheets entityActionSpritesheets) {
         super(x, y, entityActionSpritesheets);
         speed = 1f;
+    }
+
+    @Override
+    public boolean isAttackable() {
+        return true;
     }
 
     @Override

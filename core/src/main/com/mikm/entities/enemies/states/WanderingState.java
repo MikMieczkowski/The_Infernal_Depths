@@ -1,4 +1,4 @@
-package com.mikm.entities.enemies;
+package com.mikm.entities.enemies.states;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Animation;

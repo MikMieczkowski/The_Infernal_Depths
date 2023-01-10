@@ -1,4 +1,4 @@
-package com.mikm.entities.enemies;
+package com.mikm.entities.enemies.states;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -11,7 +11,7 @@ import com.mikm.entities.animation.ActionAnimationAllDirections;
 public class StandingState extends State {
     private float wanderTimer;
     private float timeBetweenWanders;
-    private final float timeBetweenWandersMin = 1f, timeBetweenWandersMax = 4f;
+    private final float TIME_BETWEEN_WANDERS_MIN = 1f, TIME_BETWEEN_WANDERS_MAX = 4f;
 
     public StandingState(Entity entity) {
         super(entity);
@@ -24,7 +24,7 @@ public class StandingState extends State {
         super.enter();
         entity.xVel = 0;
         entity.yVel = 0;
-        timeBetweenWanders = ExtraMathUtils.randomFloat(timeBetweenWandersMin, timeBetweenWandersMax);
+        timeBetweenWanders = ExtraMathUtils.randomFloat(TIME_BETWEEN_WANDERS_MIN, TIME_BETWEEN_WANDERS_MAX);
     }
 
     @Override

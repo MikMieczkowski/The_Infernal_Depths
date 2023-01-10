@@ -26,7 +26,7 @@ import java.util.ArrayList;
 public class Application extends Game {
 	public static final int TILE_WIDTH = 16, TILE_HEIGHT = 16;
 	//480,270
-	public static final int WORLD_WIDTH = 1440, WORLD_HEIGHT = 810;
+	//public static final int WORLD_WIDTH = 1440, WORLD_HEIGHT = 810;
 
 	SpriteBatch batch;
 	private CaveScreen caveScreen;
@@ -88,9 +88,10 @@ public class Application extends Game {
 	private void createPlayerAndCaveScreen(TextureAtlas textureAtlas) {
 		EntityActionSpritesheets playerActionSpritesheets = createPlayerActionSpritesheets();
 		player = new Player(500, 500, playerActionSpritesheets);
-		player.setWeapons(new WeaponInstances(textureAtlas, player));
 		caveScreen = new CaveScreen(this, assetManager.get("sound/caveTheme.mp3", Music.class), textureAtlas);
+		player.setWeapons(new WeaponInstances(caveScreen, textureAtlas, player));
 		GameInput.setCamera(caveScreen.camera);
+		GameInput.setPlayer(player);
 		player.setScreen(caveScreen);
 		Vector2Int playerPosition = spawnablePosition();
 		player.x = playerPosition.x;
@@ -102,7 +103,7 @@ public class Application extends Game {
 		ArrayList<TextureRegion[]> playerSpritesheetsRaw = TextureAtlasUtils.findSplitTextureRegionsStartingWith("Character", textureAtlas, 32, 32);
 
 		EntityActionSpritesheets output = new EntityActionSpritesheets();
-		//output.hit = ActionSpritesheetsAllDirections.createFromSpritesheetRange(playerSpritesheetsRaw, 1, 0);
+		output.hit = ActionSpritesheetsAllDirections.createFromSpritesheetRange(playerSpritesheetsRaw, 1, false);
 		output.standing = ActionSpritesheetsAllDirections.createFromSpritesheetRange(playerSpritesheetsRaw, AnimationsAlphabeticalIndex.PLAYER_WALK_STARTING_INDEX, true);
 		output.walking = ActionSpritesheetsAllDirections.createFromSpritesheetRange(playerSpritesheetsRaw, AnimationsAlphabeticalIndex.PLAYER_WALK_STARTING_INDEX);
 

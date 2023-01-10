@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.Vector2Int;
 import com.mikm.ExtraMathUtils;
+import com.mikm.entities.player.Player;
 import com.mikm.rendering.Camera;
 
 import static com.mikm.input.InputRaw.controllerMapping;
@@ -14,10 +15,14 @@ public class GameInput {
 
     private static float lastControllerLeftStickAngle;
 
-    private static Camera camera;
+    public static Camera camera;
+    private static Player player;
 
     public static void setCamera(Camera camera) {
         GameInput.camera = camera;
+    }
+    public static void setPlayer(Player player) {
+        GameInput.player = player;
     }
 
     public static float getHorizontalAxis() {
@@ -106,12 +111,12 @@ public class GameInput {
             return Vector2.Zero;
         }
         final float pixelsPerOneDistance = 400;
-        return mousePosRelativeToPlayer().scl(1/pixelsPerOneDistance);
+        return new Vector2(mousePosRelativeToPlayer().x/pixelsPerOneDistance, mousePosRelativeToPlayer().y/pixelsPerOneDistance);
     }
 
-    private static Vector2 mousePosRelativeToPlayer() {
-        return new Vector2(InputRaw.mouseXPosition() - camera.playerCenteredPositionInScreenCoordinates().x,
-                -(Gdx.input.getY() - camera.playerCenteredPositionInScreenCoordinates().y));
+    public static Vector2 mousePosRelativeToPlayer() {
+        return new Vector2(InputRaw.mouseXPosition() + camera.x - player.getCenteredPosition().x - Gdx.graphics.getWidth()/2f*Camera.VIEWPORT_ZOOM,
+                InputRaw.mouseYPosition() + camera.y - player.getCenteredPosition().y - Gdx.graphics.getHeight()/2f * Camera.VIEWPORT_ZOOM);
     }
 
     public static float getAttackingAngle() {

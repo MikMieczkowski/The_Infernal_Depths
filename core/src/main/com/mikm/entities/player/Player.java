@@ -11,7 +11,6 @@ import com.mikm.entities.player.states.*;
 import com.mikm.entities.player.weapons.Weapon;
 import com.mikm.entities.player.weapons.WeaponInstances;
 import com.mikm.input.GameInput;
-import com.mikm.rendering.screens.Application;
 
 public class Player extends Entity {
     public static final int PLAYER_WIDTH_PIXELS = 32, PLAYER_HEIGHT_PIXELS = 32;
@@ -45,12 +44,13 @@ public class Player extends Entity {
         super(x, y, entityActionSpritesheets);
         originX = PLAYER_WIDTH_PIXELS/2f;
         originY = 0;
+        shadowVerticalOffset = 2;
         speed = 2;
     }
 
     public void setWeapons(WeaponInstances weapons) {
         this.weaponInstances = weapons;
-        currentWeapon = weapons.sword;
+        currentWeapon = weapons.pickaxe;
     }
 
     @Override
@@ -63,8 +63,13 @@ public class Player extends Entity {
     }
 
     @Override
-    public void render(Batch batch) {
+    public void draw(Batch batch) {
         drawPlayerAndWeaponBasedOnZIndex(batch);
+    }
+
+    @Override
+    public boolean isAttackable() {
+        return true;
     }
 
     private void drawPlayerAndWeaponBasedOnZIndex(Batch batch) {
