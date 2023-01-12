@@ -14,9 +14,13 @@ public class WanderingState extends State {
     private final float TOTAL_WANDER_TIME = 1f;
     private Vector2 wanderForce;
     private final float MIN_WANDER_FORCE = .2f;
+    private int contactDamage;
 
-    public WanderingState(Entity entity) {
+    private float dashTimer;
+
+    public WanderingState(Entity entity, int contactDamage) {
         super(entity);
+        this.contactDamage = contactDamage;
         ActionAnimationAllDirections actionAnimationAllDirections = new ActionAnimationAllDirections(.33f, Animation.PlayMode.LOOP, entity.entityActionSpritesheets.walking);
         animationManager = new AnimationManager(entity, actionAnimationAllDirections);
     }
@@ -24,12 +28,14 @@ public class WanderingState extends State {
     @Override
     public void enter() {
         super.enter();
+        dashTimer = 0;
         wanderForce = new Vector2(getRandomWanderFloat(), getRandomWanderFloat());
     }
 
     @Override
     public void update() {
         super.update();
+        dashTimer += Gdx.graphics.getDeltaTime();
         wanderTimer += Gdx.graphics.getDeltaTime();
         entity.xVel = wanderForce.x;
         entity.yVel = wanderForce.y;
@@ -41,6 +47,7 @@ public class WanderingState extends State {
             wanderTimer = 0;
             entity.standingState.enter();
         }
+        StandingState.checkIfDamagedPlayer(entity, contactDamage, dashTimer);
     }
 
     private float getRandomWanderFloat() {

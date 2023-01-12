@@ -21,6 +21,13 @@ public class ExtraMathUtils {
         return peakValue * MathUtils.sin(timeStretch * timer);
     }
 
+    public static float bounceLerp(float timer, float maxTime, float peakValue, float bounceCoefficient, float bounceFrequency) {
+        if (timer > maxTime) {
+            return 0;
+        }
+        return (float)Math.pow(1/bounceCoefficient, -timer) * Math.abs(peakValue*MathUtils.sin(bounceFrequency*timer));
+    }
+
     public static float sinLerp(float timer, float maxTime, float startProportion, float endProportion, float peakValue) {
         final float startTime = startProportion * maxTime;
         final float endTime = endProportion * maxTime;
@@ -37,7 +44,7 @@ public class ExtraMathUtils {
     }
 
     public static int randomInt(int min, int max) {
-        return random.nextInt(min, max);
+        return random.nextInt(min, max+1);
     }
 
     public static int randomInt(int max) {

@@ -1,18 +1,17 @@
 package com.mikm.entities.player.weapons;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Intersector;
-import com.mikm.entities.DamageInformation;
-import com.mikm.entities.Entity;
-import com.mikm.entities.player.Player;
+import com.mikm.entities.projectiles.DamageInformation;
 
 public class Sword extends SwingableWeapon {
     private final float KNOCKBACK_FORCE = 3f;
     private final int DAMAGE = 1;
 
-    public Sword(TextureRegion image, TextureRegion[] sliceSpritesheet, Player player) {
-        super(image, sliceSpritesheet, player);
+    public Sword(TextureRegion image, TextureRegion[] sliceSpritesheet) {
+        super(image, sliceSpritesheet);
+        hurtbox.setDamageInformation(getDamageInformation());
     }
+
 
     @Override
     public DamageInformation getDamageInformation() {
@@ -21,10 +20,7 @@ public class Sword extends SwingableWeapon {
 
     @Override
     public void checkForHit() {
-        for (Entity entity : player.screen.entities) {
-            if (entity != player && entity.isAttackable() && Intersector.overlaps(staticHurtbox.getHurtbox(), entity.getHitbox())) {
-                entity.damagedState.enter(getDamageInformation());
-            }
-        }
+        hurtbox.setDamageInformation(getDamageInformation());
+        hurtbox.checkForHit();
     }
 }

@@ -11,6 +11,8 @@ import com.mikm.entities.player.states.*;
 import com.mikm.entities.player.weapons.Weapon;
 import com.mikm.entities.player.weapons.WeaponInstances;
 import com.mikm.input.GameInput;
+import com.mikm.rendering.screens.Application;
+import com.mikm.rendering.tilemap.RockType;
 
 public class Player extends Entity {
     public static final int PLAYER_WIDTH_PIXELS = 32, PLAYER_HEIGHT_PIXELS = 32;
@@ -30,56 +32,68 @@ public class Player extends Entity {
     public final float ROLL_JUMP_SPEED = .25f;
     public final float ROLL_JUMP_HEIGHT = 12f;
 
-    public PlayerStandingState standingState;
     public PlayerWalkingState walkingState;
     public PlayerDivingState divingState;
     public PlayerRollingState rollingState;
     public PlayerAttackingState attackingState;
 
-    public Weapon currentWeapon;
+    public Weapon equippedWeapon;
+    public Weapon currentHeldItem;
     private WeaponInstances weaponInstances;
+    private boolean holdingPickaxe = false;
+
+    public int[] oreAmounts = new int[RockType.SIZE];
 
 
     public Player(int x, int y, EntityActionSpritesheets entityActionSpritesheets) {
         super(x, y, entityActionSpritesheets);
         originX = PLAYER_WIDTH_PIXELS/2f;
         originY = 0;
-        shadowVerticalOffset = 2;
         speed = 2;
+        damagesPlayer = false;
     }
 
     public void setWeapons(WeaponInstances weapons) {
         this.weaponInstances = weapons;
-        currentWeapon = weapons.pickaxe;
+        equippedWeapon = weapons.sword;
+        currentHeldItem = equippedWeapon;
     }
 
     @Override
     public void update() {
+        handleInput();
+        currentHeldItem.update();
+        super.update();
+    }
+
+    private void handleInput() {
         if (GameInput.isMoving()) {
             direction = new Vector2Int(GameInput.getHorizontalAxisInt(), GameInput.getVerticalAxisInt());
         }
-        currentWeapon.update();
-        super.update();
+        if (GameInput.isSwitchButtonJustPressed()) {
+            if (holdingPickaxe) {
+                currentHeldItem = equippedWeapon;
+            } else {
+                currentHeldItem = weaponInstances.pickaxe;
+            }
+            holdingPickaxe = !holdingPickaxe;
+        }
     }
 
     @Override
     public void draw(Batch batch) {
+        handleFlash(batch);
         drawPlayerAndWeaponBasedOnZIndex(batch);
     }
 
-    @Override
-    public boolean isAttackable() {
-        return true;
-    }
-
     private void drawPlayerAndWeaponBasedOnZIndex(Batch batch) {
-        if (currentWeapon.zIndex == 0) {
-            currentWeapon.draw(batch);
+        if (currentHeldItem.zIndex == 0) {
+            currentHeldItem.draw(batch);
             currentState.animationManager.draw(batch);
             return;
         }
         currentState.animationManager.draw(batch);
-        currentWeapon.draw(batch);
+        currentHeldItem.draw(batch);
     }
 
     @Override
@@ -87,7 +101,12 @@ public class Player extends Entity {
         if (NO_CLIP) {
             return new Rectangle(0, 0, 0,0);
         }
-        return new Rectangle(x+8, y+9, 16, 15);
+        return new Rectangle(x+10, y+7, 12, 12);
+    }
+
+    @Override
+    public Rectangle getShadowBounds() {
+        return new Rectangle(x + 8, y + 6, Application.TILE_WIDTH, Application.TILE_HEIGHT);
     }
 
     @Override
@@ -111,6 +130,6 @@ public class Player extends Entity {
 
     @Override
     public int getMaxHp() {
-        return 3;
+        return 10;
     }
 }

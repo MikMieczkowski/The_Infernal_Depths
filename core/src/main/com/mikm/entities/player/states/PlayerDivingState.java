@@ -3,13 +3,13 @@ package com.mikm.entities.player.states;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.mikm.Vector2Int;
 import com.mikm.ExtraMathUtils;
-import com.mikm.entities.animation.AnimationManager;
-import com.mikm.entities.animation.ActionAnimationAllDirections;
-import com.mikm.input.GameInput;
-import com.mikm.entities.player.Player;
+import com.mikm.Vector2Int;
 import com.mikm.entities.State;
+import com.mikm.entities.animation.ActionAnimationAllDirections;
+import com.mikm.entities.animation.AnimationManager;
+import com.mikm.entities.player.Player;
+import com.mikm.input.GameInput;
 
 public class PlayerDivingState extends State {
     private final Player player;

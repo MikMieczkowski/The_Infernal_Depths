@@ -14,9 +14,11 @@ public class InputRaw {
     private static Controller controller;
     private final static float deadzone = .2f;
 
-    private static boolean xPressedLastFrame = false, r2PressedLastFrame = false;
-    private static boolean isXJustPressed = false;
-    private static boolean isR2JustPressed = false;
+    private static int[] usedButtonCodes;
+    private static boolean[] buttonCodePressedLastFrame;
+    private static boolean[] buttonCodeJustPressed;
+
+    private static boolean hasSetUpController = false;
     private static boolean controllerHasInput = true;
 
     public static void checkForControllers() {
@@ -28,11 +30,22 @@ public class InputRaw {
         setControllerHasInput();
     }
 
+    private static void setUpController() {
+        usedButtonCodes = new int[]{controllerMapping.buttonA, controllerMapping.buttonB, controllerMapping.buttonX, controllerMapping.buttonY,
+        controllerMapping.buttonR2};
+        buttonCodePressedLastFrame = new boolean[usedButtonCodes.length];
+        buttonCodeJustPressed = new boolean[usedButtonCodes.length];
+    }
+
     private static void useController(boolean connected) {
         if (connected) {
             usingController = true;
             controller = Controllers.getControllers().first();
             controllerMapping = controller.getMapping();
+            if (!hasSetUpController) {
+                setUpController();
+                hasSetUpController = true;
+            }
         } else {
             usingController = false;
         }
@@ -49,21 +62,20 @@ public class InputRaw {
 
     public static void handleLastFrameInput() {
         if (usingController) {
-            if (!xPressedLastFrame && controller.getButton(controllerMapping.buttonA)) {
-                isXJustPressed = true;
-            }
-            if (!r2PressedLastFrame && isR2Pressed()) {
-                isR2JustPressed = true;
+            for (int i = 0; i < usedButtonCodes.length; i++) {
+                if (!buttonCodePressedLastFrame[i] && isControllerButtonPressed(usedButtonCodes[i])) {
+                    buttonCodeJustPressed[i] = true;
+                }
             }
         }
     }
 
     public static void handleThisFrameInput() {
         if (usingController) {
-            isXJustPressed = false;
-            xPressedLastFrame = controller.getButton(controllerMapping.buttonA);
-            isR2JustPressed = false;
-            r2PressedLastFrame = isR2Pressed();
+            for (int i = 0; i < usedButtonCodes.length; i++) {
+                buttonCodeJustPressed[i] = false;
+                buttonCodePressedLastFrame[i] = isControllerButtonPressed(usedButtonCodes[i]);
+            }
         }
     }
 
@@ -83,11 +95,10 @@ public class InputRaw {
     }
 
     static boolean isControllerButtonJustPressed(int buttonCode) {
-        if (buttonCode == controllerMapping.buttonA) {
-            return isXJustPressed;
-        }
-        if (buttonCode == controllerMapping.buttonR2) {
-            return isR2JustPressed;
+        for (int i = 0; i < usedButtonCodes.length; i++) {
+            if (buttonCode == usedButtonCodes[i]) {
+                return buttonCodeJustPressed[i];
+            }
         }
         throw new RuntimeException("unimplemented button release");
     }
@@ -101,8 +112,8 @@ public class InputRaw {
     }
 
     private static boolean isAnyControllerInputMoved() {
-        for (int keyCode = 0; keyCode < controller.getMaxButtonIndex(); keyCode++) {
-            if (controller.getButton(keyCode)) {
+        for (int buttonCode = 0; buttonCode < controller.getMaxButtonIndex(); buttonCode++) {
+            if (controller.getButton(buttonCode)) {
                 return true;
             }
         }

@@ -9,17 +9,14 @@ public class Rat extends Entity {
 
     public Rat(int x, int y, EntityActionSpritesheets entityActionSpritesheets) {
         super(x, y, entityActionSpritesheets);
-    }
-
-    @Override
-    public boolean isAttackable() {
-        return false;
+        damagesPlayer = false;
+        isAttackable = false;
     }
 
     @Override
     public void createStates() {
-        walkingState = new WanderingState(this);
-        standingState = new StandingState(this);
+        walkingState = new WanderingState(this, 0);
+        standingState = new StandingState(this, 0);
         standingState.enter();
     }
 

@@ -2,6 +2,7 @@ package com.mikm.rendering.screens;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
@@ -13,12 +14,12 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.mikm.ExtraMathUtils;
 import com.mikm.Vector2Int;
 import com.mikm.entities.animation.ActionSpritesheetsAllDirections;
-import com.mikm.entities.animation.EntityActionSpritesheets;
 import com.mikm.entities.animation.AnimationsAlphabeticalIndex;
+import com.mikm.entities.animation.EntityActionSpritesheets;
 import com.mikm.entities.player.Player;
 import com.mikm.entities.player.weapons.WeaponInstances;
-import com.mikm.input.GameInput;
 import com.mikm.input.InputRaw;
+import com.mikm.rendering.Camera;
 import com.mikm.rendering.TextureAtlasUtils;
 
 import java.util.ArrayList;
@@ -30,12 +31,14 @@ public class Application extends Game {
 
 	SpriteBatch batch;
 	private CaveScreen caveScreen;
-	public Player player;
+	private TownScreen townScreen;
+	public static GameScreen currentScreen;
+	public static Player player;
 	public static TextureRegion testTexture;
 	private AssetManager assetManager;
 	private TextureAtlas textureAtlas;
 
-	public static final boolean playMusic = false;
+	public static final boolean PLAY_MUSIC = false;
 
 	public static ShaderProgram fillColorShader;
 
@@ -53,6 +56,10 @@ public class Application extends Game {
 		testTexture = textureAtlas.findRegion("sand").split(TILE_WIDTH, TILE_HEIGHT)[0][0];
 
 		createPlayerAndCaveScreen(textureAtlas);
+		townScreen = new TownScreen(this, textureAtlas);
+		caveScreen.addEntity(player);
+		townScreen.addEntity(player);
+		currentScreen = caveScreen;
 		setScreen(caveScreen);
 	}
 
@@ -62,6 +69,22 @@ public class Application extends Game {
 		InputRaw.handleLastFrameInput();
 		renderScreens();
 		InputRaw.handleThisFrameInput();
+		if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
+			if (currentScreen == caveScreen) {
+				player.x = 100;
+				player.y = 100;
+				Camera.setPositionDirectlyToPlayerPosition();
+				currentScreen = townScreen;
+				setScreen(townScreen);
+			} else {
+				if (!caveScreen.entities.contains(player)) {
+					player.hp = 10;
+					caveScreen.addEntity(player);
+				}
+				currentScreen = caveScreen;
+				setScreen(caveScreen);
+			}
+		}
 	}
 
 	@Override
@@ -89,14 +112,11 @@ public class Application extends Game {
 		EntityActionSpritesheets playerActionSpritesheets = createPlayerActionSpritesheets();
 		player = new Player(500, 500, playerActionSpritesheets);
 		caveScreen = new CaveScreen(this, assetManager.get("sound/caveTheme.mp3", Music.class), textureAtlas);
-		player.setWeapons(new WeaponInstances(caveScreen, textureAtlas, player));
-		GameInput.setCamera(caveScreen.camera);
-		GameInput.setPlayer(player);
-		player.setScreen(caveScreen);
+		player.setWeapons(new WeaponInstances(caveScreen, textureAtlas));
 		Vector2Int playerPosition = spawnablePosition();
 		player.x = playerPosition.x;
 		player.y = playerPosition.y;
-		caveScreen.camera.setPositionDirectlyToPlayerPosition();
+		Camera.setPositionDirectlyToPlayerPosition();
 	}
 
 	private EntityActionSpritesheets createPlayerActionSpritesheets() {

@@ -5,16 +5,16 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.mikm.entities.DamageInformation;
-import com.mikm.entities.projectiles.StaticHurtbox;
+import com.mikm.entities.projectiles.DamageInformation;
+import com.mikm.entities.projectiles.Hurtbox;
 import com.mikm.entities.player.Player;
 import com.mikm.input.GameInput;
 import com.mikm.rendering.screens.Application;
 
 public abstract class Weapon {
-    TextureRegion image;
-    StaticHurtbox staticHurtbox;
-    Player player;
+    public TextureRegion image;
+    Hurtbox hurtbox;
+    final Player player = Application.player;
 
     float x, y;
     public int zIndex = 0;
@@ -26,20 +26,19 @@ public abstract class Weapon {
     boolean shouldSwingRight = true;
     float angleToMouse;
 
-    public Weapon(TextureRegion image, Player player) {
+    public Weapon(TextureRegion image) {
         this.image = image;
-        this.player = player;
     }
 
     public abstract void checkForHit();
 
-    public abstract void enterAttackState();
+    public abstract void checkForStateTransition();
 
-    public abstract void exitAttackState();
+    public abstract void enterAttackState();
 
     public abstract void update();
 
-    public abstract void attackUpdate();
+    public abstract void updateDuringAttackState();
 
     public abstract float getTotalAttackTime();
 

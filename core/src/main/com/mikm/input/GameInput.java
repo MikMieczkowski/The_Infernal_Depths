@@ -6,24 +6,14 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.Vector2Int;
 import com.mikm.ExtraMathUtils;
-import com.mikm.entities.player.Player;
 import com.mikm.rendering.Camera;
+import com.mikm.rendering.screens.Application;
 
 import static com.mikm.input.InputRaw.controllerMapping;
 
 public class GameInput {
 
     private static float lastControllerLeftStickAngle;
-
-    public static Camera camera;
-    private static Player player;
-
-    public static void setCamera(Camera camera) {
-        GameInput.camera = camera;
-    }
-    public static void setPlayer(Player player) {
-        GameInput.player = player;
-    }
 
     public static float getHorizontalAxis() {
         Vector2 normalizedMovementVector = ExtraMathUtils.normalizeAndScale(movementVector());
@@ -94,6 +84,13 @@ public class GameInput {
         return Gdx.input.isTouched();
     }
 
+    public static boolean isSwitchButtonJustPressed() {
+        if (InputRaw.usingController) {
+            return InputRaw.isControllerButtonJustPressed(controllerMapping.buttonB);
+        }
+        return InputRaw.isKeyJustPressed(Input.Keys.Q);
+    }
+
     public static Vector2Int getAttackingDirectionInt() {
         if (InputRaw.usingController) {
             return controllerAxisToDirectionVectorInt();
@@ -104,9 +101,7 @@ public class GameInput {
     public static Vector2 getAttackingVector() {
         if (InputRaw.usingController) {
             if (isControllerRightStickMoving()) {
-                return new Vector2(InputRaw.controllerXAxisRight(), InputRaw.controllerYAxisRight());
-            } else if (isControllerLeftStickMoving()) {
-                return movementVector();
+                return new Vector2(InputRaw.controllerXAxisRight(), InputRaw.controllerYAxisRight()).scl(.5f);
             }
             return Vector2.Zero;
         }
@@ -115,8 +110,8 @@ public class GameInput {
     }
 
     public static Vector2 mousePosRelativeToPlayer() {
-        return new Vector2(InputRaw.mouseXPosition() + camera.x - player.getCenteredPosition().x - Gdx.graphics.getWidth()/2f*Camera.VIEWPORT_ZOOM,
-                InputRaw.mouseYPosition() + camera.y - player.getCenteredPosition().y - Gdx.graphics.getHeight()/2f * Camera.VIEWPORT_ZOOM);
+        return new Vector2(InputRaw.mouseXPosition() + Camera.x - Application.player.getCenteredPosition().x - Gdx.graphics.getWidth()/2f*Camera.VIEWPORT_ZOOM,
+                InputRaw.mouseYPosition() + Camera.y - Application.player.getCenteredPosition().y - Gdx.graphics.getHeight()/2f * Camera.VIEWPORT_ZOOM);
     }
 
     public static float getAttackingAngle() {
