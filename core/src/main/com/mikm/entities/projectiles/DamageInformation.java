@@ -1,11 +1,11 @@
-package com.mikm.entities;
+package com.mikm.entities.projectiles;
 
 public class DamageInformation {
     public float knockbackAngle;
     public float knockbackForceMagnitude;
-    public int damage;
+    public float damage;
 
-    public DamageInformation(float knockbackAngle, float knockbackForceMagnitude, int damage) {
+    public DamageInformation(float knockbackAngle, float knockbackForceMagnitude, float damage) {
         this.knockbackAngle = knockbackAngle;
         this.knockbackForceMagnitude = knockbackForceMagnitude;
         this.damage = damage;

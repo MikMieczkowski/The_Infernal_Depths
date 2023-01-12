@@ -3,11 +3,16 @@ package com.mikm.entities.player.states;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.mikm.entities.animation.AnimationManager;
-import com.mikm.entities.animation.ActionAnimationAllDirections;
-import com.mikm.input.GameInput;
-import com.mikm.entities.player.Player;
+import com.mikm.ExtraMathUtils;
 import com.mikm.entities.State;
+import com.mikm.entities.animation.ActionAnimationAllDirections;
+import com.mikm.entities.animation.AnimationManager;
+import com.mikm.entities.particles.ParticleParameters;
+import com.mikm.entities.particles.ParticleSystem;
+import com.mikm.entities.player.Player;
+import com.mikm.entities.projectiles.DamageInformation;
+import com.mikm.entities.projectiles.Hurtbox;
+import com.mikm.input.GameInput;
 
 public class PlayerRollingState extends State {
     private final Player player;
@@ -15,9 +20,15 @@ public class PlayerRollingState extends State {
     private float rollSpeedSinCounter, heightSinCounter;
     private boolean jumpDone = false;
 
+    private Hurtbox hurtbox;
+    private final int DAMAGE = 1;
+    private final int KNOCKBACK_MULTIPLIER = 2;
+
+
     public PlayerRollingState(Player player) {
         super(player);
         this.player = player;
+        hurtbox = new Hurtbox(20, false);
         ActionAnimationAllDirections actionAnimationAllDirections = new ActionAnimationAllDirections(.055f, Animation.PlayMode.NORMAL,
                 player.entityActionSpritesheets.playerRolling);
         animationManager = new AnimationManager(player, actionAnimationAllDirections);
@@ -59,7 +70,6 @@ public class PlayerRollingState extends State {
             rollSpeedSinCounter = MathUtils.PI;
         }
 
-
         rollForce = new Vector2(player.ROLL_SPEED * MathUtils.sin(rollSpeedSinCounter) * GameInput.getHorizontalAxis(),
                 player.ROLL_SPEED * MathUtils.sin(rollSpeedSinCounter) * GameInput.getVerticalAxis());
     }
@@ -71,6 +81,10 @@ public class PlayerRollingState extends State {
             }
             if (heightSinCounter >= MathUtils.PI) {
                 heightSinCounter = 0;
+                hurtbox.setPosition(player.getCenteredPosition().x, player.getCenteredPosition().y, 0, 0);
+                hurtbox.setDamageInformation(new DamageInformation(ExtraMathUtils.randomFloat(0, MathUtils.PI2), KNOCKBACK_MULTIPLIER, DAMAGE));
+                hurtbox.checkForHit();
+                new ParticleSystem(ParticleParameters.getDiveDustParameters(), player.getCenteredPosition().x, player.getBounds().y - 3);
                 player.startSquish(0.01f, 1.2f);
                 jumpDone = true;
             }

@@ -7,25 +7,24 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.mikm.Vector2Int;
-import com.mikm.entities.RemovableArray;
 import com.mikm.entities.animation.ActionSpritesheetsAllDirections;
 import com.mikm.entities.animation.AnimationsAlphabeticalIndex;
 import com.mikm.entities.animation.EntityActionSpritesheets;
 import com.mikm.rendering.Camera;
 import com.mikm.rendering.TextureAtlasUtils;
 import com.mikm.rendering.tilemap.CaveTilemap;
-import com.mikm.rendering.tilemap.Rock;
 
 import java.util.ArrayList;
 
 public class CaveScreen extends GameScreen {
-    public final RemovableArray<Rock> rocks = new RemovableArray<>();
 
     private final Color caveWallColor = new Color(41/255f, 16/255f, 16/255f, 1);
     CaveTilemap caveTilemap;
 
     public TextureRegion[][] caveTileset;
-    public TextureRegion[][] rockImages;
+    public static TextureRegion[][] rockImages;
+    public static TextureRegion[] oreImages;
+
     public EntityActionSpritesheets slimeActionSpritesheets;
     private Music caveSong;
 
@@ -43,6 +42,7 @@ public class CaveScreen extends GameScreen {
     private void createImages(TextureAtlas textureAtlas) {
         caveTileset = textureAtlas.findRegion("caveTiles").split(Application.TILE_WIDTH, Application.TILE_HEIGHT);
         rockImages = textureAtlas.findRegion("rocks").split(Application.TILE_WIDTH, Application.TILE_HEIGHT);
+        oreImages = textureAtlas.findRegion("ores").split(Application.TILE_WIDTH, Application.TILE_HEIGHT)[0];
 
         slimeActionSpritesheets = new EntityActionSpritesheets();
         ArrayList<TextureRegion[]> rawSlimeSpritesheets = TextureAtlasUtils.findSplitTextureRegionsStartingWith("Slime", textureAtlas, Application.TILE_WIDTH, Application.TILE_HEIGHT);
@@ -53,7 +53,7 @@ public class CaveScreen extends GameScreen {
 
     private void createMusic(Music caveSong) {
         this.caveSong = caveSong;
-        if (Application.playMusic) {
+        if (Application.PLAY_MUSIC) {
             caveSong.play();
             caveSong.setLooping(true);
         }
@@ -74,7 +74,7 @@ public class CaveScreen extends GameScreen {
     @Override
     void drawAssets() {
         tiledMapRenderer.render();
-        rocks.render(application.batch);
+        inanimateEntities.render(application.batch);
         entities.render(application.batch);
     }
 

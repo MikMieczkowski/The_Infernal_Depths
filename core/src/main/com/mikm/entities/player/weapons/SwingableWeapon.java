@@ -8,8 +8,7 @@ import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.mikm.entities.Entity;
-import com.mikm.entities.player.Player;
-import com.mikm.entities.projectiles.StaticHurtbox;
+import com.mikm.entities.projectiles.Hurtbox;
 import com.mikm.rendering.BatchUtils;
 import com.mikm.rendering.screens.Application;
 
@@ -17,15 +16,16 @@ public abstract class SwingableWeapon extends Weapon {
     private final Animation<TextureRegion> sliceAnimation;
     private float sliceAnimationTimer;
     private boolean showSlice = false;
+    private float attackTimer;
 
     private final float SLICE_ANIMATION_SPEED = .1f;
     private final float SWING_SPEED = .75f;
 
-    public SwingableWeapon(TextureRegion image, TextureRegion[] sliceSpritesheet, Player player) {
-        super(image, player);
+    public SwingableWeapon(TextureRegion image, TextureRegion[] sliceSpritesheet) {
+        super(image);
         sliceAnimation = new Animation<>(SLICE_ANIMATION_SPEED, sliceSpritesheet);
         sliceAnimation.setPlayMode(Animation.PlayMode.NORMAL);
-        staticHurtbox = new StaticHurtbox(getSliceBounds().width, false);
+        hurtbox = new Hurtbox(getSliceBounds().width, false);
     }
 
     @Override
@@ -35,33 +35,38 @@ public abstract class SwingableWeapon extends Weapon {
 
     @Override
     public void checkForHit() {
-        for (Entity entity : player.screen.entities) {
-            if (entity != player && entity.isAttackable() && Intersector.overlaps(staticHurtbox.getHurtbox(), entity.getHitbox())) {
+        for (Entity entity : Application.currentScreen.entities) {
+            if (entity != player && entity.isAttackable && Intersector.overlaps(hurtbox.getHurtbox(), entity.getHitbox())) {
                 entity.damagedState.enter(getDamageInformation());
             }
         }
     }
 
     @Override
+    public void checkForStateTransition() {
+        if (attackTimer > player.currentHeldItem.getTotalAttackTime()) {
+            shouldSwingRight = !shouldSwingRight;
+            showSlice = false;
+            player.walkingState.enter();
+        }
+    }
+
+    @Override
     public void enterAttackState() {
         showSlice = true;
+        attackTimer = 0;
         sliceAnimationTimer = 0;
         checkForHit();
     }
 
     @Override
-    public void exitAttackState() {
-        shouldSwingRight = !shouldSwingRight;
-        showSlice = false;
-    }
-
-    @Override
     public void update() {
+        attackTimer += Gdx.graphics.getDeltaTime();
         orbitAroundMouse();
-        staticHurtbox.setPosition(player.getCenteredPosition().x, player.getCenteredPosition().y, Application.TILE_WIDTH, angleToMouse);
+        hurtbox.setPosition(player.getCenteredPosition().x, player.getCenteredPosition().y, Application.TILE_WIDTH, angleToMouse);
     }
 
-    public void attackUpdate() {
+    public void updateDuringAttackState() {
         angleOffset += (shouldSwingRight? 1 : -1) * SWING_SPEED;
         clampAngleOffset();
     }

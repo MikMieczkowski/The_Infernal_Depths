@@ -6,7 +6,9 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.ExtraMathUtils;
-import com.mikm.entities.DamageInformation;
+import com.mikm.entities.particles.ParticleParameters;
+import com.mikm.entities.particles.ParticleSystem;
+import com.mikm.entities.projectiles.DamageInformation;
 import com.mikm.entities.Entity;
 import com.mikm.entities.State;
 import com.mikm.entities.animation.AnimationManager;
@@ -57,10 +59,10 @@ public class DamagedState extends State {
 
         knockbackSinLerpTimer+=Gdx.graphics.getDeltaTime();
         Vector2 sinLerpedKnockbackForce = ExtraMathUtils.sinLerpVector2(knockbackSinLerpTimer,TOTAL_KNOCKBACK_TIME,.1f, 1f, knockbackForce);
-        float jumpOffset = ExtraMathUtils.sinLerp(knockbackSinLerpTimer, TOTAL_KNOCKBACK_TIME * .75f, .1f, 1f, JUMP_HEIGHT);
+        float jumpOffset = ExtraMathUtils.sinLerp(knockbackSinLerpTimer, TOTAL_KNOCKBACK_TIME * (dead ? 1 : .75f), .1f, 1f, JUMP_HEIGHT);
         if (dead) {
             sinLerpedKnockbackForce = sinLerpedKnockbackForce.scl(DEATH_KNOCKBACK_MULTIPLIER);
-            jumpOffset *= 2;
+            jumpOffset *= 1.5f;
         }
         entity.height = jumpOffset;
         entity.xVel = sinLerpedKnockbackForce.x;
@@ -72,6 +74,7 @@ public class DamagedState extends State {
         knockbackTime += Gdx.graphics.getDeltaTime();
         if (knockbackTime > TOTAL_KNOCKBACK_TIME) {
             if (dead) {
+                new ParticleSystem(ParticleParameters.getKnockbackDustParameters(),damageInformation.knockbackAngle, entity.x, entity.y);
                 entity.die();
             }
             knockbackTime = 0;

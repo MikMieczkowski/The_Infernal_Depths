@@ -5,8 +5,8 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.mikm.entities.player.Player;
 import com.mikm.input.GameInput;
+import com.mikm.rendering.screens.Application;
 
 public class Camera {
     public static final float VIEWPORT_ZOOM = .25f;
@@ -17,14 +17,11 @@ public class Camera {
     private final float IGNORED_BOX_HEIGHT = 810 / 64f;
 
     public static OrthographicCamera orthographicCamera;
-    public float x, y;
-    private float lookDirectionX, lookDirectionY;
+    public static float x, y;
+    private static float lookDirectionX, lookDirectionY;
     private final Vector2 ignoredBoxOffset = new Vector2();
 
-    private final Player player;
-
-    public Camera(Player player) {
-        this.player = player;
+    public Camera() {
         orthographicCamera = new OrthographicCamera();
         orthographicCamera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         orthographicCamera.zoom = 1;
@@ -36,7 +33,7 @@ public class Camera {
         lookDirectionX += (GameInput.getAttackingVector().x * LEAD_MULTIPLIER - lookDirectionX) * CAMERA_LEAD_SPEED;
         lookDirectionY += (GameInput.getAttackingVector().y * LEAD_MULTIPLIER - lookDirectionY) * CAMERA_LEAD_SPEED;
 
-        Vector2 targetPosition = new Vector2(player.getCenteredPosition().x - x, player.getCenteredPosition().y - y);
+        Vector2 targetPosition = new Vector2(Application.player.getCenteredPosition().x - x, Application.player.getCenteredPosition().y - y);
 
         setIgnoredBoxOffsetAndMoveCamera(targetPosition);
         updateOrthographicCamera();
@@ -63,14 +60,14 @@ public class Camera {
         }
     }
 
-    private void updateOrthographicCamera() {
-        orthographicCamera.position.set(new Vector3(MathUtils.ceil((x + lookDirectionX) / VIEWPORT_ZOOM) * VIEWPORT_ZOOM, MathUtils.ceil((y+ lookDirectionY) / VIEWPORT_ZOOM) * VIEWPORT_ZOOM, 0));
+    private static void updateOrthographicCamera() {
+        orthographicCamera.position.set(new Vector3(MathUtils.round((x + lookDirectionX) / VIEWPORT_ZOOM) * VIEWPORT_ZOOM, MathUtils.round((y+ lookDirectionY) / VIEWPORT_ZOOM) * VIEWPORT_ZOOM, 0));
         orthographicCamera.update();
     }
 
-    public void setPositionDirectlyToPlayerPosition() {
-        x = player.getCenteredPosition().x;
-        y = player.getCenteredPosition().y;
+    public static void setPositionDirectlyToPlayerPosition() {
+        x = Application.player.getCenteredPosition().x;
+        y = Application.player.getCenteredPosition().y;
         updateOrthographicCamera();
     }
 }

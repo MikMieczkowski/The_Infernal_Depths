@@ -23,7 +23,7 @@ public class CaveTilemapEntitySpawner {
     private final boolean[][] isCollidable;
     public final ArrayList<Vector2Int> openTilePositions;
 
-    private final float ROCK_PERCENT_CHANCE = 1f;
+    private final float ROCK_PERCENT_CHANCE = 8f;
     private final int MIN_ENEMIES = 90, MAX_ENEMIES = 100;
 
     CaveTilemapEntitySpawner(CaveScreen caveScreen, boolean[][] ruleCellPositions) {
@@ -42,11 +42,11 @@ public class CaveTilemapEntitySpawner {
             return;
         }
 
-        int enemyAmount = ExtraMathUtils.randomInt(MIN_ENEMIES, MAX_ENEMIES + 1);
+        int enemyAmount = ExtraMathUtils.randomInt(MIN_ENEMIES, MAX_ENEMIES);
         for (int i = 0; i < enemyAmount; i++) {
             Vector2Int randomTilePosition = openTilePositions.get(ExtraMathUtils.randomInt(openTilePositions.size()));
             Slime slime = new Slime(randomTilePosition.x * Application.TILE_WIDTH, randomTilePosition.y * Application.TILE_HEIGHT, slimeActionSpritesheets);
-            slime.setScreen(caveScreen);
+            caveScreen.addEntity(slime);
         }
     }
 
@@ -55,11 +55,13 @@ public class CaveTilemapEntitySpawner {
             return;
         }
 
+
         ArrayList<Vector2Int> positionsToDelete = new ArrayList<>();
         for (Vector2Int tilePosition : openTilePositions) {
             if (ExtraMathUtils.randomFloatOneDecimalPlace(100) < ROCK_PERCENT_CHANCE) {
-                TextureRegion randomRockImage = rockImages[0][ExtraMathUtils.randomInt(3)];
-                caveScreen.rocks.add(new Rock(randomRockImage, tilePosition.x * Application.TILE_WIDTH, tilePosition.y * Application.TILE_HEIGHT));
+                float[] rockTypeChances = new float[]{.95f, .045f, .005f};
+                RockType randomRockType = RockType.getRandomRockType(rockTypeChances);
+                caveScreen.inanimateEntities.add(new Rock(randomRockType, tilePosition.x * Application.TILE_WIDTH, tilePosition.y * Application.TILE_HEIGHT));
                 isCollidable[tilePosition.y][tilePosition.x] = true;
                 positionsToDelete.add(tilePosition);
             }
