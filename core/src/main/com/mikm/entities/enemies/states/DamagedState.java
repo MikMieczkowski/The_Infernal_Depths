@@ -6,13 +6,12 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.ExtraMathUtils;
+import com.mikm.entities.Entity;
+import com.mikm.entities.State;
+import com.mikm.entities.animation.OneDirectionalAnimationManager;
 import com.mikm.entities.particles.ParticleParameters;
 import com.mikm.entities.particles.ParticleSystem;
 import com.mikm.entities.projectiles.DamageInformation;
-import com.mikm.entities.Entity;
-import com.mikm.entities.State;
-import com.mikm.entities.animation.AnimationManager;
-import com.mikm.entities.animation.ActionAnimationAllDirections;
 
 public class DamagedState extends State {
     private final float TOTAL_KNOCKBACK_TIME = .25f;
@@ -27,8 +26,9 @@ public class DamagedState extends State {
 
     public DamagedState(Entity entity) {
         super(entity);
-        ActionAnimationAllDirections actionAnimationAllDirections = new ActionAnimationAllDirections(1, Animation.PlayMode.NORMAL, entity.entityActionSpritesheets.hit);
-        animationManager = new AnimationManager(entity, actionAnimationAllDirections);
+        OneDirectionalAnimationManager oneDirectionalAnimationManager = new OneDirectionalAnimationManager(entity);
+        oneDirectionalAnimationManager.animation = new Animation<>(1, entity.entityActionSpritesheets.hit);
+        animationManager = oneDirectionalAnimationManager;
     }
 
     @Override
@@ -37,6 +37,9 @@ public class DamagedState extends State {
     }
 
     public void enter(DamageInformation damageInformation) {
+        if (entity.inInvincibility) {
+            return;
+        }
         super.enter();
         this.damageInformation = damageInformation;
         entity.hp -= damageInformation.damage;
@@ -49,6 +52,7 @@ public class DamagedState extends State {
         entity.startSquish(TOTAL_KNOCKBACK_TIME*.75f, 1.2f);
         knockbackTime = 0;
         knockbackSinLerpTimer = 0;
+        entity.startInvincibilityFrames();
     }
 
     @Override

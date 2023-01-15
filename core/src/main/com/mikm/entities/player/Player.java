@@ -1,6 +1,7 @@
 package com.mikm.entities.player;
 
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -12,11 +13,13 @@ import com.mikm.entities.player.weapons.Weapon;
 import com.mikm.entities.player.weapons.WeaponInstances;
 import com.mikm.input.GameInput;
 import com.mikm.rendering.screens.Application;
-import com.mikm.rendering.tilemap.RockType;
 
 public class Player extends Entity {
     public static final int PLAYER_WIDTH_PIXELS = 32, PLAYER_HEIGHT_PIXELS = 32;
     private final boolean NO_CLIP = false;
+
+    public final float ACCELERATION_FRAMES = 6;
+    public final float DECELERATION_FRAMES = 3;
 
     public final float DIVE_SPEED = 6;
     public final float DIVE_FRICTION = .3f;
@@ -32,31 +35,36 @@ public class Player extends Entity {
     public final float ROLL_JUMP_SPEED = .25f;
     public final float ROLL_JUMP_HEIGHT = 12f;
 
+    private final float PLAYER_INVINCIBILITY_TIME = 1;
+
     public PlayerWalkingState walkingState;
     public PlayerDivingState divingState;
     public PlayerRollingState rollingState;
-    public PlayerAttackingState attackingState;
+    public PlayerAttackingAndWalkingState attackingState;
 
     public Weapon equippedWeapon;
     public Weapon currentHeldItem;
     private WeaponInstances weaponInstances;
     private boolean holdingPickaxe = false;
+    private int showPlayerDuringInvincibilityFrame;
 
-    public int[] oreAmounts = new int[RockType.SIZE];
+    public int money;
 
-
-    public Player(int x, int y, EntityActionSpritesheets entityActionSpritesheets) {
+    public Player(float x, float y, EntityActionSpritesheets entityActionSpritesheets) {
         super(x, y, entityActionSpritesheets);
-        originX = PLAYER_WIDTH_PIXELS/2f;
-        originY = 0;
-        speed = 2;
         damagesPlayer = false;
+        maxInvincibilityTime = PLAYER_INVINCIBILITY_TIME;
     }
 
     public void setWeapons(WeaponInstances weapons) {
         this.weaponInstances = weapons;
         equippedWeapon = weapons.sword;
         currentHeldItem = equippedWeapon;
+    }
+
+    @Override
+    public float getOriginX() {
+        return PLAYER_WIDTH_PIXELS/2f;
     }
 
     @Override
@@ -82,18 +90,29 @@ public class Player extends Entity {
 
     @Override
     public void draw(Batch batch) {
-        handleFlash(batch);
+        handleSquish();
+        handleInvincibility();
         drawPlayerAndWeaponBasedOnZIndex(batch);
     }
 
     private void drawPlayerAndWeaponBasedOnZIndex(Batch batch) {
         if (currentHeldItem.zIndex == 0) {
             currentHeldItem.draw(batch);
-            currentState.animationManager.draw(batch);
+            drawPlayer(batch);
             return;
         }
-        currentState.animationManager.draw(batch);
+        drawPlayer(batch);
         currentHeldItem.draw(batch);
+    }
+
+    private void drawPlayer(Batch batch) {
+        handleFlash(batch);
+        if (inInvincibility) {
+            batch.setColor(new Color(1,1,1,.5f));
+        }
+        currentState.animationManager.draw(batch);
+        batch.setShader(null);
+        batch.setColor(Color.WHITE);
     }
 
     @Override
@@ -124,8 +143,13 @@ public class Player extends Entity {
         divingState = new PlayerDivingState(this);
         standingState = new PlayerStandingState(this);
         rollingState = new PlayerRollingState(this);
-        attackingState = new PlayerAttackingState(this);
+        attackingState = new PlayerAttackingAndWalkingState(this);
         standingState.enter();
+    }
+
+    @Override
+    public float getSpeed() {
+        return 2;
     }
 
     @Override

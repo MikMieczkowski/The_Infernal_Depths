@@ -14,7 +14,7 @@ import java.util.Map;
 public class AnimationManager {
     private float animationTime;
     private boolean animationIsFlipped = false;
-    private Animation<TextureRegion> currentAnimation;
+    Animation<TextureRegion> currentAnimation;
 
     Entity entity;
     private final ActionAnimationAllDirections actionAnimationAllDirections;
@@ -29,14 +29,13 @@ public class AnimationManager {
     }
 
     public void draw(Batch batch) {
-        entity.updateSquish();
         animationTime += Gdx.graphics.getDeltaTime();
         if (animationIsFlipped) {
             BatchUtils.drawFlipped(batch, currentAnimation.getKeyFrame(animationTime), entity.x, entity.y+ entity.height,
-                    entity.originX, entity.originY, entity.getFullBounds().width, entity.getFullBounds().height, entity.xScale, entity.yScale, entity.rotation, true);
+                    entity.getOriginX(), entity.getOriginY(), entity.getFullBounds().width, entity.getFullBounds().height, entity.xScale, entity.yScale, entity.rotation, true);
         } else {
-            batch.draw(currentAnimation.getKeyFrame(animationTime), entity.x, entity.y+ entity.height, entity.originX,
-                    entity.originY, entity.getFullBounds().width, entity.getFullBounds().height, entity.xScale, entity.yScale, entity.rotation);
+            batch.draw(currentAnimation.getKeyFrame(animationTime), entity.x, entity.y+ entity.height, entity.getOriginX(),
+                    entity.getOriginY(), entity.getFullBounds().width, entity.getFullBounds().height, entity.xScale, entity.yScale, entity.rotation);
         }
     }
 

@@ -74,7 +74,7 @@ public class GameInput {
         if (InputRaw.usingController) {
             return InputRaw.isControllerButtonJustPressed(controllerMapping.buttonA);
         }
-        return Gdx.input.isKeyJustPressed(Input.Keys.E);
+        return Gdx.input.isKeyJustPressed(Input.Keys.SPACE);
     }
 
     public static boolean isAttackButtonPressed() {
@@ -89,6 +89,10 @@ public class GameInput {
             return InputRaw.isControllerButtonJustPressed(controllerMapping.buttonB);
         }
         return InputRaw.isKeyJustPressed(Input.Keys.Q);
+    }
+
+    public static boolean isTalkButtonJustPressed() {
+        return isDiveButtonJustPressed();
     }
 
     public static Vector2Int getAttackingDirectionInt() {
@@ -151,7 +155,7 @@ public class GameInput {
     }
 
     private static Vector2Int controllerAxisToDirectionVectorInt() {
-        return new Vector2Int(MathUtils.round(InputRaw.controllerXAxis()), MathUtils.round(InputRaw.controllerYAxis()));
+        return angleToDirectionVectorInt(getAttackingAngle());
     }
 
     private static Vector2Int mousePositionToDirectionVectorInt() {

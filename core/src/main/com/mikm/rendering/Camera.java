@@ -11,7 +11,7 @@ import com.mikm.rendering.screens.Application;
 public class Camera {
     public static final float VIEWPORT_ZOOM = .25f;
     private final float CAMERA_SPEED = .2f;
-    private final float LEAD_MULTIPLIER = 45;
+    private final float LEAD_MULTIPLIER = 60;
     private final float CAMERA_LEAD_SPEED = .3f;
     private final float IGNORED_BOX_WIDTH = 1440 / 64f;
     private final float IGNORED_BOX_HEIGHT = 810 / 64f;

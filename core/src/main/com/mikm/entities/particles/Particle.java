@@ -10,7 +10,6 @@ import com.mikm.entities.InanimateEntity;
 class Particle extends InanimateEntity {
     private ParticleParameters parameters;
     private float size, angle, startingSpeed;
-    private float scaleVelocity, velocity, heightAcceleration= 3f;
     private float timer;
     private boolean checkedOnce = false;
 
@@ -21,15 +20,18 @@ class Particle extends InanimateEntity {
         this.angle = angle;
         this.startingSpeed = startingSpeed;
 
-        shadowVerticalOffset = -3;
         xScale = size;
         yScale = size;
-        hasShadow = parameters.hasShadow;
     }
 
     void setPosition(float x, float y) {
         this.x = x;
         this.y = y;
+    }
+
+    @Override
+    public boolean hasShadow() {
+        return parameters.hasShadow;
     }
 
     @Override
@@ -71,6 +73,11 @@ class Particle extends InanimateEntity {
     @Override
     public Rectangle getBounds() {
         return new Rectangle(x + 4 + Math.max(1,size/2f), y+ 4 + Math.max(1,size/2f), size, size);
+    }
+
+    @Override
+    public Rectangle getShadowBounds() {
+        return new Rectangle(x, y +3, 8, 8);
     }
 
     @Override

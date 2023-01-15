@@ -5,22 +5,18 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.ExtraMathUtils;
 import com.mikm.entities.Entity;
-import com.mikm.entities.State;
-import com.mikm.entities.animation.AnimationManager;
 import com.mikm.entities.animation.ActionAnimationAllDirections;
+import com.mikm.entities.animation.AnimationManager;
 
-public class WanderingState extends State {
+public class WanderingState extends DashInducingState {
     private float wanderTimer;
-    private final float TOTAL_WANDER_TIME = 1f;
     private Vector2 wanderForce;
+    private final float TOTAL_WANDER_TIME = 1f;
     private final float MIN_WANDER_FORCE = .2f;
-    private int contactDamage;
 
-    private float dashTimer;
 
-    public WanderingState(Entity entity, int contactDamage) {
-        super(entity);
-        this.contactDamage = contactDamage;
+    public WanderingState(Entity entity, float contactDamage) {
+        super(entity, contactDamage);
         ActionAnimationAllDirections actionAnimationAllDirections = new ActionAnimationAllDirections(.33f, Animation.PlayMode.LOOP, entity.entityActionSpritesheets.walking);
         animationManager = new AnimationManager(entity, actionAnimationAllDirections);
     }
@@ -28,14 +24,18 @@ public class WanderingState extends State {
     @Override
     public void enter() {
         super.enter();
-        dashTimer = 0;
+        wanderForce = new Vector2(getRandomWanderFloat(), getRandomWanderFloat());
+    }
+
+    @Override
+    public void enter(float dashTimer) {
+        super.enter(dashTimer);
         wanderForce = new Vector2(getRandomWanderFloat(), getRandomWanderFloat());
     }
 
     @Override
     public void update() {
         super.update();
-        dashTimer += Gdx.graphics.getDeltaTime();
         wanderTimer += Gdx.graphics.getDeltaTime();
         entity.xVel = wanderForce.x;
         entity.yVel = wanderForce.y;
@@ -43,15 +43,16 @@ public class WanderingState extends State {
 
     @Override
     public void checkForStateTransition() {
+        super.checkForStateTransition();
         if (wanderTimer > TOTAL_WANDER_TIME) {
             wanderTimer = 0;
-            entity.standingState.enter();
+            StandingState standingState = (StandingState) entity.standingState;
+            standingState.enter(timeSinceLastDash);
         }
-        StandingState.checkIfDamagedPlayer(entity, contactDamage, dashTimer);
     }
 
     private float getRandomWanderFloat() {
-        float randomForcePositive = entity.speed * ExtraMathUtils.randomFloat(MIN_WANDER_FORCE, 1);
+        float randomForcePositive = entity.getSpeed() * ExtraMathUtils.randomFloat(MIN_WANDER_FORCE, 1);
         int randomSign = ExtraMathUtils.randomBoolean() ? 1 : -1;
         return randomSign * randomForcePositive;
     }
