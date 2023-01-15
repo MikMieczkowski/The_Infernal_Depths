@@ -1,4 +1,4 @@
-package com.mikm.rendering.tilemap;
+package com.mikm.rendering.cave;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -12,18 +12,23 @@ public class Rock extends InanimateEntity {
 
     public Rock(RockType rockType, int x, int y) {
         super(x, y);
+        int recolorLevel = CaveScreen.floor/5;
         this.rockType = rockType;
         if (rockType == RockType.NORMAL) {
-            this.image = CaveScreen.rockImages[0][ExtraMathUtils.randomInt(2)];
+            this.image = CaveScreen.rockImages[recolorLevel][ExtraMathUtils.randomInt(2)];
         } else {
             this.image = CaveScreen.oreImages[rockType.spritesheetPosition];
         }
-        hasShadow = false;
     }
 
     @Override
     public void update() {
 
+    }
+
+    @Override
+    public boolean hasShadow() {
+        return false;
     }
 
     @Override

@@ -41,4 +41,10 @@ public class ActionSpritesheetsAllDirections {
         }
         return actionSpritesheets;
     }
+
+    public static ActionSpritesheetsAllDirections createOneDirectional(TextureRegion[] spritesheet) {
+        ActionSpritesheetsAllDirections actionSpritesheets = new ActionSpritesheetsAllDirections();
+        actionSpritesheets.add(spritesheet);
+        return actionSpritesheets;
+    }
 }

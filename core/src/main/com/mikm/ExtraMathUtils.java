@@ -13,6 +13,67 @@ public class ExtraMathUtils {
 
     }
 
+    public static int sign(float num) {
+        if (num > 0) {
+            return 1;
+        }
+        if (num == 0) {
+            return 0;
+        }
+        return -1;
+    }
+
+    public static boolean haveSameSign(float num1, float num2) {
+        return sign(num1) == sign(num2);
+    }
+
+    public static float lerpAngle(float timer, float maxTime, float startValue, float endValue) {
+        float progress = timer / maxTime;
+        if (Math.abs(startValue - endValue) >= MathUtils.PI) {
+            if (startValue > endValue) {
+                startValue = normalize_angle(startValue) - MathUtils.PI2;
+            } else {
+                endValue = normalize_angle(endValue) - MathUtils.PI2;
+            }
+        }
+        return MathUtils.lerp(startValue, endValue, progress);
+    }
+
+
+    private static float normalize_angle(float angle) {
+        return wrappingModulo(angle + MathUtils.PI, MathUtils.PI2) - MathUtils.PI;
+    }
+
+    private static float wrappingModulo(float p_x, float p_y) {
+        float value = p_x % p_y;
+        if (((value < 0) && (p_y > 0)) || ((value > 0) && (p_y < 0))) {
+            value += p_y;
+        }
+        value += 0f;
+        return value;
+    }
+
+    public static float distance(float x1, float y1, float x2, float y2) {
+        return (float)Math.sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1));
+    }
+
+    public static float lerp(float timer, float maxTime, float startValue, float endValue) {
+        float progress = timer / maxTime;
+        if (progress > 1) {
+            return endValue;
+        }
+        return MathUtils.lerp(startValue, endValue, progress);
+    }
+
+    public static float lerp(float timer, float maxTime, float startProportion, float endProportion, float startValue, float endValue) {
+        final float startTime = startProportion * maxTime;
+        final float endTime = endProportion * maxTime;
+        if (timer + startTime > endTime) {
+            return endValue;
+        }
+        return MathUtils.lerp(startValue, endValue, (timer + startTime) / maxTime);
+    }
+
     public static float sinLerp(float timer, float maxTime, float peakValue) {
         if (timer > maxTime) {
             return 0;

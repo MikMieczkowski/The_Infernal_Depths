@@ -1,13 +1,13 @@
-package com.mikm.rendering.tilemap;
+package com.mikm.rendering.cave;
 
-import com.mikm.rendering.tilemap.ruleCell.TileRuleset;
-import com.mikm.rendering.tilemap.ruleCell.TileRulesetTransformer;
+import com.mikm.rendering.cave.ruleCell.TileRuleset;
+import com.mikm.rendering.cave.ruleCell.TileRulesetTransformer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-import static com.mikm.rendering.tilemap.ruleCell.CellPresence.*;
+import static com.mikm.rendering.cave.ruleCell.CellPresence.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

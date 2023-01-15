@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.mikm.entities.NPC;
 import com.mikm.rendering.Camera;
 
 public class TownScreen extends GameScreen {
@@ -13,10 +14,12 @@ public class TownScreen extends GameScreen {
         tiledMap = new TmxMapLoader().load("Overworld.tmx");
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, 1);
         tiledMapRenderer.setView(Camera.orthographicCamera);
+
+        addInanimateEntity(new NPC(Application.player.entityActionSpritesheets.standing.list.get(0)[0], 50, 50));
     }
 
     @Override
-    public boolean[][] getCollidableTilePositions() {
+    public boolean[][] getIsCollidableGrid() {
         return new boolean[100][100];
     }
 
@@ -28,13 +31,13 @@ public class TownScreen extends GameScreen {
         application.batch.setProjectionMatrix(Camera.orthographicCamera.combined);
         tiledMapRenderer.setView(Camera.orthographicCamera);
         drawAssets();
+        Application.font.getData().setScale(1f);
+        Application.font.draw(application.batch, String.valueOf(Application.player.money), 50, 50);
         application.batch.end();
     }
 
     @Override
     void drawAssets() {
-        tiledMapRenderer.render();
-        inanimateEntities.render(application.batch);
-        entities.render(application.batch);
+        super.drawAssets();
     }
 }

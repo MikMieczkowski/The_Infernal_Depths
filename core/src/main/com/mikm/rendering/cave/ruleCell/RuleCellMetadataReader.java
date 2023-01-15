@@ -1,4 +1,4 @@
-package com.mikm.rendering.tilemap.ruleCell;
+package com.mikm.rendering.cave.ruleCell;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;

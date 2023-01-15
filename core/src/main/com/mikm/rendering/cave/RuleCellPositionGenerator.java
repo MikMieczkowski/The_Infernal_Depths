@@ -1,21 +1,22 @@
-package com.mikm.rendering.tilemap;
+package com.mikm.rendering.cave;
 
 import com.mikm.ExtraMathUtils;
 import com.mikm.Vector2Int;
 
 import java.util.*;
 
-import static com.mikm.rendering.tilemap.CaveTilemap.MAP_WIDTH;
-import static com.mikm.rendering.tilemap.CaveTilemap.MAP_HEIGHT;
+import static com.mikm.rendering.cave.CaveTilemap.MAP_WIDTH;
+import static com.mikm.rendering.cave.CaveTilemap.MAP_HEIGHT;
 
 //Thanks to Sebastian Lague
 
 class RuleCellPositionGenerator {
     public final int WALL_THRESHOLD_SIZE = 50, ROOM_THRESHOLD_SIZE = 50, PASSAGE_WIDTH = 1;
 
-    private final boolean[][] ruleCellPositions = new boolean[MAP_HEIGHT][MAP_WIDTH];
+    private boolean[][] ruleCellPositions;
 
     public boolean[][] createRuleCellPositions() {
+        ruleCellPositions = new boolean[MAP_HEIGHT][MAP_WIDTH];
         fillRuleCellPositionsRandomly();
         for (int i = 0; i < 5; i++) {
             smoothRuleCellPositions();
@@ -194,7 +195,7 @@ class RuleCellPositionGenerator {
         }
     }
 
-    void CreatePassage(CaveRoom roomA, CaveRoom roomB, Vector2Int tileA, Vector2Int tileB)
+    private void CreatePassage(CaveRoom roomA, CaveRoom roomB, Vector2Int tileA, Vector2Int tileB)
     {
         CaveRoom.ConnectRooms(roomA, roomB);
 
@@ -206,7 +207,7 @@ class RuleCellPositionGenerator {
 
     }
 
-    void DrawCircle(Vector2Int c, int r)
+    private void DrawCircle(Vector2Int c, int r)
     {
         for (int x = -r; x <= r; x++)
         {
@@ -225,7 +226,7 @@ class RuleCellPositionGenerator {
         }
     }
 
-    List<Vector2Int> GetLine(Vector2Int from, Vector2Int to)
+    private List<Vector2Int> GetLine(Vector2Int from, Vector2Int to)
     {
         List<Vector2Int> line = new ArrayList<>();
 

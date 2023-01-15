@@ -12,8 +12,8 @@ import com.mikm.rendering.screens.Application;
 
 public class DashingState extends State {
     private float dashTimer;
-    private final float MAX_DASH_TIME = 3f;
-    private final float DASH_SPEED = 10f;
+    private final float MAX_DASH_TIME = .3f;
+    private final float DASH_SPEED = 6f;
     private final float DASH_DAMAGE = 1;
     public static final float TIME_BETWEEN_DASHES = 2f;
 
@@ -30,6 +30,7 @@ public class DashingState extends State {
     @Override
     public void enter() {
         super.enter();
+        dashTimer = 0;
         angleToPlayer = MathUtils.atan2(player.getCenteredPosition().y - entity.y, player.getCenteredPosition().x - entity.x);
     }
 
@@ -46,6 +47,6 @@ public class DashingState extends State {
         if (dashTimer > MAX_DASH_TIME) {
             entity.standingState.enter();
         }
-        StandingState.checkIfDamagedPlayer(entity, DASH_DAMAGE, 0);
+        checkIfCollidedWithPlayer(DASH_DAMAGE);
     }
 }

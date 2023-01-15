@@ -1,15 +1,14 @@
 package com.mikm.entities.player.states;
 
-import com.mikm.entities.animation.AnimationManager;
 import com.mikm.entities.animation.ActionAnimationAllDirections;
+import com.mikm.entities.animation.AnimationManager;
 import com.mikm.entities.player.Player;
-import com.mikm.entities.State;
 import com.mikm.input.GameInput;
 
-public class PlayerAttackingState extends State {
+public class PlayerAttackingAndWalkingState extends PlayerWalking {
     private final Player player;
 
-    public PlayerAttackingState(Player player) {
+    public PlayerAttackingAndWalkingState(Player player) {
         super(player);
         this.player = player;
         ActionAnimationAllDirections actionAnimationAllDirections = player.walkingState.actionAnimationAllDirections;
@@ -27,8 +26,7 @@ public class PlayerAttackingState extends State {
     @Override
     public void update() {
         player.currentHeldItem.updateDuringAttackState();
-        player.xVel = GameInput.getHorizontalAxis() * player.speed;
-        player.yVel = GameInput.getVerticalAxis() * player.speed;
+        checkIfWalking();
     }
 
     @Override

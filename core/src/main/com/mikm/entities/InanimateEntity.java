@@ -14,11 +14,9 @@ public abstract class InanimateEntity {
     public float xVel, yVel;
     public float xScale = 1, yScale = 1;
     public float height;
-    public String tag = "";
 
-    public boolean hasShadow = true;
-    public int shadowVerticalOffset = 0;
     private float shadowScale = .75f;
+    private final float SHADOW_DISAPPEAR_HEIGHT_FOR_NORMAL_ENTITY = 20;
 
     public InanimateEntity(float x, float y) {
         this.x = x;
@@ -27,9 +25,9 @@ public abstract class InanimateEntity {
 
     public void render(Batch batch) {
         update();
-        if (hasShadow) {
-            final float shadowHeightScale = Math.min(shadowScale * height/20f, shadowScale);
-            batch.draw(GameScreen.shadowImage, getShadowBounds().x, getShadowBounds().y - 3 - shadowVerticalOffset,getShadowBounds().width/2f, 4, getShadowBounds().width, getShadowBounds().height,
+        if (hasShadow()) {
+            final float shadowHeightScale = Math.min(shadowScale / (getShadowBounds().width/Application.TILE_WIDTH) * height/SHADOW_DISAPPEAR_HEIGHT_FOR_NORMAL_ENTITY, shadowScale);
+            batch.draw(GameScreen.shadowImage, getShadowBounds().x, getShadowBounds().y - 3,getShadowBounds().width/2f, 4, getShadowBounds().width, getShadowBounds().height,
                     xScale * (shadowScale - shadowHeightScale), yScale * (shadowScale - shadowHeightScale), 0);
         }
         draw(batch);
@@ -66,7 +64,7 @@ public abstract class InanimateEntity {
     }
 
     public Rectangle getFullBounds() {
-        return new Rectangle(x, y, Application.TILE_WIDTH, Application.TILE_HEIGHT);
+        return new Rectangle(x, y, getBounds().width, getBounds().height);
     }
 
     public Circle getHitbox() {
@@ -94,7 +92,7 @@ public abstract class InanimateEntity {
     public boolean checkWallCollisions() {
         //Check tiles in a 5x5 grid around player
         boolean movedPlayer = false;
-        boolean[][] isCollidable = Application.currentScreen.getCollidableTilePositions();
+        boolean[][] isCollidable = Application.currentScreen.getIsCollidableGrid();
         for (int i = -2; i <= 2; i++) {
             for (int j = -2; j <= 2; j++) {
                 Vector2Int checkedWallTilePosition = new Vector2Int(getXInt() / Application.TILE_WIDTH + j, getYInt() / Application.TILE_HEIGHT + i);
@@ -140,5 +138,9 @@ public abstract class InanimateEntity {
 
     public Vector2 getBoundsOffset() {
         return new Vector2(x - getBounds().x, y-getBounds().y);
+    }
+
+    public boolean hasShadow() {
+        return true;
     }
 }

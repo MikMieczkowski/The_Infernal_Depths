@@ -8,8 +8,8 @@ import com.mikm.entities.particles.ParticleSystem;
 import com.mikm.entities.projectiles.DamageInformation;
 import com.mikm.rendering.screens.Application;
 import com.mikm.rendering.screens.CaveScreen;
-import com.mikm.rendering.tilemap.Rock;
-import com.mikm.rendering.tilemap.RockType;
+import com.mikm.rendering.cave.Rock;
+import com.mikm.rendering.cave.RockType;
 
 public class Pickaxe extends SwingableWeapon {
     CaveScreen caveScreen;
@@ -23,11 +23,11 @@ public class Pickaxe extends SwingableWeapon {
         for (InanimateEntity inanimateEntity : caveScreen.inanimateEntities) {
             if (inanimateEntity.getClass() == Rock.class && Intersector.overlaps(inanimateEntity.getHitbox(), hurtbox.getHurtbox())) {
                 inanimateEntity.die();
-                caveScreen.getCollidableTilePositions()[(int)inanimateEntity.y/ Application.TILE_HEIGHT][(int)inanimateEntity.x / Application.TILE_WIDTH] = false;
+                caveScreen.getIsCollidableGrid()[(int)inanimateEntity.y/ Application.TILE_HEIGHT][(int)inanimateEntity.x / Application.TILE_WIDTH] = false;
 
                 RockType rockType = ((Rock)inanimateEntity).rockType;
                 if (rockType != RockType.NORMAL) {
-                    player.oreAmounts[rockType.spritesheetPosition]++;
+                    rockType.increaseOreAmount(rockType);
                 }
                 new ParticleSystem(ParticleParameters.getRockParameters(rockType), inanimateEntity.x, inanimateEntity.y);
             }

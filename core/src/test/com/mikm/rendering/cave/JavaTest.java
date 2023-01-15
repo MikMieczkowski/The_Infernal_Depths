@@ -1,4 +1,4 @@
-package com.mikm.rendering.tilemap;
+package com.mikm.rendering.cave;
 
 import org.junit.jupiter.api.Test;
 

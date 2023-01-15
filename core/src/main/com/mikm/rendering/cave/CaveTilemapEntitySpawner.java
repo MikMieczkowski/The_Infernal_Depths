@@ -1,6 +1,5 @@
-package com.mikm.rendering.tilemap;
+package com.mikm.rendering.cave;
 
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mikm.ExtraMathUtils;
 import com.mikm.Vector2Int;
 import com.mikm.entities.animation.EntityActionSpritesheets;
@@ -10,20 +9,18 @@ import com.mikm.rendering.screens.CaveScreen;
 
 import java.util.ArrayList;
 
-import static com.mikm.rendering.tilemap.CaveTilemap.MAP_WIDTH;
-import static com.mikm.rendering.tilemap.CaveTilemap.MAP_HEIGHT;
+import static com.mikm.rendering.cave.CaveTilemap.MAP_HEIGHT;
+import static com.mikm.rendering.cave.CaveTilemap.MAP_WIDTH;
 
 public class CaveTilemapEntitySpawner {
     private final CaveScreen caveScreen;
 
-    private final TextureRegion[][] rockImages;
     private final EntityActionSpritesheets slimeActionSpritesheets;
 
-    private final boolean[][] ruleCellPositions;
-    private final boolean[][] isCollidable;
-    public final ArrayList<Vector2Int> openTilePositions;
+    private boolean[][] ruleCellPositions;
+    private boolean[][] isCollidable;
+    public ArrayList<Vector2Int> openTilePositions;
 
-    private final float ROCK_PERCENT_CHANCE = 8f;
     private final int MIN_ENEMIES = 90, MAX_ENEMIES = 100;
 
     CaveTilemapEntitySpawner(CaveScreen caveScreen, boolean[][] ruleCellPositions) {
@@ -31,10 +28,22 @@ public class CaveTilemapEntitySpawner {
         this.ruleCellPositions = ruleCellPositions;
         isCollidable = ruleCellPositions.clone();
 
-        rockImages = caveScreen.rockImages;
         slimeActionSpritesheets = caveScreen.slimeActionSpritesheets;
         openTilePositions = findOpenTilePositions();
+    }
+    
+    public void generateNewMap(boolean[][] ruleCellPositions) {
+        this.ruleCellPositions = ruleCellPositions;
+        isCollidable = ruleCellPositions.clone();
+        openTilePositions = findOpenTilePositions();
 
+        caveScreen.entities.doAfterRender(() -> {
+            caveScreen.entities.clear();
+            caveScreen.inanimateEntities.clear();
+            caveScreen.entities.addInstantly(Application.player);
+            spawnEnemies();
+            spawnRocks();
+        });
     }
 
     public void spawnEnemies() {
@@ -46,22 +55,21 @@ public class CaveTilemapEntitySpawner {
         for (int i = 0; i < enemyAmount; i++) {
             Vector2Int randomTilePosition = openTilePositions.get(ExtraMathUtils.randomInt(openTilePositions.size()));
             Slime slime = new Slime(randomTilePosition.x * Application.TILE_WIDTH, randomTilePosition.y * Application.TILE_HEIGHT, slimeActionSpritesheets);
-            caveScreen.addEntity(slime);
+            caveScreen.entities.addInstantly(slime);
         }
     }
 
-    public void createRockLayer() {
+    public void spawnRocks() {
         if (openTilePositions.size() == 0) {
             return;
         }
 
-
         ArrayList<Vector2Int> positionsToDelete = new ArrayList<>();
         for (Vector2Int tilePosition : openTilePositions) {
-            if (ExtraMathUtils.randomFloatOneDecimalPlace(100) < ROCK_PERCENT_CHANCE) {
-                float[] rockTypeChances = new float[]{.95f, .045f, .005f};
-                RockType randomRockType = RockType.getRandomRockType(rockTypeChances);
-                caveScreen.inanimateEntities.add(new Rock(randomRockType, tilePosition.x * Application.TILE_WIDTH, tilePosition.y * Application.TILE_HEIGHT));
+            SpawnerDistribution rockDistribution = SpawnerDistributions.ROCK_FILL;
+            if (ExtraMathUtils.randomFloatOneDecimalPlace(100) < rockDistribution.getDistributionByFloor(CaveScreen.floor) * 100f) {
+                RockType randomRockType = RockType.getRandomRockType(SpawnerDistributions.getOreDistributionsByFloor(CaveScreen.floor));
+                caveScreen.inanimateEntities.addInstantly(new Rock(randomRockType, tilePosition.x * Application.TILE_WIDTH, tilePosition.y * Application.TILE_HEIGHT));
                 isCollidable[tilePosition.y][tilePosition.x] = true;
                 positionsToDelete.add(tilePosition);
             }
@@ -83,7 +91,7 @@ public class CaveTilemapEntitySpawner {
         return output;
     }
 
-    public boolean[][] getCollidableTilePositions() {
+    public boolean[][] getIsCollidableGrid() {
         return isCollidable;
     }
 }

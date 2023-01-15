@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.mikm.rendering.screens.GameScreen;
-import com.mikm.rendering.tilemap.RockType;
+import com.mikm.rendering.cave.RockType;
 
 public class ParticleParameters {
     TextureRegion image;
@@ -19,15 +19,7 @@ public class ParticleParameters {
 
     public static ParticleParameters getRockParameters(RockType rockType) {
         ParticleParameters rockParameters = new ParticleParameters();
-        if (rockType == RockType.NORMAL) {
-            rockParameters.image = GameScreen.particleImages[0][4];
-        }
-        if (rockType == RockType.COPPER) {
-            rockParameters.image = GameScreen.particleImages[1][1];
-        }
-        if (rockType == RockType.IRON) {
-            rockParameters.image = GameScreen.particleImages[1][2];
-        }
+        rockParameters.image = rockType.getParticleImage();
         rockParameters.amountMin = 4;
         rockParameters.amountMax = 8;
         rockParameters.positionOffsetRadius = 5;
@@ -73,13 +65,16 @@ public class ParticleParameters {
         ParticleParameters diveDustParameters = getKnockbackDustParameters();
         diveDustParameters.angleMin = 0;
         diveDustParameters.angleMax = MathUtils.PI2;
-        diveDustParameters.amountMin = 16;
-        diveDustParameters.amountMax = 24;
-        diveDustParameters.speedMin = .5f;
-        diveDustParameters.speedMax = 1f;
+        diveDustParameters.amountMin = 6;
+        diveDustParameters.amountMax = 8;
+        diveDustParameters.speedMin = .3f;
+        diveDustParameters.peakHeight = 4;
+        diveDustParameters.speedMax = .5f;
         diveDustParameters.sizeMin = .1f;
-        diveDustParameters.sizeMax = 1f;
-        diveDustParameters.maxLifeTime = .3f;
+        diveDustParameters.shouldDecelerate = true;
+        diveDustParameters.proportionOfTimeSpentDecelerating = 1;
+        diveDustParameters.sizeMax = 1.5f;
+        diveDustParameters.maxLifeTime = .8f;
         diveDustParameters.collidesWithWalls = true;
         return diveDustParameters;
     }

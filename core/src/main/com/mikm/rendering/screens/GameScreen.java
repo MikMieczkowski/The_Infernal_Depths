@@ -40,11 +40,26 @@ public abstract class GameScreen extends ScreenAdapter {
         viewport.setUnitsPerPixel(Camera.VIEWPORT_ZOOM);
 
         entities = new RemovableArray<>();
+        entities.add(Application.player);
     }
 
-    public abstract boolean[][] getCollidableTilePositions();
+    public abstract boolean[][] getIsCollidableGrid();
 
-    abstract void drawAssets();
+    @Override
+    public void render(float delta) {
+        application.batch.begin();
+        camera.update();
+        application.batch.setProjectionMatrix(Camera.orthographicCamera.combined);
+        tiledMapRenderer.setView(Camera.orthographicCamera);
+        drawAssets();
+        application.batch.end();
+    }
+
+    void drawAssets() {
+        tiledMapRenderer.render();
+        inanimateEntities.render(application.batch);
+        entities.render(application.batch);
+    }
 
     public void addEntity(Entity entity) {
         entities.add(entity);

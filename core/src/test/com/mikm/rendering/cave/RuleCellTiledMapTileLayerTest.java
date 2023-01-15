@@ -1,7 +1,7 @@
-package com.mikm.rendering.tilemap;
+package com.mikm.rendering.cave;
 
-import com.mikm.rendering.tilemap.ruleCell.RuleCell;
-import com.mikm.rendering.tilemap.ruleCell.RuleCellTiledMapTileLayer;
+import com.mikm.rendering.cave.ruleCell.RuleCell;
+import com.mikm.rendering.cave.ruleCell.RuleCellTiledMapTileLayer;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
