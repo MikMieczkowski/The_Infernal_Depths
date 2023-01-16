@@ -6,9 +6,8 @@ import com.badlogic.gdx.math.MathUtils;
 import com.mikm.ExtraMathUtils;
 import com.mikm.entities.State;
 import com.mikm.entities.animation.OneDirectionalAnimationManager;
-import com.mikm.entities.particles.ParticleParameters;
-import com.mikm.entities.particles.ParticleSystem;
 import com.mikm.entities.player.Player;
+import com.mikm.entities.projectiles.StaticProjectile;
 import com.mikm.rendering.screens.Application;
 
 public class SlimeBossSimmerState extends State {
@@ -18,9 +17,10 @@ public class SlimeBossSimmerState extends State {
     private float angle;
     private final float TIME_SPENT_SIMMERING = 7f;
     private float timer;
-    private final float SIMMER_MOVE_SPEED_MAX = 10f;
+    private final float SIMMER_MOVE_SPEED_MAX = 7f;
     private final float SIMMER_MOVE_SPEED_MIN = .2f;
     private float startingDistance;
+    private float distanceTraveledSinceLastProjectile;
 
     public SlimeBossSimmerState(SlimeBoss slimeBoss) {
         super(slimeBoss);
@@ -43,7 +43,7 @@ public class SlimeBossSimmerState extends State {
     public void update() {
         super.update();
         timer += Gdx.graphics.getDeltaTime();
-        new ParticleSystem(ParticleParameters.getDiveDustParameters(), slimeBoss.x+ slimeBoss.getBounds().width /2f, slimeBoss.y);
+
 
         float angleToPlayer = MathUtils.atan2(player.y - slimeBoss.y, player.x - slimeBoss.x);
         float normalizedPlayerDistance = ExtraMathUtils.distance(slimeBoss.x, slimeBoss.y, player.x, player.y) / startingDistance;
@@ -57,8 +57,15 @@ public class SlimeBossSimmerState extends State {
         float moveSpeed = ExtraMathUtils.lerp(timer, TIME_SPENT_SIMMERING, .3f, 1, SIMMER_MOVE_SPEED_MAX, SIMMER_MOVE_SPEED_MIN);
         slimeBoss.xVel = MathUtils.cos(angle) * moveSpeed;
         slimeBoss.yVel =  MathUtils.sin(angle) * moveSpeed;
-        slimeBoss.xScale = ExtraMathUtils.lerp(timer, TIME_SPENT_SIMMERING, 1, .2f);
-        slimeBoss.yScale = ExtraMathUtils.lerp(timer, TIME_SPENT_SIMMERING, 1, .2f);
+        slimeBoss.xScale = ExtraMathUtils.lerp(timer, TIME_SPENT_SIMMERING, 1, .7f);
+        slimeBoss.yScale = ExtraMathUtils.lerp(timer, TIME_SPENT_SIMMERING, 1, .1f);
+
+
+        distanceTraveledSinceLastProjectile += moveSpeed;
+        if (distanceTraveledSinceLastProjectile > 20) {
+            distanceTraveledSinceLastProjectile -= 20;
+            Application.currentScreen.addInanimateEntity(new StaticProjectile(null, false, slimeBoss.getCenteredPosition().x, slimeBoss.getCenteredPosition().y));
+        }
     }
 
     @Override

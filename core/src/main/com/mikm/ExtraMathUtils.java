@@ -1,5 +1,6 @@
 package com.mikm;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
@@ -13,18 +14,13 @@ public class ExtraMathUtils {
 
     }
 
-    public static int sign(float num) {
-        if (num > 0) {
-            return 1;
-        }
-        if (num == 0) {
-            return 0;
-        }
-        return -1;
-    }
-
-    public static boolean haveSameSign(float num1, float num2) {
-        return sign(num1) == sign(num2);
+    public static Color lerpColor(float timer, float maxTime, Color startColor, Color endColor) {
+        float progress = timer/maxTime;
+        return new Color(
+                lerp(timer, maxTime, startColor.r, endColor.r),
+                lerp(timer, maxTime, startColor.g, endColor.g),
+                lerp(timer, maxTime, startColor.b, endColor.b),
+                lerp(timer, maxTime, startColor.a, endColor.a));
     }
 
     public static float lerpAngle(float timer, float maxTime, float startValue, float endValue) {
@@ -104,6 +100,20 @@ public class ExtraMathUtils {
         return new Vector2(sinLerp(timer, maxTime, startProportion, endProportion, peakValue.x), sinLerp(timer, maxTime, startProportion, endProportion, peakValue.y));
     }
 
+    public static Color randomColor(Color color1, Color color2) {
+        float minRed = Math.min(color1.r,color2.r);
+        float minBlue = Math.min(color1.g,color2.g);
+        float minGreen = Math.min(color1.b,color2.b);
+        float maxRed = Math.max(color1.r,color2.r);
+        float maxBlue = Math.max(color1.g,color2.g);
+        float maxGreen = Math.max(color1.b,color2.b);
+        return new Color(
+                randomFloat(minRed, maxRed),
+                randomFloat(minBlue, maxBlue),
+                randomFloat(minGreen, maxGreen),
+                1);
+    }
+
     public static int randomInt(int min, int max) {
         return random.nextInt(min, max+1);
     }
@@ -137,5 +147,20 @@ public class ExtraMathUtils {
     }
     public static Vector2 normalizeAndScale(Vector2Int vector2Int) {
         return normalizeAndScale(new Vector2(vector2Int.x, vector2Int.y));
+    }
+
+
+    public static int sign(float num) {
+        if (num > 0) {
+            return 1;
+        }
+        if (num == 0) {
+            return 0;
+        }
+        return -1;
+    }
+
+    public static boolean haveSameSign(float num1, float num2) {
+        return sign(num1) == sign(num2);
     }
 }

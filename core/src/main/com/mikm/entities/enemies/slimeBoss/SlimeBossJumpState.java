@@ -49,6 +49,7 @@ public class SlimeBossJumpState extends State {
     @Override
     public void checkForStateTransition() {
         if (jumpTimer > TIME_SPENT_JUMPING) {
+            slimeBoss.startSquish(0, 1.5f, .2f, true);
             slimeBoss.simmerState.enter();
         }
     }

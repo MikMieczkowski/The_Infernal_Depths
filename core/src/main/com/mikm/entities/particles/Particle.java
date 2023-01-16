@@ -1,6 +1,7 @@
 package com.mikm.entities.particles;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
@@ -12,13 +13,18 @@ class Particle extends InanimateEntity {
     private float size, angle, startingSpeed;
     private float timer;
     private boolean checkedOnce = false;
+    private Color color;
+    private Color startColor, endColor;
 
-    Particle(ParticleParameters parameters, float size, float angle, float startingSpeed) {
+    Particle(ParticleParameters parameters, Color startColor, Color endColor, float size, float angle, float startingSpeed) {
         super(0, 0);
         this.parameters = parameters;
         this.size = size;
         this.angle = angle;
         this.startingSpeed = startingSpeed;
+        color = startColor;
+        this.startColor = startColor;
+        this.endColor = endColor;
 
         xScale = size;
         yScale = size;
@@ -62,11 +68,17 @@ class Particle extends InanimateEntity {
             height = ExtraMathUtils.bounceLerp(timer, parameters.maxLifeTime, parameters.peakHeight,.1f, 8);
         }
         final float percentOfTimeComplete = Math.max(0, 1- timer/ parameters.maxLifeTime);
-        xScale = size * percentOfTimeComplete;
-        yScale = size * percentOfTimeComplete;
+        if (xScale > parameters.finalScale) {
+            xScale = size * percentOfTimeComplete;
+            yScale = size * percentOfTimeComplete;
+        }
 
         if (xScale <= 0) {
             die();
+        }
+
+        if (parameters.usesColor) {
+            color = ExtraMathUtils.lerpColor(timer, parameters.maxLifeTime, startColor, endColor);
         }
     }
 
@@ -82,6 +94,12 @@ class Particle extends InanimateEntity {
 
     @Override
     public void draw(Batch batch) {
+        if (parameters.usesColor) {
+            batch.setColor(color);
+        }
         batch.draw(parameters.image, x, y+height, 4, 4, 8, 8, xScale, yScale, 0);
+        if (parameters.usesColor) {
+            batch.setColor(Color.WHITE);
+        }
     }
 }
