@@ -14,8 +14,12 @@ public class ParticleParameters {
 
     int positionOffsetRadius;
     float angleMin, angleMax, speedMin, speedMax, sizeMin, sizeMax, maxLifeTime, proportionOfTimeSpentDecelerating;
-    Color startColor, endColor;
     int amountMin, amountMax;
+
+    boolean usesColor;
+    Color startColorMin, endColorMin;
+    Color startColorMax, endColorMax;
+    float finalScale = 0;
 
     public static ParticleParameters getRockParameters(RockType rockType) {
         ParticleParameters rockParameters = new ParticleParameters();
@@ -62,7 +66,11 @@ public class ParticleParameters {
     }
 
     public static ParticleParameters getDiveDustParameters() {
-        ParticleParameters diveDustParameters = getKnockbackDustParameters();
+        ParticleParameters diveDustParameters = new ParticleParameters();
+        diveDustParameters.image = GameScreen.particleImages[0][0];
+        diveDustParameters.positionOffsetRadius = 5;
+        diveDustParameters.hasGravity = false;
+        diveDustParameters.hasShadow = false;
         diveDustParameters.angleMin = 0;
         diveDustParameters.angleMax = MathUtils.PI2;
         diveDustParameters.amountMin = 6;
@@ -98,5 +106,33 @@ public class ParticleParameters {
         arrowParameters.angleMax = MathUtils.PI2;
         arrowParameters.peakHeight = 5;
         return arrowParameters;
+    }
+
+    public static ParticleParameters getSlimeTrailParameters() {
+        ParticleParameters slimeTrailParameters = new ParticleParameters();
+        slimeTrailParameters.usesColor = true;
+        slimeTrailParameters.startColorMin = new Color(0, 50/255f, 7/255f, 1);
+        slimeTrailParameters.startColorMax = new Color(0, 144/255f, 7/255f, 1);
+        slimeTrailParameters.endColorMin = new Color(0, 60/255f, 7/255f, 1);
+        slimeTrailParameters.endColorMax = new Color(0, 154/255f, 7/255f, 1);
+        slimeTrailParameters.finalScale = .9f;
+        slimeTrailParameters.image = GameScreen.particleImages[0][0];
+        slimeTrailParameters.positionOffsetRadius = 5;
+        slimeTrailParameters.hasGravity = false;
+        slimeTrailParameters.hasShadow = false;
+        slimeTrailParameters.angleMin = 0;
+        slimeTrailParameters.angleMax = MathUtils.PI2;
+        slimeTrailParameters.amountMin = 5;
+        slimeTrailParameters.amountMax = 5;
+        slimeTrailParameters.speedMin = 0f;
+        slimeTrailParameters.speedMax = .1f;
+        slimeTrailParameters.peakHeight = 4;
+        slimeTrailParameters.sizeMin = .2f;
+        slimeTrailParameters.sizeMax = .5f;
+        slimeTrailParameters.shouldDecelerate = true;
+        slimeTrailParameters.proportionOfTimeSpentDecelerating = 1;
+        slimeTrailParameters.maxLifeTime = .8f;
+        slimeTrailParameters.collidesWithWalls = true;
+        return slimeTrailParameters;
     }
 }

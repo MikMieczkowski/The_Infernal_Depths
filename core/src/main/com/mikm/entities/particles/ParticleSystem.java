@@ -22,7 +22,8 @@ public class ParticleSystem  {
         positionOffsetRadius = parameters.positionOffsetRadius;
 
         for (int i = 0; i < amount; i++) {
-            particles[i] = new Particle(parameters, ExtraMathUtils.randomFloat(parameters.sizeMin, parameters.sizeMax),
+            particles[i] = new Particle(parameters, parameters.usesColor ? ExtraMathUtils.randomColor(parameters.startColorMin, parameters.startColorMax) : null,
+                    parameters.usesColor ? ExtraMathUtils.randomColor(parameters.endColorMin, parameters.endColorMax) :null, ExtraMathUtils.randomFloat(parameters.sizeMin, parameters.sizeMax),
                     ExtraMathUtils.randomFloat(parameters.angleMin, parameters.angleMax) + angleOffset, ExtraMathUtils.randomFloat(parameters.speedMin, parameters.speedMax));
         }
 

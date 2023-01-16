@@ -48,14 +48,20 @@ public class Projectile extends InanimateEntity {
     }
 
     @Override
+    public Rectangle getFullBounds() {
+        return new Rectangle(x, y, 16, 16);
+    }
+
+    @Override
     public Rectangle getShadowBounds() {
-        return new Rectangle(x+4, y, 8, 8);
+        return new Rectangle(x+4, y, 3, 3);
     }
 
     @Override
     public void draw(Batch batch) {
         batch.draw(image, x, y, getFullBounds().width/2f, getFullBounds().height/2f, getFullBounds().width, getFullBounds().height, xScale, yScale, rotation*MathUtils.radDeg);
     }
+
 
     @Override
     public void onWallCollision(boolean xCollision, Rectangle wallBounds) {

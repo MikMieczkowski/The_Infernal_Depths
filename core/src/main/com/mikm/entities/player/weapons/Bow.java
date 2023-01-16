@@ -15,7 +15,7 @@ public class Bow extends Weapon{
 
     private float timeHeld;
     private int powerLevel;
-    private final float TIME_PER_POWER_LEVEL = .25f;
+    private final float TIME_PER_POWER_LEVEL = .1f;
     private final float ARROW_SPEED = 2;
     private final int ARROW_DAMAGE = 1;
     public final float ARROW_KNOCKBACK_FORCE = 1;
