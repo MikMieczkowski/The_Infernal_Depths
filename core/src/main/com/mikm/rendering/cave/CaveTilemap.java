@@ -43,7 +43,7 @@ public class CaveTilemap {
 
         ruleCellMetadata = readMetadata();
         ruleCell = new RuleCell(caveScreen.caveTilesetRecolors.get(0), ruleCellMetadata);
-        createImages(0);
+        createImages();
 
         ruleCellPositionGenerator = new RuleCellPositionGenerator();
         ruleCellPositions = ruleCellPositionGenerator.createRuleCellPositions();
@@ -70,10 +70,10 @@ public class CaveTilemap {
         return metadataReader.createMetadataFromFile("images/caveTiles.meta.txt");
     }
 
-    private void createImages(int color) {
+    private void createImages() {
         wallImages = new TextureRegion[5];
-        System.arraycopy(caveScreen.caveTilesetRecolors.get(color)[2], 0, wallImages, 0, 4);
-        wallImages[4] = caveScreen.caveTilesetRecolors.get(color)[1][2];
+        System.arraycopy(caveScreen.caveTilesetRecolors.get(CaveScreen.getRecolorLevel())[2], 0, wallImages, 0, 4);
+        wallImages[4] = caveScreen.caveTilesetRecolors.get(CaveScreen.getRecolorLevel())[1][2];
         floorImage = ruleCell.spritesheet[2][4];
     }
 
@@ -151,7 +151,7 @@ public class CaveTilemap {
 
 
     public void generateNewMap() {
-        boolean levelIs1MoreThanAMultipleOf5 = (CaveScreen.floor + 1) %5 == 1;
+        boolean levelIs1MoreThanAMultipleOf5 = (CaveScreen.floor+1) %5 == 1;
         if (levelIs1MoreThanAMultipleOf5) {
             recolorImagesAndCells();
         }
@@ -165,7 +165,7 @@ public class CaveTilemap {
     private void recolorImagesAndCells() {
         int recolorLevel = (CaveScreen.floor+1)/5;
         ruleCell = new RuleCell(caveScreen.caveTilesetRecolors.get(recolorLevel), ruleCellMetadata);
-        createImages(recolorLevel);
+        createImages();
         StaticTiledMapTile floorTile = new StaticTiledMapTile(floorImage);
         floorCell.setTile(floorTile);
         for (int i = 0; i < 5; i++) {

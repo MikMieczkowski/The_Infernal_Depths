@@ -17,7 +17,7 @@ public class SlimeBossRoomScreen extends GameScreen {
         TextureRegion floorImage = caveScreen.caveTilesetRecolors.get(0)[2][4];
         TiledMapTileLayer.Cell floorCell = new TiledMapTileLayer.Cell();
         floorCell.setTile(new StaticTiledMapTile(floorImage));
-        TiledMapTileLayer floorLayer = new TiledMapTileLayer(100, 100, Application.TILE_WIDTH, Application.TILE_HEIGHT);
+        TiledMapTileLayer floorLayer = new TiledMapTileLayer(50, 50, Application.TILE_WIDTH, Application.TILE_HEIGHT);
         for (int x = 0; x < 100; x++) {
             for (int y = 0; y < 100; y++) {
                 floorLayer.setCell(x, y, floorCell);
@@ -31,7 +31,7 @@ public class SlimeBossRoomScreen extends GameScreen {
         TextureRegion slimeBossImage = textureAtlas.findRegion("slimeBoss").split(32, 32)[0][0];
         EntityActionSpritesheets sparseActionSpritesheet = new EntityActionSpritesheets();
         sparseActionSpritesheet.hit = slimeBossImage;
-        addInanimateEntity(new SlimeBoss(200, 200, slimeBossImage, sparseActionSpritesheet));
+        addEntity(new SlimeBoss(this, 200, 200, slimeBossImage, sparseActionSpritesheet));
     }
 
     @Override
@@ -42,6 +42,10 @@ public class SlimeBossRoomScreen extends GameScreen {
     @Override
     public void render(float delta) {
         ScreenUtils.clear(CaveScreen.caveFillColorLevel1);
-        super.render(delta);
+        if (!Application.timestop) {
+            super.render(delta);
+        } else {
+            drawNoUpdate();
+        }
     }
 }

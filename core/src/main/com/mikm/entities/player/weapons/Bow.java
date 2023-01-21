@@ -28,7 +28,7 @@ public class Bow extends Weapon{
 
     @Override
     public void checkForHit() {
-        hurtbox.checkForHit();
+        hurtbox.checkIfHitEntities();
     }
 
     @Override
@@ -72,6 +72,6 @@ public class Bow extends Weapon{
 
     @Override
     public DamageInformation getDamageInformation() {
-        return new DamageInformation(angleToMouse, ARROW_KNOCKBACK_FORCE, ARROW_DAMAGE);
+        return new DamageInformation(angleToMouse, ARROW_KNOCKBACK_FORCE, ARROW_DAMAGE * powerLevel);
     }
 }

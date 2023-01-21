@@ -8,7 +8,7 @@ import com.mikm.rendering.screens.Application;
 
 public class Hurtbox {
     private boolean active;
-    private float x, y, radius;
+    public float x, y, radius;
     private DamageInformation damageInformation;
 
 
@@ -30,11 +30,19 @@ public class Hurtbox {
         this.damageInformation = damageInformation;
     }
 
-    public void checkForHit() {
+    public void checkIfHitEntities() {
         for (Entity entity : Application.currentScreen.entities) {
             if (entity != Application.player && entity.isAttackable && Intersector.overlaps(getHurtbox(), entity.getHitbox())) {
                 entity.damagedState.enter(damageInformation);
             }
+        }
+    }
+
+    public void checkIfHitPlayer() {
+        boolean hitboxesOverlap = Intersector.overlaps(getHurtbox(), Application.player.getHitbox());
+        if (hitboxesOverlap) {
+            float angleToPlayer = MathUtils.atan2(Application.player.getCenteredPosition().y - y, Application.player.getCenteredPosition().x - x);
+            Application.player.damagedState.enter(new DamageInformation(angleToPlayer, damageInformation.knockbackForceMagnitude, damageInformation.damage));
         }
     }
 

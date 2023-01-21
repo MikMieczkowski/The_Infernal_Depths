@@ -119,7 +119,7 @@ public class ExtraMathUtils {
     }
 
     public static int randomInt(int max) {
-        return random.nextInt(max);
+        return random.nextInt(max+1);
     }
 
     public static float randomFloat(float min, float max) {

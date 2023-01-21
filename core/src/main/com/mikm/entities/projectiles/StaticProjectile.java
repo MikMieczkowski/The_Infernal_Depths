@@ -3,8 +3,10 @@ package com.mikm.entities.projectiles;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mikm.entities.InanimateEntity;
+import com.mikm.entities.enemies.slimeBoss.SB_SimmerAttack;
 import com.mikm.entities.particles.ParticleParameters;
 import com.mikm.entities.particles.ParticleSystem;
+import com.mikm.rendering.screens.Application;
 
 public class StaticProjectile extends InanimateEntity {
     private TextureRegion image;
@@ -16,13 +18,16 @@ public class StaticProjectile extends InanimateEntity {
         this.image = image;
         this.visible = visible;
         hurtbox = new Hurtbox(10, true);
-        hurtbox.setPosition(x, y);
+        hurtbox.setPosition(x+5, y+5);
+        hurtbox.setDamageInformation(new DamageInformation(0, SB_SimmerAttack.SLIME_TRAIL_KNOCKBACK, SB_SimmerAttack.SLIME_TRAIL_DAMAGE));
         new ParticleSystem(ParticleParameters.getSlimeTrailParameters(), x, y);
     }
 
     @Override
     public void update() {
-
+        if (Application.player.currentState != Application.player.divingState) {
+            hurtbox.checkIfHitPlayer();
+        }
     }
 
     @Override
@@ -35,6 +40,5 @@ public class StaticProjectile extends InanimateEntity {
         if (visible) {
             batch.draw(image, x, y);
         }
-        drawHitboxes(batch, hurtbox.getHurtbox());
     }
 }

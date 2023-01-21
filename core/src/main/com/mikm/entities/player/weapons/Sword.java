@@ -21,6 +21,6 @@ public class Sword extends SwingableWeapon {
     @Override
     public void checkForHit() {
         hurtbox.setDamageInformation(getDamageInformation());
-        hurtbox.checkForHit();
+        hurtbox.checkIfHitEntities();
     }
 }

@@ -12,10 +12,9 @@ public class Rock extends InanimateEntity {
 
     public Rock(RockType rockType, int x, int y) {
         super(x, y);
-        int recolorLevel = CaveScreen.floor/5;
         this.rockType = rockType;
         if (rockType == RockType.NORMAL) {
-            this.image = CaveScreen.rockImages[recolorLevel][ExtraMathUtils.randomInt(2)];
+            this.image = CaveScreen.rockImages[CaveScreen.getRecolorLevel()][ExtraMathUtils.randomInt(2)];
         } else {
             this.image = CaveScreen.oreImages[rockType.spritesheetPosition];
         }

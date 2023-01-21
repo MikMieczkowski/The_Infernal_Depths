@@ -1,36 +1,46 @@
 package com.mikm.entities.enemies.states;
 
-import com.badlogic.gdx.Gdx;
-import com.mikm.entities.Entity;
 import com.mikm.entities.State;
+import com.mikm.entities.enemies.Slime;
 
 public class DashBuildUpState extends State {
     private final float MAX_BUILDUP_TIME = 1;
-    private float buildupTime;
+    private float angle;
+    private Slime slime;
+    private boolean slimeBossMinion;
 
-    public DashBuildUpState(Entity entity) {
-        super(entity);
-        animationManager = entity.standingState.animationManager;
+    public DashBuildUpState(Slime slime) {
+        super(slime);
+        this.slime = slime;
+        animationManager = slime.standingState.animationManager;
     }
 
     @Override
     public void enter() {
         super.enter();
-        buildupTime = 0;
-        entity.startSquish(0, 1.5f, MAX_BUILDUP_TIME, false);
+        slime.startSquish(0, 1.5f, MAX_BUILDUP_TIME, false);
+        slimeBossMinion = false;
+    }
+
+    public void enter(float angle) {
+        super.enter();
+        this.angle = angle;
+        slimeBossMinion = true;
     }
 
     @Override
     public void update() {
         super.update();
-        buildupTime += Gdx.graphics.getDeltaTime();
     }
 
     @Override
     public void checkForStateTransition() {
-        if (buildupTime > MAX_BUILDUP_TIME) {
-            buildupTime = 0;
-            entity.detectedPlayerState.enter();
+        if (timeElapsedInState > MAX_BUILDUP_TIME) {
+            if (slimeBossMinion) {
+                slime.dashingState.enter(angle);
+            } else {
+                slime.dashingState.enter();
+            }
         }
     }
 }
