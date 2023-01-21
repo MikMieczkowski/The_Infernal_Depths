@@ -46,7 +46,6 @@ public class Player extends Entity {
     public Weapon currentHeldItem;
     private WeaponInstances weaponInstances;
     private boolean holdingPickaxe = false;
-    private int showPlayerDuringInvincibilityFrame;
 
     public int money;
 
@@ -54,11 +53,12 @@ public class Player extends Entity {
         super(x, y, entityActionSpritesheets);
         damagesPlayer = false;
         maxInvincibilityTime = PLAYER_INVINCIBILITY_TIME;
+        createStates();
     }
 
     public void setWeapons(WeaponInstances weapons) {
         this.weaponInstances = weapons;
-        equippedWeapon = weapons.bow;
+        equippedWeapon = weapons.sword;
         currentHeldItem = equippedWeapon;
     }
 
@@ -71,6 +71,8 @@ public class Player extends Entity {
     public void update() {
         handleInput();
         currentHeldItem.update();
+        handleSquish();
+        handleInvincibility();
         super.update();
     }
 
@@ -90,8 +92,6 @@ public class Player extends Entity {
 
     @Override
     public void draw(Batch batch) {
-        handleSquish();
-        handleInvincibility();
         drawPlayerAndWeaponBasedOnZIndex(batch);
     }
 

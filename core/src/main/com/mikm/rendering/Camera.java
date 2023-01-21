@@ -2,6 +2,7 @@ package com.mikm.rendering;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -63,6 +64,13 @@ public class Camera {
     private static void updateOrthographicCamera() {
         orthographicCamera.position.set(new Vector3(MathUtils.round((x + lookDirectionX) / VIEWPORT_ZOOM) * VIEWPORT_ZOOM, MathUtils.round((y+ lookDirectionY) / VIEWPORT_ZOOM) * VIEWPORT_ZOOM, 0));
         orthographicCamera.update();
+    }
+
+    public static void renderLighting(Batch batch) {
+//        batch.draw(Application.dark, x - 1000, y-850);
+//        batch.setBlendFunction(GL20.GL_DST_COLOR, GL20.GL_SRC_ALPHA); // Blend with background
+//        batch.draw(Application.light, Application.player.x-128,Application.player.y-128); // Draw the circle of light
+//        batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA); // Normal rendering
     }
 
     public static void setPositionDirectlyToPlayerPosition() {

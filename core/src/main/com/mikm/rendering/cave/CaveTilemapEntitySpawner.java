@@ -53,9 +53,9 @@ public class CaveTilemapEntitySpawner {
 
         int enemyAmount = ExtraMathUtils.randomInt(MIN_ENEMIES, MAX_ENEMIES);
         for (int i = 0; i < enemyAmount; i++) {
-            Vector2Int randomTilePosition = openTilePositions.get(ExtraMathUtils.randomInt(openTilePositions.size()));
+            Vector2Int randomTilePosition = openTilePositions.get(ExtraMathUtils.randomInt(openTilePositions.size()-1));
             Slime slime = new Slime(randomTilePosition.x * Application.TILE_WIDTH, randomTilePosition.y * Application.TILE_HEIGHT, slimeActionSpritesheets);
-            caveScreen.entities.addInstantly(slime);
+            caveScreen.addEntityInstantly(slime);
         }
     }
 

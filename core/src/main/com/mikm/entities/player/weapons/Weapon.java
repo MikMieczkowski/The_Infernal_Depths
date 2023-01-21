@@ -66,16 +66,17 @@ public abstract class Weapon {
         mouseIsLeftOfPlayer = -MathUtils.HALF_PI < angleToMouse && angleToMouse < MathUtils.HALF_PI;
 
         float weaponAngle = angleToMouse - MathUtils.HALF_PI;
-        weaponRotation = angleToMouse + MathUtils.PI * .75f;
+        weaponRotation = angleToMouse + MathUtils.PI/2;
+        final float ratioFromWeaponArcToFullRotation = (3+MathUtils.PI/2)/3;
         if (mouseIsLeftOfPlayer) {
             weaponAngle += MathUtils.PI;
-            weaponRotation += MathUtils.PI;
+            weaponRotation -= MathUtils.PI/2;
         }
         if (mouseIsLeftOfPlayer) {
-            weaponRotation -= angleOffset;
+            weaponRotation -= angleOffset*ratioFromWeaponArcToFullRotation;
             weaponAngle -= angleOffset;
         } else {
-            weaponRotation += angleOffset;
+            weaponRotation += angleOffset*ratioFromWeaponArcToFullRotation;
             weaponAngle += angleOffset;
         }
 

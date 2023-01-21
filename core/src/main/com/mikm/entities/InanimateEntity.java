@@ -2,11 +2,13 @@ package com.mikm.entities;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.math.*;
+import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.mikm.Vector2Int;
 import com.mikm.rendering.Camera;
 import com.mikm.rendering.screens.Application;
-import com.mikm.rendering.screens.GameScreen;
 
 public abstract class InanimateEntity {
 
@@ -14,26 +16,20 @@ public abstract class InanimateEntity {
     public float xVel, yVel;
     public float xScale = 1, yScale = 1;
     public float height;
+    public InanimateEntity shadow;
 
-    private float shadowScale = .75f;
-    private final float SHADOW_DISAPPEAR_HEIGHT_FOR_NORMAL_ENTITY = 20;
 
     public InanimateEntity(float x, float y) {
         this.x = x;
         this.y = y;
     }
 
-    public void render(Batch batch) {
-        update();
-        if (hasShadow()) {
-            final float shadowHeightScale = Math.min(shadowScale / (getShadowBounds().width/Application.TILE_WIDTH) * height/SHADOW_DISAPPEAR_HEIGHT_FOR_NORMAL_ENTITY, shadowScale);
-            batch.draw(GameScreen.shadowImage, getShadowBounds().x, getShadowBounds().y - 3,getShadowBounds().width/2f, 4, getShadowBounds().width, getShadowBounds().height,
-                    xScale * (shadowScale - shadowHeightScale), yScale * (shadowScale - shadowHeightScale), 0);
-        }
+    void render(Batch batch) {
         draw(batch);
+        update();
     }
     public void die() {
-        Application.currentScreen.inanimateEntities.remove(this);
+        Application.currentScreen.removeInanimateEntity(this);
     }
 
     public void drawHitboxes(Batch batch, Circle hitbox) {
@@ -48,6 +44,13 @@ public abstract class InanimateEntity {
     }
 
     public abstract void update();
+
+    public void moveAndCheckCollisions() {
+        checkWallCollisionsX();
+        x += xVel;
+        checkWallCollisionsY();
+        y += yVel;
+    }
 
     public abstract void draw(Batch batch);
 
@@ -89,7 +92,15 @@ public abstract class InanimateEntity {
         }
     }
 
-    public boolean checkWallCollisions() {
+    public boolean collided() {
+        boolean first = checkWallCollisionsX();
+        if (first) {
+            return true;
+        }
+        return checkWallCollisionsY();
+    }
+
+    public boolean checkWallCollisionsX() {
         //Check tiles in a 5x5 grid around player
         boolean movedPlayer = false;
         boolean[][] isCollidable = Application.currentScreen.getIsCollidableGrid();
@@ -100,7 +111,7 @@ public abstract class InanimateEntity {
 
                 boolean isInBounds = checkedWallTilePosition.x > 0 && checkedWallTilePosition.x < isCollidable[0].length && checkedWallTilePosition.y > 0 && checkedWallTilePosition.y < isCollidable.length;
                 if (!isInBounds || isCollidable[checkedWallTilePosition.y][checkedWallTilePosition.x]) {
-                    boolean collided = checkIfCollidingWithWall(checkedWallPosition);
+                    boolean collided = checkIfCollidingWithWallX(checkedWallPosition);
                     if (collided) {
                         movedPlayer = true;
                     }
@@ -110,13 +121,40 @@ public abstract class InanimateEntity {
         return movedPlayer;
     }
 
-    private boolean checkIfCollidingWithWall(Vector2Int wallPosition) {
+    public boolean checkWallCollisionsY() {
+        //Check tiles in a 5x5 grid around player
+        boolean movedPlayer = false;
+        boolean[][] isCollidable = Application.currentScreen.getIsCollidableGrid();
+        for (int i = -2; i <= 2; i++) {
+            for (int j = -2; j <= 2; j++) {
+                Vector2Int checkedWallTilePosition = new Vector2Int(getXInt() / Application.TILE_WIDTH + j, getYInt() / Application.TILE_HEIGHT + i);
+                Vector2Int checkedWallPosition = new Vector2Int(checkedWallTilePosition.x * Application.TILE_WIDTH, checkedWallTilePosition.y * Application.TILE_HEIGHT);
+
+                boolean isInBounds = checkedWallTilePosition.x > 0 && checkedWallTilePosition.x < isCollidable[0].length && checkedWallTilePosition.y > 0 && checkedWallTilePosition.y < isCollidable.length;
+                if (!isInBounds || isCollidable[checkedWallTilePosition.y][checkedWallTilePosition.x]) {
+                    boolean collided = checkIfCollidingWithWallY(checkedWallPosition);
+                    if (collided) {
+                        movedPlayer = true;
+                    }
+                }
+            }
+        }
+        return movedPlayer;
+    }
+
+    private boolean checkIfCollidingWithWallX(Vector2Int wallPosition) {
         boolean movedPlayer = false;
         Rectangle wallBounds = new Rectangle(wallPosition.x, wallPosition.y, Application.TILE_WIDTH, Application.TILE_HEIGHT);
         if (Intersector.overlaps(getOffsetBoundsH(), wallBounds)) {
             onWallCollision(true, wallBounds);
             movedPlayer = true;
         }
+        return movedPlayer;
+    }
+
+    private boolean checkIfCollidingWithWallY(Vector2Int wallPosition) {
+        boolean movedPlayer = false;
+        Rectangle wallBounds = new Rectangle(wallPosition.x, wallPosition.y, Application.TILE_WIDTH, Application.TILE_HEIGHT);
         if (Intersector.overlaps(getOffsetBoundsV(), wallBounds)) {
             onWallCollision(false, wallBounds);
             movedPlayer = true;
@@ -142,5 +180,9 @@ public abstract class InanimateEntity {
 
     public boolean hasShadow() {
         return true;
+    }
+
+    public int getZOrder() {
+        return 0;
     }
 }

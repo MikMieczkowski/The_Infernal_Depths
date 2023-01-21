@@ -9,18 +9,41 @@ import com.mikm.entities.enemies.states.WanderingState;
 
 public class Slime extends Entity {
     public final float SPEED = 1;
+    private final float angle;
+    private final boolean slimeBossMinion;
+    public static EntityActionSpritesheets entityActionSpritesheets;
+    public DashingState dashingState;
+    public DashBuildUpState dashBuildUpState;
 
     public Slime(int x, int y, EntityActionSpritesheets entityActionSpritesheets) {
         super(x, y, entityActionSpritesheets);
+        Slime.entityActionSpritesheets = entityActionSpritesheets;
+        slimeBossMinion = false;
+        angle = 0;
+        createStates();
+    }
+
+    public Slime(float x, float y, float angle) {
+        super(x, y, entityActionSpritesheets);
+        this.angle = angle;
+        slimeBossMinion = true;
+        hp = 1;
+        createStates();
     }
 
     @Override
     public void createStates() {
         standingState = new StandingState(this, 1);
         walkingState = new WanderingState(this, 1);
-        detectedPlayerState = new DashingState(this);
+        dashingState= new DashingState(this);
+        detectedPlayerState = dashingState;
         dashBuildUpState = new DashBuildUpState(this);
-        standingState.enter();
+        super.detectedPlayerBuildUpState = dashBuildUpState;
+        if(!slimeBossMinion) {
+            standingState.enter();
+        } else {
+            dashBuildUpState.enter(angle);
+        }
     }
 
     @Override

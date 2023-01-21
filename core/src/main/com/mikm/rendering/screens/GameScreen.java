@@ -8,9 +8,10 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.mikm.RemovableArray;
+import com.mikm.entities.RemovableArray;
 import com.mikm.entities.Entity;
 import com.mikm.entities.InanimateEntity;
+import com.mikm.entities.Shadow;
 import com.mikm.rendering.Camera;
 
 public abstract class GameScreen extends ScreenAdapter {
@@ -41,6 +42,9 @@ public abstract class GameScreen extends ScreenAdapter {
 
         entities = new RemovableArray<>();
         entities.add(Application.player);
+        Shadow playerShadow = new Shadow(Application.player);
+        Application.player.shadow = playerShadow;
+        inanimateEntities.add(playerShadow);
     }
 
     public abstract boolean[][] getIsCollidableGrid();
@@ -52,6 +56,16 @@ public abstract class GameScreen extends ScreenAdapter {
         application.batch.setProjectionMatrix(Camera.orthographicCamera.combined);
         tiledMapRenderer.setView(Camera.orthographicCamera);
         drawAssets();
+        Camera.renderLighting(application.batch);
+        application.batch.end();
+    }
+
+    public void drawNoUpdate() {
+        application.batch.begin();
+        tiledMapRenderer.render();
+        inanimateEntities.draw(application.batch);
+        entities.draw(application.batch);
+        Camera.renderLighting(application.batch);
         application.batch.end();
     }
 
@@ -63,10 +77,48 @@ public abstract class GameScreen extends ScreenAdapter {
 
     public void addEntity(Entity entity) {
         entities.add(entity);
+        if (entity.hasShadow()) {
+            Shadow shadow = new Shadow(entity);
+            entity.shadow = shadow;
+            inanimateEntities.add(shadow);
+        }
+    }
+
+    public void addEntityInstantly(Entity entity) {
+        entities.addInstantly(entity);
+        if (entity.hasShadow()) {
+            Shadow shadow = new Shadow(entity);
+            entity.shadow = shadow;
+            inanimateEntities.addInstantly(shadow);
+        }
     }
 
     public void addInanimateEntity(InanimateEntity entity) {
         inanimateEntities.add(entity);
+        if (entity.hasShadow()) {
+            Shadow shadow = new Shadow(entity);
+            entity.shadow = shadow;
+            inanimateEntities.add(shadow);
+        }
+    }
+
+    public void addInanimateEntityInstantly(InanimateEntity entity) {
+        inanimateEntities.addInstantly(entity);
+        if (entity.hasShadow()) {
+            Shadow shadow = new Shadow(entity);
+            entity.shadow = shadow;
+            inanimateEntities.addInstantly(shadow);
+        }
+    }
+
+    public void removeEntity(Entity entity) {
+        entities.remove(entity);
+        inanimateEntities.remove(entity.shadow);
+    }
+
+    public void removeInanimateEntity(InanimateEntity entity) {
+        inanimateEntities.remove(entity);
+        inanimateEntities.remove(entity.shadow);
     }
 
     @Override

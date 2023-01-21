@@ -34,11 +34,9 @@ public class Projectile extends InanimateEntity {
         xVel = MathUtils.cos(angle) * speed;
         yVel = MathUtils.sin(angle) * speed;
         hurtbox.setPosition(x + getFullBounds().width/2, y + getFullBounds().width/2);
-        hurtbox.checkForHit();
+        hurtbox.checkIfHitEntities();
         rotation = angle + 1.25f * MathUtils.PI;
-        checkWallCollisions();
-        x += xVel;
-        y += yVel;
+        moveAndCheckCollisions();
     }
 
     @Override

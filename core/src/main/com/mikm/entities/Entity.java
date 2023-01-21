@@ -20,7 +20,7 @@ public abstract class Entity extends InanimateEntity {
     public State walkingState;
     public State standingState;
     public DamagedState damagedState;
-    public State dashBuildUpState;
+    public State detectedPlayerBuildUpState;
     public State currentState;
     public State detectedPlayerState;
     public EntityActionSpritesheets entityActionSpritesheets;
@@ -43,7 +43,7 @@ public abstract class Entity extends InanimateEntity {
 
     public boolean inInvincibility;
     private float invincibilityTimer;
-    private final float MAX_ENEMY_INVINCIBILITY_TIME = .2f;
+    private final float MAX_ENEMY_INVINCIBILITY_TIME = .3f;
     public float maxInvincibilityTime = MAX_ENEMY_INVINCIBILITY_TIME;
 
 
@@ -52,28 +52,24 @@ public abstract class Entity extends InanimateEntity {
         this.entityActionSpritesheets = entityActionSpritesheets;
         damagedState = new DamagedState(this);
         hp = getMaxHp();
-        createStates();
     }
 
     @Override
     public void update() {
         currentState.update();
         currentState.checkForStateTransition();
-        checkWallCollisions();
+        handleSquish();
+        handleInvincibility();
+        checkWallCollisionsX();
         x += xVel;
+        checkWallCollisionsY();
         y += yVel;
     }
 
     @Override
     public void draw(Batch batch) {
-        handleFlashSquishAndInvincibility(batch);
-        currentState.animationManager.draw(batch);
-    }
-
-    public void handleFlashSquishAndInvincibility(Batch batch) {
         handleFlash(batch);
-        handleSquish();
-        handleInvincibility();
+        currentState.animationManager.draw(batch);
     }
 
     public void handleInvincibility() {
@@ -105,7 +101,7 @@ public abstract class Entity extends InanimateEntity {
     }
 
     public void die() {
-        Application.currentScreen.entities.remove(this);
+        Application.currentScreen.removeEntity(this);
     }
 
     public abstract void createStates();
@@ -163,6 +159,7 @@ public abstract class Entity extends InanimateEntity {
         shouldFlash = true;
         flashColor = color;
     }
+
 
     public float getOriginX() {
         return 0;

@@ -43,7 +43,7 @@ class Particle extends InanimateEntity {
     @Override
     public void update() {
         if (!checkedOnce) {
-            if (parameters.collidesWithWalls && checkWallCollisions()) {
+            if (parameters.collidesWithWalls && collided()) {
                 die();
             }
             checkedOnce = true;
@@ -58,11 +58,13 @@ class Particle extends InanimateEntity {
         }
         xVel = speed * MathUtils.cos(angle);
         yVel = speed * MathUtils.sin(angle);
+
         if (parameters.collidesWithWalls) {
-            checkWallCollisions();
+            moveAndCheckCollisions();
+        } else {
+            x += xVel;
+            y += yVel;
         }
-        x += xVel;
-        y += yVel;
 
         if (parameters.hasGravity) {
             height = ExtraMathUtils.bounceLerp(timer, parameters.maxLifeTime, parameters.peakHeight,.1f, 8);
@@ -90,6 +92,11 @@ class Particle extends InanimateEntity {
     @Override
     public Rectangle getShadowBounds() {
         return new Rectangle(x, y +3, 8, 8);
+    }
+
+    @Override
+    public int getZOrder() {
+        return -1;
     }
 
     @Override

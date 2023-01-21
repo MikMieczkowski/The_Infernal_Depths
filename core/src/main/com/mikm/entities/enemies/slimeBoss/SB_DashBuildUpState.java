@@ -1,26 +1,22 @@
 package com.mikm.entities.enemies.slimeBoss;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.mikm.ExtraMathUtils;
 import com.mikm.entities.State;
 import com.mikm.entities.animation.OneDirectionalAnimationManager;
 import com.mikm.entities.player.Player;
 import com.mikm.rendering.screens.Application;
 
-public class SlimeBossJumpState extends State {
+public class SB_DashBuildUpState extends State {
     private SlimeBoss slimeBoss;
     private Player player;
-    private final float TIME_SPENT_JUMPING = 1f;
-    private final float JUMP_HEIGHT = 15f;
-    private float jumpDistance;
-    private float jumpTimer;
-    private float angleToPlayer;
+    public static final float BUILDUP_DASH_HEIGHT = 30;
+    public static final float BUILDUP_DASH_TIME = 1.5f;
+    private Vector2 originalPosition;
 
-    public SlimeBossJumpState(SlimeBoss slimeBoss, float jumpDistance) {
+    public SB_DashBuildUpState(SlimeBoss slimeBoss) {
         super(slimeBoss);
-        this.jumpDistance = jumpDistance;
         this.slimeBoss = slimeBoss;
         this.player = Application.player;
         OneDirectionalAnimationManager oneDirectionalAnimationManager = new OneDirectionalAnimationManager(entity);
@@ -30,27 +26,28 @@ public class SlimeBossJumpState extends State {
 
     @Override
     public void enter() {
+        throw new RuntimeException("provide parameters");
+    }
+
+    public void enter(Vector2 originalPosition) {
         super.enter();
-        jumpTimer = 0;
-        angleToPlayer = MathUtils.atan2(player.y - slimeBoss.y, player.x - slimeBoss.x);
+        slimeBoss.xVel = 0;
+        slimeBoss.yVel = 0;
+        this.originalPosition = originalPosition;
     }
 
     @Override
     public void update() {
-        jumpTimer+=Gdx.graphics.getDeltaTime();
-
-        float speed = jumpDistance / (TIME_SPENT_JUMPING * 60);
-        slimeBoss.xVel = speed * MathUtils.cos(angleToPlayer);
-        slimeBoss.yVel = speed * MathUtils.sin(angleToPlayer);
-
-        slimeBoss.height = ExtraMathUtils.sinLerp(jumpTimer,TIME_SPENT_JUMPING, JUMP_HEIGHT);
+        super.update();
+        slimeBoss.height = ExtraMathUtils.sinLerp(timeElapsedInState, BUILDUP_DASH_TIME, BUILDUP_DASH_HEIGHT);
+        checkIfCollidedWithPlayer(1, false);
     }
 
     @Override
     public void checkForStateTransition() {
-        if (jumpTimer > TIME_SPENT_JUMPING) {
+        if (timeElapsedInState > BUILDUP_DASH_TIME) {
             slimeBoss.startSquish(0, 1.5f, .2f, true);
-            slimeBoss.simmerState.enter();
+            slimeBoss.dashState.enter(originalPosition, true);
         }
     }
 }

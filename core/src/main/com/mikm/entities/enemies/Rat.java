@@ -11,6 +11,7 @@ public class Rat extends Entity {
         super(x, y, entityActionSpritesheets);
         damagesPlayer = false;
         isAttackable = false;
+        createStates();
     }
 
     @Override

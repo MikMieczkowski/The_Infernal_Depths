@@ -111,10 +111,10 @@ public class ParticleParameters {
     public static ParticleParameters getSlimeTrailParameters() {
         ParticleParameters slimeTrailParameters = new ParticleParameters();
         slimeTrailParameters.usesColor = true;
-        slimeTrailParameters.startColorMin = new Color(0, 50/255f, 7/255f, 1);
-        slimeTrailParameters.startColorMax = new Color(0, 144/255f, 7/255f, 1);
-        slimeTrailParameters.endColorMin = new Color(0, 60/255f, 7/255f, 1);
-        slimeTrailParameters.endColorMax = new Color(0, 154/255f, 7/255f, 1);
+        slimeTrailParameters.startColorMin = new Color(81/255f, 211/255f, 128/255f, 1);
+        slimeTrailParameters.startColorMax = new Color(31/255f, 147/255f, 94/255f, 1);
+        slimeTrailParameters.endColorMin = new Color(81/255f, 211/255f, 128/255f, 1);
+        slimeTrailParameters.endColorMax = new Color(31/255f, 147/255f, 94/255f, 1);
         slimeTrailParameters.finalScale = .9f;
         slimeTrailParameters.image = GameScreen.particleImages[0][0];
         slimeTrailParameters.positionOffsetRadius = 5;
@@ -131,7 +131,7 @@ public class ParticleParameters {
         slimeTrailParameters.sizeMax = .5f;
         slimeTrailParameters.shouldDecelerate = true;
         slimeTrailParameters.proportionOfTimeSpentDecelerating = 1;
-        slimeTrailParameters.maxLifeTime = .8f;
+        slimeTrailParameters.maxLifeTime = 1f;
         slimeTrailParameters.collidesWithWalls = true;
         return slimeTrailParameters;
     }

@@ -1,9 +1,10 @@
-package com.mikm;
+package com.mikm.entities;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.mikm.entities.InanimateEntity;
+import com.mikm.DoAfterRender;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class RemovableArray<T extends InanimateEntity> extends ArrayList<T> {
     private final ArrayList<T> toAdd = new ArrayList<>();
@@ -11,15 +12,22 @@ public class RemovableArray<T extends InanimateEntity> extends ArrayList<T> {
     private boolean executeMethodAfterRender;
     private DoAfterRender method;
 
+    public void draw(Batch batch) {
+        for (T inanimateEntity : this) {
+            inanimateEntity.draw(batch);
+        }
+    }
+
     public void render(Batch batch) {
         for (T inanimateEntity : this) {
             inanimateEntity.render(batch);
         }
-        super.addAll(toAdd);
-        super.removeAll(toRemove);
-        if (executeMethodAfterRender) {
-            executeMethodAfterRender = false;
-            method.doAfterRender();
+        if (toAdd.size() != 0) {
+            super.addAll(toAdd);
+            this.sort(Comparator.comparing(InanimateEntity::getZOrder));
+        }
+        if (toRemove.size() != 0) {
+            super.removeAll(toRemove);
         }
         if (toAdd.size() != 0) {
             toAdd.clear();
@@ -27,14 +35,19 @@ public class RemovableArray<T extends InanimateEntity> extends ArrayList<T> {
         if (toRemove.size() != 0) {
             toRemove.clear();
         }
+        if (executeMethodAfterRender) {
+            executeMethodAfterRender = false;
+            method.doAfterRender();
+        }
     }
 
-    public boolean addInstantly(T t) {
-        return super.add(t);
+    public void addInstantly(T t) {
+        super.add(t);
+        this.sort(Comparator.comparing(InanimateEntity::getZOrder));
     }
 
-    public boolean removeInstantly(T t) {
-        return super.remove(t);
+    public void removeInstantly(T t) {
+        super.remove(t);
     }
 
     @Override

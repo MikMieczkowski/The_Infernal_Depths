@@ -1,6 +1,5 @@
 package com.mikm.entities.enemies.states;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.ExtraMathUtils;
@@ -9,7 +8,6 @@ import com.mikm.entities.animation.ActionAnimationAllDirections;
 import com.mikm.entities.animation.AnimationManager;
 
 public class WanderingState extends DashInducingState {
-    private float wanderTimer;
     private Vector2 wanderForce;
     private final float TOTAL_WANDER_TIME = 1f;
     private final float MIN_WANDER_FORCE = .2f;
@@ -36,7 +34,6 @@ public class WanderingState extends DashInducingState {
     @Override
     public void update() {
         super.update();
-        wanderTimer += Gdx.graphics.getDeltaTime();
         entity.xVel = wanderForce.x;
         entity.yVel = wanderForce.y;
     }
@@ -44,8 +41,7 @@ public class WanderingState extends DashInducingState {
     @Override
     public void checkForStateTransition() {
         super.checkForStateTransition();
-        if (wanderTimer > TOTAL_WANDER_TIME) {
-            wanderTimer = 0;
+        if (timeElapsedInState > TOTAL_WANDER_TIME) {
             StandingState standingState = (StandingState) entity.standingState;
             standingState.enter(timeSinceLastDash);
         }

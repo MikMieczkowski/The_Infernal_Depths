@@ -6,6 +6,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.mikm.ExtraMathUtils;
@@ -39,15 +40,19 @@ public class Application extends Game {
 	private TextureAtlas textureAtlas;
 	public static BitmapFont font;
 	public static boolean timestop;
+	private static int timeStopFrames;
+	private static final int MAX_TIMESTOP_FRAMES = 10;
 
 	public static final boolean PLAY_MUSIC = false;
 
 	public static ShaderProgram fillColorShader;
+	public static TextureRegion light;
+	public static TextureRegion dark;
+	public static TextureRegion gray;
 
 	@Override
 	public void create() {
 		batch = new SpriteBatch();
-
 		fillColorShader = new ShaderProgram(batch.getShader().getVertexShaderSource(), Gdx.files.internal("images/fillColor.frag").readString());
 		if (!fillColorShader.isCompiled()){
 			throw new RuntimeException(fillColorShader.getLog());
@@ -63,9 +68,13 @@ public class Application extends Game {
 		townScreen = new TownScreen(this, textureAtlas);
 		slimeBossRoomScreen = new SlimeBossRoomScreen(this,caveScreen, textureAtlas);
 		townScreen.addInanimateEntity(new NPC(player.entityActionSpritesheets.standing.list.get(0)[0], 50, 50));
-		player.x=150;
-		player.y=150;
-		setGameScreen(slimeBossRoomScreen);
+		light = new TextureRegion(new Texture(Gdx.files.internal("images/R0x4x.png")));
+		dark = new TextureRegion(new Texture(Gdx.files.internal("images/dark.png")));
+		gray = new TextureRegion(new Texture(Gdx.files.internal("images/gray.png")));
+		player.x = 100;
+		player.y = 100;
+		setGameScreen(townScreen);
+
 	}
 
 	public void setGameScreen(GameScreen gameScreen) {
@@ -77,8 +86,13 @@ public class Application extends Game {
 	public void render() {
 		InputRaw.checkForControllers();
 		InputRaw.handleLastFrameInput();
-		if (!timestop) {
-			renderScreens();
+		renderScreens();
+		if (timestop) {
+			timeStopFrames++;
+			if (timeStopFrames > MAX_TIMESTOP_FRAMES) {
+				timeStopFrames = 0;
+				timestop = false;
+			}
 		}
 		InputRaw.handleThisFrameInput();
 		if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
@@ -88,6 +102,10 @@ public class Application extends Game {
 				Camera.setPositionDirectlyToPlayerPosition();
 				setGameScreen(townScreen);
 			} else {
+				Vector2Int playerPosition = spawnablePosition();
+				player.x = playerPosition.x;
+				player.y = playerPosition.y;
+				Camera.setPositionDirectlyToPlayerPosition();
 				setGameScreen(caveScreen);
 			}
 		}
@@ -97,8 +115,15 @@ public class Application extends Game {
 		}
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
-			timestop = !timestop;
+			freezeTime();
 		}
+	}
+
+	public void putPlayerInOpenTile() {
+		Vector2Int playerPosition = spawnablePosition();
+		player.x = playerPosition.x;
+		player.y = playerPosition.y;
+		Camera.setPositionDirectlyToPlayerPosition();
 	}
 
 
@@ -155,9 +180,13 @@ public class Application extends Game {
 		if (openTilePositions.size() == 0) {
 			return Vector2Int.ZERO;
 		}
-		Vector2Int spawnLocationInTiles = openTilePositions.get(ExtraMathUtils.randomInt(openTilePositions.size()));
+		Vector2Int spawnLocationInTiles = openTilePositions.get(ExtraMathUtils.randomInt(openTilePositions.size()-1));
 		return new Vector2Int(spawnLocationInTiles.x * Application.TILE_WIDTH + (int)player.getBoundsOffset().x,
 				spawnLocationInTiles.y * Application.TILE_HEIGHT + (int)player.getBoundsOffset().y);
+	}
+
+	public static void freezeTime() {
+		timestop = true;
 	}
 
 	public static void setFillColorShader(Batch batch, Color color) {

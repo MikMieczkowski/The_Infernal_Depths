@@ -42,8 +42,8 @@ public abstract class DashInducingState extends State {
     public void checkForStateTransition() {
         if (timeSinceLastDash > DashingState.TIME_BETWEEN_DASHES && isPlayerInDetectionCircle()) {
             timeSinceLastDash = 0;
-            entity.dashBuildUpState.enter();
+            entity.detectedPlayerBuildUpState.enter();
         }
-        checkIfCollidedWithPlayer(contactDamage);
+        checkIfCollidedWithPlayer(contactDamage, true);
     }
 }

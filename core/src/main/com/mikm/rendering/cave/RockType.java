@@ -32,7 +32,7 @@ public enum RockType {
 
     public TextureRegion getParticleImage() {
         if (this == NORMAL) {
-            if (CaveScreen.floor/5 == 0) {
+            if (CaveScreen.getRecolorLevel() == 0) {
                 return GameScreen.particleImages[0][4];
             } else {
                 return GameScreen.particleImages[1][0];
