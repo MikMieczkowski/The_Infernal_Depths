@@ -27,7 +27,7 @@ public class CaveScreen extends GameScreen {
     public ArrayList<TextureRegion[][]> caveTilesetRecolors = new ArrayList<>();
     public static TextureRegion[][] rockImages;
     public static TextureRegion[] oreImages;
-    public static TextureRegion[] holeImages;
+    public TextureRegion[][] holeSpritesheet;
 
     public EntityActionSpritesheets slimeActionSpritesheets;
     private Music caveSong;
@@ -62,7 +62,7 @@ public class CaveScreen extends GameScreen {
         caveTilesetRecolors.add(textureAtlas.findRegion("caveTilesLevel5").split(Application.TILE_WIDTH, Application.TILE_HEIGHT));
         rockImages = textureAtlas.findRegion("rocks").split(Application.TILE_WIDTH, Application.TILE_HEIGHT);
         oreImages = textureAtlas.findRegion("ores").split(Application.TILE_WIDTH, Application.TILE_HEIGHT)[0];
-        holeImages = textureAtlas.findRegion("holes").split(Application.TILE_WIDTH, Application.TILE_HEIGHT)[0];
+        holeSpritesheet = textureAtlas.findRegion("holes").split(Application.TILE_WIDTH, Application.TILE_HEIGHT);
 
         slimeActionSpritesheets = new EntityActionSpritesheets();
         ArrayList<TextureRegion[]> rawSlimeSpritesheets = TextureAtlasUtils.findSplitTextureRegionsStartingWith("Slime", textureAtlas, Application.TILE_WIDTH, Application.TILE_HEIGHT);
@@ -104,7 +104,11 @@ public class CaveScreen extends GameScreen {
     }
 
     public ArrayList<Vector2Int> getOpenTilePositionsArray() {
-        return caveTilemap.getOpenTilePositionsArray();
+        return caveTilemap.openTiles;
+    }
+
+    public void generateNewMap() {
+        caveTilemap.generateNewMap();
     }
 
     @Override

@@ -38,7 +38,6 @@ public class NPC extends InanimateEntity {
     @Override
     public void draw(Batch batch) {
         batch.draw(image, x, y);
-        drawHitboxes(batch,  new Circle(x+16, y+16, TALKING_RANGE_DIAMETER/2));
     }
 
     @Override

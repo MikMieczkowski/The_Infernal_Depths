@@ -10,7 +10,7 @@ public class RemovableArray<T extends InanimateEntity> extends ArrayList<T> {
     private final ArrayList<T> toAdd = new ArrayList<>();
     private final ArrayList<T> toRemove = new ArrayList<>();
     private boolean executeMethodAfterRender;
-    private DoAfterRender method;
+    private ArrayList<DoAfterRender> queuedActionsToDoAfterRender = new ArrayList<>();
 
     public void draw(Batch batch) {
         for (T inanimateEntity : this) {
@@ -37,7 +37,10 @@ public class RemovableArray<T extends InanimateEntity> extends ArrayList<T> {
         }
         if (executeMethodAfterRender) {
             executeMethodAfterRender = false;
-            method.doAfterRender();
+            for (DoAfterRender queuedAction : queuedActionsToDoAfterRender) {
+                queuedAction.doAfterRender();
+            }
+            queuedActionsToDoAfterRender.clear();
         }
     }
 
@@ -62,7 +65,7 @@ public class RemovableArray<T extends InanimateEntity> extends ArrayList<T> {
     }
 
     public void doAfterRender(DoAfterRender method) {
-        this.method = method;
+        queuedActionsToDoAfterRender.add(method);
         executeMethodAfterRender = true;
     }
 }

@@ -102,10 +102,7 @@ public class Application extends Game {
 				Camera.setPositionDirectlyToPlayerPosition();
 				setGameScreen(townScreen);
 			} else {
-				Vector2Int playerPosition = spawnablePosition();
-				player.x = playerPosition.x;
-				player.y = playerPosition.y;
-				Camera.setPositionDirectlyToPlayerPosition();
+				caveScreen.generateNewMap();
 				setGameScreen(caveScreen);
 			}
 		}
@@ -155,9 +152,6 @@ public class Application extends Game {
 		player = new Player(500, 500, playerActionSpritesheets);
 		caveScreen = new CaveScreen(this, assetManager.get("sound/caveTheme.mp3", Music.class), textureAtlas);
 		player.setWeapons(new WeaponInstances(caveScreen, textureAtlas));
-		Vector2Int playerPosition = spawnablePosition();
-		player.x = playerPosition.x;
-		player.y = playerPosition.y;
 		Camera.setPositionDirectlyToPlayerPosition();
 	}
 
@@ -178,6 +172,7 @@ public class Application extends Game {
 	private Vector2Int spawnablePosition() {
 		ArrayList<Vector2Int> openTilePositions = caveScreen.getOpenTilePositionsArray();
 		if (openTilePositions.size() == 0) {
+			System.err.println("Zero tiles");
 			return Vector2Int.ZERO;
 		}
 		Vector2Int spawnLocationInTiles = openTilePositions.get(ExtraMathUtils.randomInt(openTilePositions.size()-1));

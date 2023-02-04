@@ -1,6 +1,7 @@
 package com.mikm.rendering.cave;
 
 import com.mikm.ExtraMathUtils;
+import com.mikm.TileGenerationUtils;
 import com.mikm.Vector2Int;
 
 import java.util.*;
@@ -21,7 +22,7 @@ class RuleCellPositionGenerator {
         for (int i = 0; i < 5; i++) {
             smoothRuleCellPositions();
         }
-        ProcessMap();
+        processMap();
         return ruleCellPositions;
     }
 
@@ -70,12 +71,11 @@ class RuleCellPositionGenerator {
         return count;
     }
 
-    private void ProcessMap()
+    private void processMap()
     {
+        ArrayList<ArrayList<Vector2Int>> wallRegions = TileGenerationUtils.getRegions(true, ruleCellPositions);
 
-        List<List<Vector2Int>> wallRegions = GetRegions(true);
-
-        for(List<Vector2Int> wallRegion : wallRegions)
+        for(ArrayList<Vector2Int> wallRegion : wallRegions)
         {
             if (wallRegion.size() < WALL_THRESHOLD_SIZE)
             {
@@ -86,10 +86,10 @@ class RuleCellPositionGenerator {
             }
         }
 
-        List<List<Vector2Int>> roomRegions = GetRegions(false);
+        ArrayList<ArrayList<Vector2Int>> roomRegions = TileGenerationUtils.getRegions(false, ruleCellPositions);
         ArrayList<CaveRoom> survivingRooms = new ArrayList<>();
 
-        for (List<Vector2Int> roomRegion : roomRegions)
+        for (ArrayList<Vector2Int> roomRegion : roomRegions)
         {
             if (roomRegion.size() < ROOM_THRESHOLD_SIZE)
             {
@@ -109,13 +109,13 @@ class RuleCellPositionGenerator {
         survivingRooms.sort(Comparator.naturalOrder());
         survivingRooms.get(0).isMainRoom = true;
         survivingRooms.get(0).isAccesibleFromMainRoom = true;
-        ConnectClosestRooms(survivingRooms, false);
+        connectClosestRooms(survivingRooms, false);
     }
 
-    private void ConnectClosestRooms(List<CaveRoom> allRooms, boolean forceAccessibilityFromMainRoom)
+    private void connectClosestRooms(ArrayList<CaveRoom> allRooms, boolean forceAccessibilityFromMainRoom)
     {
-        List<CaveRoom> roomListA = new ArrayList<>();
-        List<CaveRoom> roomListB = new ArrayList<>();
+        ArrayList<CaveRoom> roomListA = new ArrayList<>();
+        ArrayList<CaveRoom> roomListB = new ArrayList<>();
 
         if (forceAccessibilityFromMainRoom)
         {
@@ -181,169 +181,32 @@ class RuleCellPositionGenerator {
             }
             if (possibleConnectionFound && !forceAccessibilityFromMainRoom)
             {
-                CreatePassage(bestRoomA, bestRoomB, bestTileA, bestTileB);
+                createPassage(bestRoomA, bestRoomB, bestTileA, bestTileB);
             }
         }
         if (possibleConnectionFound && forceAccessibilityFromMainRoom)
         {
-            CreatePassage(bestRoomA, bestRoomB, bestTileA, bestTileB);
-            ConnectClosestRooms(allRooms, true);
+            createPassage(bestRoomA, bestRoomB, bestTileA, bestTileB);
+            connectClosestRooms(allRooms, true);
         }
         if (!forceAccessibilityFromMainRoom)
         {
-            ConnectClosestRooms(allRooms, true);
+            connectClosestRooms(allRooms, true);
         }
     }
 
-    private void CreatePassage(CaveRoom roomA, CaveRoom roomB, Vector2Int tileA, Vector2Int tileB)
+    private void createPassage(CaveRoom roomA, CaveRoom roomB, Vector2Int tileA, Vector2Int tileB)
     {
         CaveRoom.ConnectRooms(roomA, roomB);
 
-        List<Vector2Int> line = GetLine(tileA, tileB);
-        for (Vector2Int c : line)
+        ArrayList<Vector2Int> passagePositions = TileGenerationUtils.getLinePositions(tileA, tileB, PASSAGE_WIDTH);
+        for (Vector2Int c : passagePositions)
         {
-            DrawCircle(c, PASSAGE_WIDTH);
+            ruleCellPositions[c.y][c.x] = false;
         }
 
     }
 
-    private void DrawCircle(Vector2Int c, int r)
-    {
-        for (int x = -r; x <= r; x++)
-        {
-            for (int y = -r; y <= r; y++)
-            {
-                if (x*x + y*y <= r*r)
-                {
-                    int drawX = c.x + x;
-                    int drawY = c.y + y;
-                    if (IsInMapRange(drawY, drawX))
-                    {
-                        ruleCellPositions[drawY][drawX] = false;
-                    }
-                }
-            }
-        }
-    }
 
-    private List<Vector2Int> GetLine(Vector2Int from, Vector2Int to)
-    {
-        List<Vector2Int> line = new ArrayList<>();
-
-        int x = from.x;
-        int y = from.y;
-
-        int dx = to.x - from.x;
-        int dy = to.y - from.y;
-
-        boolean inverted = false;
-        int step = sign(dx);
-        int gradientStep = sign(dy);
-        int longest = Math.abs(dx);
-        int shortest = Math.abs(dy);
-
-        if (longest < shortest)
-        {
-            inverted = true;
-            longest = Math.abs(dy);
-            shortest = Math.abs(dx);
-
-            step = sign(dy);
-            gradientStep = sign(dx);
-        }
-
-        int gradientAccumulation = longest / 2;
-        for (int i = 0; i < longest; i++)
-        {
-            line.add(new Vector2Int(x, y));
-            if (inverted)
-            {
-                y += step;
-            }
-            else
-            {
-                x += step;
-            }
-            gradientAccumulation += shortest;
-            if (gradientAccumulation >= longest)
-            {
-                if (inverted)
-                {
-                    x += gradientStep;
-                } else
-                {
-                    y += gradientStep;
-                }
-                gradientAccumulation -= longest;
-            }
-        }
-        return line;
-    }
-
-    private List<List<Vector2Int>> GetRegions(boolean tileType)
-    {
-        List<List<Vector2Int>> regions = new ArrayList<>();
-        boolean[][] mapFlags = new boolean[MAP_HEIGHT][MAP_WIDTH];
-
-        for (int y = MAP_HEIGHT - 1; y >= 0; y--)
-        {
-            for (int x = 0; x < MAP_WIDTH; x++)
-            {
-                if (!mapFlags[y][x] && ruleCellPositions[y][x] == tileType)
-                {
-                    List<Vector2Int> newRegion = getRegionTiles(y, x);
-                    regions.add(newRegion);
-
-                    for (Vector2Int tile : newRegion)
-                    {
-                        mapFlags[tile.y][tile.x] = true;
-                    }
-                }
-            }
-        }
-        return regions;
-    }
-
-    private List<Vector2Int> getRegionTiles(int startY, int startX)
-    {
-        List<Vector2Int> tiles = new ArrayList<>();
-        boolean[][] mapFlags = new boolean[MAP_HEIGHT][MAP_WIDTH];
-        boolean tileType = ruleCellPositions[startY][startX];
-
-        LinkedList<Vector2Int> queue = new LinkedList<>();
-        queue.add(new Vector2Int(startX, startY));
-        mapFlags[startY][startX] = true;
-
-        while (queue.size() > 0)
-        {
-            Vector2Int tile = queue.remove();
-            tiles.add(tile);
-
-            for (int y = tile.y - 1; y <= tile.y + 1; y++)
-            {
-                for(int x = tile.x - 1; x <= tile.x + 1; x++)
-                {
-                    if (IsInMapRange(y, x) && (y == tile.y || x == tile.x))
-                    {
-                        if (!mapFlags[y][x] && ruleCellPositions[y][x] == tileType)
-                        {
-                            mapFlags[y][x] = true;
-                            queue.add(new Vector2Int(x, y));
-                        }
-                    }
-                }
-            }
-        }
-        return tiles;
-    }
-
-    private boolean IsInMapRange(int y, int x)
-    {
-        return x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT;
-    }
-
-    private int sign(int n) {
-        return Integer.compare(n, 0);
-    }
 
 }
