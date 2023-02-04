@@ -70,6 +70,7 @@ public class Player extends Entity {
     @Override
     public void update() {
         handleInput();
+
         currentHeldItem.update();
         handleSquish();
         handleInvincibility();

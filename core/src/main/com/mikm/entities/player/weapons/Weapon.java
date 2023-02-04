@@ -25,6 +25,7 @@ public abstract class Weapon {
     boolean mouseIsLeftOfPlayer = false;
     boolean shouldSwingRight = true;
     float angleToMouse;
+    private float weaponAngle;
 
     public Weapon(TextureRegion image) {
         this.image = image;
@@ -53,7 +54,7 @@ public abstract class Weapon {
     }
 
     private void setWeaponZIndex() {
-        if (x > player.getCenteredPosition().x) {
+        if (weaponAngle > MathUtils.PI) {
             zIndex=1;
         } else {
             zIndex=0;
@@ -65,7 +66,7 @@ public abstract class Weapon {
         angleToMouse = GameInput.getAttackingAngle();
         mouseIsLeftOfPlayer = -MathUtils.HALF_PI < angleToMouse && angleToMouse < MathUtils.HALF_PI;
 
-        float weaponAngle = angleToMouse - MathUtils.HALF_PI;
+        weaponAngle = angleToMouse - MathUtils.HALF_PI;
         weaponRotation = angleToMouse + MathUtils.PI/2;
         final float ratioFromWeaponArcToFullRotation = (3+MathUtils.PI/2)/3;
         if (mouseIsLeftOfPlayer) {
