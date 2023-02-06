@@ -78,4 +78,9 @@ public class Camera {
         y = Application.player.getCenteredPosition().y;
         updateOrthographicCamera();
     }
+
+    public static Vector2 getMousePositionWorldCoordinates() {
+        Vector2 mousePosRelativeToPlayer = GameInput.mousePosRelativeToPlayer();
+        return new Vector2(mousePosRelativeToPlayer.x+x, mousePosRelativeToPlayer.y+y);
+    }
 }

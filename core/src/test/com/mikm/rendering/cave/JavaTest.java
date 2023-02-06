@@ -25,6 +25,25 @@ public class JavaTest
         }
     }
      */
+//    @Test
+//    public void testNaN() {
+//        System.out.println(1f/0f);
+//        System.out.println(-1f/0f);
+//        System.out.println(0f/0f);
+//        System.out.println();
+//
+//        System.out.println(Float.POSITIVE_INFINITY/0f);
+//        System.out.println(Float.NEGATIVE_INFINITY/0f);
+//        System.out.println();
+//
+//        System.out.println(Float.POSITIVE_INFINITY/Float.POSITIVE_INFINITY);
+//        System.out.println(Float.NEGATIVE_INFINITY/Float.NEGATIVE_INFINITY);
+//        System.out.println();
+//
+//        System.out.println(Float.POSITIVE_INFINITY/Float.NEGATIVE_INFINITY);
+//        System.out.println(Float.NEGATIVE_INFINITY/Float.POSITIVE_INFINITY);
+//    }
+
     @Test
     public void createGoodArray() {
         boolean[][] array = new boolean[3][3];

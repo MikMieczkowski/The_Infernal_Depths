@@ -28,7 +28,7 @@ public class Application extends Game {
 	//480,270
 	//public static final int WORLD_WIDTH = 1440, WORLD_HEIGHT = 810;
 
-	SpriteBatch batch;
+	public static SpriteBatch batch;
 	public CaveScreen caveScreen;
 	private TownScreen townScreen;
 	public SlimeBossRoomScreen slimeBossRoomScreen;

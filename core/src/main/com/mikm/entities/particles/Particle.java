@@ -42,12 +42,6 @@ class Particle extends InanimateEntity {
 
     @Override
     public void update() {
-        if (!checkedOnce) {
-            if (parameters.collidesWithWalls && collided()) {
-                die();
-            }
-            checkedOnce = true;
-        }
 
         timer += Gdx.graphics.getDeltaTime();
 
@@ -101,6 +95,13 @@ class Particle extends InanimateEntity {
 
     @Override
     public void draw(Batch batch) {
+        if (!checkedOnce) {
+            if (parameters.collidesWithWalls && collider.inWall()) {
+                die();
+                return;
+            }
+            checkedOnce = true;
+        }
         if (parameters.usesColor) {
             batch.setColor(color);
         }

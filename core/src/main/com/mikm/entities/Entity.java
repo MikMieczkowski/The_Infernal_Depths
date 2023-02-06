@@ -60,9 +60,8 @@ public abstract class Entity extends InanimateEntity {
         currentState.checkForStateTransition();
         handleSquish();
         handleInvincibility();
-        checkWallCollisionsX();
+        collider.updateCollisions();
         x += xVel;
-        checkWallCollisionsY();
         y += yVel;
     }
 

@@ -15,10 +15,6 @@ public class Shadow extends InanimateEntity{
         this.entity = entity;
     }
 
-    @Override
-    public void onWallCollision(boolean xCollision, Rectangle wallBounds) {
-
-    }
 
     @Override
     public Rectangle getBounds() {
