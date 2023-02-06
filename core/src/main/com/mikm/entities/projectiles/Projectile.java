@@ -60,9 +60,8 @@ public class Projectile extends InanimateEntity {
         batch.draw(image, x, y, getFullBounds().width/2f, getFullBounds().height/2f, getFullBounds().width, getFullBounds().height, xScale, yScale, rotation*MathUtils.radDeg);
     }
 
-
     @Override
-    public void onWallCollision(boolean xCollision, Rectangle wallBounds) {
+    public void onWallCollision() {
         new ParticleSystem(particleParameters, x, y);
         die();
     }
