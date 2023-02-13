@@ -3,6 +3,7 @@ package com.mikm.entities.player.states;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.mikm.DeltaTime;
 import com.mikm.ExtraMathUtils;
 import com.mikm.Vector2Int;
 import com.mikm.entities.State;
@@ -54,7 +55,7 @@ public class PlayerDivingState extends State {
 
     private void setDiveForce() {
         if (sinCounter < MathUtils.PI) {
-            sinCounter += player.DIVE_FRICTION - (player.DIVE_FRICTION_SPEED * player.DIVE_FRICTION * sinCounter);
+            sinCounter += (player.DIVE_FRICTION - (player.DIVE_FRICTION_SPEED * player.DIVE_FRICTION * sinCounter)) * DeltaTime.deltaTime();
         } else {
             player.rollingState.enter();
             return;

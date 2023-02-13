@@ -37,7 +37,7 @@ public class ParticleSystem  {
             final float xOffset = MathUtils.cos(offsetAngle) * ExtraMathUtils.randomFloat(0, positionOffsetRadius);
             final float yOffset = MathUtils.sin(offsetAngle) * ExtraMathUtils.randomFloat(0, positionOffsetRadius);
             particle.setPosition(x + xOffset, y + yOffset);
-            Application.currentScreen.inanimateEntities.add(particle);
+            Application.currentScreen.addInanimateEntity(particle);
         }
     }
 

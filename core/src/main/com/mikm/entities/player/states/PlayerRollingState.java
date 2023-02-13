@@ -3,6 +3,7 @@ package com.mikm.entities.player.states;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.mikm.DeltaTime;
 import com.mikm.ExtraMathUtils;
 import com.mikm.entities.State;
 import com.mikm.entities.animation.ActionAnimationAllDirections;
@@ -60,7 +61,7 @@ public class PlayerRollingState extends State {
 
     private void setRollForce() {
         if (rollSpeedSinCounter < MathUtils.PI - player.ROLL_ENDING_TIME) {
-            rollSpeedSinCounter += player.ROLL_FRICTION - (player.ROLL_FRICTION_SPEED * player.ROLL_FRICTION * rollSpeedSinCounter);
+            rollSpeedSinCounter += (player.ROLL_FRICTION - (player.ROLL_FRICTION_SPEED * player.ROLL_FRICTION * rollSpeedSinCounter)) * DeltaTime.deltaTime();
         } else {
             player.height = 0;
             player.walkingState.enter();
@@ -77,7 +78,7 @@ public class PlayerRollingState extends State {
     private void setJumpHeight() {
         if (!jumpDone) {
             if (heightSinCounter < MathUtils.PI) {
-                heightSinCounter += player.ROLL_JUMP_SPEED;
+                heightSinCounter += player.ROLL_JUMP_SPEED * DeltaTime.deltaTime();
             }
             if (heightSinCounter >= MathUtils.PI) {
                 heightSinCounter = 0;

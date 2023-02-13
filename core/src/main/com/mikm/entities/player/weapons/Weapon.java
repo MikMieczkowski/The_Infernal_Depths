@@ -37,6 +37,10 @@ public abstract class Weapon {
 
     public abstract void enterAttackState();
 
+    public void exitAttackState() {
+
+    }
+
     public abstract void update();
 
     public abstract void updateDuringAttackState();

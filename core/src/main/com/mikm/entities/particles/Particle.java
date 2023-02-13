@@ -54,11 +54,9 @@ class Particle extends InanimateEntity {
         yVel = speed * MathUtils.sin(angle);
 
         if (parameters.collidesWithWalls) {
-            moveAndCheckCollisions();
-        } else {
-            x += xVel;
-            y += yVel;
+            collider.updateCollisions();
         }
+        move();
 
         if (parameters.hasGravity) {
             height = ExtraMathUtils.bounceLerp(timer, parameters.maxLifeTime, parameters.peakHeight,.1f, 8);

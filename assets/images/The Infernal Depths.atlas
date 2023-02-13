@@ -69,6 +69,8 @@ sand
 bounds:264,114,16,16
 shadow
 bounds:534,128,16,16
+shapeDrawerTexture
+bounds:1010,242,4,4
 slimeBoss
 bounds:198,98,64,32
 sword

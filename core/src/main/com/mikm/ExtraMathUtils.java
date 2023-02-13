@@ -3,6 +3,7 @@ package com.mikm;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.mikm.rendering.screens.Application;
 
 import java.util.Random;
 
@@ -68,6 +69,14 @@ public class ExtraMathUtils {
             return endValue;
         }
         return MathUtils.lerp(startValue, endValue, (timer + startTime) / maxTime);
+    }
+
+    public static float remap(float inputMin, float inputMax, float outputMin, float outputMax, float value) {
+        return MathUtils.lerp(outputMin, outputMax, inverseLerp(inputMin, inputMax, value));
+    }
+
+    public static float inverseLerp(float a, float b, float value) {
+        return (value - a) / (b - a);
     }
 
     public static float sinLerp(float timer, float maxTime, float peakValue) {
@@ -138,6 +147,18 @@ public class ExtraMathUtils {
         return MathUtils.round(num * 10)/10f;
     }
 
+    public static Vector2Int toTileCoordinates(Vector2Int worldCoordinates) {
+        return new Vector2Int(worldCoordinates.x / Application.TILE_WIDTH, worldCoordinates.y / Application.TILE_HEIGHT);
+    }
+
+    public static Vector2 toTileCoordinates(Vector2 worldCoordinates) {
+        return new Vector2((int)worldCoordinates.x / Application.TILE_WIDTH, (int)worldCoordinates.y / Application.TILE_HEIGHT);
+    }
+
+    public static Vector2 toTileCoordinates(float x, float y) {
+        return new Vector2((int)x / Application.TILE_WIDTH, (int)y / Application.TILE_HEIGHT);
+    }
+
     public static Vector2 normalizeAndScale(Vector2 vector2) {
         float magnitude = vector2.len();
         if (magnitude > 1) {
@@ -149,7 +170,12 @@ public class ExtraMathUtils {
         return normalizeAndScale(new Vector2(vector2Int.x, vector2Int.y));
     }
 
-
+    public static int ceilAwayFromZero(float n) {
+        if (n >= 0) {
+            return MathUtils.ceil(n);
+        }
+        return -MathUtils.ceil(-n);
+    }
 
     public static int sign(float num) {
         if (num > 0) {

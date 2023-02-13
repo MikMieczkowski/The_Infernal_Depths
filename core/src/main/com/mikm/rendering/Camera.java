@@ -6,16 +6,17 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.mikm.DeltaTime;
 import com.mikm.input.GameInput;
 import com.mikm.rendering.screens.Application;
 
 public class Camera {
     public static final float VIEWPORT_ZOOM = .25f;
-    private final float CAMERA_SPEED = .2f;
+    private final float CAMERA_SPEED = .25f;
     private final float LEAD_MULTIPLIER = 60;
     private final float CAMERA_LEAD_SPEED = .3f;
-    private final float IGNORED_BOX_WIDTH = 1440 / 64f;
-    private final float IGNORED_BOX_HEIGHT = 810 / 64f;
+    private final float IGNORED_BOX_WIDTH = 22;
+    private final float IGNORED_BOX_HEIGHT = 12;
 
     public static OrthographicCamera orthographicCamera;
     public static float x, y;
@@ -45,24 +46,43 @@ public class Camera {
         final float HALF_HEIGHT = IGNORED_BOX_HEIGHT/2f;
         if (targetPosition.x > HALF_WIDTH) {
             ignoredBoxOffset.x = -HALF_WIDTH;
-            x += (targetPosition.x + ignoredBoxOffset.x) * CAMERA_SPEED;
+            moveCamera(targetPosition, true);
         }
         if (targetPosition.x < -HALF_WIDTH) {
             ignoredBoxOffset.x = HALF_WIDTH;
-            x += (targetPosition.x + ignoredBoxOffset.x) * CAMERA_SPEED;
+            moveCamera(targetPosition, true);
         }
         if (targetPosition.y > HALF_HEIGHT) {
             ignoredBoxOffset.y = -HALF_HEIGHT;
-            y += (targetPosition.y + ignoredBoxOffset.y) * CAMERA_SPEED;
+            moveCamera(targetPosition, false);
         }
         if (targetPosition.y < -HALF_HEIGHT) {
             ignoredBoxOffset.y = HALF_HEIGHT;
-            y += (targetPosition.y + ignoredBoxOffset.y) * CAMERA_SPEED;
+            moveCamera(targetPosition, false);
         }
     }
 
-    private static void updateOrthographicCamera() {
+    private void moveCamera(Vector2 targetPosition, boolean xMovement) {
+        if (xMovement) {
+            float xVel = (targetPosition.x + ignoredBoxOffset.x) * CAMERA_SPEED * DeltaTime.deltaTime();
+            if (Math.abs(xVel) < Math.abs(targetPosition.x)) {
+                x += xVel;
+            } else {
+                x = Application.player.getCenteredPosition().x;
+            }
+        } else {
+            float yVel = (targetPosition.y + ignoredBoxOffset.y) * CAMERA_SPEED * DeltaTime.deltaTime();
+            if (Math.abs(yVel) < Math.abs(targetPosition.y)) {
+                y += yVel;
+            } else {
+                y = Application.player.getCenteredPosition().y;
+            }
+        }
+    }
+
+    public static void updateOrthographicCamera() {
         orthographicCamera.position.set(new Vector3(MathUtils.round((x + lookDirectionX) / VIEWPORT_ZOOM) * VIEWPORT_ZOOM, MathUtils.round((y+ lookDirectionY) / VIEWPORT_ZOOM) * VIEWPORT_ZOOM, 0));
+        //orthographicCamera.position.set(new Vector3(x , y, 0));
         orthographicCamera.update();
     }
 

@@ -16,9 +16,13 @@ public class HolePositionGenerator {
     private ArrayList<Vector2Int> openTiles;
     private ArrayList<Vector2Int> shuffledOpenTiles;
 
+    private boolean[][] ruleCellPositions;
+    private boolean[][] nextRuleCellPositions;
     public HolePositionGenerator(CaveTilemap caveTilemap) {
         this.caveTilemap = caveTilemap;
         openTiles = caveTilemap.openTiles;
+        ruleCellPositions = caveTilemap.ruleCellPositions;
+        nextRuleCellPositions = caveTilemap.nextRuleCellPositions;
     }
 
     public ArrayList<Vector2Int> createHolePositions() {
@@ -28,6 +32,15 @@ public class HolePositionGenerator {
         for (int i = 0; i < CaveTilemap.HOLE_AMOUNT; i++) {
             createHole();
         }
+
+        for (int y = 0; y < CaveTilemap.MAP_HEIGHT; y++) {
+            for (int x = 0; x < CaveTilemap.MAP_WIDTH; x++) {
+                if (!(!ruleCellPositions[y][x] && !nextRuleCellPositions[y][x])) {
+                    holePositions.remove(new Vector2Int(x, y));
+                }
+            }
+        }
+
         deleteSmallHoles();
         return holePositions;
     }
@@ -71,6 +84,9 @@ public class HolePositionGenerator {
     }
 
     private Vector2Int getNewHoleStartingPosition() {
+        if (shuffledOpenTiles.size() == 0) {
+            throw new RuntimeException("Map is too small to find area to place holes.");
+        }
         return shuffledOpenTiles.remove(0);
     }
 

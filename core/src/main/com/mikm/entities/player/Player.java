@@ -3,6 +3,7 @@ package com.mikm.entities.player;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.Vector2Int;
@@ -13,6 +14,8 @@ import com.mikm.entities.player.weapons.Weapon;
 import com.mikm.entities.player.weapons.WeaponInstances;
 import com.mikm.input.GameInput;
 import com.mikm.rendering.screens.Application;
+
+import java.util.ArrayList;
 
 public class Player extends Entity {
     public static final int PLAYER_WIDTH_PIXELS = 32, PLAYER_HEIGHT_PIXELS = 32;
@@ -41,6 +44,7 @@ public class Player extends Entity {
     public PlayerDivingState divingState;
     public PlayerRollingState rollingState;
     public PlayerAttackingAndWalkingState attackingState;
+    public PlayerFallingState fallingState;
 
     public Weapon equippedWeapon;
     public Weapon currentHeldItem;
@@ -52,6 +56,7 @@ public class Player extends Entity {
     public Player(float x, float y, EntityActionSpritesheets entityActionSpritesheets) {
         super(x, y, entityActionSpritesheets);
         damagesPlayer = false;
+        isAttackable = true;
         maxInvincibilityTime = PLAYER_INVINCIBILITY_TIME;
         createStates();
     }
@@ -62,19 +67,33 @@ public class Player extends Entity {
         currentHeldItem = equippedWeapon;
     }
 
-    @Override
-    public float getOriginX() {
-        return PLAYER_WIDTH_PIXELS/2f;
-    }
 
     @Override
     public void update() {
         handleInput();
-        currentHeldItem.update();
-        handleSquish();
-        handleInvincibility();
+        checkHolePositions();
         super.update();
+        currentHeldItem.update();
     }
+
+    private void checkHolePositions() {
+        if (Application.currentScreen == Application.caveScreen && currentState != fallingState && currentState != divingState) {
+            boolean[][] holePositions = Application.caveScreen.getHolePositionsGrid();
+
+            ArrayList<Vector2Int> wallTilesToCheck = collider.getWallTilePositionsToCheck();
+            for (Vector2Int checkedWallTilePosition : wallTilesToCheck) {
+                boolean isInBounds = checkedWallTilePosition.x > 0 && checkedWallTilePosition.x < holePositions.length && checkedWallTilePosition.y > 0 && checkedWallTilePosition.y < holePositions[0].length;
+
+                if (isInBounds && holePositions[checkedWallTilePosition.y][checkedWallTilePosition.x]) {
+                    Rectangle holeBounds = new Rectangle(checkedWallTilePosition.x * Application.TILE_WIDTH+6, checkedWallTilePosition.y * Application.TILE_HEIGHT+6, 10, 10);
+                    if (Intersector.overlaps(holeBounds, getBounds())) {
+                        fallingState.enter();
+                    }
+                }
+            }
+        }
+    }
+
 
     private void handleInput() {
         if (GameInput.isMoving()) {
@@ -84,6 +103,7 @@ public class Player extends Entity {
             if (holdingPickaxe) {
                 currentHeldItem = equippedWeapon;
             } else {
+                currentHeldItem.exitAttackState();
                 currentHeldItem = weaponInstances.pickaxe;
             }
             holdingPickaxe = !holdingPickaxe;
@@ -111,8 +131,12 @@ public class Player extends Entity {
             batch.setColor(new Color(1,1,1,.5f));
         }
         currentState.animationManager.draw(batch);
-        batch.setShader(null);
         batch.setColor(Color.WHITE);
+    }
+
+    @Override
+    public float getOriginX() {
+        return PLAYER_WIDTH_PIXELS/2f;
     }
 
     @Override
@@ -120,7 +144,7 @@ public class Player extends Entity {
         if (NO_CLIP) {
             return new Rectangle(0, 0, 0,0);
         }
-        return new Rectangle(x+10, y+7, 12, 12);
+        return new Rectangle(x+9, y+9, 14, 14);
     }
 
     @Override
@@ -144,6 +168,7 @@ public class Player extends Entity {
         standingState = new PlayerStandingState(this);
         rollingState = new PlayerRollingState(this);
         attackingState = new PlayerAttackingAndWalkingState(this);
+        fallingState = new PlayerFallingState(this);
         standingState.enter();
     }
 

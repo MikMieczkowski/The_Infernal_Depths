@@ -1,6 +1,7 @@
 package com.mikm.entities.player.states;
 
 import com.badlogic.gdx.math.Vector2;
+import com.mikm.DeltaTime;
 import com.mikm.ExtraMathUtils;
 import com.mikm.entities.State;
 import com.mikm.entities.player.Player;
@@ -11,17 +12,17 @@ public abstract class PlayerWalking extends State {
     private final Vector2 targetVelocity = new Vector2();
     private final Vector2 startingVelocity = new Vector2();
 
-    final float ACCELERATION;
-    final float DECELERATION;
+    float ACCELERATION;
+    float DECELERATION;
 
     public PlayerWalking(Player player) {
         super(player);
         this.player = player;
-        ACCELERATION = player.getSpeed() / player.ACCELERATION_FRAMES;
-        DECELERATION = player.getSpeed() / player.DECELERATION_FRAMES;
     }
 
     public void checkIfWalking() {
+        ACCELERATION = player.getSpeed() * DeltaTime.deltaTime() / player.ACCELERATION_FRAMES;
+        DECELERATION = player.getSpeed() * DeltaTime.deltaTime() / player.DECELERATION_FRAMES;
         if (GameInput.getHorizontalAxis() != 0) {
             xAccelerate();
         } else {
