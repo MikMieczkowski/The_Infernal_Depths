@@ -1,23 +1,31 @@
 package com.mikm.entities.projectiles;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.mikm.ExtraMathUtils;
 import com.mikm.entities.InanimateEntity;
 import com.mikm.entities.particles.ParticleParameters;
 import com.mikm.entities.particles.ParticleSystem;
 
 public class Projectile extends InanimateEntity {
     private TextureRegion image;
-    public float speed, angle, rotation;
+    public float speed, angle, rotation, finalDipRotation;
     private Hurtbox hurtbox;
-    private ParticleParameters particleParameters;
+    private final ParticleParameters particleParameters;
+    private final float lifeTime;
+    private float time;
+    private final float STARTING_HEIGHT = 10;
+    private final float DIP_ROTATION_MULTIPLIER = .7f;
 
-    public Projectile(TextureRegion image, ParticleParameters deathParticleParameters, float x, float y) {
+    public Projectile(TextureRegion image, ParticleParameters deathParticleParameters, float lifeTime, float x, float y) {
         super(x, y);
+        this.lifeTime = lifeTime;
         xScale = .5f;
         yScale = .5f;
+        height = STARTING_HEIGHT;
         hurtbox = new Hurtbox(4f, false);
         this.image = image;
         this.particleParameters = deathParticleParameters;
@@ -25,6 +33,7 @@ public class Projectile extends InanimateEntity {
 
     public void setMovementAndDamageInformation(float angle, float speed, DamageInformation damageInformation) {
         this.angle = angle;
+        finalDipRotation = -MathUtils.cos(angle) * DIP_ROTATION_MULTIPLIER;
         this.speed = speed;
         hurtbox.setDamageInformation(damageInformation);
     }
@@ -33,10 +42,15 @@ public class Projectile extends InanimateEntity {
     public void update() {
         xVel = MathUtils.cos(angle) * speed;
         yVel = MathUtils.sin(angle) * speed;
-        hurtbox.setPosition(x + getFullBounds().width/2, y + getFullBounds().width/2);
+        time += Gdx.graphics.getDeltaTime();
+        height = ExtraMathUtils.sinLerp(time, lifeTime*2, .5f, 1f, STARTING_HEIGHT);
+        hurtbox.setPosition(x + getFullBounds().width/2, y + getFullBounds().width/2 + height - STARTING_HEIGHT);
         hurtbox.checkIfHitEntities();
-        rotation = angle + 1.25f * MathUtils.PI;
+        rotation = angle + 1.25f * MathUtils.PI + ExtraMathUtils.lerpAngle(time, lifeTime, 0, finalDipRotation);
         moveAndCheckCollisions();
+        if (time > lifeTime) {
+            die();
+        }
     }
 
     @Override
@@ -52,17 +66,22 @@ public class Projectile extends InanimateEntity {
 
     @Override
     public Rectangle getShadowBounds() {
-        return new Rectangle(x+4, y, 3, 3);
+        return new Rectangle(x, y-3, 16, 16);
     }
 
     @Override
     public void draw(Batch batch) {
-        batch.draw(image, x, y, getFullBounds().width/2f, getFullBounds().height/2f, getFullBounds().width, getFullBounds().height, xScale, yScale, rotation*MathUtils.radDeg);
+        batch.draw(image, x, y+height-STARTING_HEIGHT, getFullBounds().width/2f, getFullBounds().height/2f, getFullBounds().width, getFullBounds().height, xScale, yScale, rotation*MathUtils.radDeg);
     }
 
     @Override
     public void onWallCollision() {
-        new ParticleSystem(particleParameters, x, y);
         die();
+    }
+
+    @Override
+    public void die() {
+        new ParticleSystem(particleParameters, x, y);
+        super.die();
     }
 }

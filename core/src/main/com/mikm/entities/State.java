@@ -29,7 +29,7 @@ public abstract class State {
 
     public void checkIfCollidedWithPlayer(float contactDamage, boolean interruptsState) {
         boolean hitboxesOverlap = Intersector.overlaps(entity.getHitbox(), Application.player.getHitbox());
-        if (hitboxesOverlap) {
+        if (hitboxesOverlap && Application.player.isAttackable) {
             float angleToPlayer = MathUtils.atan2(Application.player.getCenteredPosition().y - entity.y, Application.player.getCenteredPosition().x - entity.x);
             if (interruptsState) {
                 entity.standingState.enter();

@@ -2,6 +2,8 @@ package com.mikm.entities.collision;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.mikm.DeltaTime;
+import com.mikm.ExtraMathUtils;
 import com.mikm.Vector2Int;
 import com.mikm.entities.InanimateEntity;
 import com.mikm.rendering.screens.Application;
@@ -24,20 +26,19 @@ public class Collider {
         boolean[][] collidableMap = Application.currentScreen.getIsCollidableGrid();
 
         ArrayList<Collision> collisions = new ArrayList<>();
-        for (int y = -2; y <= 2; y++) {
-            for (int x = -2; x <= 2; x++) {
-                Vector2Int checkedWallTilePosition = new Vector2Int(inanimateEntity.getXInt() / Application.TILE_WIDTH + x, inanimateEntity.getYInt() / Application.TILE_HEIGHT + y);
-                boolean isInBounds = checkedWallTilePosition.x > 0 && checkedWallTilePosition.x < collidableMap.length && checkedWallTilePosition.y > 0 && checkedWallTilePosition.y < collidableMap[0].length;
 
-                if (isInBounds && !collidableMap[checkedWallTilePosition.y][checkedWallTilePosition.x]) {
-                    continue;
-                }
+        ArrayList<Vector2Int> wallTilePositionsToCheck = getWallTilePositionsToCheck();
+        for (Vector2Int checkedWallTilePosition : wallTilePositionsToCheck) {
+            boolean isInBounds = checkedWallTilePosition.x > 0 && checkedWallTilePosition.x < collidableMap.length && checkedWallTilePosition.y > 0 && checkedWallTilePosition.y < collidableMap[0].length;
 
-                Vector2Int checkedWallPosition = new Vector2Int(checkedWallTilePosition.x * Application.TILE_WIDTH, checkedWallTilePosition.y * Application.TILE_HEIGHT);
-                Rectangle wall = new Rectangle(checkedWallPosition.x, checkedWallPosition.y, Application.TILE_WIDTH, Application.TILE_HEIGHT);
-                if (collidedWith(wall)) {
-                    collisions.add(new Collision(tNear, wall));
-                }
+            if (isInBounds && !collidableMap[checkedWallTilePosition.y][checkedWallTilePosition.x]) {
+                continue;
+            }
+
+            Vector2Int checkedWallPosition = new Vector2Int(checkedWallTilePosition.x * Application.TILE_WIDTH, checkedWallTilePosition.y * Application.TILE_HEIGHT);
+            Rectangle wall = new Rectangle(checkedWallPosition.x, checkedWallPosition.y, Application.TILE_WIDTH, Application.TILE_HEIGHT);
+            if (collidedWith(wall)) {
+                collisions.add(new Collision(tNear, wall));
             }
         }
         collisions.sort(Comparator.comparing(Collision::getTNear));
@@ -50,8 +51,23 @@ public class Collider {
         }
     }
 
+    public ArrayList<Vector2Int> getWallTilePositionsToCheck() {
+        ArrayList<Vector2Int> output = new ArrayList<>();
+        Vector2Int possibleCollisionTileArea = new Vector2Int(ExtraMathUtils.ceilAwayFromZero(inanimateEntity.xVel / Application.TILE_WIDTH), ExtraMathUtils.ceilAwayFromZero(inanimateEntity.yVel / Application.TILE_HEIGHT));
+        int leftBoundX = Math.min(0, possibleCollisionTileArea.x)-2;
+        int rightBoundX = Math.max(0, possibleCollisionTileArea.x)+2;
+        int leftBoundY = Math.min(0, possibleCollisionTileArea.y)-2;
+        int rightBoundY = Math.max(0, possibleCollisionTileArea.y)+2;
+        for (int y = leftBoundY; y <= rightBoundY; y++) {
+            for (int x = leftBoundX; x <= rightBoundX; x++) {
+                output.add(new Vector2Int(inanimateEntity.getXInt() / Application.TILE_WIDTH + x, inanimateEntity.getYInt() / Application.TILE_HEIGHT + y));
+            }
+        }
+        return output;
+    }
+
     public boolean inWall() {
-        Vector2Int tilePosition = new Vector2Int(inanimateEntity.getXInt() / Application.TILE_WIDTH, inanimateEntity.getYInt() / Application.TILE_HEIGHT);
+        Vector2Int tilePosition = ExtraMathUtils.toTileCoordinates(new Vector2Int(inanimateEntity.getXInt(), inanimateEntity.getYInt()));
         boolean[][] collidableMap = Application.currentScreen.getIsCollidableGrid();
         boolean isInBounds = tilePosition.x > 0 && tilePosition.x < collidableMap.length && tilePosition.y > 0 && tilePosition.y < collidableMap[0].length;
         if (!isInBounds) {
@@ -64,7 +80,6 @@ public class Collider {
         if (inanimateEntity.xVel == 0 && inanimateEntity.yVel == 0)
             return false;
 
-        // Expand target rectangle by source dimensions
         Rectangle bounds = inanimateEntity.getBounds();
         Rectangle expandedWallBounds = new Rectangle(wallBounds.x - bounds.width / 2,
                 wallBounds.y - bounds.height / 2,
@@ -72,18 +87,11 @@ public class Collider {
                 wallBounds.height + bounds.height);
 
         Ray ray = new Ray(bounds.x + bounds.width/2, bounds.y + bounds.height/2,
-                bounds.x + bounds.width/2 + inanimateEntity.xVel, bounds.y + bounds.height/2 + inanimateEntity.yVel);
-        if (rayIntersectsRectangle(ray, expandedWallBounds)) {
-            return (tNear >= 0.0f && tNear < 1.0f);
-        }
-        return false;
+                bounds.x + bounds.width/2 + inanimateEntity.xVel * DeltaTime.deltaTime(), bounds.y + bounds.height/2 + inanimateEntity.yVel * DeltaTime.deltaTime());
+        return rayIntersectsRectangle(ray, expandedWallBounds);
     }
 
-    public boolean rayIntersectsRectangle(Ray ray, Rectangle rectangle) {
-//        nearPercentages = new Vector2();
-//        farPercentages = new Vector2();
-//        tNear = 0;
-//        contactNormal = new Vector2();
+    private boolean rayIntersectsRectangle(Ray ray, Rectangle rectangle) {
 
         final float cachedDivisionByPQVectorX = 1f/ray.pqVector.x;
         final float cachedDivisionByPQVectorY = 1f/ray.pqVector.y;
@@ -112,7 +120,7 @@ public class Collider {
         nearIntersection = ray.getPointFromTValue(tNear);
 
         findContactNormal(cachedDivisionByPQVectorX, cachedDivisionByPQVectorY);
-        return true;
+        return tNear >= 0.0f && tNear < 1.0f;
     }
 
     private void findPercentagesOfDistanceAlongVectorToRectangle(Ray ray, Rectangle rectangle, float cachedDivisionByPQVectorX, float cachedDivisionByPQVectorY) {

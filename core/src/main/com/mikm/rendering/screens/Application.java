@@ -9,9 +9,9 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.mikm.ExtraMathUtils;
 import com.mikm.Vector2Int;
-import com.mikm.entities.NPC;
 import com.mikm.entities.animation.ActionSpritesheetsAllDirections;
 import com.mikm.entities.animation.AnimationsAlphabeticalIndex;
 import com.mikm.entities.animation.EntityActionSpritesheets;
@@ -29,7 +29,7 @@ public class Application extends Game {
 	//public static final int WORLD_WIDTH = 1440, WORLD_HEIGHT = 810;
 
 	public static SpriteBatch batch;
-	public CaveScreen caveScreen;
+	public static CaveScreen caveScreen;
 	private TownScreen townScreen;
 	public SlimeBossRoomScreen slimeBossRoomScreen;
 
@@ -42,17 +42,21 @@ public class Application extends Game {
 	public static boolean timestop;
 	private static int timeStopFrames;
 	private static final int MAX_TIMESTOP_FRAMES = 10;
+	public static ShapeRenderer debugShapeRenderer;
 
-	public static final boolean PLAY_MUSIC = false;
+	public static final boolean PLAY_MUSIC = true;
 
 	public static ShaderProgram fillColorShader;
 	public static TextureRegion light;
 	public static TextureRegion dark;
 	public static TextureRegion gray;
 
+
 	@Override
 	public void create() {
 		batch = new SpriteBatch();
+		debugShapeRenderer = new ShapeRenderer();
+
 		fillColorShader = new ShaderProgram(batch.getShader().getVertexShaderSource(), Gdx.files.internal("images/fillColor.frag").readString());
 		if (!fillColorShader.isCompiled()){
 			throw new RuntimeException(fillColorShader.getLog());
@@ -63,23 +67,30 @@ public class Application extends Game {
 		testTexture = textureAtlas.findRegion("sand").split(TILE_WIDTH, TILE_HEIGHT)[0][0];
 
 		font = new BitmapFont(Gdx.files.internal("fonts/EquipmentPro.fnt"));
+		Application.font.getData().setScale(1f);
 
 		createPlayerAndCaveScreen(textureAtlas);
-		townScreen = new TownScreen(this, textureAtlas);
+		townScreen = new TownScreen(this, assetManager.get("sound/townTheme.mp3", Music.class), textureAtlas);
 		slimeBossRoomScreen = new SlimeBossRoomScreen(this,caveScreen, textureAtlas);
-		townScreen.addInanimateEntity(new NPC(player.entityActionSpritesheets.standing.list.get(0)[0], 50, 50));
 		light = new TextureRegion(new Texture(Gdx.files.internal("images/R0x4x.png")));
 		dark = new TextureRegion(new Texture(Gdx.files.internal("images/dark.png")));
 		gray = new TextureRegion(new Texture(Gdx.files.internal("images/gray.png")));
 		player.x = 100;
 		player.y = 100;
+		Camera.setPositionDirectlyToPlayerPosition();
 		setGameScreen(townScreen);
 
 	}
 
 	public void setGameScreen(GameScreen gameScreen) {
+		if (currentScreen != null && currentScreen.song != null) {
+			currentScreen.stopSong();
+		}
 		currentScreen = gameScreen;
 		setScreen(gameScreen);
+		if (gameScreen.song != null) {
+			gameScreen.playSong();
+		}
 	}
 
 	@Override
@@ -109,6 +120,7 @@ public class Application extends Game {
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.C)) {
 			caveScreen.increaseFloor();
+			putPlayerInOpenTile();
 		}
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
@@ -133,6 +145,8 @@ public class Application extends Game {
 		townScreen.dispose();
 		slimeBossRoomScreen.dispose();
 		fillColorShader.dispose();
+		debugShapeRenderer.dispose();
+		font.dispose();
 	}
 
 	private void renderScreens() {
@@ -143,6 +157,7 @@ public class Application extends Game {
 		AssetManager assetManager = new AssetManager();
 		assetManager.load("images/The Infernal Depths.atlas", TextureAtlas.class);
 		assetManager.load("sound/caveTheme.mp3", Music.class);
+		assetManager.load("sound/townTheme.mp3", Music.class);
 		assetManager.finishLoading();
 		return assetManager;
 	}

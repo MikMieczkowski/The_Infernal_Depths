@@ -30,9 +30,10 @@ public class SlimeBossRoomScreen extends GameScreen {
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, 1);
 
         TextureRegion slimeBossImage = textureAtlas.findRegion("slimeBoss").split(32, 32)[0][0];
+        TextureRegion shapeDrawerTexture = textureAtlas.findRegion("shapeDrawerTexture").split(4, 4)[0][0];
         EntityActionSpritesheets sparseActionSpritesheet = new EntityActionSpritesheets();
         sparseActionSpritesheet.hit = slimeBossImage;
-        addEntity(new SlimeBoss(this, 200, 200, slimeBossImage, sparseActionSpritesheet));
+        addEntity(new SlimeBoss(this, 200, 200, slimeBossImage, shapeDrawerTexture, sparseActionSpritesheet));
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.mikm.DeltaTime;
 import com.mikm.entities.collision.Collider;
 import com.mikm.rendering.screens.Application;
 
@@ -22,9 +23,10 @@ public abstract class InanimateEntity {
     }
 
     void render(Batch batch) {
-        draw(batch);
         update();
+        draw(batch);
     }
+
     public void die() {
         Application.currentScreen.removeInanimateEntity(this);
     }
@@ -33,8 +35,12 @@ public abstract class InanimateEntity {
 
     public void moveAndCheckCollisions() {
         collider.updateCollisions();
-        x += xVel;
-        y += yVel;
+        move();
+    }
+
+    public void move() {
+        x += xVel * DeltaTime.deltaTime();
+        y += yVel * DeltaTime.deltaTime();
     }
 
     public void onWallCollision() {

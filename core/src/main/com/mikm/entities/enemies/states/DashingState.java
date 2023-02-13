@@ -37,7 +37,6 @@ public class DashingState extends State {
     public void enter(float angle) {
         super.enter();
         angleToPlayer = angle;
-        System.out.println(angleToPlayer);
     }
 
     @Override

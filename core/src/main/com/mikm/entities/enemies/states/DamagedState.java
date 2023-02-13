@@ -44,6 +44,7 @@ public class DamagedState extends State {
         }
         if (entity == Application.player) {
             Application.freezeTime();
+            Application.player.equippedWeapon.exitAttackState();
         }
         entity.startSquish(TOTAL_KNOCKBACK_TIME*.75f, 1.2f);
         entity.startInvincibilityFrames();

@@ -2,15 +2,15 @@ package com.mikm.rendering.screens;
 
 
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.mikm.entities.RemovableArray;
 import com.mikm.entities.Entity;
 import com.mikm.entities.InanimateEntity;
+import com.mikm.entities.RemovableArray;
 import com.mikm.entities.Shadow;
 import com.mikm.rendering.Camera;
 
@@ -19,6 +19,7 @@ public abstract class GameScreen extends ScreenAdapter {
 
     Application application;
     TextureAtlas textureAtlas;
+    Music song;
     public static Camera camera;
 
     public RemovableArray<Entity> entities;
@@ -26,7 +27,6 @@ public abstract class GameScreen extends ScreenAdapter {
 
     public OrthogonalTiledMapRenderer tiledMapRenderer;
     public TiledMap tiledMap;
-    public ShapeRenderer debugShapeRenderer = new ShapeRenderer();
 
     public static TextureRegion shadowImage;
     public static TextureRegion[][] particleImages;
@@ -51,28 +51,46 @@ public abstract class GameScreen extends ScreenAdapter {
 
     @Override
     public void render(float delta) {
-        application.batch.begin();
         camera.update();
-        application.batch.setProjectionMatrix(Camera.orthographicCamera.combined);
+        Application.batch.begin();
+        Application.batch.setProjectionMatrix(Camera.orthographicCamera.combined);
         tiledMapRenderer.setView(Camera.orthographicCamera);
         drawAssets();
-        Camera.renderLighting(application.batch);
-        application.batch.end();
+        Camera.renderLighting(Application.batch);
+        Camera.updateOrthographicCamera();
+        Application.batch.end();
     }
 
     public void drawNoUpdate() {
-        application.batch.begin();
+        Application.batch.begin();
         tiledMapRenderer.render();
-        inanimateEntities.draw(application.batch);
-        entities.draw(application.batch);
-        Camera.renderLighting(application.batch);
-        application.batch.end();
+        inanimateEntities.draw(Application.batch);
+        entities.draw(Application.batch);
+        Camera.renderLighting(Application.batch);
+        Application.batch.end();
+    }
+
+    public void playSong() {
+        if (Application.PLAY_MUSIC) {
+            song.play();
+        }
+    }
+
+    public void stopSong() {
+        if (Application.PLAY_MUSIC) {
+            song.stop();
+        }
+    }
+
+    void createMusic(Music song) {
+        this.song = song;
+        song.setLooping(true);
     }
 
     void drawAssets() {
         tiledMapRenderer.render();
-        inanimateEntities.render(application.batch);
-        entities.render(application.batch);
+        inanimateEntities.render(Application.batch);
+        entities.render(Application.batch);
     }
 
     public void addEntity(Entity entity) {

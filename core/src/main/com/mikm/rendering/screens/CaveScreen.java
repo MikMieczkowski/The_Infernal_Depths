@@ -5,8 +5,11 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.mikm.ExtraMathUtils;
 import com.mikm.Vector2Int;
+import com.mikm.entities.Rope;
 import com.mikm.entities.animation.ActionSpritesheetsAllDirections;
 import com.mikm.entities.animation.AnimationsAlphabeticalIndex;
 import com.mikm.entities.animation.EntityActionSpritesheets;
@@ -44,17 +47,26 @@ public class CaveScreen extends GameScreen {
     }
 
     public void increaseFloor() {
-        if (Application.currentScreen != application.caveScreen) {
-            application.setGameScreen(application.caveScreen);
-        } else if (floor == 4) {
+        increaseFloor(1);
+    }
+
+    public void increaseFloor(int increment) {
+        if (increment > 0) {
+            Vector2 playerTileCoordinates = ExtraMathUtils.toTileCoordinates(Application.player.x, Application.player.y);
+            addInanimateEntity(new Rope(playerTileCoordinates.x * Application.TILE_WIDTH, playerTileCoordinates.y * Application.TILE_HEIGHT));
+        }
+        if (Application.currentScreen != Application.caveScreen) {
+            application.setGameScreen(Application.caveScreen);
+        } else if (floor + increment == 5) {
             application.setGameScreen(application.slimeBossRoomScreen);
             Application.player.x = 100;
             Application.player.y = 100;
             return;
         }
-        floor++;
+        floor += increment;
         caveTilemap.generateNewMap();
-        application.putPlayerInOpenTile();
+
+        //application.putPlayerInOpenTile();
     }
 
     private void createImages(TextureAtlas textureAtlas) {
@@ -69,14 +81,6 @@ public class CaveScreen extends GameScreen {
         slimeActionSpritesheets.hit = rawSlimeSpritesheets.get(0)[0];
         slimeActionSpritesheets.standing = ActionSpritesheetsAllDirections.createFromSpritesheetRange(rawSlimeSpritesheets, AnimationsAlphabeticalIndex.ENTITY_WALK_STARTING_INDEX, true);
         slimeActionSpritesheets.walking = ActionSpritesheetsAllDirections.createFromSpritesheetRange(rawSlimeSpritesheets, AnimationsAlphabeticalIndex.ENTITY_WALK_STARTING_INDEX);
-    }
-
-    private void createMusic(Music caveSong) {
-        this.caveSong = caveSong;
-        if (Application.PLAY_MUSIC) {
-            caveSong.play();
-            caveSong.setLooping(true);
-        }
     }
 
     @Override
@@ -114,6 +118,10 @@ public class CaveScreen extends GameScreen {
     @Override
     public boolean[][] getIsCollidableGrid() {
         return caveTilemap.getIsCollidableGrid();
+    }
+
+    public boolean[][] getHolePositionsGrid() {
+        return caveTilemap.holePositionsGrid;
     }
 
     public static int getRecolorLevel() {

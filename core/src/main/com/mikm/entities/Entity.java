@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
+import com.mikm.DeltaTime;
 import com.mikm.ExtraMathUtils;
 import com.mikm.Vector2Int;
 import com.mikm.entities.animation.EntityActionSpritesheets;
@@ -35,7 +36,7 @@ public abstract class Entity extends InanimateEntity {
 
     private final int MAX_FLASH_TIME = 2;
     private boolean shouldFlash;
-    private int flashTimerFrames;
+    private float flashTimerFrames;
     private Color flashColor;
 
     public boolean damagesPlayer = true;
@@ -60,9 +61,7 @@ public abstract class Entity extends InanimateEntity {
         currentState.checkForStateTransition();
         handleSquish();
         handleInvincibility();
-        collider.updateCollisions();
-        x += xVel;
-        y += yVel;
+        moveAndCheckCollisions();
     }
 
     @Override
@@ -84,9 +83,10 @@ public abstract class Entity extends InanimateEntity {
     public void handleFlash(Batch batch) {
         if (shouldFlash) {
             Application.setFillColorShader(batch, flashColor);
-            flashTimerFrames++;
+            flashTimerFrames += DeltaTime.deltaTime();
             if (flashTimerFrames >= MAX_FLASH_TIME) {
                 shouldFlash = false;
+                batch.setShader(null);
                 flashTimerFrames = 0;
             }
         } else {
