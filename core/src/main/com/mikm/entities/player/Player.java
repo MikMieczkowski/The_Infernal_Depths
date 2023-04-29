@@ -3,7 +3,6 @@ package com.mikm.entities.player;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.Vector2Int;
@@ -78,18 +77,30 @@ public class Player extends Entity {
 
     private void checkHolePositions() {
         if (Application.currentScreen == Application.caveScreen && currentState != fallingState && currentState != divingState) {
-            boolean[][] holePositions = Application.caveScreen.getHolePositionsGrid();
+            boolean[][] holePositions = Application.caveScreen.getHolePositionsToCheck();
 
             ArrayList<Vector2Int> wallTilesToCheck = collider.getWallTilePositionsToCheck();
             for (Vector2Int checkedWallTilePosition : wallTilesToCheck) {
-                boolean isInBounds = checkedWallTilePosition.x > 0 && checkedWallTilePosition.x < holePositions.length && checkedWallTilePosition.y > 0 && checkedWallTilePosition.y < holePositions[0].length;
-
+                boolean isInBounds = checkedWallTilePosition.x > 1 && checkedWallTilePosition.x < holePositions.length-1 && checkedWallTilePosition.y > 1 && checkedWallTilePosition.y < holePositions[0].length-1;
                 if (isInBounds && holePositions[checkedWallTilePosition.y][checkedWallTilePosition.x]) {
-                    Rectangle holeBounds = new Rectangle(checkedWallTilePosition.x * Application.TILE_WIDTH+6, checkedWallTilePosition.y * Application.TILE_HEIGHT+6, 10, 10);
-                    if (Intersector.overlaps(holeBounds, getBounds())) {
-                        fallingState.enter();
+                    int x = 0, y;
+                    for (y = -1; y <= 1; y += 2) {
+                        checkTile(checkedWallTilePosition, holePositions, x, y);
+                    }
+                    y=0;
+                    for (x = -1; x <= 1; x += 2) {
+                        checkTile(checkedWallTilePosition, holePositions, x, y);
                     }
                 }
+            }
+        }
+    }
+
+    private void checkTile(Vector2Int checkedWallTilePosition, boolean[][] holePositions, int x, int y) {
+        if (!holePositions[checkedWallTilePosition.y+y][checkedWallTilePosition.x+x]) {
+            Rectangle checkedTileBounds = new Rectangle((checkedWallTilePosition.x + x) * Application.TILE_WIDTH, (checkedWallTilePosition.y + y) * Application.TILE_HEIGHT, 16, 16);
+            if (checkedTileBounds.contains(new Vector2(getHitbox().x, getHitbox().y)) && GameInput.isTalkButtonJustPressed()) {
+                fallingState.enter();
             }
         }
     }

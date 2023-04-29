@@ -51,6 +51,6 @@ public class DashingState extends State {
         if (timeElapsedInState > MAX_DASH_TIME) {
             slime.standingState.enter();
         }
-        checkIfCollidedWithPlayer(DASH_DAMAGE, true);
+        handlePlayerCollision(DASH_DAMAGE, true);
     }
 }

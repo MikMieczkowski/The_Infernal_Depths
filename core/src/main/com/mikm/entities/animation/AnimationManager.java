@@ -19,6 +19,14 @@ public class AnimationManager {
     Entity entity;
     private final ActionAnimationAllDirections actionAnimationAllDirections;
 
+    private AnimationManager() {
+        ActionSpritesheetsAllDirections actionSpritesheet  =new ActionSpritesheetsAllDirections();
+        for (int i = 0; i < Directions.TOTAL; i++) {
+            actionSpritesheet.add(new TextureRegion[0]);
+        }
+        actionAnimationAllDirections = new ActionAnimationAllDirections(0, null, actionSpritesheet);
+    }
+
     public AnimationManager(Entity entity, ActionAnimationAllDirections actionAnimationAllDirections) {
         this.entity = entity;
         this.actionAnimationAllDirections = actionAnimationAllDirections;

@@ -3,8 +3,8 @@ package com.mikm.entities.enemies.slimeBoss;
 import com.badlogic.gdx.graphics.Color;
 import com.mikm.entities.Entity;
 import com.mikm.entities.enemies.states.DamagedState;
-import com.mikm.entities.particles.ParticleParameters;
-import com.mikm.entities.particles.ParticleSystem;
+import com.mikm.entities.particles.ParticleTypes;
+import com.mikm.entities.particles.ParticleEffect;
 import com.mikm.entities.projectiles.DamageInformation;
 
 public class SB_DamagedState extends DamagedState {
@@ -43,7 +43,7 @@ public class SB_DamagedState extends DamagedState {
     public void checkForStateTransition() {
         if (timeElapsedInState > .5f) {
             if (dead) {
-                new ParticleSystem(ParticleParameters.getKnockbackDustParameters(),damageInformation.knockbackAngle, entity.x, entity.y);
+                new ParticleEffect(ParticleTypes.getKnockbackDustParameters(),damageInformation.knockbackAngle, entity.x, entity.y);
                 entity.die();
             }
         }

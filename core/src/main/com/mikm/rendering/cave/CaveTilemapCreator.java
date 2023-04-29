@@ -5,8 +5,8 @@ import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
+import com.mikm.RandomUtils;
 import com.mikm.Vector2Int;
-import com.mikm.rendering.HolePositionGenerator;
 import com.mikm.rendering.cave.ruleCell.RuleCell;
 import com.mikm.rendering.cave.ruleCell.RuleCellMetadata;
 import com.mikm.rendering.cave.ruleCell.RuleCellMetadataReader;
@@ -16,43 +16,45 @@ import com.mikm.rendering.screens.CaveScreen;
 
 import java.util.ArrayList;
 
-public class CaveTilemap {
+public class CaveTilemapCreator {
     public static final int MAP_WIDTH = 130, MAP_HEIGHT = 130;
     final static int FILL_CELL_PERCENT_CHANCE = 52;
-    public final static int HOLE_AMOUNT = 50, HOLE_LENGTH = 5, HOLE_WIDTH = 1;
+    public final static int CHASM_AMOUNT = 200, CHASM_LENGTH_MIN = 2, CHASM_LENGTH_MAX = 3, CHASM_WIDTH = 0, CHASM_MIN_SIZE = 4;
+    private final CaveScreen caveScreen;
 
+    //Images
     private TextureRegion[] wallImages;
     private TextureRegion floorImage;
-
-    public boolean[][] ruleCellPositions;
-    public boolean[][] nextRuleCellPositions;
-    public ArrayList<Vector2Int> openTiles;
     private boolean useWallCell1 = false;
-
+    private TiledMapTileLayer.Cell[] wallCellTypes;
+    private TiledMapTileLayer.Cell floorCell;
     private RuleCell ruleCell;
     public final RuleCell holeRuleCell;
-    private final CaveTilemapEntitySpawner spawner;
-    private final RuleCellPositionGenerator ruleCellPositionGenerator;
 
+    //2D arrays
+    public boolean[][] ruleCellPositions;
+    public ArrayList<Vector2Int> openTiles;
+    private final ArrayList<Vector2Int> incollidableWallPositionsToDelete = new ArrayList<>();
+    public boolean[][] holePositionsToCheckGrid = new boolean[MAP_HEIGHT][MAP_WIDTH];
+    public ArrayList<Vector2Int> holePositions;
+
+    //Subclasses
+    private final RuleCellPositionGenerator ruleCellPositionGenerator;
     private final RuleCellMetadata ruleCellMetadata;
     private final RuleCellMetadata holeRuleCellMetadata;
+
+    //Tiledmap
     public TiledMap tiledMap;
     private RuleCellTiledMapTileLayer ruleCellTiledMapTileLayer;
     public RuleCellTiledMapTileLayer holeRuleCellLayer;
     private TiledMapTileLayer floorAndWallLayer;
-    private final ArrayList<Vector2Int> wallPositions = new ArrayList<>();
-    private TiledMapTileLayer.Cell floorCell;
-    private final CaveScreen caveScreen;
-    private TiledMapTileLayer.Cell[] wallCellTypes;
 
-    public boolean[][] holePositionsGrid = new boolean[MAP_HEIGHT][MAP_WIDTH];
 
-    public CaveTilemap(CaveScreen caveScreen) {
+    public CaveTilemapCreator(CaveScreen caveScreen) {
         this.caveScreen = caveScreen;
 
         ruleCellMetadata = readMetadata("images/caveTiles.meta.txt");
         holeRuleCellMetadata = readMetadata("images/holes.meta.txt");
-        holeRuleCellMetadata.prettyPrint();
         ruleCell = new RuleCell(caveScreen.caveTilesetRecolors.get(0), ruleCellMetadata);
         holeRuleCell = new RuleCell(caveScreen.holeSpritesheet, holeRuleCellMetadata);
         createImages();
@@ -60,36 +62,51 @@ public class CaveTilemap {
         wallCellTypes = new TiledMapTileLayer.Cell[5];
 
         ruleCellPositionGenerator = new RuleCellPositionGenerator();
-        nextRuleCellPositions = ruleCellPositionGenerator.createRuleCellPositions();
-
-        spawner = new CaveTilemapEntitySpawner(caveScreen);
+        ruleCellPositions = ruleCellPositionGenerator.createRuleCellPositions();
     }
 
     public void generateNewMap() {
-        boolean levelIs1MoreThanAMultipleOf5 = (CaveScreen.floor+1) %5 == 1;
-        if (levelIs1MoreThanAMultipleOf5 && CaveScreen.floor != 0) {
-            recolorImagesAndCells();
-        }
+        recolorImagesAndCells();
         clearLayers();
-        ruleCellPositions = nextRuleCellPositions;
-        nextRuleCellPositions = ruleCellPositionGenerator.createRuleCellPositions();
+
+        ruleCellPositions = ruleCellPositionGenerator.createRuleCellPositions();
 
         fillRuleCellLayerFromRuleCellPositions();
         fillInWalls();
-        openTiles = findOpenTilePositions();
-        createHoles();
 
-        spawner.generateNewMap(ruleCellPositions, openTiles);
+        openTiles = findOpenTilePositions();
+        holePositions = generateHoles();
+    }
+
+    public void activate(CaveFloorMemento memento) {
+        clearLayers();
+        ruleCellPositions = memento.ruleCellPositions;
+        fillRuleCellLayerFromRuleCellPositions();
+        fillInWalls();
+        holePositions = memento.holePositions;
+    }
+
+    public Vector2Int getSpawnablePosition() {
+        if (openTiles.size() == 0) {
+            System.err.println("Zero tiles");
+            return Vector2Int.ZERO;
+        }
+        Vector2Int spawnLocationInTiles = openTiles.get(RandomUtils.getInt(openTiles.size()-1));
+        return new Vector2Int(spawnLocationInTiles.x * Application.TILE_WIDTH + (int)Application.player.getBoundsOffset().x,
+                spawnLocationInTiles.y * Application.TILE_HEIGHT + (int)Application.player.getBoundsOffset().y);
     }
 
     private void recolorImagesAndCells() {
-        int recolorLevel = (CaveScreen.floor+1)/5;
-        ruleCell = new RuleCell(caveScreen.caveTilesetRecolors.get(recolorLevel), ruleCellMetadata);
-        createImages();
-        StaticTiledMapTile floorTile = new StaticTiledMapTile(floorImage);
-        floorCell.setTile(floorTile);
-        for (int i = 0; i < 5; i++) {
-            wallCellTypes[i].setTile(new StaticTiledMapTile(wallImages[i]));
+        boolean levelIs1MoreThanAMultipleOf5 = (CaveScreen.floor+1) %5 == 1;
+        if (levelIs1MoreThanAMultipleOf5 && CaveScreen.floor != 0) {
+            int recolorLevel = (CaveScreen.floor+1)/5;
+            ruleCell = new RuleCell(caveScreen.caveTilesetRecolors.get(recolorLevel), ruleCellMetadata);
+            createImages();
+            StaticTiledMapTile floorTile = new StaticTiledMapTile(floorImage);
+            floorCell.setTile(floorTile);
+            for (int i = 0; i < 5; i++) {
+                wallCellTypes[i].setTile(new StaticTiledMapTile(wallImages[i]));
+            }
         }
     }
 
@@ -102,12 +119,12 @@ public class CaveTilemap {
         }
         ruleCellTiledMapTileLayer.ruleCells = new RuleCell[MAP_HEIGHT][MAP_WIDTH];
         holeRuleCellLayer.ruleCells = new RuleCell[MAP_HEIGHT][MAP_WIDTH];
-        holePositionsGrid = new boolean[MAP_HEIGHT][MAP_WIDTH];
+        holePositionsToCheckGrid = new boolean[MAP_HEIGHT][MAP_WIDTH];
 
-        for (Vector2Int wallPosition : wallPositions) {
+        for (Vector2Int wallPosition : incollidableWallPositionsToDelete) {
             floorAndWallLayer.setCell(wallPosition.x, wallPosition.y, floorCell);
         }
-        wallPositions.clear();
+        incollidableWallPositionsToDelete.clear();
     }
 
     private ArrayList<Vector2Int> findOpenTilePositions() {
@@ -132,22 +149,18 @@ public class CaveTilemap {
         createMapFromLayers();
     }
 
-    private void createHoles() {
+    private ArrayList<Vector2Int> generateHoles() {
         HolePositionGenerator holePositionGenerator = new HolePositionGenerator(this);
         ArrayList<Vector2Int> holePositions = holePositionGenerator.createHolePositions();
         for (Vector2Int holePosition : holePositions) {
             if (holePosition.x < MAP_WIDTH) {
-                holePositionsGrid[holePosition.y][holePosition.x] = true;
+                holePositionsToCheckGrid[holePosition.y][holePosition.x] = true;
                 holeRuleCellLayer.setRuleCell(holePosition.x, holePosition.y, holeRuleCell);
+                ruleCellPositions[holePosition.y][holePosition.x] = true;
             }
         }
         holeRuleCellLayer.updateRuleCells();
-
-//        caveScreen.entities.doAfterRender(() -> {
-//            for (Vector2Int holePosition : holePositions) {
-//                caveScreen.addInanimateEntity(new TestObject(holePosition.x*16, holePosition.y*16));
-//            }
-//        });
+        return holePositions;
     }
 
     private RuleCellMetadata readMetadata(String directory) {
@@ -211,7 +224,7 @@ public class CaveTilemap {
             return;
         }
         if (ruleCellPositions[y+1][x]&&!ruleCellPositions[y][x]) {
-            wallPositions.add(new Vector2Int(x, y));
+            incollidableWallPositionsToDelete.add(new Vector2Int(x, y));
             floorAndWallLayer.setCell(x, y, getCorrectWallCell(y, x, wallCellTypes));
         }
     }

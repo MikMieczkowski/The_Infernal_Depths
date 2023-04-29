@@ -9,14 +9,14 @@ import com.mikm.ExtraMathUtils;
 import com.mikm.entities.InanimateEntity;
 
 class Particle extends InanimateEntity {
-    private ParticleParameters parameters;
+    private ParticleTypes parameters;
     private float size, angle, startingSpeed;
     private float timer;
     private boolean checkedOnce = false;
     private Color color;
     private Color startColor, endColor;
 
-    Particle(ParticleParameters parameters, Color startColor, Color endColor, float size, float angle, float startingSpeed) {
+    Particle(ParticleTypes parameters, Color startColor, Color endColor, float size, float angle, float startingSpeed) {
         super(0, 0);
         this.parameters = parameters;
         this.size = size;

@@ -2,7 +2,7 @@ package com.mikm.entities.enemies.states;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.math.Vector2;
-import com.mikm.ExtraMathUtils;
+import com.mikm.RandomUtils;
 import com.mikm.entities.Entity;
 import com.mikm.entities.animation.ActionAnimationAllDirections;
 import com.mikm.entities.animation.AnimationManager;
@@ -48,8 +48,8 @@ public class WanderingState extends DashInducingState {
     }
 
     private float getRandomWanderFloat() {
-        float randomForcePositive = entity.getSpeed() * ExtraMathUtils.randomFloat(MIN_WANDER_FORCE, 1);
-        int randomSign = ExtraMathUtils.randomBoolean() ? 1 : -1;
+        float randomForcePositive = entity.getSpeed() * RandomUtils.getFloat(MIN_WANDER_FORCE, 1);
+        int randomSign = RandomUtils.getBoolean() ? 1 : -1;
         return randomSign * randomForcePositive;
     }
 }

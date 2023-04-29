@@ -2,12 +2,20 @@ package com.mikm.debug;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.jogamp.nativewindow.CapabilitiesFilter;
 import com.mikm.entities.InanimateEntity;
 import com.mikm.rendering.screens.Application;
 
 public class TestObject extends InanimateEntity {
     private final int width;
     private final Color color;
+
+    public TestObject() {
+        super(0, 0);
+        this.width = Application.TILE_WIDTH;
+        this.color = new Color(Color.WHITE.r, Color.WHITE.g, Color.WHITE.b, .2f);
+    }
+
     public TestObject(int x, int y) {
         super(x,y);
         this.width = Application.TILE_WIDTH;

@@ -9,6 +9,7 @@ import com.mikm.entities.InanimateEntity;
 import com.mikm.rendering.screens.Application;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 
 public class Collider {
@@ -18,12 +19,16 @@ public class Collider {
 
     private final InanimateEntity inanimateEntity;
 
+    private Collider() {
+        inanimateEntity = null;
+    }
+
     public Collider(InanimateEntity inanimateEntity) {
         this.inanimateEntity = inanimateEntity;
     }
 
     public void updateCollisions() {
-        boolean[][] collidableMap = Application.currentScreen.getIsCollidableGrid();
+        boolean[][] collidableMap = Application.currentScreen.isWallAt();
 
         ArrayList<Collision> collisions = new ArrayList<>();
 
@@ -68,7 +73,7 @@ public class Collider {
 
     public boolean inWall() {
         Vector2Int tilePosition = ExtraMathUtils.toTileCoordinates(new Vector2Int(inanimateEntity.getXInt(), inanimateEntity.getYInt()));
-        boolean[][] collidableMap = Application.currentScreen.getIsCollidableGrid();
+        boolean[][] collidableMap = Application.currentScreen.isWallAt();
         boolean isInBounds = tilePosition.x > 0 && tilePosition.x < collidableMap.length && tilePosition.y > 0 && tilePosition.y < collidableMap[0].length;
         if (!isInBounds) {
             return true;

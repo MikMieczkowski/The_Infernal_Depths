@@ -1,8 +1,13 @@
 package com.mikm.rendering.cave;
 
+import com.mikm.Vector2Int;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -71,4 +76,45 @@ public class JavaTest
         // out of bounds - list.set(102, 21);
         // assertNotEquals(list.get(0), 0);
     //}
+
+    @Test
+    public void doesContainsWorkList() {
+        Vector2Int vec1 = new Vector2Int(43, 23);
+        ArrayList<Vector2Int> arr = new ArrayList<>();
+        arr.add(vec1);
+        Assertions.assertTrue(arr.contains(new Vector2Int(43, 23)));
+    }
+
+    @Test
+    public void doesContainsWorkSet() {
+        Vector2Int vec1 = new Vector2Int(43, 23);
+        Set<Vector2Int> arr = new HashSet<>();
+        arr.add(vec1);
+        Assertions.assertTrue(arr.contains(new Vector2Int(43, 23)));
+    }
+
+    @Test
+    public void whatDoesCloneDo() {
+        boolean[][] bools = new boolean[5][5];
+        boolean[][] boolsClone = bools.clone();
+        boolsClone[3][3] = true;
+        assertTrue(bools[3][3]);
+    }
+
+    @Test
+    public void whatDoesCloneDo2() {
+        boolean[] bools = new boolean[5];
+        boolean[] boolsClone = bools.clone();
+        boolsClone[3] = true;
+        assertFalse(bools[3]);
+    }
+
+    @Test
+    public void arraysCopyOfShouldWork() {
+        boolean[][] bools = new boolean[5][5];
+        boolean[][] boolsCopy = Arrays.copyOf(bools,bools.length);
+        assertTrue(Arrays.deepEquals(bools, boolsCopy));
+        boolsCopy[3][3] = true;
+        assertFalse(bools[3][3]);
+    }
 }

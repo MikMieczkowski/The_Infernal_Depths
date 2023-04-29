@@ -44,6 +44,6 @@ public abstract class DashInducingState extends State {
             timeSinceLastDash = 0;
             entity.detectedPlayerBuildUpState.enter();
         }
-        checkIfCollidedWithPlayer(contactDamage, true);
+        handlePlayerCollision(contactDamage, true);
     }
 }

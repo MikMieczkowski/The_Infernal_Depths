@@ -7,20 +7,20 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.mikm.ExtraMathUtils;
 import com.mikm.entities.InanimateEntity;
-import com.mikm.entities.particles.ParticleParameters;
-import com.mikm.entities.particles.ParticleSystem;
+import com.mikm.entities.particles.ParticleTypes;
+import com.mikm.entities.particles.ParticleEffect;
 
 public class Projectile extends InanimateEntity {
     private TextureRegion image;
     public float speed, angle, rotation, finalDipRotation;
     private Hurtbox hurtbox;
-    private final ParticleParameters particleParameters;
+    private final ParticleTypes particleParameters;
     private final float lifeTime;
     private float time;
     private final float STARTING_HEIGHT = 10;
     private final float DIP_ROTATION_MULTIPLIER = .7f;
 
-    public Projectile(TextureRegion image, ParticleParameters deathParticleParameters, float lifeTime, float x, float y) {
+    public Projectile(TextureRegion image, ParticleTypes deathParticleParameters, float lifeTime, float x, float y) {
         super(x, y);
         this.lifeTime = lifeTime;
         xScale = .5f;
@@ -81,7 +81,7 @@ public class Projectile extends InanimateEntity {
 
     @Override
     public void die() {
-        new ParticleSystem(particleParameters, x, y);
+        new ParticleEffect(particleParameters, x, y);
         super.die();
     }
 }

@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.mikm.rendering.screens.GameScreen;
 import com.mikm.rendering.cave.RockType;
 
-public class ParticleParameters {
+public class ParticleTypes {
     TextureRegion image;
     boolean hasGravity, hasShadow, shouldDecelerate, collidesWithWalls;
 
@@ -21,8 +21,8 @@ public class ParticleParameters {
     Color startColorMax, endColorMax;
     float finalScale = 0;
 
-    public static ParticleParameters getRockParameters(RockType rockType) {
-        ParticleParameters rockParameters = new ParticleParameters();
+    public static ParticleTypes getRockParameters(RockType rockType) {
+        ParticleTypes rockParameters = new ParticleTypes();
         rockParameters.image = rockType.getParticleImage();
         rockParameters.amountMin = 4;
         rockParameters.amountMax = 8;
@@ -43,8 +43,8 @@ public class ParticleParameters {
         return rockParameters;
     }
 
-    public static ParticleParameters getKnockbackDustParameters() {
-        ParticleParameters knockbackDustParameters = new ParticleParameters();
+    public static ParticleTypes getKnockbackDustParameters() {
+        ParticleTypes knockbackDustParameters = new ParticleTypes();
         knockbackDustParameters.image = GameScreen.particleImages[0][0];
         knockbackDustParameters.amountMin = 6;
         knockbackDustParameters.amountMax = 6;
@@ -65,8 +65,8 @@ public class ParticleParameters {
         return knockbackDustParameters;
     }
 
-    public static ParticleParameters getDiveDustParameters() {
-        ParticleParameters diveDustParameters = new ParticleParameters();
+    public static ParticleTypes getDiveDustParameters() {
+        ParticleTypes diveDustParameters = new ParticleTypes();
         diveDustParameters.image = GameScreen.particleImages[0][0];
         diveDustParameters.positionOffsetRadius = 5;
         diveDustParameters.hasGravity = false;
@@ -87,8 +87,8 @@ public class ParticleParameters {
         return diveDustParameters;
     }
 
-    public static ParticleParameters getArrowParameters() {
-        ParticleParameters arrowParameters = new ParticleParameters();
+    public static ParticleTypes getArrowParameters() {
+        ParticleTypes arrowParameters = new ParticleTypes();
         arrowParameters.image = GameScreen.particleImages[0][2];
         arrowParameters.amountMin = 3;
         arrowParameters.amountMax = 3;
@@ -108,8 +108,8 @@ public class ParticleParameters {
         return arrowParameters;
     }
 
-    public static ParticleParameters getSlimeTrailParameters() {
-        ParticleParameters slimeTrailParameters = new ParticleParameters();
+    public static ParticleTypes getSlimeTrailParameters() {
+        ParticleTypes slimeTrailParameters = new ParticleTypes();
         slimeTrailParameters.usesColor = true;
         slimeTrailParameters.startColorMin = new Color(81/255f, 211/255f, 128/255f, 1);
         slimeTrailParameters.startColorMax = new Color(31/255f, 147/255f, 94/255f, 1);

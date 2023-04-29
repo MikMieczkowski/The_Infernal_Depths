@@ -1,16 +1,12 @@
 package com.mikm.entities.enemies.slimeBoss;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Circle;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.entities.Entity;
 import com.mikm.entities.animation.EntityActionSpritesheets;
-import com.mikm.entities.particles.ParticleParameters;
-import com.mikm.entities.particles.ParticleSystem;
 import com.mikm.rendering.screens.SlimeBossRoomScreen;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
@@ -57,20 +53,10 @@ public class SlimeBoss extends Entity {
         stateManager.updateState();
     }
 
-    final int MAX_CIRCLE_ITERATION = 10;
-    float timer, impulseTimer;
-
     @Override
     public void draw(Batch batch) {
         if (visible) {
             super.draw(batch);
-        }
-        timer += Gdx.graphics.getDeltaTime();
-        if (timer > 5) {
-            timer = 0;
-        }
-        for (int t = 0; t < MAX_CIRCLE_ITERATION; t++) {
-            new ParticleSystem(ParticleParameters.getDiveDustParameters(), x + 50*timer * MathUtils.cos(timer*4+ t * (MathUtils.PI2 / MAX_CIRCLE_ITERATION)), y + 50 *timer* MathUtils.sin(timer*4 +t* (MathUtils.PI2 / MAX_CIRCLE_ITERATION)));
         }
     }
 

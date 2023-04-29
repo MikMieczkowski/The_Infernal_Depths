@@ -8,8 +8,8 @@ import com.mikm.ExtraMathUtils;
 import com.mikm.entities.Entity;
 import com.mikm.entities.State;
 import com.mikm.entities.animation.OneDirectionalAnimationManager;
-import com.mikm.entities.particles.ParticleParameters;
-import com.mikm.entities.particles.ParticleSystem;
+import com.mikm.entities.particles.ParticleTypes;
+import com.mikm.entities.particles.ParticleEffect;
 import com.mikm.entities.projectiles.DamageInformation;
 import com.mikm.rendering.screens.Application;
 
@@ -71,7 +71,7 @@ public class DamagedState extends State {
     public void checkForStateTransition() {
         if (timeElapsedInState > TOTAL_KNOCKBACK_TIME) {
             if (dead) {
-                new ParticleSystem(ParticleParameters.getKnockbackDustParameters(),damageInformation.knockbackAngle, entity.x, entity.y);
+                new ParticleEffect(ParticleTypes.getKnockbackDustParameters(),damageInformation.knockbackAngle, entity.x, entity.y);
                 entity.die();
             }
             entity.standingState.enter();

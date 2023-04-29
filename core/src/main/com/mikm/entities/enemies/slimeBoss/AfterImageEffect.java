@@ -7,12 +7,12 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mikm.entities.InanimateEntity;
 import com.mikm.rendering.screens.Application;
 
-public class DashEffectParticle extends InanimateEntity {
+public class AfterImageEffect extends InanimateEntity {
     private TextureRegion image;
     private float alpha = 1;
     private final float DISAPPEAR_SPEED = 6;
 
-    public DashEffectParticle(TextureRegion image, float x, float y, float xScale, float yScale) {
+    public AfterImageEffect(TextureRegion image, float x, float y, float xScale, float yScale) {
         super(x, y);
         this.image = image;
         this.xScale = xScale;

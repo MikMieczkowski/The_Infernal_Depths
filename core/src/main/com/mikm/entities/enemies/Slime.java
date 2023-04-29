@@ -15,6 +15,12 @@ public class Slime extends Entity {
     public DashingState dashingState;
     public DashBuildUpState dashBuildUpState;
 
+    private Slime() {
+        super(0, 0, new EntityActionSpritesheets());
+        angle = 0;
+        slimeBossMinion = false;
+    }
+
     public Slime(int x, int y, EntityActionSpritesheets entityActionSpritesheets) {
         super(x, y, entityActionSpritesheets);
         Slime.entityActionSpritesheets = entityActionSpritesheets;

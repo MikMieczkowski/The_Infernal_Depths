@@ -22,6 +22,7 @@ public class PlayerFallingState extends State {
     @Override
     public void enter() {
         super.enter();
+        player.height = 0;
         player.isAttackable = false;
     }
 

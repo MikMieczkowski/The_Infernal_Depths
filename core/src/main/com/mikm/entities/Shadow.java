@@ -10,6 +10,10 @@ public class Shadow extends InanimateEntity{
     private float shadowScale = .75f;
     private final float SHADOW_DISAPPEAR_HEIGHT_FOR_NORMAL_ENTITY = 20;
 
+    private Shadow() {
+        super(0, 0);
+    }
+
     public Shadow(InanimateEntity entity) {
         super(0, 0);
         this.entity = entity;

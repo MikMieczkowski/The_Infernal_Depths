@@ -40,7 +40,7 @@ public class SB_DashBuildUpState extends State {
     public void update() {
         super.update();
         slimeBoss.height = ExtraMathUtils.sinLerp(timeElapsedInState, BUILDUP_DASH_TIME, BUILDUP_DASH_HEIGHT);
-        checkIfCollidedWithPlayer(1, false);
+        handlePlayerCollision(1, false);
     }
 
     @Override

@@ -1,13 +1,12 @@
 package com.mikm.rendering.cave;
 
-import com.mikm.ExtraMathUtils;
-import com.mikm.TileGenerationUtils;
+import com.mikm.RandomUtils;
 import com.mikm.Vector2Int;
 
 import java.util.*;
 
-import static com.mikm.rendering.cave.CaveTilemap.MAP_WIDTH;
-import static com.mikm.rendering.cave.CaveTilemap.MAP_HEIGHT;
+import static com.mikm.rendering.cave.CaveTilemapCreator.MAP_WIDTH;
+import static com.mikm.rendering.cave.CaveTilemapCreator.MAP_HEIGHT;
 
 //Thanks to Sebastian Lague
 
@@ -32,7 +31,7 @@ class RuleCellPositionGenerator {
                 if (x == 0 || x == MAP_WIDTH - 1 || y == 0 || y == MAP_HEIGHT - 1) {
                     ruleCellPositions[y][x] = true;
                 } else {
-                    ruleCellPositions[y][x] = (ExtraMathUtils.randomInt(100) < CaveTilemap.FILL_CELL_PERCENT_CHANCE);
+                    ruleCellPositions[y][x] = RandomUtils.getPercentage(CaveTilemapCreator.FILL_CELL_PERCENT_CHANCE);
                 }
             }
         }
@@ -73,7 +72,7 @@ class RuleCellPositionGenerator {
 
     private void processMap()
     {
-        ArrayList<ArrayList<Vector2Int>> wallRegions = TileGenerationUtils.getRegions(true, ruleCellPositions);
+        ArrayList<ArrayList<Vector2Int>> wallRegions = TileGenerationUtils.getRegions(ruleCellPositions, true);
 
         for(ArrayList<Vector2Int> wallRegion : wallRegions)
         {
@@ -86,7 +85,7 @@ class RuleCellPositionGenerator {
             }
         }
 
-        ArrayList<ArrayList<Vector2Int>> roomRegions = TileGenerationUtils.getRegions(false, ruleCellPositions);
+        ArrayList<ArrayList<Vector2Int>> roomRegions = TileGenerationUtils.getRegions(ruleCellPositions, false);
         ArrayList<CaveRoom> survivingRooms = new ArrayList<>();
 
         for (ArrayList<Vector2Int> roomRegion : roomRegions)

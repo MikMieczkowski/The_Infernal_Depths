@@ -63,6 +63,7 @@ project(":core") {
         api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
         api "com.badlogicgames.gdx-controllers:gdx-controllers-core:$gdxControllersVersion"
         implementation "space.earlygrey:shapedrawer:$shapedrawerVersion"
+
     }
 }
 

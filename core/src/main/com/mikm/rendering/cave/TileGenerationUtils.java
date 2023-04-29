@@ -1,14 +1,18 @@
-package com.mikm;
+package com.mikm.rendering.cave;
+
+import com.badlogic.gdx.math.MathUtils;
+import com.mikm.Vector2Int;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.mikm.rendering.cave.CaveTilemap.MAP_HEIGHT;
-import static com.mikm.rendering.cave.CaveTilemap.MAP_WIDTH;
+import static com.mikm.rendering.cave.CaveTilemapCreator.MAP_HEIGHT;
+import static com.mikm.rendering.cave.CaveTilemapCreator.MAP_WIDTH;
 
 public class TileGenerationUtils {
-    public static ArrayList<ArrayList<Vector2Int>> getRegions(boolean tileType, boolean[][] ruleCellPositions)
+    public static ArrayList<ArrayList<Vector2Int>> getRegions(boolean[][] tilePositions, boolean tileType)
     {
         ArrayList<ArrayList<Vector2Int>> regions = new ArrayList<>();
         boolean[][] mapFlags = new boolean[MAP_HEIGHT][MAP_WIDTH];
@@ -17,9 +21,9 @@ public class TileGenerationUtils {
         {
             for (int x = 0; x < MAP_WIDTH; x++)
             {
-                if (!mapFlags[y][x] && ruleCellPositions[y][x] == tileType)
+                if (!mapFlags[y][x] && tilePositions[y][x] == tileType)
                 {
-                    ArrayList<Vector2Int> newRegion = getRegionTiles(y, x, ruleCellPositions);
+                    ArrayList<Vector2Int> newRegion = getRegionTiles(y, x, tilePositions);
                     regions.add(newRegion);
 
                     for (Vector2Int tile : newRegion)
@@ -30,6 +34,14 @@ public class TileGenerationUtils {
             }
         }
         return regions;
+    }
+
+    public static ArrayList<ArrayList<Vector2Int>> getRegions(Collection<Vector2Int> tiles, boolean tileType) {
+        boolean[][] tilePositions = new boolean[MAP_HEIGHT][MAP_WIDTH];
+        for (Vector2Int tile : tiles) {
+            tilePositions[tile.y][tile.x] = true;
+        }
+        return getRegions(tilePositions, tileType);
     }
 
     private static ArrayList<Vector2Int> getRegionTiles(int startY, int startX, boolean[][] ruleCellPositions)
@@ -73,6 +85,12 @@ public class TileGenerationUtils {
             drawCircle(output, c, lineWidth);
         }
         return output;
+    }
+
+    public static ArrayList<Vector2Int> getLinePositions(Vector2Int startingPoint, float angle, int lineLength, int lineWidth) {
+        Vector2Int lineEndPoint = new Vector2Int(startingPoint.x + (int)(MathUtils.cos(angle) * lineLength),
+                startingPoint.y + (int)(MathUtils.sin(angle) * lineLength));
+        return TileGenerationUtils.getLinePositions(startingPoint, lineEndPoint, lineWidth);
     }
 
     private static ArrayList<Vector2Int> drawLine(Vector2Int from, Vector2Int to)
@@ -129,16 +147,22 @@ public class TileGenerationUtils {
         return line;
     }
 
-    private static void drawCircle(List<Vector2Int> addTo, Vector2Int c, int r)
+    private static void drawCircle(List<Vector2Int> addTo, Vector2Int center, int r)
     {
+        if (r == 0) {
+            addTo.add(center);
+            addTo.add(new Vector2Int(center.x +1, center.y));
+            addTo.add(new Vector2Int(center.x, center.y+1));
+            return;
+        }
         for (int x = -r; x <= r; x++)
         {
             for (int y = -r; y <= r; y++)
             {
                 if (x*x + y*y <= r*r)
                 {
-                    int drawX = c.x + x;
-                    int drawY = c.y + y;
+                    int drawX = center.x + x;
+                    int drawY = center.y + y;
                     if (isInMapRange(drawY, drawX))
                     {
                         Vector2Int point = new Vector2Int(drawX, drawY);

@@ -5,17 +5,16 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.mikm.ExtraMathUtils;
 import com.mikm.Vector2Int;
-import com.mikm.entities.Rope;
 import com.mikm.entities.animation.ActionSpritesheetsAllDirections;
 import com.mikm.entities.animation.AnimationsAlphabeticalIndex;
 import com.mikm.entities.animation.EntityActionSpritesheets;
 import com.mikm.rendering.Camera;
 import com.mikm.rendering.TextureAtlasUtils;
-import com.mikm.rendering.cave.CaveTilemap;
+import com.mikm.rendering.cave.CaveEntitySpawner;
+import com.mikm.rendering.cave.CaveTilemapCreator;
+import com.mikm.rendering.cave.CaveFloorMemento;
 
 import java.util.ArrayList;
 
@@ -24,49 +23,101 @@ public class CaveScreen extends GameScreen {
     public static final Color caveFillColorLevel1 = new Color(41/255f, 16/255f, 16/255f, 1);
     public static final Color caveFillColorLevel6 = new Color(20/255f, 19/255f, 39/255f, 1);
     private final Color[] caveFillColors = new Color[]{caveFillColorLevel1, caveFillColorLevel6};
-
-    CaveTilemap caveTilemap;
-
-    public ArrayList<TextureRegion[][]> caveTilesetRecolors = new ArrayList<>();
     public static TextureRegion[][] rockImages;
     public static TextureRegion[] oreImages;
-    public TextureRegion[][] holeSpritesheet;
-
-    public EntityActionSpritesheets slimeActionSpritesheets;
-    private Music caveSong;
-
     public static int floor = 0;
+    public static final int LAST_FLOOR = 14;
+    public static final int FLOORS_PER_LEVEL = 5;
+
+    public ArrayList<TextureRegion[][]> caveTilesetRecolors = new ArrayList<>();
+    public TextureRegion[][] holeSpritesheet;
+    public EntityActionSpritesheets slimeActionSpritesheets;
+
+
+    public CaveTilemapCreator caveTilemapCreator;
+    private CaveEntitySpawner spawner;
+    //5,10,15 are always null.
+    public CaveFloorMemento[] caveFloorMementos = new CaveFloorMemento[15];
 
     CaveScreen(Application application, Music caveSong, TextureAtlas textureAtlas) {
         super(application, textureAtlas);
-
         createImages(textureAtlas);
         createMusic(caveSong);
-
         createTiledMapRenderer();
     }
 
-    public void increaseFloor() {
-        increaseFloor(1);
+    public void decreaseFloor() {
+        floor--;
+        handleScreenChange();
+        if (floor % 5 == 0) {
+            return;
+        }
+
+        Application.player.x = caveFloorMementos[floor].spawnPosition.x;
+        Application.player.y = caveFloorMementos[floor].spawnPosition.y;
     }
 
-    public void increaseFloor(int increment) {
-        if (increment > 0) {
-            Vector2 playerTileCoordinates = ExtraMathUtils.toTileCoordinates(Application.player.x, Application.player.y);
-            addInanimateEntity(new Rope(playerTileCoordinates.x * Application.TILE_WIDTH, playerTileCoordinates.y * Application.TILE_HEIGHT));
+    public void increaseFloor() {
+        floor++;
+        handleScreenChange();
+        if (floor % 5 == 0) {
+            return;
         }
+
+        if (caveFloorMementos[floor] == null) {
+            generateNewFloor();
+            Vector2Int position = putPlayerInOpenTile();
+            CaveFloorMemento memento = CaveFloorMemento.create(position, caveTilemapCreator.ruleCellPositions, caveTilemapCreator.holePositions, inanimateEntities, entities);
+            caveFloorMementos[floor] = memento;
+        } else {
+            CaveFloorMemento currentMemento = caveFloorMementos[floor];
+            Application.player.x = currentMemento.spawnPosition.x;
+            Application.player.y = currentMemento.spawnPosition.y;
+        }
+    }
+
+    private void handleScreenChange() {
         if (Application.currentScreen != Application.caveScreen) {
             application.setGameScreen(Application.caveScreen);
-        } else if (floor + increment == 5) {
+        } else if (floor == 5) {
             application.setGameScreen(application.slimeBossRoomScreen);
             Application.player.x = 100;
             Application.player.y = 100;
-            return;
         }
-        floor += increment;
-        caveTilemap.generateNewMap();
+    }
 
-        //application.putPlayerInOpenTile();
+    public void generateNewFloor() {
+        caveTilemapCreator.generateNewMap();
+        spawner= new CaveEntitySpawner(this);
+        spawner.generateNewEnemies(caveTilemapCreator);
+    }
+
+    public void activate(CaveFloorMemento memento) {
+        caveTilemapCreator.activate(memento);
+        spawner.activate(memento);
+    }
+
+    public Vector2Int putPlayerInOpenTile() {
+        Vector2Int playerPosition = caveTilemapCreator.getSpawnablePosition();
+        Application.player.x = playerPosition.x;
+        Application.player.y = playerPosition.y;
+        Camera.setPositionDirectlyToPlayerPosition();
+        return playerPosition;
+    }
+
+    @Override
+    public void render(float delta) {
+        ScreenUtils.clear(caveFillColors[CaveScreen.getRecolorLevel()]);
+        if (!Application.timestop) {
+            super.render(delta);
+        } else {
+            drawNoUpdate();
+        }
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
     }
 
     private void createImages(TextureAtlas textureAtlas) {
@@ -83,45 +134,21 @@ public class CaveScreen extends GameScreen {
         slimeActionSpritesheets.walking = ActionSpritesheetsAllDirections.createFromSpritesheetRange(rawSlimeSpritesheets, AnimationsAlphabeticalIndex.ENTITY_WALK_STARTING_INDEX);
     }
 
-    @Override
-    public void render(float delta) {
-        ScreenUtils.clear(caveFillColors[CaveScreen.getRecolorLevel()]);
-        if (!Application.timestop) {
-            super.render(delta);
-        } else {
-            drawNoUpdate();
-        }
-    }
-
-    @Override
-    public void dispose() {
-        super.dispose();
-        caveSong.dispose();
-    }
-
     private void createTiledMapRenderer() {
-        caveTilemap = new CaveTilemap(this);
-        tiledMap = caveTilemap.tiledMap;
+        caveTilemapCreator = new CaveTilemapCreator(this);
+        tiledMap = caveTilemapCreator.tiledMap;
 
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, 1);
         tiledMapRenderer.setView(Camera.orthographicCamera);
     }
 
-    public ArrayList<Vector2Int> getOpenTilePositionsArray() {
-        return caveTilemap.openTiles;
-    }
-
-    public void generateNewMap() {
-        caveTilemap.generateNewMap();
-    }
-
     @Override
-    public boolean[][] getIsCollidableGrid() {
-        return caveTilemap.getIsCollidableGrid();
+    public boolean[][] isWallAt() {
+        return caveTilemapCreator.getIsCollidableGrid();
     }
 
-    public boolean[][] getHolePositionsGrid() {
-        return caveTilemap.holePositionsGrid;
+    public boolean[][] getHolePositionsToCheck() {
+        return caveTilemapCreator.holePositionsToCheckGrid;
     }
 
     public static int getRecolorLevel() {

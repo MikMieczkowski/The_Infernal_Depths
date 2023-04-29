@@ -55,7 +55,7 @@ public class SB_JumpBuildUpState extends State {
     @Override
     public void update() {
         super.update();
-        checkIfCollidedWithPlayer(1, false);
+        handlePlayerCollision(1, false);
     }
 
     @Override
