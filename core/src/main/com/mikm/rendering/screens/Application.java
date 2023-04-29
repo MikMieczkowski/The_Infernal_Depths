@@ -10,8 +10,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.mikm.ExtraMathUtils;
-import com.mikm.Vector2Int;
+import com.mikm.debug.DebugRenderer;
 import com.mikm.entities.animation.ActionSpritesheetsAllDirections;
 import com.mikm.entities.animation.AnimationsAlphabeticalIndex;
 import com.mikm.entities.animation.EntityActionSpritesheets;
@@ -20,6 +19,7 @@ import com.mikm.entities.player.weapons.WeaponInstances;
 import com.mikm.input.InputRaw;
 import com.mikm.rendering.Camera;
 import com.mikm.rendering.TextureAtlasUtils;
+import com.mikm.serialization.Serializer;
 
 import java.util.ArrayList;
 
@@ -44,7 +44,7 @@ public class Application extends Game {
 	private static final int MAX_TIMESTOP_FRAMES = 10;
 	public static ShapeRenderer debugShapeRenderer;
 
-	public static final boolean PLAY_MUSIC = true;
+	public static final boolean PLAY_MUSIC = false;
 
 	public static ShaderProgram fillColorShader;
 	public static TextureRegion light;
@@ -55,7 +55,6 @@ public class Application extends Game {
 	@Override
 	public void create() {
 		batch = new SpriteBatch();
-		debugShapeRenderer = new ShapeRenderer();
 
 		fillColorShader = new ShaderProgram(batch.getShader().getVertexShaderSource(), Gdx.files.internal("images/fillColor.frag").readString());
 		if (!fillColorShader.isCompiled()){
@@ -71,12 +70,11 @@ public class Application extends Game {
 
 		createPlayerAndCaveScreen(textureAtlas);
 		townScreen = new TownScreen(this, assetManager.get("sound/townTheme.mp3", Music.class), textureAtlas);
-		slimeBossRoomScreen = new SlimeBossRoomScreen(this,caveScreen, textureAtlas);
+		slimeBossRoomScreen = new SlimeBossRoomScreen(this,caveScreen, assetManager.get("sound/hubba_bubba.mp3", Music.class), textureAtlas);
 		light = new TextureRegion(new Texture(Gdx.files.internal("images/R0x4x.png")));
 		dark = new TextureRegion(new Texture(Gdx.files.internal("images/dark.png")));
 		gray = new TextureRegion(new Texture(Gdx.files.internal("images/gray.png")));
-		player.x = 100;
-		player.y = 100;
+
 		Camera.setPositionDirectlyToPlayerPosition();
 		setGameScreen(townScreen);
 
@@ -113,28 +111,26 @@ public class Application extends Game {
 				Camera.setPositionDirectlyToPlayerPosition();
 				setGameScreen(townScreen);
 			} else {
-				caveScreen.generateNewMap();
+				caveScreen.generateNewFloor();
 				setGameScreen(caveScreen);
 			}
 		}
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.C)) {
 			caveScreen.increaseFloor();
-			putPlayerInOpenTile();
+			if (Application.currentScreen != slimeBossRoomScreen) {
+				caveScreen.putPlayerInOpenTile();
+			}
+		}
+
+		if (Gdx.input.isKeyJustPressed(Input.Keys.V)) {
+			caveScreen.decreaseFloor();
 		}
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
 			freezeTime();
 		}
 	}
-
-	public void putPlayerInOpenTile() {
-		Vector2Int playerPosition = spawnablePosition();
-		player.x = playerPosition.x;
-		player.y = playerPosition.y;
-		Camera.setPositionDirectlyToPlayerPosition();
-	}
-
 
 	@Override
 	public void dispose() {
@@ -145,8 +141,9 @@ public class Application extends Game {
 		townScreen.dispose();
 		slimeBossRoomScreen.dispose();
 		fillColorShader.dispose();
-		debugShapeRenderer.dispose();
+		DebugRenderer.getInstance().dispose();
 		font.dispose();
+		Serializer.getInstance().dispose();
 	}
 
 	private void renderScreens() {
@@ -158,6 +155,7 @@ public class Application extends Game {
 		assetManager.load("images/The Infernal Depths.atlas", TextureAtlas.class);
 		assetManager.load("sound/caveTheme.mp3", Music.class);
 		assetManager.load("sound/townTheme.mp3", Music.class);
+		assetManager.load("sound/hubba_bubba.mp3", Music.class);
 		assetManager.finishLoading();
 		return assetManager;
 	}
@@ -182,17 +180,6 @@ public class Application extends Game {
 		output.playerDiving = ActionSpritesheetsAllDirections.createFromSpritesheetRange(playerSpritesheetsRaw, AnimationsAlphabeticalIndex.PLAYER_DIVE_STARTING_INDEX);
 		output.playerRolling = ActionSpritesheetsAllDirections.createFromSpritesheetRange(playerSpritesheetsRaw, AnimationsAlphabeticalIndex.PLAYER_ROLL_STARTING_INDEX);
 		return output;
-	}
-
-	private Vector2Int spawnablePosition() {
-		ArrayList<Vector2Int> openTilePositions = caveScreen.getOpenTilePositionsArray();
-		if (openTilePositions.size() == 0) {
-			System.err.println("Zero tiles");
-			return Vector2Int.ZERO;
-		}
-		Vector2Int spawnLocationInTiles = openTilePositions.get(ExtraMathUtils.randomInt(openTilePositions.size()-1));
-		return new Vector2Int(spawnLocationInTiles.x * Application.TILE_WIDTH + (int)player.getBoundsOffset().x,
-				spawnLocationInTiles.y * Application.TILE_HEIGHT + (int)player.getBoundsOffset().y);
 	}
 
 	public static void freezeTime() {

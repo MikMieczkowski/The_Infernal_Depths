@@ -45,7 +45,7 @@ public class SB_JumpAttack extends State {
         slimeBoss.yVel = speed * MathUtils.sin(angleToPlayer);
 
         slimeBoss.height = ExtraMathUtils.sinLerp(timeElapsedInState, timeSpentJumping, JUMP_HEIGHT);
-        checkIfCollidedWithPlayer(1, false);
+        handlePlayerCollision(1, false);
     }
 
     @Override

@@ -14,7 +14,7 @@ public class Rope extends InanimateEntity {
     @Override
     public void update() {
         if (Intersector.overlaps(Application.player.getHitbox(), getHitbox()) && GameInput.isTalkButtonJustPressed()) {
-            Application.caveScreen.increaseFloor(-1);
+            Application.caveScreen.decreaseFloor();
         }
     }
 

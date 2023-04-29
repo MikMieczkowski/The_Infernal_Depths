@@ -1,7 +1,7 @@
 package com.mikm.entities.enemies.states;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.mikm.ExtraMathUtils;
+import com.mikm.RandomUtils;
 import com.mikm.entities.Entity;
 import com.mikm.entities.animation.ActionAnimationAllDirections;
 import com.mikm.entities.animation.AnimationManager;
@@ -9,6 +9,11 @@ import com.mikm.entities.animation.AnimationManager;
 public class StandingState extends DashInducingState {
     private float timeBetweenWanders;
     private final float TIME_BETWEEN_WANDERS_MIN = 1f, TIME_BETWEEN_WANDERS_MAX = 4f;
+
+    private StandingState() {
+        super(null, 0);
+
+    }
 
     public StandingState(Entity entity, float contactDamage) {
         super(entity, contactDamage);
@@ -29,7 +34,7 @@ public class StandingState extends DashInducingState {
     }
 
     private void standingStateEnter() {
-        timeBetweenWanders = ExtraMathUtils.randomFloat(TIME_BETWEEN_WANDERS_MIN, TIME_BETWEEN_WANDERS_MAX);
+        timeBetweenWanders = RandomUtils.getFloat(TIME_BETWEEN_WANDERS_MIN, TIME_BETWEEN_WANDERS_MAX);
         entity.xVel = 0;
         entity.yVel = 0;
     }

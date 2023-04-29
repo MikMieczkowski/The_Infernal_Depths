@@ -8,9 +8,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ActionAnimationAllDirections {
-    public final float frameDuration;
-    public final Animation.PlayMode playMode;
-    private final ArrayList<Animation<TextureRegion>> animations;
+    public float frameDuration;
+    public Animation.PlayMode playMode;
+    private ArrayList<Animation<TextureRegion>> animations;
+
+    private ActionAnimationAllDirections() {
+
+    }
 
     public ActionAnimationAllDirections(float frameDuration, Animation.PlayMode playMode, ActionSpritesheetsAllDirections actionSpritesheet) {
         this.frameDuration = frameDuration;

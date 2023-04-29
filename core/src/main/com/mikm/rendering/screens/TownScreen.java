@@ -36,10 +36,8 @@ public class TownScreen extends GameScreen {
         Application.batch.end();
     }
 
-
-
     @Override
-    public boolean[][] getIsCollidableGrid() {
+    public boolean[][] isWallAt() {
         return new boolean[100][100];
     }
 

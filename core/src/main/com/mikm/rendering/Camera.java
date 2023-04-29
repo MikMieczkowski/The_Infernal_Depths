@@ -11,7 +11,7 @@ import com.mikm.input.GameInput;
 import com.mikm.rendering.screens.Application;
 
 public class Camera {
-    public static final float VIEWPORT_ZOOM = .25f;
+    public static final float VIEWPORT_ZOOM = .5f;
     private final float CAMERA_SPEED = .25f;
     private final float LEAD_MULTIPLIER = 60;
     private final float CAMERA_LEAD_SPEED = .3f;

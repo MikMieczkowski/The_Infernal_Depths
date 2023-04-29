@@ -8,8 +8,6 @@ import com.mikm.rendering.screens.Application;
 import java.util.Random;
 
 public class ExtraMathUtils {
-    private static final long SEED = 21;
-    private static final Random random = new Random();
 
     private ExtraMathUtils() {
 
@@ -107,40 +105,6 @@ public class ExtraMathUtils {
 
     public static Vector2 sinLerpVector2(float timer, float maxTime, float startProportion, float endProportion, Vector2 peakValue) {
         return new Vector2(sinLerp(timer, maxTime, startProportion, endProportion, peakValue.x), sinLerp(timer, maxTime, startProportion, endProportion, peakValue.y));
-    }
-
-    public static Color randomColor(Color color1, Color color2) {
-        float minRed = Math.min(color1.r,color2.r);
-        float minBlue = Math.min(color1.g,color2.g);
-        float minGreen = Math.min(color1.b,color2.b);
-        float maxRed = Math.max(color1.r,color2.r);
-        float maxBlue = Math.max(color1.g,color2.g);
-        float maxGreen = Math.max(color1.b,color2.b);
-        return new Color(
-                randomFloat(minRed, maxRed),
-                randomFloat(minBlue, maxBlue),
-                randomFloat(minGreen, maxGreen),
-                1);
-    }
-
-    public static int randomInt(int min, int max) {
-        return random.nextInt(min, max+1);
-    }
-
-    public static int randomInt(int max) {
-        return random.nextInt(max+1);
-    }
-
-    public static float randomFloat(float min, float max) {
-        return min + random.nextFloat() * (max - min);
-    }
-
-    public static boolean randomBoolean() {
-        return random.nextBoolean();
-    }
-
-    public static float randomFloatOneDecimalPlace(int max) {
-        return random.nextInt(max * 10)/10f;
     }
 
     public static float roundToTenths(float num) {

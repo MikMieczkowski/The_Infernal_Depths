@@ -1,7 +1,7 @@
 package com.mikm.entities.enemies.slimeBoss;
 
 import com.badlogic.gdx.math.Vector2;
-import com.mikm.ExtraMathUtils;
+import com.mikm.RandomUtils;
 
 public class SB_StateManager {
     private boolean dashing;
@@ -67,7 +67,7 @@ public class SB_StateManager {
         if (slimeBoss.hp < slimeBoss.getMaxHp() /2f) {
             phase = 2;
         }
-        int randomAttackPercent = ExtraMathUtils.randomInt(100);
+        int randomAttackPercent = RandomUtils.getInt(100);
         if (randomAttackPercent < SIMMER_CHANCE_PERCENT) {
             enterAttack(SlimeBossAttackType.SIMMER);
         } else if (randomAttackPercent < SIMMER_CHANCE_PERCENT+LONG_JUMP_CHANCE_PERCENT) {
@@ -85,7 +85,7 @@ public class SB_StateManager {
                 break;
             case LONGJUMP:
                 slimeBoss.jumpBuildUpState.enter(false);
-                if (ExtraMathUtils.randomInt(100) < 50) {
+                if (RandomUtils.getPercentage(50)) {
                     dashing = true;
                 }
                 break;

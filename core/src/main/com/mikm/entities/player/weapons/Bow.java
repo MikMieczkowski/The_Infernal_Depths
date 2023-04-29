@@ -3,7 +3,7 @@ package com.mikm.entities.player.weapons;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
-import com.mikm.entities.particles.ParticleParameters;
+import com.mikm.entities.particles.ParticleTypes;
 import com.mikm.entities.projectiles.DamageInformation;
 import com.mikm.entities.projectiles.Projectile;
 import com.mikm.input.GameInput;
@@ -74,7 +74,7 @@ public class Bow extends Weapon{
     @Override
     public void exitAttackState() {
         if (powerLevel > 0) {
-            Projectile arrow = new Projectile(arrowImage, ParticleParameters.getArrowParameters(),.4f, x, y);
+            Projectile arrow = new Projectile(arrowImage, ParticleTypes.getArrowParameters(),.4f, x, y);
             arrow.setMovementAndDamageInformation(angleToMouse, ARROW_SPEED * powerLevel, getDamageInformation());
             Application.currentScreen.addInanimateEntity(arrow);
             timeHeld = 0;

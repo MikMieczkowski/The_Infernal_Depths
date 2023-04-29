@@ -13,6 +13,15 @@ public class Vector2Int {
         this.y = y;
     }
 
+    public Vector2Int(float x, float y) {
+        this.x = (int)x;
+        this.y = (int)y;
+    }
+
+    public Vector2Int(Vector2Int vector2Int) {
+        x = vector2Int.x;
+        y = vector2Int.y;
+    }
     public Vector2Int() {
         x = 0;
         y = 0;
@@ -55,5 +64,14 @@ public class Vector2Int {
     @Override
     public String toString() {
         return "(" + x + ", " + y + ")";
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + x;
+        result = prime * result + y;
+        return result;
     }
 }

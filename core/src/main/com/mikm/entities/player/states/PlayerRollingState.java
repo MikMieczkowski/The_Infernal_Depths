@@ -4,12 +4,12 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.DeltaTime;
-import com.mikm.ExtraMathUtils;
+import com.mikm.RandomUtils;
 import com.mikm.entities.State;
 import com.mikm.entities.animation.ActionAnimationAllDirections;
 import com.mikm.entities.animation.AnimationManager;
-import com.mikm.entities.particles.ParticleParameters;
-import com.mikm.entities.particles.ParticleSystem;
+import com.mikm.entities.particles.ParticleTypes;
+import com.mikm.entities.particles.ParticleEffect;
 import com.mikm.entities.player.Player;
 import com.mikm.entities.projectiles.DamageInformation;
 import com.mikm.entities.projectiles.Hurtbox;
@@ -83,9 +83,9 @@ public class PlayerRollingState extends State {
             if (heightSinCounter >= MathUtils.PI) {
                 heightSinCounter = 0;
                 hurtbox.setPosition(player.getCenteredPosition().x, player.getCenteredPosition().y, 0, 0);
-                hurtbox.setDamageInformation(new DamageInformation(ExtraMathUtils.randomFloat(0, MathUtils.PI2), KNOCKBACK_MULTIPLIER, DAMAGE));
+                hurtbox.setDamageInformation(new DamageInformation(RandomUtils.getFloat(0, MathUtils.PI2), KNOCKBACK_MULTIPLIER, DAMAGE));
                 hurtbox.checkIfHitEntities();
-                new ParticleSystem(ParticleParameters.getDiveDustParameters(), player.getCenteredPosition().x, player.getBounds().y - 3);
+                new ParticleEffect(ParticleTypes.getDiveDustParameters(), player.getCenteredPosition().x, player.getBounds().y - 3);
                 player.startSquish(0.01f, 1.2f);
                 jumpDone = true;
             }

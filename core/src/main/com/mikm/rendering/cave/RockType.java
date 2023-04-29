@@ -1,7 +1,7 @@
 package com.mikm.rendering.cave;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.mikm.ExtraMathUtils;
+import com.mikm.RandomUtils;
 import com.mikm.rendering.screens.CaveScreen;
 import com.mikm.rendering.screens.GameScreen;
 
@@ -51,7 +51,7 @@ public enum RockType {
         }
 
         float totalChance = 0;
-        float randomFloat = ExtraMathUtils.randomFloat(0, 1);
+        float randomFloat = RandomUtils.getFloat(0, 1);
         for (int i =0; i < chances.length; i++) {
             totalChance += chances[i];
             if (randomFloat < totalChance) {

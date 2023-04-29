@@ -29,7 +29,7 @@ public class SB_SimmerBuildUpState extends State {
     @Override
     public void update() {
         super.update();
-        checkIfCollidedWithPlayer(1, false);
+        handlePlayerCollision(1, false);
     }
 
     @Override

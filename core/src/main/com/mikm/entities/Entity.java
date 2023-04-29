@@ -11,13 +11,14 @@ import com.mikm.entities.animation.EntityActionSpritesheets;
 import com.mikm.entities.enemies.states.DamagedState;
 import com.mikm.rendering.screens.Application;
 
-
+//Too many responsiblities
 public abstract class Entity extends InanimateEntity {
 
     public float rotation;
     public Vector2Int direction = Vector2Int.DOWN;
     public int hp;
 
+    //should be static instances
     public State walkingState;
     public State standingState;
     public DamagedState damagedState;
@@ -46,7 +47,6 @@ public abstract class Entity extends InanimateEntity {
     private float invincibilityTimer;
     private final float MAX_ENEMY_INVINCIBILITY_TIME = .3f;
     public float maxInvincibilityTime = MAX_ENEMY_INVINCIBILITY_TIME;
-
 
     public Entity(float x, float y, EntityActionSpritesheets entityActionSpritesheets) {
         super(x,y);

@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.mikm.debug.DebugRenderer;
 import com.mikm.entities.Entity;
 import com.mikm.entities.InanimateEntity;
 import com.mikm.entities.RemovableArray;
@@ -23,7 +24,7 @@ public abstract class GameScreen extends ScreenAdapter {
     public static Camera camera;
 
     public RemovableArray<Entity> entities;
-    public final RemovableArray<InanimateEntity> inanimateEntities = new RemovableArray<>();
+    public final RemovableArray<InanimateEntity> inanimateEntities = new RemovableArray<>(InanimateEntity.class);
 
     public OrthogonalTiledMapRenderer tiledMapRenderer;
     public TiledMap tiledMap;
@@ -40,14 +41,18 @@ public abstract class GameScreen extends ScreenAdapter {
         viewport = new ScreenViewport(Camera.orthographicCamera);
         viewport.setUnitsPerPixel(Camera.VIEWPORT_ZOOM);
 
-        entities = new RemovableArray<>();
+        entities = new RemovableArray<>(Entity.class);
         entities.add(Application.player);
+        addPlayerShadow();
+    }
+
+    public void addPlayerShadow() {
         Shadow playerShadow = new Shadow(Application.player);
         Application.player.shadow = playerShadow;
         inanimateEntities.add(playerShadow);
     }
 
-    public abstract boolean[][] getIsCollidableGrid();
+    public abstract boolean[][] isWallAt();
 
     @Override
     public void render(float delta) {
@@ -56,6 +61,7 @@ public abstract class GameScreen extends ScreenAdapter {
         Application.batch.setProjectionMatrix(Camera.orthographicCamera.combined);
         tiledMapRenderer.setView(Camera.orthographicCamera);
         drawAssets();
+        DebugRenderer.getInstance().update();
         Camera.renderLighting(Application.batch);
         Camera.updateOrthographicCamera();
         Application.batch.end();
@@ -150,5 +156,8 @@ public abstract class GameScreen extends ScreenAdapter {
     public void dispose() {
         tiledMapRenderer.dispose();
         tiledMap.dispose();
+        if (song != null) {
+            song.dispose();
+        }
     }
 }
