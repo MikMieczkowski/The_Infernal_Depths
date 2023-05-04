@@ -79,6 +79,7 @@ public class CaveTilemapCreator {
     }
 
     public void activate(CaveFloorMemento memento) {
+        recolorImagesAndCells();
         clearLayers();
         ruleCellPositions = memento.ruleCellPositions;
         fillRuleCellLayerFromRuleCellPositions();
@@ -97,8 +98,8 @@ public class CaveTilemapCreator {
     }
 
     private void recolorImagesAndCells() {
-        boolean levelIs1MoreThanAMultipleOf5 = (CaveScreen.floor+1) %5 == 1;
-        if (levelIs1MoreThanAMultipleOf5 && CaveScreen.floor != 0) {
+        boolean onRecolorFloor = CaveScreen.floor %5 == 1 && CaveScreen.floor != 1;
+        if (onRecolorFloor) {
             int recolorLevel = (CaveScreen.floor+1)/5;
             ruleCell = new RuleCell(caveScreen.caveTilesetRecolors.get(recolorLevel), ruleCellMetadata);
             createImages();

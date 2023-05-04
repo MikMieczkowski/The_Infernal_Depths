@@ -2,6 +2,7 @@ package com.mikm.entities.enemies.slimeBoss;
 
 import com.badlogic.gdx.graphics.Color;
 import com.mikm.entities.Entity;
+import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.enemies.states.DamagedState;
 import com.mikm.entities.particles.ParticleTypes;
 import com.mikm.entities.particles.ParticleEffect;
@@ -47,5 +48,10 @@ public class SB_DamagedState extends DamagedState {
                 entity.die();
             }
         }
+    }
+
+    @Override
+    protected AnimationName getAnimationName() {
+        return AnimationName.HIT;
     }
 }

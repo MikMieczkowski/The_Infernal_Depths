@@ -1,6 +1,7 @@
 package com.mikm.entities.enemies.states;
 
 import com.mikm.entities.State;
+import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.enemies.Slime;
 
 public class DashBuildUpState extends State {
@@ -12,7 +13,6 @@ public class DashBuildUpState extends State {
     public DashBuildUpState(Slime slime) {
         super(slime);
         this.slime = slime;
-        animationManager = slime.standingState.animationManager;
     }
 
     @Override
@@ -42,5 +42,10 @@ public class DashBuildUpState extends State {
                 slime.dashingState.enter();
             }
         }
+    }
+
+    @Override
+    protected AnimationName getAnimationName() {
+        return AnimationName.ENTITY_STAND;
     }
 }

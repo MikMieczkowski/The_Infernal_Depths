@@ -3,12 +3,11 @@ package com.mikm.entities;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
-import com.mikm.entities.animation.AnimationManager;
+import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.projectiles.DamageInformation;
 import com.mikm.rendering.screens.Application;
 
 public abstract class State {
-    public AnimationManager animationManager;
     public final Entity entity;
     public static final int CONTACT_KNOCKBACK_FORCE = 2;
     public float timeElapsedInState;
@@ -22,8 +21,9 @@ public abstract class State {
             return;
         }
         timeElapsedInState = 0;
-        animationManager.resetTimer();
-        animationManager.setCurrentAnimation();
+        entity.setDirectionalAnimation(getAnimationName());
+        entity.animationManager.resetTimer();
+        entity.animationManager.update();
         entity.currentState = this;
     }
 
@@ -40,8 +40,9 @@ public abstract class State {
 
     public void update() {
         timeElapsedInState += Gdx.graphics.getDeltaTime();
-        animationManager.setCurrentAnimation();
+        entity.animationManager.update();
     }
 
+    protected abstract AnimationName getAnimationName();
     public abstract void checkForStateTransition();
 }

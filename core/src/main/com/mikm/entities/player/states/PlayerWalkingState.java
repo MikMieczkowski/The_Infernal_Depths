@@ -1,21 +1,16 @@
 package com.mikm.entities.player.states;
 
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.mikm.entities.animation.ActionAnimationAllDirections;
-import com.mikm.entities.animation.AnimationManager;
+import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.player.Player;
 import com.mikm.input.GameInput;
 
 
 public class PlayerWalkingState extends PlayerWalking {
     private final Player player;
-    public ActionAnimationAllDirections actionAnimationAllDirections;
 
     public PlayerWalkingState(Player player) {
         super(player);
         this.player = player;
-        actionAnimationAllDirections = new ActionAnimationAllDirections(.33f, Animation.PlayMode.LOOP, player.entityActionSpritesheets.walking);
-        animationManager = new AnimationManager(player, actionAnimationAllDirections);
     }
 
     @Override
@@ -43,5 +38,10 @@ public class PlayerWalkingState extends PlayerWalking {
         if (GameInput.isAttackButtonPressed()) {
             player.attackingState.enter();
         }
+    }
+
+    @Override
+    protected AnimationName getAnimationName() {
+        return AnimationName.PLAYER_WALK;
     }
 }

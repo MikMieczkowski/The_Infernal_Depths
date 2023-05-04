@@ -1,15 +1,13 @@
 package com.mikm.entities.player.states;
 
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.DeltaTime;
 import com.mikm.RandomUtils;
 import com.mikm.entities.State;
-import com.mikm.entities.animation.ActionAnimationAllDirections;
-import com.mikm.entities.animation.AnimationManager;
-import com.mikm.entities.particles.ParticleTypes;
+import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.particles.ParticleEffect;
+import com.mikm.entities.particles.ParticleTypes;
 import com.mikm.entities.player.Player;
 import com.mikm.entities.projectiles.DamageInformation;
 import com.mikm.entities.projectiles.Hurtbox;
@@ -30,9 +28,6 @@ public class PlayerRollingState extends State {
         super(player);
         this.player = player;
         hurtbox = new Hurtbox(20, false);
-        ActionAnimationAllDirections actionAnimationAllDirections = new ActionAnimationAllDirections(.055f, Animation.PlayMode.NORMAL,
-                player.entityActionSpritesheets.playerRolling);
-        animationManager = new AnimationManager(player, actionAnimationAllDirections);
     }
 
     @Override
@@ -91,5 +86,10 @@ public class PlayerRollingState extends State {
             }
             player.height = player.ROLL_JUMP_HEIGHT * MathUtils.sin(heightSinCounter);
         }
+    }
+
+    @Override
+    protected AnimationName getAnimationName() {
+        return AnimationName.PLAYER_ROLL;
     }
 }

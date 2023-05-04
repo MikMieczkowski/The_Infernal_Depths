@@ -5,13 +5,17 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.mikm.Assets;
 import com.mikm.entities.Entity;
-import com.mikm.entities.animation.EntityActionSpritesheets;
+import com.mikm.entities.animation.AnimationName;
+import com.mikm.entities.animation.DirectionalAnimation;
 import com.mikm.rendering.screens.SlimeBossRoomScreen;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class SlimeBoss extends Entity {
-    public final TextureRegion image;
     public boolean visible = true;
     static ShapeDrawer shapeDrawer;
 
@@ -22,20 +26,30 @@ public class SlimeBoss extends Entity {
     public SB_DashBuildUpState dashBuildUpState;
     public SB_SimmerBuildUpState simmerBuildUpState;
     public SB_SplitAttack splitState;
+    private static Map<AnimationName, DirectionalAnimation> animations = new HashMap<>();
 
     public SB_StateManager stateManager;
 
     public SlimeBossRoomScreen screen;
 
-    public SlimeBoss(SlimeBossRoomScreen screen, float x, float y, TextureRegion image, TextureRegion shapeDrawerTexture, EntityActionSpritesheets hitthing) {
-        super(x, y, hitthing);
-        this.image = image;
+    public static TextureRegion slimeBossImage = Assets.getInstance().getTextureRegion("slimeBoss", 32, 32);
+    private static TextureRegion shapeDrawerTexture = Assets.getInstance().getTextureRegion("shapeDrawerTexture", 4, 4);
+
+    public SlimeBoss(SlimeBossRoomScreen screen, float x, float y) {
+        super(x, y);
         isAttackable = true;
 
         this.screen = screen;
+        createAnimations();
         createStates();
     }
 
+    @Override
+    public void draw(Batch batch) {
+        if (visible) {
+            super.draw(batch);
+        }
+    }
 
     @Override
     public void createStates() {
@@ -54,10 +68,15 @@ public class SlimeBoss extends Entity {
     }
 
     @Override
-    public void draw(Batch batch) {
-        if (visible) {
-            super.draw(batch);
-        }
+    protected void createAnimations() {
+        DirectionalAnimation animation = new DirectionalAnimation("slimeBoss", 32, 32);
+        animations.put(AnimationName.HIT, animation);
+        animations.put(AnimationName.SLIMEBOSS_STAND, animation);
+    }
+
+    @Override
+    protected Map<?,?> getAnimations() {
+        return animations;
     }
 
     @Override

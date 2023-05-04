@@ -2,6 +2,7 @@ package com.mikm.entities;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Intersector;
+import com.mikm.Assets;
 import com.mikm.input.GameInput;
 import com.mikm.rendering.screens.Application;
 
@@ -20,6 +21,6 @@ public class Rope extends InanimateEntity {
 
     @Override
     public void draw(Batch batch) {
-        batch.draw(Application.testTexture, x, y);
+        batch.draw(Assets.testTexture, x, y);
     }
 }

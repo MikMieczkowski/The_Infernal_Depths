@@ -3,7 +3,7 @@ package com.mikm.entities.particles;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
-import com.mikm.rendering.screens.GameScreen;
+import com.mikm.Assets;
 import com.mikm.rendering.cave.RockType;
 
 public class ParticleTypes {
@@ -45,7 +45,7 @@ public class ParticleTypes {
 
     public static ParticleTypes getKnockbackDustParameters() {
         ParticleTypes knockbackDustParameters = new ParticleTypes();
-        knockbackDustParameters.image = GameScreen.particleImages[0][0];
+        knockbackDustParameters.image = Assets.particleImages[0][0];
         knockbackDustParameters.amountMin = 6;
         knockbackDustParameters.amountMax = 6;
         knockbackDustParameters.positionOffsetRadius = 5;
@@ -67,7 +67,7 @@ public class ParticleTypes {
 
     public static ParticleTypes getDiveDustParameters() {
         ParticleTypes diveDustParameters = new ParticleTypes();
-        diveDustParameters.image = GameScreen.particleImages[0][0];
+        diveDustParameters.image = Assets.particleImages[0][0];
         diveDustParameters.positionOffsetRadius = 5;
         diveDustParameters.hasGravity = false;
         diveDustParameters.hasShadow = false;
@@ -89,7 +89,7 @@ public class ParticleTypes {
 
     public static ParticleTypes getArrowParameters() {
         ParticleTypes arrowParameters = new ParticleTypes();
-        arrowParameters.image = GameScreen.particleImages[0][2];
+        arrowParameters.image = Assets.particleImages[0][2];
         arrowParameters.amountMin = 3;
         arrowParameters.amountMax = 3;
         arrowParameters.positionOffsetRadius = 0;
@@ -116,7 +116,7 @@ public class ParticleTypes {
         slimeTrailParameters.endColorMin = new Color(81/255f, 211/255f, 128/255f, 1);
         slimeTrailParameters.endColorMax = new Color(31/255f, 147/255f, 94/255f, 1);
         slimeTrailParameters.finalScale = .9f;
-        slimeTrailParameters.image = GameScreen.particleImages[0][0];
+        slimeTrailParameters.image = Assets.particleImages[0][0];
         slimeTrailParameters.positionOffsetRadius = 5;
         slimeTrailParameters.hasGravity = false;
         slimeTrailParameters.hasShadow = false;

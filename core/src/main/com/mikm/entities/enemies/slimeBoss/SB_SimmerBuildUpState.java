@@ -1,6 +1,7 @@
 package com.mikm.entities.enemies.slimeBoss;
 
 import com.mikm.entities.State;
+import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.player.Player;
 import com.mikm.rendering.screens.Application;
 
@@ -15,8 +16,6 @@ public class SB_SimmerBuildUpState extends State {
         super(slimeBoss);
         this.slimeBoss = slimeBoss;
         this.player = Application.player;
-
-        animationManager = slimeBoss.jumpState.animationManager;
     }
 
     public void enter() {
@@ -38,5 +37,10 @@ public class SB_SimmerBuildUpState extends State {
             slimeBoss.startSquish(0,1.1f, .05f, true);
             slimeBoss.simmerState.enter();
         }
+    }
+
+    @Override
+    protected AnimationName getAnimationName() {
+        return AnimationName.SLIMEBOSS_STAND;
     }
 }

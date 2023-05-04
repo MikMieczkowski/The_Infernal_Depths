@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
+import com.mikm.Assets;
 import com.mikm.Method;
 import com.mikm.entities.collision.Ray;
 import com.mikm.rendering.Camera;
@@ -70,25 +71,25 @@ public class DebugRenderer {
 
     public void drawPoint(float x, float y) {
         Application.batch.setColor(DEBUG_BLUE);
-        Application.batch.draw(Application.testTexture, x-1, y-1, 3, 3);
+        Application.batch.draw(Assets.testTexture, x-1, y-1, 3, 3);
         Application.batch.setColor(Color.WHITE);
     }
 
     public void drawTile(float tileX, float tileY) {
         Application.batch.setColor(DEBUG_BLUE);
-        Application.batch.draw(Application.testTexture, tileX * Application.TILE_WIDTH, tileY * Application.TILE_HEIGHT);
+        Application.batch.draw(Assets.testTexture, tileX * Application.TILE_WIDTH, tileY * Application.TILE_HEIGHT);
         Application.batch.setColor(Color.WHITE);
     }
 
     public void drawTile(float tileX, float tileY, Color color) {
         Application.batch.setColor(color);
-        Application.batch.draw(Application.testTexture, tileX * Application.TILE_WIDTH, tileY * Application.TILE_HEIGHT);
+        Application.batch.draw(Assets.testTexture, tileX * Application.TILE_WIDTH, tileY * Application.TILE_HEIGHT);
         Application.batch.setColor(Color.WHITE);
     }
 
     public void drawTile(float tileX, float tileY, float width, float height) {
         Application.batch.setColor(DEBUG_BLUE);
-        Application.batch.draw(Application.testTexture, tileX * Application.TILE_WIDTH, tileY * Application.TILE_HEIGHT, width, height);
+        Application.batch.draw(Assets.testTexture, tileX * Application.TILE_WIDTH, tileY * Application.TILE_HEIGHT, width, height);
         Application.batch.setColor(Color.WHITE);
     }
 
