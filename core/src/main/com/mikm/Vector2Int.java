@@ -1,8 +1,5 @@
 package com.mikm;
 
-import com.mikm.entities.animation.Directions;
-
-import java.util.HashMap;
 
 public class Vector2Int {
     public int x;
@@ -27,32 +24,7 @@ public class Vector2Int {
         y = 0;
     }
 
-    public static Vector2Int ZERO = new Vector2Int(0, 0);
-
-    public static Vector2Int LEFT = new Vector2Int(-1, 0);
-    public static Vector2Int RIGHT = new Vector2Int(1, 0);
-    public static Vector2Int UP = new Vector2Int(0, 1);
-    public static Vector2Int DOWN = new Vector2Int(0, -1);
-    public static Vector2Int UPLEFT = new Vector2Int(-1, 1);
-    public static Vector2Int UPRIGHT = new Vector2Int(1, 1);
-    public static Vector2Int DOWNLEFT = new Vector2Int(-1, -1);
-    public static Vector2Int DOWNRIGHT = new Vector2Int(1, -1);
-
-    public static HashMap<Vector2Int, Integer> EIGHT_DIRECTIONAL_MAPPINGS;
-    public static HashMap<Vector2Int, Integer> FOUR_DIRECTIONAL_MAPPINGS;
-    public static HashMap<Vector2Int, Integer> TWO_DIRECTIONAL_MAPPINGS;
-
-    static {
-        EIGHT_DIRECTIONAL_MAPPINGS = new HashMap<>();
-        EIGHT_DIRECTIONAL_MAPPINGS.put(LEFT, Directions.LEFT);
-        EIGHT_DIRECTIONAL_MAPPINGS.put(RIGHT, Directions.RIGHT);
-        EIGHT_DIRECTIONAL_MAPPINGS.put(UP, Directions.UP);
-        EIGHT_DIRECTIONAL_MAPPINGS.put(DOWN, Directions.DOWN);
-        EIGHT_DIRECTIONAL_MAPPINGS.put(UPLEFT, Directions.UPLEFT);
-        EIGHT_DIRECTIONAL_MAPPINGS.put(UPRIGHT, Directions.UPRIGHT);
-        EIGHT_DIRECTIONAL_MAPPINGS.put(DOWNLEFT, Directions.DOWNLEFT);
-        EIGHT_DIRECTIONAL_MAPPINGS.put(DOWNRIGHT, Directions.DOWNRIGHT);
-    }
+    public static final Vector2Int ZERO = new Vector2Int(0, 0);
 
     @Override
     public boolean equals(Object o) {

@@ -1,9 +1,8 @@
 package com.mikm.entities.player.states;
 
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.mikm.ExtraMathUtils;
 import com.mikm.entities.State;
-import com.mikm.entities.animation.OneDirectionalAnimationManager;
+import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.player.Player;
 import com.mikm.rendering.screens.Application;
 
@@ -14,9 +13,6 @@ public class PlayerFallingState extends State {
     public PlayerFallingState(Player player) {
         super(player);
         this.player = player;
-        OneDirectionalAnimationManager oneDirectionalAnimationManager = new OneDirectionalAnimationManager(entity);
-        oneDirectionalAnimationManager.animation = new Animation<>(1, player.entityActionSpritesheets.hit);
-        animationManager = oneDirectionalAnimationManager;
     }
 
     @Override
@@ -43,5 +39,10 @@ public class PlayerFallingState extends State {
             player.isAttackable = true;
             player.walkingState.enter();
         }
+    }
+
+    @Override
+    protected AnimationName getAnimationName() {
+        return AnimationName.HIT;
     }
 }

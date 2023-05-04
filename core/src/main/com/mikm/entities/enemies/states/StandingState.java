@@ -1,24 +1,15 @@
 package com.mikm.entities.enemies.states;
 
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.mikm.RandomUtils;
 import com.mikm.entities.Entity;
-import com.mikm.entities.animation.ActionAnimationAllDirections;
-import com.mikm.entities.animation.AnimationManager;
+import com.mikm.entities.animation.AnimationName;
 
 public class StandingState extends DashInducingState {
     private float timeBetweenWanders;
     private final float TIME_BETWEEN_WANDERS_MIN = 1f, TIME_BETWEEN_WANDERS_MAX = 4f;
 
-    private StandingState() {
-        super(null, 0);
-
-    }
-
     public StandingState(Entity entity, float contactDamage) {
         super(entity, contactDamage);
-        ActionAnimationAllDirections actionAnimationAllDirections = new ActionAnimationAllDirections(.33f, Animation.PlayMode.LOOP, entity.entityActionSpritesheets.standing);
-        animationManager = new AnimationManager(entity, actionAnimationAllDirections);
     }
 
     @Override
@@ -52,5 +43,10 @@ public class StandingState extends DashInducingState {
             WanderingState wanderingState = (WanderingState) entity.walkingState;
             wanderingState.enter(timeSinceLastDash);
         }
+    }
+
+    @Override
+    protected AnimationName getAnimationName() {
+        return AnimationName.ENTITY_STAND;
     }
 }

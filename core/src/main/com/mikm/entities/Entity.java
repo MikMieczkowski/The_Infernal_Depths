@@ -7,15 +7,20 @@ import com.badlogic.gdx.math.MathUtils;
 import com.mikm.DeltaTime;
 import com.mikm.ExtraMathUtils;
 import com.mikm.Vector2Int;
-import com.mikm.entities.animation.EntityActionSpritesheets;
+import com.mikm.entities.animation.AnimationManager;
+import com.mikm.entities.animation.AnimationName;
+import com.mikm.entities.animation.DirectionalAnimation;
+import com.mikm.entities.animation.Directions;
 import com.mikm.entities.enemies.states.DamagedState;
 import com.mikm.rendering.screens.Application;
+
+import java.util.Map;
 
 //Too many responsiblities
 public abstract class Entity extends InanimateEntity {
 
     public float rotation;
-    public Vector2Int direction = Vector2Int.DOWN;
+    public Vector2Int direction = Directions.DOWN.vector2Int;
     public int hp;
 
     //should be static instances
@@ -25,7 +30,7 @@ public abstract class Entity extends InanimateEntity {
     public State detectedPlayerBuildUpState;
     public State currentState;
     public State detectedPlayerState;
-    public EntityActionSpritesheets entityActionSpritesheets;
+    public AnimationManager animationManager;
 
     private float squishTimer;
     private float squishAmount;
@@ -48,11 +53,26 @@ public abstract class Entity extends InanimateEntity {
     private final float MAX_ENEMY_INVINCIBILITY_TIME = .3f;
     public float maxInvincibilityTime = MAX_ENEMY_INVINCIBILITY_TIME;
 
-    public Entity(float x, float y, EntityActionSpritesheets entityActionSpritesheets) {
+    public Entity(float x, float y) {
         super(x,y);
-        this.entityActionSpritesheets = entityActionSpritesheets;
         damagedState = new DamagedState(this);
         hp = getMaxHp();
+        animationManager = new AnimationManager(this);
+    }
+
+    public abstract int getMaxHp();
+
+    protected abstract void createStates();
+
+    protected abstract void createAnimations();
+
+    protected abstract Map<?,?> getAnimations();
+
+    public DirectionalAnimation getAnimation(AnimationName name) {
+        return (DirectionalAnimation)getAnimations().get(name);
+    }
+    public void setDirectionalAnimation(AnimationName animationName) {
+        animationManager.setCurrentDirectionalAnimation(getAnimation(animationName));
     }
 
     @Override
@@ -67,7 +87,7 @@ public abstract class Entity extends InanimateEntity {
     @Override
     public void draw(Batch batch) {
         handleFlash(batch);
-        currentState.animationManager.draw(batch);
+        animationManager.draw(batch);
     }
 
     public void handleInvincibility() {
@@ -103,7 +123,6 @@ public abstract class Entity extends InanimateEntity {
         Application.currentScreen.removeEntity(this);
     }
 
-    public abstract void createStates();
 
     public void handleSquish() {
         if (triggerSquish) {
@@ -171,6 +190,4 @@ public abstract class Entity extends InanimateEntity {
     public float getSpeed() {
         throw new RuntimeException("never defined this speed");
     }
-
-    public abstract int getMaxHp();
 }

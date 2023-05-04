@@ -5,7 +5,6 @@ import com.mikm.ExtraMathUtils;
 import com.mikm.RandomUtils;
 import com.mikm.Vector2Int;
 import com.mikm.entities.Rope;
-import com.mikm.entities.animation.EntityActionSpritesheets;
 import com.mikm.entities.enemies.Slime;
 import com.mikm.rendering.screens.Application;
 import com.mikm.rendering.screens.CaveScreen;
@@ -15,8 +14,6 @@ import java.util.ArrayList;
 public class CaveEntitySpawner {
     private final CaveScreen caveScreen;
 
-    private final EntityActionSpritesheets slimeActionSpritesheets;
-
     private boolean[][] ruleCellPositions;
     private ArrayList<Vector2Int> openTilePositions;
 
@@ -24,8 +21,6 @@ public class CaveEntitySpawner {
 
     public CaveEntitySpawner(CaveScreen caveScreen) {
         this.caveScreen = caveScreen;
-
-        slimeActionSpritesheets = caveScreen.slimeActionSpritesheets;
     }
     
     public void generateNewEnemies(CaveTilemapCreator tilemap) {
@@ -68,7 +63,7 @@ public class CaveEntitySpawner {
         int enemyAmount = RandomUtils.getInt(MIN_ENEMIES, MAX_ENEMIES);
         for (int i = 0; i < enemyAmount; i++) {
             Vector2Int randomTilePosition = openTilePositions.get(RandomUtils.getInt(openTilePositions.size()-1));
-            Slime slime = new Slime(randomTilePosition.x * Application.TILE_WIDTH, randomTilePosition.y * Application.TILE_HEIGHT, slimeActionSpritesheets);
+            Slime slime = new Slime(randomTilePosition.x * Application.TILE_WIDTH, randomTilePosition.y * Application.TILE_HEIGHT);
             caveScreen.addEntityInstantly(slime);
         }
     }

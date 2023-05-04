@@ -2,6 +2,7 @@ package com.mikm.entities.enemies.slimeBoss;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.mikm.entities.State;
+import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.enemies.Slime;
 import com.mikm.entities.player.Player;
 import com.mikm.rendering.screens.Application;
@@ -16,7 +17,6 @@ public class SB_SplitAttack extends State {
         super(slimeBoss);
         this.slimeBoss = slimeBoss;
         this.player = Application.player;
-        animationManager = slimeBoss.jumpState.animationManager;
     }
 
     @Override
@@ -50,4 +50,8 @@ public class SB_SplitAttack extends State {
         return true;
     }
 
+    @Override
+    protected AnimationName getAnimationName() {
+        return AnimationName.SLIMEBOSS_STAND;
+    }
 }

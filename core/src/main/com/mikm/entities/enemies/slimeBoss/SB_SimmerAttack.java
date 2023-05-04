@@ -3,6 +3,7 @@ package com.mikm.entities.enemies.slimeBoss;
 import com.badlogic.gdx.math.MathUtils;
 import com.mikm.ExtraMathUtils;
 import com.mikm.entities.State;
+import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.player.Player;
 import com.mikm.entities.projectiles.StaticProjectile;
 import com.mikm.rendering.screens.Application;
@@ -24,7 +25,6 @@ public class SB_SimmerAttack extends State {
         super(slimeBoss);
         this.slimeBoss = slimeBoss;
         this.player = Application.player;
-        animationManager = slimeBoss.jumpState.animationManager;
     }
 
     @Override
@@ -63,5 +63,10 @@ public class SB_SimmerAttack extends State {
         if (timeElapsedInState > TIME_SPENT_SIMMERING) {
             slimeBoss.stateManager.updateState();
         }
+    }
+
+    @Override
+    protected AnimationName getAnimationName() {
+        return AnimationName.SLIMEBOSS_STAND;
     }
 }

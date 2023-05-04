@@ -1,14 +1,12 @@
 package com.mikm.entities.player.states;
 
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.DeltaTime;
 import com.mikm.ExtraMathUtils;
 import com.mikm.Vector2Int;
 import com.mikm.entities.State;
-import com.mikm.entities.animation.ActionAnimationAllDirections;
-import com.mikm.entities.animation.AnimationManager;
+import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.player.Player;
 import com.mikm.input.GameInput;
 
@@ -21,9 +19,6 @@ public class PlayerDivingState extends State {
     public PlayerDivingState(Player player) {
         super(player);
         this.player = player;
-        ActionAnimationAllDirections actionAnimationAllDirections = new ActionAnimationAllDirections(.1f, Animation.PlayMode.NORMAL,
-                player.entityActionSpritesheets.playerDiving);
-        animationManager = new AnimationManager(player, actionAnimationAllDirections);
     }
 
     @Override
@@ -67,5 +62,10 @@ public class PlayerDivingState extends State {
         Vector2 normalizedDiveDirection = ExtraMathUtils.normalizeAndScale(diveDirection);
         diveForce = new Vector2(player.DIVE_SPEED * MathUtils.sin(sinCounter) * normalizedDiveDirection.x,
                 player.DIVE_SPEED * MathUtils.sin(sinCounter) * normalizedDiveDirection.y);
+    }
+
+    @Override
+    protected AnimationName getAnimationName() {
+        return AnimationName.PLAYER_DIVE;
     }
 }

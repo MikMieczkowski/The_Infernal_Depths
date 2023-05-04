@@ -1,10 +1,9 @@
 package com.mikm.entities.enemies.slimeBoss;
 
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.math.MathUtils;
 import com.mikm.ExtraMathUtils;
 import com.mikm.entities.State;
-import com.mikm.entities.animation.OneDirectionalAnimationManager;
+import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.player.Player;
 import com.mikm.rendering.screens.Application;
 
@@ -20,9 +19,6 @@ public class SB_JumpAttack extends State {
         super(slimeBoss);
         this.slimeBoss = slimeBoss;
         this.player = Application.player;
-        OneDirectionalAnimationManager oneDirectionalAnimationManager = new OneDirectionalAnimationManager(entity);
-        oneDirectionalAnimationManager.animation = new Animation<>(1, slimeBoss.entityActionSpritesheets.hit);
-        animationManager = oneDirectionalAnimationManager;
     }
 
     @Override
@@ -54,5 +50,10 @@ public class SB_JumpAttack extends State {
             slimeBoss.startSquish(0, 1.5f, .2f, true);
             slimeBoss.stateManager.updateState();
         }
+    }
+
+    @Override
+    protected AnimationName getAnimationName() {
+        return AnimationName.SLIMEBOSS_STAND;
     }
 }

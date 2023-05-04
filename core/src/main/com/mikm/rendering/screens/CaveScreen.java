@@ -2,19 +2,15 @@ package com.mikm.rendering.screens;
 
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.mikm.Assets;
 import com.mikm.Vector2Int;
-import com.mikm.entities.animation.ActionSpritesheetsAllDirections;
-import com.mikm.entities.animation.AnimationsAlphabeticalIndex;
-import com.mikm.entities.animation.EntityActionSpritesheets;
 import com.mikm.rendering.Camera;
-import com.mikm.rendering.TextureAtlasUtils;
 import com.mikm.rendering.cave.CaveEntitySpawner;
-import com.mikm.rendering.cave.CaveTilemapCreator;
 import com.mikm.rendering.cave.CaveFloorMemento;
+import com.mikm.rendering.cave.CaveTilemapCreator;
 
 import java.util.ArrayList;
 
@@ -31,18 +27,16 @@ public class CaveScreen extends GameScreen {
 
     public ArrayList<TextureRegion[][]> caveTilesetRecolors = new ArrayList<>();
     public TextureRegion[][] holeSpritesheet;
-    public EntityActionSpritesheets slimeActionSpritesheets;
-
 
     public CaveTilemapCreator caveTilemapCreator;
     private CaveEntitySpawner spawner;
     //5,10,15 are always null.
     public CaveFloorMemento[] caveFloorMementos = new CaveFloorMemento[15];
 
-    CaveScreen(Application application, Music caveSong, TextureAtlas textureAtlas) {
-        super(application, textureAtlas);
-        createImages(textureAtlas);
-        createMusic(caveSong);
+    CaveScreen(Application application) {
+        super(application);
+        createImages();
+        createMusic(Assets.getInstance().getAsset("sound/caveTheme.mp3", Music.class));
         createTiledMapRenderer();
     }
 
@@ -70,6 +64,7 @@ public class CaveScreen extends GameScreen {
             CaveFloorMemento memento = CaveFloorMemento.create(position, caveTilemapCreator.ruleCellPositions, caveTilemapCreator.holePositions, inanimateEntities, entities);
             caveFloorMementos[floor] = memento;
         } else {
+            //activate memento?
             CaveFloorMemento currentMemento = caveFloorMementos[floor];
             Application.player.x = currentMemento.spawnPosition.x;
             Application.player.y = currentMemento.spawnPosition.y;
@@ -120,18 +115,12 @@ public class CaveScreen extends GameScreen {
         super.dispose();
     }
 
-    private void createImages(TextureAtlas textureAtlas) {
-        caveTilesetRecolors.add(textureAtlas.findRegion("caveTiles").split(Application.TILE_WIDTH, Application.TILE_HEIGHT));
-        caveTilesetRecolors.add(textureAtlas.findRegion("caveTilesLevel5").split(Application.TILE_WIDTH, Application.TILE_HEIGHT));
-        rockImages = textureAtlas.findRegion("rocks").split(Application.TILE_WIDTH, Application.TILE_HEIGHT);
-        oreImages = textureAtlas.findRegion("ores").split(Application.TILE_WIDTH, Application.TILE_HEIGHT)[0];
-        holeSpritesheet = textureAtlas.findRegion("holes").split(Application.TILE_WIDTH, Application.TILE_HEIGHT);
-
-        slimeActionSpritesheets = new EntityActionSpritesheets();
-        ArrayList<TextureRegion[]> rawSlimeSpritesheets = TextureAtlasUtils.findSplitTextureRegionsStartingWith("Slime", textureAtlas, Application.TILE_WIDTH, Application.TILE_HEIGHT);
-        slimeActionSpritesheets.hit = rawSlimeSpritesheets.get(0)[0];
-        slimeActionSpritesheets.standing = ActionSpritesheetsAllDirections.createFromSpritesheetRange(rawSlimeSpritesheets, AnimationsAlphabeticalIndex.ENTITY_WALK_STARTING_INDEX, true);
-        slimeActionSpritesheets.walking = ActionSpritesheetsAllDirections.createFromSpritesheetRange(rawSlimeSpritesheets, AnimationsAlphabeticalIndex.ENTITY_WALK_STARTING_INDEX);
+    private void createImages() {
+        caveTilesetRecolors.add(Assets.getInstance().getSplitTextureRegion("caveTiles"));
+        caveTilesetRecolors.add(Assets.getInstance().getSplitTextureRegion("caveTilesLevel5"));
+        rockImages = Assets.getInstance().getSplitTextureRegion("rocks");
+        oreImages = Assets.getInstance().getSplitTextureRegion("ores")[0];
+        holeSpritesheet = Assets.getInstance().getSplitTextureRegion("holes");
     }
 
     private void createTiledMapRenderer() {

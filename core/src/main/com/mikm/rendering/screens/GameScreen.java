@@ -3,8 +3,6 @@ package com.mikm.rendering.screens;
 
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -19,7 +17,6 @@ public abstract class GameScreen extends ScreenAdapter {
     public static ScreenViewport viewport;
 
     Application application;
-    TextureAtlas textureAtlas;
     Music song;
     public static Camera camera;
 
@@ -29,14 +26,9 @@ public abstract class GameScreen extends ScreenAdapter {
     public OrthogonalTiledMapRenderer tiledMapRenderer;
     public TiledMap tiledMap;
 
-    public static TextureRegion shadowImage;
-    public static TextureRegion[][] particleImages;
 
-    GameScreen(Application application, TextureAtlas textureAtlas) {
-        this.textureAtlas = textureAtlas;
+    GameScreen(Application application) {
         this.application = application;
-        shadowImage = textureAtlas.findRegion("shadow").split(Application.TILE_WIDTH,Application.TILE_HEIGHT)[0][0];
-        particleImages = textureAtlas.findRegion("particles").split(8,8);
         camera = new Camera();
         viewport = new ScreenViewport(Camera.orthographicCamera);
         viewport.setUnitsPerPixel(Camera.VIEWPORT_ZOOM);

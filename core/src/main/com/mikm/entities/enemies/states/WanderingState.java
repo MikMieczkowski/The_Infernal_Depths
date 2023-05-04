@@ -1,22 +1,17 @@
 package com.mikm.entities.enemies.states;
 
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.RandomUtils;
 import com.mikm.entities.Entity;
-import com.mikm.entities.animation.ActionAnimationAllDirections;
-import com.mikm.entities.animation.AnimationManager;
+import com.mikm.entities.animation.AnimationName;
 
 public class WanderingState extends DashInducingState {
     private Vector2 wanderForce;
     private final float TOTAL_WANDER_TIME = 1f;
     private final float MIN_WANDER_FORCE = .2f;
 
-
     public WanderingState(Entity entity, float contactDamage) {
         super(entity, contactDamage);
-        ActionAnimationAllDirections actionAnimationAllDirections = new ActionAnimationAllDirections(.33f, Animation.PlayMode.LOOP, entity.entityActionSpritesheets.walking);
-        animationManager = new AnimationManager(entity, actionAnimationAllDirections);
     }
 
     @Override
@@ -51,5 +46,10 @@ public class WanderingState extends DashInducingState {
         float randomForcePositive = entity.getSpeed() * RandomUtils.getFloat(MIN_WANDER_FORCE, 1);
         int randomSign = RandomUtils.getBoolean() ? 1 : -1;
         return randomSign * randomForcePositive;
+    }
+
+    @Override
+    protected AnimationName getAnimationName() {
+        return AnimationName.ENTITY_WALK;
     }
 }

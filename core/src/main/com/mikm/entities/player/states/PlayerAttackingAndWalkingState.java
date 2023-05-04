@@ -1,7 +1,6 @@
 package com.mikm.entities.player.states;
 
-import com.mikm.entities.animation.ActionAnimationAllDirections;
-import com.mikm.entities.animation.AnimationManager;
+import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.player.Player;
 import com.mikm.input.GameInput;
 
@@ -11,8 +10,6 @@ public class PlayerAttackingAndWalkingState extends PlayerWalking {
     public PlayerAttackingAndWalkingState(Player player) {
         super(player);
         this.player = player;
-        ActionAnimationAllDirections actionAnimationAllDirections = player.walkingState.actionAnimationAllDirections;
-        animationManager = new AnimationManager(player, actionAnimationAllDirections);
     }
 
     @Override
@@ -32,5 +29,10 @@ public class PlayerAttackingAndWalkingState extends PlayerWalking {
     @Override
     public void checkForStateTransition() {
         player.currentHeldItem.checkForStateTransition();
+    }
+
+    @Override
+    protected AnimationName getAnimationName() {
+        return AnimationName.PLAYER_WALK;
     }
 }

@@ -1,16 +1,21 @@
 package com.mikm.rendering.cave;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.mikm.Assets;
 import com.mikm.RandomUtils;
 import com.mikm.rendering.screens.CaveScreen;
-import com.mikm.rendering.screens.GameScreen;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 public enum RockType {
-    NORMAL(-1, 0), COPPER(0, 1), IRON(1, 5), CRYSTAL(2,15), INFERNAL(3,50), GEM(3,75);
+    NORMAL(-1, 0),
+    COPPER(0, 1),
+    IRON(1, 5),
+    CRYSTAL(2,15),
+    INFERNAL(3,50),
+    GEM(3,75);
 
     private static final List<RockType> VALUES = Collections.unmodifiableList(Arrays.asList(values()));
     public static final int SIZE = VALUES.size();
@@ -33,12 +38,12 @@ public enum RockType {
     public TextureRegion getParticleImage() {
         if (this == NORMAL) {
             if (CaveScreen.getRecolorLevel() == 0) {
-                return GameScreen.particleImages[0][4];
+                return Assets.particleImages[0][4];
             } else {
-                return GameScreen.particleImages[1][0];
+                return Assets.particleImages[1][0];
             }
         }
-        return GameScreen.particleImages[1][spritesheetPosition+1];
+        return Assets.particleImages[1][spritesheetPosition+1];
     }
 
     public static RockType getRandomRockType(float[] chances) {

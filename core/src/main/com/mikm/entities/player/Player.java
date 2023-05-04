@@ -2,12 +2,14 @@ package com.mikm.entities.player;
 
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.Vector2Int;
 import com.mikm.entities.Entity;
-import com.mikm.entities.animation.EntityActionSpritesheets;
+import com.mikm.entities.animation.AnimationName;
+import com.mikm.entities.animation.DirectionalAnimation;
 import com.mikm.entities.player.states.*;
 import com.mikm.entities.player.weapons.Weapon;
 import com.mikm.entities.player.weapons.WeaponInstances;
@@ -15,6 +17,8 @@ import com.mikm.input.GameInput;
 import com.mikm.rendering.screens.Application;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Player extends Entity {
     public static final int PLAYER_WIDTH_PIXELS = 32, PLAYER_HEIGHT_PIXELS = 32;
@@ -44,6 +48,7 @@ public class Player extends Entity {
     public PlayerRollingState rollingState;
     public PlayerAttackingAndWalkingState attackingState;
     public PlayerFallingState fallingState;
+    private static Map<AnimationName, DirectionalAnimation> animations = new HashMap<>();
 
     public Weapon equippedWeapon;
     public Weapon currentHeldItem;
@@ -52,11 +57,12 @@ public class Player extends Entity {
 
     public int money;
 
-    public Player(float x, float y, EntityActionSpritesheets entityActionSpritesheets) {
-        super(x, y, entityActionSpritesheets);
+    public Player(float x, float y) {
+        super(x, y);
         damagesPlayer = false;
         isAttackable = true;
         maxInvincibilityTime = PLAYER_INVINCIBILITY_TIME;
+        createAnimations();
         createStates();
     }
 
@@ -65,7 +71,6 @@ public class Player extends Entity {
         equippedWeapon = weapons.bow;
         currentHeldItem = equippedWeapon;
     }
-
 
     @Override
     public void update() {
@@ -141,7 +146,7 @@ public class Player extends Entity {
         if (inInvincibility) {
             batch.setColor(new Color(1,1,1,.5f));
         }
-        currentState.animationManager.draw(batch);
+        animationManager.draw(batch);
         batch.setColor(Color.WHITE);
     }
 
@@ -181,6 +186,21 @@ public class Player extends Entity {
         attackingState = new PlayerAttackingAndWalkingState(this);
         fallingState = new PlayerFallingState(this);
         standingState.enter();
+    }
+
+    @Override
+    protected void createAnimations() {
+        DirectionalAnimation walk = new DirectionalAnimation("Character_Walk", .33f, Animation.PlayMode.LOOP);
+        animations.put(AnimationName.PLAYER_WALK, walk);
+        animations.put(AnimationName.PLAYER_STAND, walk.createDirectionalAnimationFromFirstFrames());
+        animations.put(AnimationName.HIT, new DirectionalAnimation("Character_Hit", 32,32));
+        animations.put(AnimationName.PLAYER_DIVE, new DirectionalAnimation("Character_Dive", .1f, Animation.PlayMode.NORMAL));
+        animations.put(AnimationName.PLAYER_ROLL, new DirectionalAnimation("Character_Roll", .055f, Animation.PlayMode.NORMAL));
+    }
+
+    @Override
+    protected Map<?,?> getAnimations() {
+        return animations;
     }
 
     @Override

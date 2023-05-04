@@ -2,7 +2,7 @@ package com.mikm.debug;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.jogamp.nativewindow.CapabilitiesFilter;
+import com.mikm.Assets;
 import com.mikm.entities.InanimateEntity;
 import com.mikm.rendering.screens.Application;
 
@@ -41,7 +41,7 @@ public class TestObject extends InanimateEntity {
     @Override
     public void draw(Batch batch) {
         batch.setColor(color);
-        batch.draw(Application.testTexture, x+16-width, y+16-width, width, width);
+        batch.draw(Assets.testTexture, x+16-width, y+16-width, width, width);
         batch.setColor(Color.WHITE);
     }
 }

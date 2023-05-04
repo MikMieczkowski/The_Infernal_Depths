@@ -1,15 +1,14 @@
 package com.mikm.entities.enemies.states;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.ExtraMathUtils;
 import com.mikm.entities.Entity;
 import com.mikm.entities.State;
-import com.mikm.entities.animation.OneDirectionalAnimationManager;
-import com.mikm.entities.particles.ParticleTypes;
+import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.particles.ParticleEffect;
+import com.mikm.entities.particles.ParticleTypes;
 import com.mikm.entities.projectiles.DamageInformation;
 import com.mikm.rendering.screens.Application;
 
@@ -24,9 +23,6 @@ public class DamagedState extends State {
 
     public DamagedState(Entity entity) {
         super(entity);
-        OneDirectionalAnimationManager oneDirectionalAnimationManager = new OneDirectionalAnimationManager(entity);
-        oneDirectionalAnimationManager.animation = new Animation<>(1, entity.entityActionSpritesheets.hit);
-        animationManager = oneDirectionalAnimationManager;
     }
 
     public void enter(DamageInformation damageInformation) {
@@ -76,5 +72,10 @@ public class DamagedState extends State {
             }
             entity.standingState.enter();
         }
+    }
+
+    @Override
+    protected AnimationName getAnimationName() {
+        return AnimationName.HIT;
     }
 }

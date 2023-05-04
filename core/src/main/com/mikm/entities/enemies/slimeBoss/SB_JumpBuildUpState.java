@@ -1,6 +1,7 @@
 package com.mikm.entities.enemies.slimeBoss;
 
 import com.mikm.entities.State;
+import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.player.Player;
 import com.mikm.rendering.screens.Application;
 
@@ -26,8 +27,6 @@ public class SB_JumpBuildUpState extends State {
         super(slimeBoss);
         this.slimeBoss = slimeBoss;
         this.player = Application.player;
-
-        animationManager = slimeBoss.jumpState.animationManager;
     }
 
     @Override
@@ -63,5 +62,10 @@ public class SB_JumpBuildUpState extends State {
         if (timeElapsedInState > MAX_BUILDUP_TIME) {
             slimeBoss.jumpState.enter(jumpDistance, timeSpentJumping);
         }
+    }
+
+    @Override
+    protected AnimationName getAnimationName() {
+        return AnimationName.SLIMEBOSS_STAND;
     }
 }
