@@ -1,7 +1,5 @@
 package com.mikm.rendering.cave;
 
-import com.badlogic.gdx.math.Vector2;
-import com.mikm.ExtraMathUtils;
 import com.mikm.RandomUtils;
 import com.mikm.Vector2Int;
 import com.mikm.entities.Rope;
@@ -30,9 +28,6 @@ public class CaveEntitySpawner {
         this.openTilePositions = tilemap.openTiles;
 
         resetInanimateAndAnimateEntities();
-
-        Vector2 playerTileCoordinates = ExtraMathUtils.toTileCoordinates(Application.player.getCenteredPosition().x, Application.player.getCenteredPosition().y);
-        caveScreen.inanimateEntities.addInstantly(new Rope(playerTileCoordinates.x * Application.TILE_WIDTH, playerTileCoordinates.y * Application.TILE_HEIGHT));
 
         spawnEnemies();
         spawnRocks();

@@ -44,7 +44,7 @@ public abstract class GameScreen extends ScreenAdapter {
         inanimateEntities.add(playerShadow);
     }
 
-    public abstract boolean[][] isWallAt();
+    public abstract boolean[][] isCollidableGrid();
 
     @Override
     public void render(float delta) {

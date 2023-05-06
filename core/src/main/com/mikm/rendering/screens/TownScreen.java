@@ -37,7 +37,7 @@ public class TownScreen extends GameScreen {
     }
 
     @Override
-    public boolean[][] isWallAt() {
+    public boolean[][] isCollidableGrid() {
         return new boolean[100][100];
     }
 

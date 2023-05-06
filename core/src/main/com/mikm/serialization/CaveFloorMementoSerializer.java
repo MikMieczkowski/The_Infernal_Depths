@@ -56,7 +56,6 @@ public class CaveFloorMementoSerializer extends Serializer<CaveFloorMemento> {
             ruleCellPositions[(int) rock.y/Application.TILE_HEIGHT][(int) rock.x / Application.TILE_WIDTH] = false;
         }
 
-
         return new CaveFloorMemento(spawnPosition, ruleCellPositions, holePositions, inanimateEntities, enemies);
     }
 }
