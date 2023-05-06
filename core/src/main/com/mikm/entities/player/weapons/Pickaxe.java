@@ -23,7 +23,7 @@ public class Pickaxe extends SwingableWeapon {
         for (InanimateEntity inanimateEntity : caveScreen.inanimateEntities) {
             if (inanimateEntity.getClass() == Rock.class && Intersector.overlaps(inanimateEntity.getHitbox(), hurtbox.getHurtbox())) {
                 inanimateEntity.die();
-                caveScreen.isWallAt()[(int)inanimateEntity.y/ Application.TILE_HEIGHT][(int)inanimateEntity.x / Application.TILE_WIDTH] = false;
+                caveScreen.isCollidableGrid()[(int)inanimateEntity.y/ Application.TILE_HEIGHT][(int)inanimateEntity.x / Application.TILE_WIDTH] = false;
 
                 RockType rockType = ((Rock)inanimateEntity).rockType;
                 if (rockType != RockType.NORMAL) {

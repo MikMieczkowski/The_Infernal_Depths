@@ -7,6 +7,7 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.mikm.Assets;
 import com.mikm.Vector2Int;
+import com.mikm.entities.Rope;
 import com.mikm.rendering.Camera;
 import com.mikm.rendering.cave.CaveEntitySpawner;
 import com.mikm.rendering.cave.CaveFloorMemento;
@@ -43,8 +44,6 @@ public class CaveScreen extends GameScreen {
     public void decreaseFloor() {
         entities.doAfterRender(() -> {
             floor--;
-            System.out.println(floor);
-            System.out.println(Application.player.x);
             handleScreenChange();
             if (floor % 5 == 0) {
                 return;
@@ -56,7 +55,6 @@ public class CaveScreen extends GameScreen {
     public void increaseFloor() {
         entities.doAfterRender(() -> {
             floor++;
-            System.out.println(floor);
             handleScreenChange();
             if (floor % 5 == 0) {
                 return;
@@ -64,7 +62,7 @@ public class CaveScreen extends GameScreen {
             if (caveFloorMementos[floor - 1] == null) {
                 generateNewFloor();
                 Vector2Int position = putPlayerInOpenTile();
-                System.out.println("floor " + floor + " spawn position is " + position);
+                inanimateEntities.addInstantly(new Rope(position.x+8, position.y+8));
                 CaveFloorMemento memento = CaveFloorMemento.create(position, caveTilemapCreator.ruleCellPositions, caveTilemapCreator.holePositions, inanimateEntities, entities);
                 caveFloorMementos[floor - 1] = memento;
             } else {
@@ -103,11 +101,16 @@ public class CaveScreen extends GameScreen {
     }
 
     private void loadFloor(int floor) {
+        if (floor <= 0) {
+            application.setGameScreen(Application.townScreen);
+            Application.player.x = 100;
+            Application.player.y = 100;
+            return;
+        }
         CaveFloorMemento currentMemento = caveFloorMementos[floor-1];
         activate(currentMemento);
         Application.player.x = currentMemento.spawnPosition.x;
         Application.player.y = currentMemento.spawnPosition.y;
-        System.out.println(Application.player.x + ", " + currentMemento.spawnPosition.x);
     }
 
     private void handleScreenChange() {
@@ -142,7 +145,7 @@ public class CaveScreen extends GameScreen {
     }
 
     @Override
-    public boolean[][] isWallAt() {
+    public boolean[][] isCollidableGrid() {
         return caveTilemapCreator.getIsCollidableGrid();
     }
 

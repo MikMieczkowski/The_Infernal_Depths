@@ -25,7 +25,7 @@ public class Application extends Game {
 
 	public static GameScreen currentScreen;
 	public static CaveScreen caveScreen;
-	private TownScreen townScreen;
+	public static TownScreen townScreen;
 	public SlimeBossRoomScreen slimeBossRoomScreen;
 
 	public static Player player;

@@ -5,8 +5,6 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.rendering.screens.Application;
 
-import java.util.Random;
-
 public class ExtraMathUtils {
 
     private ExtraMathUtils() {
@@ -115,12 +113,12 @@ public class ExtraMathUtils {
         return new Vector2Int(worldCoordinates.x / Application.TILE_WIDTH, worldCoordinates.y / Application.TILE_HEIGHT);
     }
 
-    public static Vector2 toTileCoordinates(Vector2 worldCoordinates) {
-        return new Vector2((int)worldCoordinates.x / Application.TILE_WIDTH, (int)worldCoordinates.y / Application.TILE_HEIGHT);
+    public static Vector2Int toTileCoordinates(Vector2 worldCoordinates) {
+        return new Vector2Int((int)worldCoordinates.x / Application.TILE_WIDTH, (int)worldCoordinates.y / Application.TILE_HEIGHT);
     }
 
-    public static Vector2 toTileCoordinates(float x, float y) {
-        return new Vector2((int)x / Application.TILE_WIDTH, (int)y / Application.TILE_HEIGHT);
+    public static Vector2Int toTileCoordinates(float x, float y) {
+        return new Vector2Int((int)x / Application.TILE_WIDTH, (int)y / Application.TILE_HEIGHT);
     }
 
     public static Vector2 normalizeAndScale(Vector2 vector2) {
@@ -132,6 +130,18 @@ public class ExtraMathUtils {
     }
     public static Vector2 normalizeAndScale(Vector2Int vector2Int) {
         return normalizeAndScale(new Vector2(vector2Int.x, vector2Int.y));
+    }
+
+    public static Vector2Int minComponents(Vector2Int v1, Vector2Int v2) {
+        return new Vector2Int(Math.min(v1.x, v2.x), Math.min(v1.y, v2.y));
+    }
+
+    public static Vector2Int maxComponents(Vector2Int v1, Vector2Int v2) {
+        return new Vector2Int(Math.max(v1.x, v2.x), Math.max(v1.y, v2.y));
+    }
+
+    public static float clamp(float n, float a, float b) {
+        return Math.max(a, Math.min(n,b));
     }
 
     public static int ceilAwayFromZero(float n) {

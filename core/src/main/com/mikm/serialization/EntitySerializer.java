@@ -21,7 +21,6 @@ public class EntitySerializer extends Serializer<Entity> {
         obj.hp = kryo.readObject(input, int.class);
         obj.x = position.x;
         obj.y = position.y;
-        System.out.println("serializer: "+ obj.x + " " + obj.y);
         return obj;
     }
 }

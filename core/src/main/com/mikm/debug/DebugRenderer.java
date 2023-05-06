@@ -6,7 +6,6 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.Assets;
 import com.mikm.Method;
-import com.mikm.entities.collision.Ray;
 import com.mikm.rendering.Camera;
 import com.mikm.rendering.screens.Application;
 
@@ -51,20 +50,13 @@ public class DebugRenderer {
         Application.batch.begin();
     }
 
-    public void drawLine(Ray rayIn, float lengthMultiplier) {
-        Ray ray = new Ray(rayIn.startPoint,
-                new Vector2(lengthMultiplier * rayIn.endPoint.x + (1-lengthMultiplier) * rayIn.startPoint.x,
-                        lengthMultiplier * rayIn.endPoint.y + (1-lengthMultiplier) * rayIn.startPoint.y));
-        drawLine(ray);
-    }
-
-    public void drawLine(Ray ray) {
+    public void drawLine(Vector2 startPoint, Vector2 endPoint) {
         Application.batch.end();
         shapeRenderer.setAutoShapeType(true);
         shapeRenderer.setProjectionMatrix(Camera.orthographicCamera.combined);
         shapeRenderer.setColor(Color.BLUE);
         shapeRenderer.begin();
-        shapeRenderer.line(ray.startPoint, ray.endPoint);
+        shapeRenderer.line(startPoint, endPoint);
         shapeRenderer.end();
         Application.batch.begin();
     }

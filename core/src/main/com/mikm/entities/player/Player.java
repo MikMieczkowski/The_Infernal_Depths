@@ -66,7 +66,7 @@ public class Player extends Entity {
 
     public void setWeapons(WeaponInstances weapons) {
         this.weaponInstances = weapons;
-        equippedWeapon = weapons.bow;
+        equippedWeapon = weapons.sword;
         currentHeldItem = equippedWeapon;
     }
 

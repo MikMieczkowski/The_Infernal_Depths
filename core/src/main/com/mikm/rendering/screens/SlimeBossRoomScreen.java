@@ -34,7 +34,7 @@ public class SlimeBossRoomScreen extends GameScreen {
     }
 
     @Override
-    public boolean[][] isWallAt() {
+    public boolean[][] isCollidableGrid() {
         return new boolean[MAP_WIDTH][MAP_HEIGHT];
     }
 
