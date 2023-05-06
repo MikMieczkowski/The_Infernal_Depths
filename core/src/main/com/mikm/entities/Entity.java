@@ -16,7 +16,7 @@ import com.mikm.rendering.screens.Application;
 
 import java.util.Map;
 
-//Too many responsiblities
+//Should split flash/blink into another class
 public abstract class Entity extends InanimateEntity {
 
     public float rotation;
@@ -58,6 +58,8 @@ public abstract class Entity extends InanimateEntity {
         damagedState = new DamagedState(this);
         hp = getMaxHp();
         animationManager = new AnimationManager(this);
+        createAnimations();
+        createStates();
     }
 
     public abstract int getMaxHp();

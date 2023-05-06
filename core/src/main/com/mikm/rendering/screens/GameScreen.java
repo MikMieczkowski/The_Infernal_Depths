@@ -21,7 +21,7 @@ public abstract class GameScreen extends ScreenAdapter {
     public static Camera camera;
 
     public RemovableArray<Entity> entities;
-    public final RemovableArray<InanimateEntity> inanimateEntities = new RemovableArray<>(InanimateEntity.class);
+    public final RemovableArray<InanimateEntity> inanimateEntities = new RemovableArray<>();
 
     public OrthogonalTiledMapRenderer tiledMapRenderer;
     public TiledMap tiledMap;
@@ -33,7 +33,7 @@ public abstract class GameScreen extends ScreenAdapter {
         viewport = new ScreenViewport(Camera.orthographicCamera);
         viewport.setUnitsPerPixel(Camera.VIEWPORT_ZOOM);
 
-        entities = new RemovableArray<>(Entity.class);
+        entities = new RemovableArray<>();
         entities.add(Application.player);
         addPlayerShadow();
     }

@@ -38,10 +38,7 @@ public class SlimeBoss extends Entity {
     public SlimeBoss(SlimeBossRoomScreen screen, float x, float y) {
         super(x, y);
         isAttackable = true;
-
         this.screen = screen;
-        createAnimations();
-        createStates();
     }
 
     @Override
@@ -71,7 +68,8 @@ public class SlimeBoss extends Entity {
     protected void createAnimations() {
         DirectionalAnimation animation = new DirectionalAnimation("slimeBoss", 32, 32);
         animations.put(AnimationName.HIT, animation);
-        animations.put(AnimationName.SLIMEBOSS_STAND, animation);
+        animations.put(AnimationName.STAND, animation);
+        animations.put(AnimationName.WALK, animation);
     }
 
     @Override

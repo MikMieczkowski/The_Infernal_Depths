@@ -19,8 +19,8 @@ public class CaveFloorMementoSerializer extends Serializer<CaveFloorMemento> {
     @Override
     public void write(Kryo kryo, Output output, CaveFloorMemento object) {
         kryo.writeObject(output, object.spawnPosition);
-        kryo.writeObject(output, object.ruleCellPositions);
         kryo.writeObject(output, object.holePositions);
+
         ArrayList<InanimateEntity> rocks = new ArrayList<>();
         for (InanimateEntity inanimateEntity : object.inanimateEntities) {
             if (inanimateEntity.getClass().equals(Rock.class)) {
@@ -28,21 +28,35 @@ public class CaveFloorMementoSerializer extends Serializer<CaveFloorMemento> {
             }
         }
         kryo.writeObject(output, rocks);
+
         ArrayList<Entity> enemiesArrayList = new ArrayList<>(object.enemies);
         enemiesArrayList.remove(Application.player);
         kryo.writeObject(output, enemiesArrayList);
+
+        kryo.writeObject(output, object.ruleCellPositions);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public CaveFloorMemento read(Kryo kryo, Input input, Class<? extends CaveFloorMemento> type) {
         Vector2Int spawnPosition = kryo.readObject(input, Vector2Int.class);
-        boolean[][] ruleCellPositions = kryo.readObject(input, boolean[][].class);
+
         ArrayList<Vector2Int> holePositions = kryo.readObject(input, ArrayList.class);
-        ArrayList<InanimateEntity> inanimateEntitiesArr = kryo.readObject(input, ArrayList.class);
-        ArrayList<Entity> enemiesArr = kryo.readObject(input, ArrayList.class);
-        RemovableArray<InanimateEntity> inanimateEntities = new RemovableArray<>(inanimateEntitiesArr, InanimateEntity.class);
-        RemovableArray<Entity> enemies = new RemovableArray<>(enemiesArr, Entity.class);
+
+        ArrayList<InanimateEntity> inanimateEntitiesRaw = kryo.readObject(input, ArrayList.class);
+        ArrayList<Entity> enemiesRaw = kryo.readObject(input, ArrayList.class);
+        RemovableArray<InanimateEntity> inanimateEntities = new RemovableArray<>(inanimateEntitiesRaw);
+        RemovableArray<Entity> enemies = new RemovableArray<>(enemiesRaw);
+
+        boolean[][] ruleCellPositions = kryo.readObject(input, boolean[][].class);
+        for (Vector2Int holePosition : holePositions) {
+            ruleCellPositions[holePosition.y][holePosition.x] = false;
+        }
+        for (InanimateEntity rock : inanimateEntities) {
+            ruleCellPositions[(int) rock.y/Application.TILE_HEIGHT][(int) rock.x / Application.TILE_WIDTH] = false;
+        }
+
+
         return new CaveFloorMemento(spawnPosition, ruleCellPositions, holePositions, inanimateEntities, enemies);
     }
 }

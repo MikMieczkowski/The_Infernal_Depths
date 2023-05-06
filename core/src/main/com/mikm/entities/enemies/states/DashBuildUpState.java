@@ -46,6 +46,6 @@ public class DashBuildUpState extends State {
 
     @Override
     protected AnimationName getAnimationName() {
-        return AnimationName.ENTITY_STAND;
+        return AnimationName.STAND;
     }
 }

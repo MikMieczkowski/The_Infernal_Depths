@@ -71,6 +71,6 @@ public class PlayerStandingState extends State {
 
     @Override
     protected AnimationName getAnimationName() {
-        return AnimationName.PLAYER_STAND;
+        return AnimationName.STAND;
     }
 }

@@ -52,6 +52,6 @@ public class SB_SplitAttack extends State {
 
     @Override
     protected AnimationName getAnimationName() {
-        return AnimationName.SLIMEBOSS_STAND;
+        return AnimationName.STAND;
     }
 }

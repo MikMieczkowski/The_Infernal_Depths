@@ -17,10 +17,11 @@ public class EntitySerializer extends Serializer<Entity> {
     @Override
     public Entity read(Kryo kryo, Input input, Class<? extends Entity> type) {
         Entity obj = kryo.newInstance(type);
-        obj.hp = kryo.readObject(input, int.class);
         Vector2Int position = kryo.readObject(input, Vector2Int.class);
+        obj.hp = kryo.readObject(input, int.class);
         obj.x = position.x;
         obj.y = position.y;
+        System.out.println("serializer: "+ obj.x + " " + obj.y);
         return obj;
     }
 }

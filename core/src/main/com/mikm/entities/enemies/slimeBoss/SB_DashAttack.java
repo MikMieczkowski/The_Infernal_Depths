@@ -16,7 +16,7 @@ public class SB_DashAttack extends State {
 
     private final float JUMP_HEIGHT = 5f;
     private final float DASH_DISTANCE = 140;
-    private float MAX_TIME_SPENT_DASHING = .3f;
+    private final float MAX_TIME_SPENT_DASHING = .3f;
     private final float ANGLE_OF_APPROACH_FROM_PERPENDICULAR = 15 * MathUtils.degRad;
     private final float TIME_BETWEEN_DASH_EFFECT_IMAGES = .05f;
 
@@ -79,6 +79,6 @@ public class SB_DashAttack extends State {
 
     @Override
     protected AnimationName getAnimationName() {
-        return AnimationName.SLIMEBOSS_STAND;
+        return AnimationName.STAND;
     }
 }

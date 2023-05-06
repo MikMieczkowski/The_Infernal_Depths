@@ -62,8 +62,6 @@ public class Player extends Entity {
         damagesPlayer = false;
         isAttackable = true;
         maxInvincibilityTime = PLAYER_INVINCIBILITY_TIME;
-        createAnimations();
-        createStates();
     }
 
     public void setWeapons(WeaponInstances weapons) {
@@ -191,8 +189,8 @@ public class Player extends Entity {
     @Override
     protected void createAnimations() {
         DirectionalAnimation walk = new DirectionalAnimation("Character_Walk", .33f, Animation.PlayMode.LOOP);
-        animations.put(AnimationName.PLAYER_WALK, walk);
-        animations.put(AnimationName.PLAYER_STAND, walk.createDirectionalAnimationFromFirstFrames());
+        animations.put(AnimationName.WALK, walk);
+        animations.put(AnimationName.STAND, walk.createDirectionalAnimationFromFirstFrames());
         animations.put(AnimationName.HIT, new DirectionalAnimation("Character_Hit", 32,32));
         animations.put(AnimationName.PLAYER_DIVE, new DirectionalAnimation("Character_Dive", .1f, Animation.PlayMode.NORMAL));
         animations.put(AnimationName.PLAYER_ROLL, new DirectionalAnimation("Character_Roll", .055f, Animation.PlayMode.NORMAL));

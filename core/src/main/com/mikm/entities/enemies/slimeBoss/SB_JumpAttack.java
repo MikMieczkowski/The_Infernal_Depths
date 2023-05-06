@@ -54,6 +54,6 @@ public class SB_JumpAttack extends State {
 
     @Override
     protected AnimationName getAnimationName() {
-        return AnimationName.SLIMEBOSS_STAND;
+        return AnimationName.STAND;
     }
 }
