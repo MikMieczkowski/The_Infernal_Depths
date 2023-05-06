@@ -44,7 +44,7 @@ public class DashingState extends State {
 
     @Override
     protected AnimationName getAnimationName() {
-        return AnimationName.ENTITY_WALK;
+        return AnimationName.WALK;
     }
 
     @Override

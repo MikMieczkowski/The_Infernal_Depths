@@ -67,6 +67,6 @@ public class SB_SimmerAttack extends State {
 
     @Override
     protected AnimationName getAnimationName() {
-        return AnimationName.SLIMEBOSS_STAND;
+        return AnimationName.STAND;
     }
 }

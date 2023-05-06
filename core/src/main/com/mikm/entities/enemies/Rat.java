@@ -12,7 +12,6 @@ public class Rat extends Entity {
         super(x, y);
         damagesPlayer = false;
         isAttackable = false;
-        createStates();
     }
 
     @Override

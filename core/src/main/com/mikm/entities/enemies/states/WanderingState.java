@@ -50,6 +50,6 @@ public class WanderingState extends DashInducingState {
 
     @Override
     protected AnimationName getAnimationName() {
-        return AnimationName.ENTITY_WALK;
+        return AnimationName.WALK;
     }
 }

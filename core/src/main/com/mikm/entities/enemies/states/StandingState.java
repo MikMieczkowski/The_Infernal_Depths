@@ -47,6 +47,6 @@ public class StandingState extends DashInducingState {
 
     @Override
     protected AnimationName getAnimationName() {
-        return AnimationName.ENTITY_STAND;
+        return AnimationName.STAND;
     }
 }

@@ -15,8 +15,8 @@ import java.util.Map;
 
 public class Slime extends Entity {
     public final float SPEED = 1;
-    private final float angle;
-    private final boolean slimeBossMinion;
+    private float angle;
+    private boolean slimeBossMinion;
 
     private static Map<AnimationName, DirectionalAnimation> animations = new HashMap<>();
 
@@ -26,16 +26,10 @@ public class Slime extends Entity {
     private Slime() {
         //serialization constructor
         super(0, 0);
-        angle = 0;
-        slimeBossMinion = false;
     }
 
     public Slime(int x, int y) {
         super(x, y);
-        slimeBossMinion = false;
-        angle = 0;
-        createAnimations();
-        createStates();
     }
 
     public Slime(float x, float y, float angle) {
@@ -43,8 +37,6 @@ public class Slime extends Entity {
         this.angle = angle;
         slimeBossMinion = true;
         hp = 1;
-        createStates();
-        createAnimations();
     }
 
     @Override
@@ -66,9 +58,9 @@ public class Slime extends Entity {
     protected void createAnimations() {
         DirectionalAnimation walk = new DirectionalAnimation("Slime_Walk", Application.TILE_WIDTH, Application.TILE_HEIGHT, .33f, Animation.PlayMode.LOOP);
         DirectionalAnimation stand = walk.createDirectionalAnimationFromFirstFrames();
-        animations.put(AnimationName.ENTITY_WALK, walk);
+        animations.put(AnimationName.WALK, walk);
         animations.put(AnimationName.HIT, stand);
-        animations.put(AnimationName.ENTITY_STAND, stand);
+        animations.put(AnimationName.STAND, stand);
     }
 
     @Override

@@ -15,6 +15,7 @@ public class CaveEntitySpawner {
     private final CaveScreen caveScreen;
 
     private boolean[][] ruleCellPositions;
+    private boolean[][] collidablePositions;
     private ArrayList<Vector2Int> openTilePositions;
 
     private final int MIN_ENEMIES = 90, MAX_ENEMIES = 100;
@@ -25,29 +26,26 @@ public class CaveEntitySpawner {
     
     public void generateNewEnemies(CaveTilemapCreator tilemap) {
         this.ruleCellPositions = tilemap.ruleCellPositions;
+        this.collidablePositions = tilemap.collidablePositions;
         this.openTilePositions = tilemap.openTiles;
 
-        caveScreen.entities.doAfterRender(() -> {
-            clearCaveScreenEntities();
+        resetInanimateAndAnimateEntities();
 
-            Vector2 playerTileCoordinates = ExtraMathUtils.toTileCoordinates(Application.player.getCenteredPosition().x, Application.player.getCenteredPosition().y);
-            caveScreen.inanimateEntities.addInstantly(new Rope(playerTileCoordinates.x * Application.TILE_WIDTH, playerTileCoordinates.y * Application.TILE_HEIGHT));
+        Vector2 playerTileCoordinates = ExtraMathUtils.toTileCoordinates(Application.player.getCenteredPosition().x, Application.player.getCenteredPosition().y);
+        caveScreen.inanimateEntities.addInstantly(new Rope(playerTileCoordinates.x * Application.TILE_WIDTH, playerTileCoordinates.y * Application.TILE_HEIGHT));
 
-            spawnEnemies();
-            spawnRocks();
-        });
+        spawnEnemies();
+        spawnRocks();
     }
 
     public void activate(CaveFloorMemento memento) {
-        caveScreen.entities.doAfterRender(() -> {
-            clearCaveScreenEntities();
-            caveScreen.inanimateEntities.addInstantly(new Rope(memento.spawnPosition.x, memento.spawnPosition.y));
-            caveScreen.inanimateEntities.addAll(memento.inanimateEntities);
-            caveScreen.entities.addAll(memento.enemies);
-        });
+        resetInanimateAndAnimateEntities();
+        caveScreen.inanimateEntities.addInstantly(new Rope(memento.spawnPosition.x+8, memento.spawnPosition.y+8));
+        caveScreen.inanimateEntities.addAll(memento.inanimateEntities);
+        caveScreen.entities.addAll(memento.enemies);
     }
 
-    private void clearCaveScreenEntities() {
+    private void resetInanimateAndAnimateEntities() {
         caveScreen.entities.removeInstantly(Application.player);
         caveScreen.entities.clear();
         caveScreen.inanimateEntities.clear();
@@ -79,7 +77,7 @@ public class CaveEntitySpawner {
             if (RandomUtils.getFloatRoundedToTenths(100) < rockDistribution.getProbabilityByFloor(CaveScreen.floor) * 100f) {
                 RockType randomRockType = RockType.getRandomRockType(SpawnProbabilityConstants.getOreDistributionsByFloor(CaveScreen.floor));
                 caveScreen.inanimateEntities.addInstantly(new Rock(tilePosition.x * Application.TILE_WIDTH, tilePosition.y * Application.TILE_HEIGHT, randomRockType));
-                ruleCellPositions[tilePosition.y][tilePosition.x] = true;
+                collidablePositions[tilePosition.y][tilePosition.x] = true;
                 positionsToDelete.add(tilePosition);
             }
         }

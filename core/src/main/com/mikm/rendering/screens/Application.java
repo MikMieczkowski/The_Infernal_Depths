@@ -3,11 +3,9 @@ package com.mikm.rendering.screens;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.mikm.Assets;
 import com.mikm.debug.DebugRenderer;
@@ -120,17 +118,12 @@ public class Application extends Game {
 				player.y = 100;
 				Camera.setPositionDirectlyToPlayerPosition();
 				setGameScreen(townScreen);
-			} else {
-				caveScreen.generateNewFloor();
-				setGameScreen(caveScreen);
 			}
 		}
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.C)) {
+			setGameScreen(Application.caveScreen);
 			caveScreen.increaseFloor();
-			if (Application.currentScreen != slimeBossRoomScreen) {
-				caveScreen.putPlayerInOpenTile();
-			}
 		}
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.V)) {

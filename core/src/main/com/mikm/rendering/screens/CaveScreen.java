@@ -41,55 +41,36 @@ public class CaveScreen extends GameScreen {
     }
 
     public void decreaseFloor() {
-        floor--;
-        handleScreenChange();
-        if (floor % 5 == 0) {
-            return;
-        }
-
-        Application.player.x = caveFloorMementos[floor].spawnPosition.x;
-        Application.player.y = caveFloorMementos[floor].spawnPosition.y;
+        entities.doAfterRender(() -> {
+            floor--;
+            System.out.println(floor);
+            System.out.println(Application.player.x);
+            handleScreenChange();
+            if (floor % 5 == 0) {
+                return;
+            }
+            loadFloor(floor);
+        });
     }
 
     public void increaseFloor() {
-        floor++;
-        handleScreenChange();
-        if (floor % 5 == 0) {
-            return;
-        }
-
-        if (caveFloorMementos[floor] == null) {
-            generateNewFloor();
-            Vector2Int position = putPlayerInOpenTile();
-            CaveFloorMemento memento = CaveFloorMemento.create(position, caveTilemapCreator.ruleCellPositions, caveTilemapCreator.holePositions, inanimateEntities, entities);
-            caveFloorMementos[floor] = memento;
-        } else {
-            //activate memento?
-            CaveFloorMemento currentMemento = caveFloorMementos[floor];
-            Application.player.x = currentMemento.spawnPosition.x;
-            Application.player.y = currentMemento.spawnPosition.y;
-        }
-    }
-
-    private void handleScreenChange() {
-        if (Application.currentScreen != Application.caveScreen) {
-            application.setGameScreen(Application.caveScreen);
-        } else if (floor == 5) {
-            application.setGameScreen(application.slimeBossRoomScreen);
-            Application.player.x = 100;
-            Application.player.y = 100;
-        }
-    }
-
-    public void generateNewFloor() {
-        caveTilemapCreator.generateNewMap();
-        spawner= new CaveEntitySpawner(this);
-        spawner.generateNewEnemies(caveTilemapCreator);
-    }
-
-    public void activate(CaveFloorMemento memento) {
-        caveTilemapCreator.activate(memento);
-        spawner.activate(memento);
+        entities.doAfterRender(() -> {
+            floor++;
+            System.out.println(floor);
+            handleScreenChange();
+            if (floor % 5 == 0) {
+                return;
+            }
+            if (caveFloorMementos[floor - 1] == null) {
+                generateNewFloor();
+                Vector2Int position = putPlayerInOpenTile();
+                System.out.println("floor " + floor + " spawn position is " + position);
+                CaveFloorMemento memento = CaveFloorMemento.create(position, caveTilemapCreator.ruleCellPositions, caveTilemapCreator.holePositions, inanimateEntities, entities);
+                caveFloorMementos[floor - 1] = memento;
+            } else {
+                loadFloor(floor);
+            }
+        });
     }
 
     public Vector2Int putPlayerInOpenTile() {
@@ -113,6 +94,35 @@ public class CaveScreen extends GameScreen {
     @Override
     public void dispose() {
         super.dispose();
+    }
+
+    private void generateNewFloor() {
+        caveTilemapCreator.generateNewMap();
+        spawner= new CaveEntitySpawner(this);
+        spawner.generateNewEnemies(caveTilemapCreator);
+    }
+
+    private void loadFloor(int floor) {
+        CaveFloorMemento currentMemento = caveFloorMementos[floor-1];
+        activate(currentMemento);
+        Application.player.x = currentMemento.spawnPosition.x;
+        Application.player.y = currentMemento.spawnPosition.y;
+        System.out.println(Application.player.x + ", " + currentMemento.spawnPosition.x);
+    }
+
+    private void handleScreenChange() {
+        if (Application.currentScreen != Application.caveScreen) {
+            application.setGameScreen(Application.caveScreen);
+        } else if (floor == 5) {
+            application.setGameScreen(application.slimeBossRoomScreen);
+            Application.player.x = 100;
+            Application.player.y = 100;
+        }
+    }
+
+    private void activate(CaveFloorMemento memento) {
+        caveTilemapCreator.activate(memento);
+        spawner.activate(memento);
     }
 
     private void createImages() {

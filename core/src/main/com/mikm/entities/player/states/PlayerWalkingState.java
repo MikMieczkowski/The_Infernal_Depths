@@ -42,6 +42,6 @@ public class PlayerWalkingState extends PlayerWalking {
 
     @Override
     protected AnimationName getAnimationName() {
-        return AnimationName.PLAYER_WALK;
+        return AnimationName.WALK;
     }
 }

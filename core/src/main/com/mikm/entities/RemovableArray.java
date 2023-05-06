@@ -1,30 +1,24 @@
 package com.mikm.entities;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.KryoSerializable;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
 import com.mikm.Method;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 
 public class RemovableArray<T extends InanimateEntity> extends ArrayList<T> {
-    private Class<T> type;
     private ArrayList<T> toAdd = new ArrayList<>();
     private ArrayList<T> toRemove = new ArrayList<>();
     private boolean executeMethodAfterRender;
     private ArrayList<Method> queuedActionsToDoAfterRender = new ArrayList<>();
 
-    public RemovableArray(Class<T> type) {
-        this.type = type;
+    public RemovableArray() {
+
     }
 
-    public RemovableArray(ArrayList<T> list, Class<T> type) {
+    public RemovableArray(ArrayList<T> list) {
         this.addAll(list);
-        this.type = type;
     }
 
     public void draw(Batch batch) {
@@ -64,6 +58,20 @@ public class RemovableArray<T extends InanimateEntity> extends ArrayList<T> {
         this.sort(Comparator.comparing(InanimateEntity::getZOrder));
     }
 
+    @Override
+    public void clear() {
+        super.clear();
+        toAdd.clear();
+        toRemove.clear();
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends T> c) {
+        boolean b = super.addAll(c);
+        this.sort(Comparator.comparing(InanimateEntity::getZOrder));
+        return b;
+    }
+
     public void removeInstantly(T t) {
         super.remove(t);
     }
@@ -82,9 +90,5 @@ public class RemovableArray<T extends InanimateEntity> extends ArrayList<T> {
     public void doAfterRender(Method method) {
         queuedActionsToDoAfterRender.add(method);
         executeMethodAfterRender = true;
-    }
-
-    public Class<T> getType() {
-        return type;
     }
 }

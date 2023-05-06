@@ -4,12 +4,9 @@ import com.badlogic.gdx.math.Vector2;
 import com.mikm.ExtraMathUtils;
 import com.mikm.entities.State;
 import com.mikm.entities.animation.AnimationName;
-import com.mikm.entities.player.Player;
-import com.mikm.rendering.screens.Application;
 
 public class SB_DashBuildUpState extends State {
     private SlimeBoss slimeBoss;
-    private Player player;
     public static final float BUILDUP_DASH_HEIGHT = 30;
     public static final float BUILDUP_DASH_TIME = 1.5f;
     private Vector2 originalPosition;
@@ -17,7 +14,6 @@ public class SB_DashBuildUpState extends State {
     public SB_DashBuildUpState(SlimeBoss slimeBoss) {
         super(slimeBoss);
         this.slimeBoss = slimeBoss;
-        this.player = Application.player;
     }
 
     @Override
@@ -49,6 +45,6 @@ public class SB_DashBuildUpState extends State {
 
     @Override
     protected AnimationName getAnimationName() {
-        return AnimationName.SLIMEBOSS_STAND;
+        return AnimationName.STAND;
     }
 }
