@@ -17,7 +17,7 @@ import com.mikm.serialization.Serializer;
 
 public class Application extends Game {
 	public static final int TILE_WIDTH = 16, TILE_HEIGHT = 16;
-	public static final boolean PLAY_MUSIC = false;
+	public static final boolean PLAY_MUSIC = true;
 
 	public static SpriteBatch batch;
 	//TODO move this out of this class

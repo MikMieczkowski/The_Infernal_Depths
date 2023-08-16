@@ -16,7 +16,6 @@ public class DirectionalAnimation {
     private Animation<TextureRegion> currentAnimation;
 
     private DirectionalAnimation(DirectionalAnimation animation) {
-        //Creates new directional animation from first frame of given animation
         frameDuration = animation.frameDuration;
         playMode = animation.playMode;
         animations = createAnimationsFromFirstFramesOf(animation);

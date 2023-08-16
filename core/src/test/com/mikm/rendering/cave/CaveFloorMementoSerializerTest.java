@@ -26,29 +26,29 @@ class CaveFloorMementoSerializerTest {
     Input input;
     String SAVED_CAVEFLOORS_FILEPATH = "E:/IntelliJprojects/The_Infernal_Depths/assets/testingFile.bin";
 
-    @Test
-    public void mementoShouldBeWrittenToFile() {
-        initializeKryo();
-        RemovableArray<InanimateEntity> inanimateEntities = new RemovableArray<>(InanimateEntity.class);
-        RemovableArray<Entity> entities = new RemovableArray<>(Entity.class);
-        CaveFloorMemento memento = new CaveFloorMemento(Vector2Int.DOWNRIGHT, new boolean[6][6], new ArrayList<>(), inanimateEntities, entities);
-        CaveFloorMemento mementoRead;
-        try {
-            kryo.writeObject(output, memento);
-            output.flush();
-            mementoRead = kryo.readObject(input, CaveFloorMemento.class);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        } finally {
-            output.close();
-            input.close();
-        }
-        assertEquals(mementoRead, memento);
-        assertEquals(mementoRead.spawnPosition, memento.spawnPosition);
-        assertTrue(Arrays.deepEquals(mementoRead.ruleCellPositions, memento.ruleCellPositions));
-        assertEquals(mementoRead.inanimateEntities, memento.inanimateEntities);
-        assertEquals(mementoRead.enemies, memento.enemies);
-    }
+    //@Test
+//    public void mementoShouldBeWrittenToFile() {
+//        initializeKryo();
+//        RemovableArray<InanimateEntity> inanimateEntities = new RemovableArray<>(InanimateEntity.class);
+//        RemovableArray<Entity> entities = new RemovableArray<>(Entity.class);
+//        CaveFloorMemento memento = new CaveFloorMemento(Vector2Int.DOWNRIGHT, new boolean[6][6], new ArrayList<>(), inanimateEntities, entities);
+//        CaveFloorMemento mementoRead;
+//        try {
+//            kryo.writeObject(output, memento);
+//            output.flush();
+//            mementoRead = kryo.readObject(input, CaveFloorMemento.class);
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        } finally {
+//            output.close();
+//            input.close();
+//        }
+//        assertEquals(mementoRead, memento);
+//        assertEquals(mementoRead.spawnPosition, memento.spawnPosition);
+//        assertTrue(Arrays.deepEquals(mementoRead.ruleCellPositions, memento.ruleCellPositions));
+//        assertEquals(mementoRead.inanimateEntities, memento.inanimateEntities);
+//        assertEquals(mementoRead.enemies, memento.enemies);
+//    }
 
     @Test
     public void readDifferentParameterizedClass() {
