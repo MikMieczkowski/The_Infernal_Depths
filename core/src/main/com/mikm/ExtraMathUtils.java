@@ -32,7 +32,6 @@ public class ExtraMathUtils {
         return MathUtils.lerp(startValue, endValue, progress);
     }
 
-
     private static float normalize_angle(float angle) {
         return wrappingModulo(angle + MathUtils.PI, MathUtils.PI2) - MathUtils.PI;
     }
@@ -46,9 +45,6 @@ public class ExtraMathUtils {
         return value;
     }
 
-    public static float distance(float x1, float y1, float x2, float y2) {
-        return (float)Math.sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1));
-    }
 
     public static float lerp(float timer, float maxTime, float startValue, float endValue) {
         float progress = timer / maxTime;
@@ -67,9 +63,6 @@ public class ExtraMathUtils {
         return MathUtils.lerp(startValue, endValue, (timer + startTime) / maxTime);
     }
 
-    public static float remap(float inputMin, float inputMax, float outputMin, float outputMax, float value) {
-        return MathUtils.lerp(outputMin, outputMax, inverseLerp(inputMin, inputMax, value));
-    }
 
     public static float inverseLerp(float a, float b, float value) {
         return (value - a) / (b - a);
@@ -103,6 +96,14 @@ public class ExtraMathUtils {
 
     public static Vector2 sinLerpVector2(float timer, float maxTime, float startProportion, float endProportion, Vector2 peakValue) {
         return new Vector2(sinLerp(timer, maxTime, startProportion, endProportion, peakValue.x), sinLerp(timer, maxTime, startProportion, endProportion, peakValue.y));
+    }
+
+    public static float remap(float inputMin, float inputMax, float outputMin, float outputMax, float value) {
+        return MathUtils.lerp(outputMin, outputMax, inverseLerp(inputMin, inputMax, value));
+    }
+
+    public static float distance(float x1, float y1, float x2, float y2) {
+        return (float)Math.sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1));
     }
 
     public static float roundToTenths(float num) {

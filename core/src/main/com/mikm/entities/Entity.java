@@ -7,7 +7,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.mikm.DeltaTime;
 import com.mikm.ExtraMathUtils;
 import com.mikm.Vector2Int;
-import com.mikm.entities.animation.AnimationManager;
+import com.mikm.entities.animation.AnimationHandler;
 import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.animation.DirectionalAnimation;
 import com.mikm.entities.animation.Directions;
@@ -30,7 +30,7 @@ public abstract class Entity extends InanimateEntity {
     public State detectedPlayerBuildUpState;
     public State currentState;
     public State detectedPlayerState;
-    public AnimationManager animationManager;
+    public AnimationHandler animationManager;
 
     private float squishTimer;
     private float squishAmount;
@@ -57,7 +57,7 @@ public abstract class Entity extends InanimateEntity {
         super(x,y);
         damagedState = new DamagedState(this);
         hp = getMaxHp();
-        animationManager = new AnimationManager(this);
+        animationManager = new AnimationHandler(this);
         createAnimations();
         createStates();
     }

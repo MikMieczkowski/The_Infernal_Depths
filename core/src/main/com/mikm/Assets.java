@@ -30,6 +30,7 @@ public class Assets {
 
     private Assets() {
         assetManager = createAssetManager();
+
         textureAtlas = getAsset("images/The Infernal Depths.atlas", TextureAtlas.class);
 
         testTexture = textureAtlas.findRegion("sand").split(TILE_WIDTH, TILE_HEIGHT)[0][0];

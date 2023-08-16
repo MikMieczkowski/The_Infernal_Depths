@@ -5,14 +5,14 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.mikm.entities.Entity;
 import com.mikm.rendering.BatchUtils;
 
-public class AnimationManager {
+public class AnimationHandler {
     private float animationTime;
     private boolean animationIsFlipped = false;
     private DirectionalAnimation currentDirectionalAnimation;
 
     private Entity entity;
 
-    public AnimationManager(Entity entity) {
+    public AnimationHandler(Entity entity) {
         this.entity = entity;
     }
 
