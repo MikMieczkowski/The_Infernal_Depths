@@ -34,7 +34,7 @@ public class AfterImageEffect extends InanimateEntity {
         alpha -= DISAPPEAR_SPEED * Gdx.graphics.getDeltaTime();
         if (alpha < 0) {
             alpha = 0;
-            Application.currentScreen.removeInanimateEntity(this);
+            Application.getInstance().currentScreen.removeInanimateEntity(this);
         }
     }
 

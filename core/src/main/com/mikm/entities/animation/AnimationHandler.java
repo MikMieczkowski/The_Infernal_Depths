@@ -32,6 +32,9 @@ public class AnimationHandler {
         }
     }
 
+    public boolean isFinished() {
+        return currentDirectionalAnimation.isFinished(animationTime);
+    }
     public void resetTimer() {
         animationTime = 0;
     }

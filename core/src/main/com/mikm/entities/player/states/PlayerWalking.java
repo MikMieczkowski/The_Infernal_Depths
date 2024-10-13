@@ -1,11 +1,14 @@
 package com.mikm.entities.player.states;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.DeltaTime;
 import com.mikm.ExtraMathUtils;
 import com.mikm.entities.State;
 import com.mikm.entities.player.Player;
 import com.mikm.input.GameInput;
+import com.mikm.rendering.SoundEffects;
 
 public abstract class PlayerWalking extends State {
     private Player player;
@@ -14,6 +17,9 @@ public abstract class PlayerWalking extends State {
 
     float ACCELERATION;
     float DECELERATION;
+    private final float STEP_DELAY = .66f;
+    private float stepTimer = 0;
+
 
     public PlayerWalking(Player player) {
         super(player);
@@ -23,6 +29,11 @@ public abstract class PlayerWalking extends State {
     public void checkIfWalking() {
         ACCELERATION = player.getSpeed() * DeltaTime.deltaTime() / player.ACCELERATION_FRAMES;
         DECELERATION = player.getSpeed() * DeltaTime.deltaTime() / player.DECELERATION_FRAMES;
+        stepTimer -= Gdx.graphics.getDeltaTime();
+        if (stepTimer < 0 && (player.xVel !=0 || player.yVel !=0)) {
+            stepTimer += STEP_DELAY;
+            SoundEffects.play(SoundEffects.step);
+        };
         if (GameInput.getHorizontalAxis() != 0) {
             xAccelerate();
         } else {

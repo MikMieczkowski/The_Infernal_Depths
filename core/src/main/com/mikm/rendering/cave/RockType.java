@@ -66,4 +66,8 @@ public enum RockType {
         System.err.println("didn't choose a random float in Rock Type");
         return VALUES.get(SIZE - 1);
     }
+
+    public static RockType get(int i) {
+        return VALUES.get(i);
+    }
 }

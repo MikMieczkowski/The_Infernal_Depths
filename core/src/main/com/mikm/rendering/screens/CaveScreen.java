@@ -4,14 +4,19 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.esotericsoftware.kryo.io.KryoBufferUnderflowException;
 import com.mikm.Assets;
+import com.mikm.RandomUtils;
 import com.mikm.Vector2Int;
 import com.mikm.entities.Rope;
+import com.mikm.input.GameInput;
 import com.mikm.rendering.Camera;
 import com.mikm.rendering.cave.CaveEntitySpawner;
 import com.mikm.rendering.cave.CaveFloorMemento;
 import com.mikm.rendering.cave.CaveTilemapCreator;
+import com.mikm.serialization.Serializer;
 
 import java.util.ArrayList;
 
@@ -32,17 +37,30 @@ public class CaveScreen extends GameScreen {
     public CaveTilemapCreator caveTilemapCreator;
     private CaveEntitySpawner spawner;
     //5,10,15 are always null.
-    public CaveFloorMemento[] caveFloorMementos = new CaveFloorMemento[15];
+    public CaveFloorMemento[] caveFloorMementos;
 
-    CaveScreen(Application application) {
-        super(application);
+    public boolean displayButtonIndicator = false;
+    public Vector2 buttonIndicatorPosition;
+
+    CaveScreen() {
+        super();
         createImages();
         createMusic(Assets.getInstance().getAsset("sound/caveTheme.mp3", Music.class));
         createTiledMapRenderer();
+        caveFloorMementos = new CaveFloorMemento[10];
+        for (int i = 0; i < 10; i++) {
+            try {
+                caveFloorMementos[i] = Serializer.getInstance().read(CaveFloorMemento.class, i);
+            } catch (Exception e) {
+                caveFloorMementos[i] = null;
+            }
+        }
+        spawner= new CaveEntitySpawner(this);
     }
 
     public void decreaseFloor() {
         entities.doAfterRender(() -> {
+            updateCurrentMemento();
             floor--;
             handleScreenChange();
             if (floor % 5 == 0) {
@@ -54,6 +72,7 @@ public class CaveScreen extends GameScreen {
 
     public void increaseFloor() {
         entities.doAfterRender(() -> {
+            updateCurrentMemento();
             floor++;
             handleScreenChange();
             if (floor % 5 == 0) {
@@ -62,13 +81,20 @@ public class CaveScreen extends GameScreen {
             if (caveFloorMementos[floor - 1] == null) {
                 generateNewFloor();
                 Vector2Int position = putPlayerInOpenTile();
-                inanimateEntities.addInstantly(new Rope(position.x+8, position.y+8));
-                CaveFloorMemento memento = CaveFloorMemento.create(position, caveTilemapCreator.ruleCellPositions, caveTilemapCreator.holePositions, inanimateEntities, entities);
+                Vector2Int ropePosition = caveTilemapCreator.getSpawnablePosition();
+                inanimateEntities.addInstantly(new Rope(ropePosition.x+8, ropePosition.y+8));
+                CaveFloorMemento memento = CaveFloorMemento.create(position, ropePosition, caveTilemapCreator.ruleCellPositions, caveTilemapCreator.holePositions, inanimateEntities, entities);
                 caveFloorMementos[floor - 1] = memento;
             } else {
                 loadFloor(floor);
             }
         });
+    }
+
+    private void updateCurrentMemento() {
+        if (CaveScreen.floor % 5 != 0) {
+            caveFloorMementos[CaveScreen.floor - 1] = CaveFloorMemento.create(caveFloorMementos[CaveScreen.floor - 1].spawnPosition, caveFloorMementos[CaveScreen.floor - 1].ropePosition, caveFloorMementos[CaveScreen.floor - 1].ruleCellPositions, caveFloorMementos[CaveScreen.floor - 1].holePositions, inanimateEntities, caveFloorMementos[CaveScreen.floor - 1].enemies);
+        }
     }
 
     public Vector2Int putPlayerInOpenTile() {
@@ -82,16 +108,26 @@ public class CaveScreen extends GameScreen {
     @Override
     public void render(float delta) {
         ScreenUtils.clear(caveFillColors[CaveScreen.getRecolorLevel()]);
-        if (!Application.timestop) {
-            super.render(delta);
-        } else {
-            drawNoUpdate();
+        super.render(delta);
+    }
+
+    @Override
+    public void renderUI() {
+        if (displayButtonIndicator) {
+            Application.batch.draw(GameInput.getTalkButtonImage(), buttonIndicatorPosition.x, buttonIndicatorPosition.y);
         }
+        super.renderUI();
     }
 
     @Override
     public void dispose() {
         super.dispose();
+    }
+
+    @Override
+    public Vector2 getInitialPlayerPosition() {
+        //should not have effect on player position
+        return new Vector2(0,0);
     }
 
     private void generateNewFloor() {
@@ -102,9 +138,7 @@ public class CaveScreen extends GameScreen {
 
     private void loadFloor(int floor) {
         if (floor <= 0) {
-            application.setGameScreen(Application.townScreen);
-            Application.player.x = 100;
-            Application.player.y = 100;
+            Application.getInstance().setGameScreen(Application.getInstance().townScreen);
             return;
         }
         CaveFloorMemento currentMemento = caveFloorMementos[floor-1];
@@ -114,12 +148,12 @@ public class CaveScreen extends GameScreen {
     }
 
     private void handleScreenChange() {
-        if (Application.currentScreen != Application.caveScreen) {
-            application.setGameScreen(Application.caveScreen);
+        if (floor <= 0) {
+            Application.getInstance().setGameScreen(Application.getInstance().townScreen);
+        } else if (Application.getInstance().currentScreen != Application.getInstance().caveScreen) {
+            Application.getInstance().setGameScreen(Application.getInstance().caveScreen);
         } else if (floor == 5) {
-            application.setGameScreen(application.slimeBossRoomScreen);
-            Application.player.x = 100;
-            Application.player.y = 100;
+            Application.getInstance().setGameScreen(Application.getInstance().slimeBossRoomScreen);
         }
     }
 

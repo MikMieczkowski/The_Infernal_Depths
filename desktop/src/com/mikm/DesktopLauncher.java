@@ -8,9 +8,9 @@ import com.mikm.rendering.screens.Application;
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-		config.setForegroundFPS(144);
+		config.setForegroundFPS(60);
 		config.setWindowedMode(1440, 810);
 		config.setTitle("The Infernal Depths");
-		new Lwjgl3Application(new Application(), config);
+		new Lwjgl3Application(Application.getInstance(), config);
 	}
 }

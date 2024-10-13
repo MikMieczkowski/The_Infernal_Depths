@@ -1,5 +1,7 @@
 package com.mikm.entities.enemies.states;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -10,6 +12,7 @@ import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.particles.ParticleEffect;
 import com.mikm.entities.particles.ParticleTypes;
 import com.mikm.entities.projectiles.DamageInformation;
+import com.mikm.rendering.SoundEffects;
 import com.mikm.rendering.screens.Application;
 
 public class DamagedState extends State {
@@ -30,6 +33,11 @@ public class DamagedState extends State {
             return;
         }
         super.enter();
+        if (entity == Application.player) {
+            SoundEffects.play(SoundEffects.playerHit);
+        } else {
+            SoundEffects.play(SoundEffects.hit);
+        }
         this.damageInformation = damageInformation;
         entity.hp -= damageInformation.damage;
         if (entity.hp <= 0) {
@@ -39,7 +47,7 @@ public class DamagedState extends State {
             entity.flash(Color.WHITE);
         }
         if (entity == Application.player) {
-            Application.freezeTime();
+            Application.getInstance().freezeTime();
             Application.player.equippedWeapon.exitAttackState();
         }
         entity.startSquish(TOTAL_KNOCKBACK_TIME*.75f, 1.2f);

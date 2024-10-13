@@ -1,7 +1,7 @@
 package com.mikm.entities.enemies;
 
 import com.mikm.entities.Entity;
-import com.mikm.entities.enemies.states.StandingState;
+import com.mikm.entities.enemies.states.DashInducingStandingState;
 import com.mikm.entities.enemies.states.WanderingState;
 
 import java.util.Map;
@@ -16,8 +16,8 @@ public class Rat extends Entity {
 
     @Override
     public void createStates() {
-        walkingState = new WanderingState(this, 0);
-        standingState = new StandingState(this, 0);
+        walkingState = new WanderingState(this, 0, 100f, 2);
+        standingState = new DashInducingStandingState(this, 0, 100f, 2);
         standingState.enter();
     }
 

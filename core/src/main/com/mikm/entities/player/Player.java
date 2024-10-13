@@ -1,12 +1,16 @@
 package com.mikm.entities.player;
 
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.mikm.DeltaTime;
 import com.mikm.Vector2Int;
+import com.mikm.debug.DebugRenderer;
 import com.mikm.entities.Entity;
 import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.animation.DirectionalAnimation;
@@ -14,9 +18,13 @@ import com.mikm.entities.player.states.*;
 import com.mikm.entities.player.weapons.Weapon;
 import com.mikm.entities.player.weapons.WeaponInstances;
 import com.mikm.input.GameInput;
+import com.mikm.rendering.cave.CaveTilemapCreator;
+import com.mikm.rendering.cave.RockType;
 import com.mikm.rendering.screens.Application;
+import com.mikm.rendering.screens.CaveScreen;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,10 +60,15 @@ public class Player extends Entity {
 
     public Weapon equippedWeapon;
     public Weapon currentHeldItem;
-    private WeaponInstances weaponInstances;
+    public int swordLevel = 0;
+    public int bowLevel = 0;
+    public WeaponInstances weaponInstances;
     private boolean holdingPickaxe = false;
 
     public int money;
+    public boolean dead = false;
+    public float deadTime = 0;
+    public final float RESPAWN_TIME = 3;
 
     public Player(float x, float y) {
         super(x, y);
@@ -66,7 +79,7 @@ public class Player extends Entity {
 
     public void setWeapons(WeaponInstances weapons) {
         this.weaponInstances = weapons;
-        equippedWeapon = weapons.sword;
+        equippedWeapon = weapons.pickaxe;
         currentHeldItem = equippedWeapon;
     }
 
@@ -79,34 +92,41 @@ public class Player extends Entity {
     }
 
     private void checkHolePositions() {
-        if (Application.currentScreen == Application.caveScreen && currentState != fallingState && currentState != divingState) {
-            boolean[][] holePositions = Application.caveScreen.getHolePositionsToCheck();
-
+        if (currentState != fallingState && currentState != divingState) {
+            boolean[][] holePositions;
+            if (Application.getInstance().currentScreen == Application.getInstance().caveScreen) {
+                holePositions = Application.getInstance().caveScreen.getHolePositionsToCheck();
+            } else if (Application.getInstance().currentScreen == Application.getInstance().townScreen) {
+                holePositions = Application.getInstance().townScreen.getHolePositions();
+            } else {
+                return;
+            }
             ArrayList<Vector2Int> wallTilesToCheck = collider.getWallTilePositionsToCheck();
             for (Vector2Int checkedWallTilePosition : wallTilesToCheck) {
-                boolean isInBounds = checkedWallTilePosition.x > 1 && checkedWallTilePosition.x < holePositions.length-1 && checkedWallTilePosition.y > 1 && checkedWallTilePosition.y < holePositions[0].length-1;
-                if (isInBounds && holePositions[checkedWallTilePosition.y][checkedWallTilePosition.x]) {
-                    int x = 0, y;
-                    for (y = -1; y <= 1; y += 2) {
-                        checkTile(checkedWallTilePosition, holePositions, x, y);
-                    }
-                    y=0;
-                    for (x = -1; x <= 1; x += 2) {
-                        checkTile(checkedWallTilePosition, holePositions, x, y);
-                    }
+                int x = 0, y;
+                for (y = -1; y <= 1; y += 1) {
+                    checkTile(checkedWallTilePosition, holePositions, x, y);
+                }
+                y=0;
+                for (x = -1; x <= 1; x += 1) {
+                    checkTile(checkedWallTilePosition, holePositions, x, y);
                 }
             }
         }
     }
 
     private void checkTile(Vector2Int checkedWallTilePosition, boolean[][] holePositions, int x, int y) {
-        if (!holePositions[checkedWallTilePosition.y+y][checkedWallTilePosition.x+x]) {
-            Rectangle checkedTileBounds = new Rectangle((checkedWallTilePosition.x + x) * Application.TILE_WIDTH, (checkedWallTilePosition.y + y) * Application.TILE_HEIGHT, 16, 16);
-            if (checkedTileBounds.contains(new Vector2(getHitbox().x, getHitbox().y)) && GameInput.isTalkButtonJustPressed()) {
+        Vector2Int v = new Vector2Int(checkedWallTilePosition.x + x, checkedWallTilePosition.y + y);
+        Rectangle checkedTileBounds = new Rectangle(v.x * Application.TILE_WIDTH, v.y * Application.TILE_HEIGHT, Application.TILE_WIDTH, Application.TILE_HEIGHT);
+        boolean isInBounds = v.x >= 0 && v.x < holePositions.length && v.y >= 0 && v.y < holePositions[0].length;
+        if (isInBounds && holePositions[v.y][v.x]) {
+            if (checkedTileBounds.contains(new Circle(getHitbox().x, getHitbox().y, getHitbox().radius-6))) {
                 fallingState.enter();
             }
         }
     }
+
+
 
 
     private void handleInput() {
@@ -191,7 +211,7 @@ public class Player extends Entity {
         DirectionalAnimation walk = new DirectionalAnimation("Character_Walk", .33f, Animation.PlayMode.LOOP);
         animations.put(AnimationName.WALK, walk);
         animations.put(AnimationName.STAND, walk.createDirectionalAnimationFromFirstFrames());
-        animations.put(AnimationName.HIT, new DirectionalAnimation("Character_Hit", 32,32));
+        animations.put(AnimationName.HIT, new DirectionalAnimation("Character_DiveDown", 32,32));
         animations.put(AnimationName.PLAYER_DIVE, new DirectionalAnimation("Character_Dive", .1f, Animation.PlayMode.NORMAL));
         animations.put(AnimationName.PLAYER_ROLL, new DirectionalAnimation("Character_Roll", .055f, Animation.PlayMode.NORMAL));
     }
@@ -208,6 +228,6 @@ public class Player extends Entity {
 
     @Override
     public int getMaxHp() {
-        return 10;
+        return 9;
     }
 }

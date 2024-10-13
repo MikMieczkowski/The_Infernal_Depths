@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="4" height="4" tilewidth="16" tileheight="16" infinite="0" nextlayerid="3" nextobjectid="1">
+ <tileset firstgid="1" source="overworldTileset.tsx"/>
+ <tileset firstgid="289" source="tiles-1.png.tsx"/>
+ <tileset firstgid="364" source="tp.tsx"/>
+ <layer id="2" name="Tile Layer 2" width="4" height="4">
+  <data encoding="csv">
+313,313,313,313,
+313,313,313,313,
+313,313,313,313,
+313,313,313,313
+</data>
+ </layer>
+ <layer id="1" name="Tile Layer 1" width="4" height="4">
+  <data encoding="csv">
+0,364,365,366,
+0,367,368,369,
+0,370,371,372,
+0,0,0,0
+</data>
+ </layer>
+</map>

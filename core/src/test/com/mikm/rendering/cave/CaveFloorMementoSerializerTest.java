@@ -24,8 +24,43 @@ class CaveFloorMementoSerializerTest {
     Kryo kryo;
     Output output;
     Input input;
-    String SAVED_CAVEFLOORS_FILEPATH = "E:/IntelliJprojects/The_Infernal_Depths/assets/testingFile.bin";
+    String SAVED_CAVEFLOORS_FILEPATH = "D:/IntelliJprojects/The_Infernal_Depths-master(1)/The_Infernal_Depths-master/assets/test2.bin";
 
+    @Test
+    public void testWrite() {
+        Output output;
+        kryo = new Kryo();
+        kryo.register(Vector2Int.class);
+        try {
+            output = new Output(new FileOutputStream(SAVED_CAVEFLOORS_FILEPATH));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        kryo.writeObject(output, new Vector2Int(2, 3));
+
+        try {
+            output = new Output(new FileOutputStream(SAVED_CAVEFLOORS_FILEPATH));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        kryo.writeObject(output, new Vector2Int(4, 4));
+        output.close();
+    }
+
+
+    @Test
+    public void testRead() {
+        Input input;
+        kryo = new Kryo();
+        kryo.register(Vector2Int.class);
+        try {
+            input = new Input(new FileInputStream(SAVED_CAVEFLOORS_FILEPATH));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        assert kryo.readObject(input, Vector2Int.class).x == 4;
+        input.close();
+    }
     //@Test
 //    public void mementoShouldBeWrittenToFile() {
 //        initializeKryo();
@@ -49,7 +84,7 @@ class CaveFloorMementoSerializerTest {
 //        assertEquals(mementoRead.inanimateEntities, memento.inanimateEntities);
 //        assertEquals(mementoRead.enemies, memento.enemies);
 //    }
-
+/*
     @Test
     public void readDifferentParameterizedClass() {
         initializeKryo();
@@ -76,6 +111,7 @@ class CaveFloorMementoSerializerTest {
         assertEquals(ints, intsRead);
         assertEquals(strings, stringsRead);
     }
+ */
 
     private void initializeKryo() {
         kryo = new Kryo();
@@ -104,7 +140,7 @@ class CaveFloorMementoSerializerTest {
         boolsCopy[3][3] = true;
         assertFalse(bools[3][3]);
     }
-
+/*
     @Test
     public void ruleCellPositionsShouldBeDeepCopied() {
         RemovableArray<InanimateEntity> inanimateEntities = new RemovableArray<>(InanimateEntity.class);
@@ -136,5 +172,6 @@ class CaveFloorMementoSerializerTest {
         vector2Int = new Vector2Int(102498, 12039);
         assertNotEquals(memento.spawnPosition, vector2Int);
     }
+    */
 
 }

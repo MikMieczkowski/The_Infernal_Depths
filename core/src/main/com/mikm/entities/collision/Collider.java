@@ -13,15 +13,15 @@ import java.util.ArrayList;
 public class Collider {
     private InanimateEntity inanimateEntity;
     private Vector2 nextPosition;
-    private Vector2Int tilePosition;
-    private Vector2Int nextTilePosition;
+    private Vector2Int tilePosition = new Vector2Int();
+    private Vector2Int nextTilePosition = new Vector2Int();
 
     public Collider(InanimateEntity inanimateEntity) {
         this.inanimateEntity = inanimateEntity;
     }
 
     public void updateCollisions() {
-        boolean[][] collidableMap = Application.currentScreen.isCollidableGrid();
+        boolean[][] collidableMap = Application.getInstance().currentScreen.isCollidableGrid();
 
         tilePosition = ExtraMathUtils.toTileCoordinates(inanimateEntity.getHitbox().x, inanimateEntity.getHitbox().y);
         nextPosition = new Vector2(inanimateEntity.getHitbox().x + inanimateEntity.xVel * DeltaTime.deltaTime(), inanimateEntity.getHitbox().y + inanimateEntity.yVel * DeltaTime.deltaTime());
@@ -29,7 +29,7 @@ public class Collider {
 
         ArrayList<Vector2Int> tilePositionsToCheck = getWallTilePositionsToCheck();
         for (Vector2Int v : tilePositionsToCheck) {
-            if (collidableMap[v.y][v.x]) {
+            if (isOutOfBounds(v) || collidableMap[v.y][v.x]) {
                 Vector2 nearestPoint = new Vector2(
                         ExtraMathUtils.clamp(nextPosition.x, v.x * Application.TILE_WIDTH, (v.x+1) * Application.TILE_WIDTH),
                         ExtraMathUtils.clamp(nextPosition.y, v.y * Application.TILE_HEIGHT, (v.y+1) * Application.TILE_HEIGHT)
@@ -68,10 +68,15 @@ public class Collider {
         return output;
     }
 
+    private boolean isOutOfBounds(Vector2Int v) {
+        boolean[][] collidableMap = Application.getInstance().currentScreen.isCollidableGrid();
+        return v.x <= 0 || v.x >= collidableMap.length || v.y <= 0 || v.y >= collidableMap[0].length;
+    }
+
     public boolean inWall() {
-        boolean[][] collidableMap = Application.currentScreen.isCollidableGrid();
-        boolean isInBounds = tilePosition.x > 0 && tilePosition.x < collidableMap.length && tilePosition.y > 0 && tilePosition.y < collidableMap[0].length;
-        if (!isInBounds) {
+        boolean[][] collidableMap = Application.getInstance().currentScreen.isCollidableGrid();
+        tilePosition = ExtraMathUtils.toTileCoordinates(inanimateEntity.getHitbox().x, inanimateEntity.getHitbox().y);
+        if (isOutOfBounds(tilePosition)) {
             return true;
         }
         return collidableMap[tilePosition.y][tilePosition.x];

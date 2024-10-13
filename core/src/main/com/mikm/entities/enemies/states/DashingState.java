@@ -1,6 +1,9 @@
 package com.mikm.entities.enemies.states;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
+import com.mikm.ExtraMathUtils;
+import com.mikm.entities.Entity;
 import com.mikm.entities.State;
 import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.enemies.Slime;
@@ -9,37 +12,46 @@ import com.mikm.rendering.screens.Application;
 
 public class DashingState extends State {
     private final float MAX_DASH_TIME = .3f;
-    private final float DASH_SPEED = 6f;
-    private final float DASH_DAMAGE = 1;
-    public static final float TIME_BETWEEN_DASHES = 2f;
+    private  float dashSpeed;
+    private final int DASH_DAMAGE = 1;
 
     private final Player player;
     private float angleToPlayer;
     private boolean slimeBossMinion;
-    private Slime slime;
+    private Entity entity;
+    private float bounceTimer;
+    private float startHeight = 0;
 
-    public DashingState(Slime slime) {
-        super(slime);
+    public DashingState(Entity entity, float dashSpeed) {
+        super(entity);
+        this.dashSpeed = dashSpeed;
         this.player = Application.player;
-        this.slime = slime;
+        this.entity = entity;
     }
 
     @Override
     public void enter() {
         super.enter();
-        angleToPlayer = MathUtils.atan2(player.getCenteredPosition().y - slime.y, player.getCenteredPosition().x - slime.x);
+        startHeight = entity.height;
+        bounceTimer = 0;
+        entity.xVel = 0;
+        entity.yVel = 0;
+        angleToPlayer = MathUtils.atan2(player.getCenteredPosition().y - entity.y, player.getCenteredPosition().x - entity.x);
     }
 
     public void enter(float angle) {
         super.enter();
+        bounceTimer = 0;
         angleToPlayer = angle;
     }
 
     @Override
     public void update() {
         super.update();
-        slime.xVel = MathUtils.cos(angleToPlayer) * DASH_SPEED;
-        slime.yVel = MathUtils.sin(angleToPlayer) * DASH_SPEED;
+        entity.height = startHeight+ExtraMathUtils.bounceLerp(bounceTimer, MAX_DASH_TIME, 15f, 1, 10.6f);
+        bounceTimer += Gdx.graphics.getDeltaTime();
+        entity.xVel = MathUtils.cos(angleToPlayer) * dashSpeed* (1-timeElapsedInState/ MAX_DASH_TIME);
+        entity.yVel = MathUtils.sin(angleToPlayer) * dashSpeed * (1-timeElapsedInState/ MAX_DASH_TIME);
     }
 
     @Override
@@ -49,9 +61,16 @@ public class DashingState extends State {
 
     @Override
     public void checkForStateTransition() {
+        boolean changed = false;
         if (timeElapsedInState > MAX_DASH_TIME) {
-            slime.standingState.enter();
+            entity.standingState.enter();
+            changed = true;
         }
-        handlePlayerCollision(DASH_DAMAGE, true);
+        changed = changed || handlePlayerCollision(DASH_DAMAGE, true);
+        if (changed) {
+            entity.height = startHeight;
+            entity.xVel = 0;
+            entity.yVel = 0;
+        }
     }
 }

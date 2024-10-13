@@ -27,7 +27,7 @@ public abstract class State {
         entity.currentState = this;
     }
 
-    public void handlePlayerCollision(float contactDamage, boolean interruptsState) {
+    public boolean handlePlayerCollision(int contactDamage, boolean interruptsState) {
         boolean hitboxesOverlap = Intersector.overlaps(entity.getHitbox(), Application.player.getHitbox());
         if (hitboxesOverlap && Application.player.isAttackable) {
             float angleToPlayer = MathUtils.atan2(Application.player.getCenteredPosition().y - entity.y, Application.player.getCenteredPosition().x - entity.x);
@@ -35,7 +35,9 @@ public abstract class State {
                 entity.standingState.enter();
             }
             Application.player.damagedState.enter(new DamageInformation(angleToPlayer, CONTACT_KNOCKBACK_FORCE, contactDamage));
+            return true;
         }
+        return false;
     }
 
     public void update() {

@@ -35,7 +35,14 @@ public class PlayerFallingState extends State {
     @Override
     public void checkForStateTransition() {
         if (timeElapsedInState > FALLING_TIME) {
-            Application.caveScreen.increaseFloor();
+            if (Application.getInstance().currentScreen == Application.getInstance().townScreen) {
+                Application.getInstance().currentScreen.entities.doAfterRender(() -> {
+                    Application.getInstance().setGameScreen(Application.getInstance().caveScreen);
+                    Application.getInstance().caveScreen.increaseFloor();
+                });
+            } else {
+                Application.getInstance().caveScreen.increaseFloor();
+            }
             player.isAttackable = true;
             player.walkingState.enter();
         }

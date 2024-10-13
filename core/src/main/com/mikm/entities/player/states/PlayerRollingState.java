@@ -12,6 +12,7 @@ import com.mikm.entities.player.Player;
 import com.mikm.entities.projectiles.DamageInformation;
 import com.mikm.entities.projectiles.Hurtbox;
 import com.mikm.input.GameInput;
+import com.mikm.rendering.SoundEffects;
 
 public class PlayerRollingState extends State {
     private final Player player;
@@ -81,6 +82,7 @@ public class PlayerRollingState extends State {
                 hurtbox.setDamageInformation(new DamageInformation(RandomUtils.getFloat(0, MathUtils.PI2), KNOCKBACK_MULTIPLIER, DAMAGE));
                 hurtbox.checkIfHitEntities();
                 new ParticleEffect(ParticleTypes.getDiveDustParameters(), player.getCenteredPosition().x, player.getBounds().y - 3);
+                SoundEffects.playLoud(SoundEffects.step);
                 player.startSquish(0.01f, 1.2f);
                 jumpDone = true;
             }

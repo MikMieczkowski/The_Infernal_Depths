@@ -35,8 +35,36 @@ public class DirectionalAnimation {
         animations = textureRegionsToAnimations(spriteSheetsRaw);
     }
 
+    public DirectionalAnimation(String spritesheetName, int width, int height, float frameDuration, int frames, Animation.PlayMode playMode) {
+        //Single direction animation
+        this.frameDuration = frameDuration;
+        animations = new ArrayList<>();
+        TextureRegion[][] t = Assets.getInstance().getSplitTextureRegion(spritesheetName, width, height);
+        TextureRegion[] flattened = new TextureRegion[frames];
+        for (int i = 0; i < t.length; i++) {
+            for (int j = 0; j < t[0].length; j++) {
+                if (i*t[0].length + j > frames-1) {
+                    continue;
+                }
+                flattened[i*t[0].length + j] = t[i][j];
+            }
+        }
+        Animation<TextureRegion> animation = new Animation<>(frameDuration, flattened);
+        animation.setPlayMode(playMode);
+        animations.add(animation);
+        animations.add(animation);
+        animations.add(animation);
+        animations.add(animation);
+        animations.add(animation);
+        currentAnimation = animation;
+    }
+
+    public boolean isFinished(float animationTime) {
+        return currentAnimation.isAnimationFinished(animationTime);
+    }
+
     public DirectionalAnimation(String staticImageName, int width, int height) {
-        //Single direction animations can also be created even though that kind of conflicts with the name of the class
+        //Static animation
         this.frameDuration = 10;
         this.playMode = Animation.PlayMode.LOOP;
         animations = new ArrayList<>();

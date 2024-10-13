@@ -6,7 +6,7 @@ import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.animation.DirectionalAnimation;
 import com.mikm.entities.enemies.states.DashBuildUpState;
 import com.mikm.entities.enemies.states.DashingState;
-import com.mikm.entities.enemies.states.StandingState;
+import com.mikm.entities.enemies.states.DashInducingStandingState;
 import com.mikm.entities.enemies.states.WanderingState;
 import com.mikm.rendering.screens.Application;
 
@@ -15,12 +15,15 @@ import java.util.Map;
 
 public class Slime extends Entity {
     public final float SPEED = 1;
+    private final float DETECTION_CIRCLE_RADIUS = 100f;
+    private final int CONTACT_DAMAGE = 1;
+    public final float TIME_BETWEEN_DASHES = 2f;
+    private final float DASH_SPEED = 6f;
     private float angle;
     private boolean slimeBossMinion;
 
     private static Map<AnimationName, DirectionalAnimation> animations = new HashMap<>();
 
-    public DashingState dashingState;
     public DashBuildUpState dashBuildUpState;
 
     private Slime() {
@@ -41,11 +44,11 @@ public class Slime extends Entity {
 
     @Override
     public void createStates() {
-        standingState = new StandingState(this, 1);
-        walkingState = new WanderingState(this, 1);
-        dashingState= new DashingState(this);
+        standingState = new DashInducingStandingState(this, CONTACT_DAMAGE, DETECTION_CIRCLE_RADIUS, TIME_BETWEEN_DASHES);
+        walkingState = new WanderingState(this, CONTACT_DAMAGE, DETECTION_CIRCLE_RADIUS, TIME_BETWEEN_DASHES);
+        dashingState= new DashingState(this, DASH_SPEED);
         detectedPlayerState = dashingState;
-        dashBuildUpState = new DashBuildUpState(this);
+        dashBuildUpState = new DashBuildUpState(this, 1);
         super.detectedPlayerBuildUpState = dashBuildUpState;
         if(!slimeBossMinion) {
             standingState.enter();
