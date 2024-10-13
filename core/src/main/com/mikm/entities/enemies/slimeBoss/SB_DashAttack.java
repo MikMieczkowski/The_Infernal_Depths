@@ -63,7 +63,7 @@ public class SB_DashAttack extends State {
         timeSinceLastDashEffectImage += Gdx.graphics.getDeltaTime();
         if (timeSinceLastDashEffectImage > TIME_BETWEEN_DASH_EFFECT_IMAGES) {
             timeSinceLastDashEffectImage -= TIME_BETWEEN_DASH_EFFECT_IMAGES;
-            Application.currentScreen.addInanimateEntity(new AfterImageEffect(SlimeBoss.slimeBossImage, slimeBoss.x, slimeBoss.y+slimeBoss.height, slimeBoss.xScale, slimeBoss.yScale));
+            Application.getInstance().currentScreen.addInanimateEntity(new AfterImageEffect(SlimeBoss.slimeBossImage, slimeBoss.x, slimeBoss.y+slimeBoss.height, slimeBoss.xScale, slimeBoss.yScale));
         }
         handlePlayerCollision(1, false);
     }

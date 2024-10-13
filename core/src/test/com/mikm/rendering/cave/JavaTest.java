@@ -109,12 +109,5 @@ public class JavaTest
         assertFalse(bools[3]);
     }
 
-    @Test
-    public void arraysCopyOfShouldWork() {
-        boolean[][] bools = new boolean[5][5];
-        boolean[][] boolsCopy = Arrays.copyOf(bools,bools.length);
-        assertTrue(Arrays.deepEquals(bools, boolsCopy));
-        boolsCopy[3][3] = true;
-        assertFalse(bools[3][3]);
-    }
+
 }

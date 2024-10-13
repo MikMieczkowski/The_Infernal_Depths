@@ -12,6 +12,7 @@ import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.animation.DirectionalAnimation;
 import com.mikm.entities.animation.Directions;
 import com.mikm.entities.enemies.states.DamagedState;
+import com.mikm.entities.enemies.states.DashingState;
 import com.mikm.rendering.screens.Application;
 
 import java.util.Map;
@@ -30,6 +31,7 @@ public abstract class Entity extends InanimateEntity {
     public State detectedPlayerBuildUpState;
     public State currentState;
     public State detectedPlayerState;
+    public DashingState dashingState;
     public AnimationHandler animationManager;
 
     private float squishTimer;
@@ -104,7 +106,7 @@ public abstract class Entity extends InanimateEntity {
 
     public void handleFlash(Batch batch) {
         if (shouldFlash) {
-            Application.setFillColorShader(batch, flashColor);
+            Application.getInstance().setFillColorShader(batch, flashColor);
             flashTimerFrames += DeltaTime.deltaTime();
             if (flashTimerFrames >= MAX_FLASH_TIME) {
                 shouldFlash = false;
@@ -122,7 +124,10 @@ public abstract class Entity extends InanimateEntity {
     }
 
     public void die() {
-        Application.currentScreen.removeEntity(this);
+        Application.getInstance().currentScreen.removeEntity(this);
+        if (this == Application.player) {
+            Application.player.dead = true;
+        }
     }
 
 

@@ -28,20 +28,20 @@ public class RemovableArray<T extends InanimateEntity> extends ArrayList<T> {
     }
 
     public void render(Batch batch) {
-        for (T inanimateEntity : this) {
-            inanimateEntity.render(batch);
+        for (T t : this) {
+            t.render(batch);
         }
-        if (toAdd.size() != 0) {
+        if (!toAdd.isEmpty()) {
             super.addAll(toAdd);
             this.sort(Comparator.comparing(InanimateEntity::getZOrder));
         }
-        if (toRemove.size() != 0) {
+        if (!toRemove.isEmpty()) {
             super.removeAll(toRemove);
         }
-        if (toAdd.size() != 0) {
+        if (!toAdd.isEmpty()) {
             toAdd.clear();
         }
-        if (toRemove.size() != 0) {
+        if (!toRemove.isEmpty()) {
             toRemove.clear();
         }
         if (executeMethodAfterRender) {

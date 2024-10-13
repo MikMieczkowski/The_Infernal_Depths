@@ -13,9 +13,9 @@ public class SB_SimmerAttack extends State {
     private Player player;
 
     private final float TIME_SPENT_SIMMERING = 7f;
-    private final float SIMMER_MOVE_SPEED_MAX = 5f;
+    private final float SIMMER_MOVE_SPEED_MAX = 3f;
     private final float SIMMER_MOVE_SPEED_MIN = .2f;
-    public static final float SLIME_TRAIL_DAMAGE = 1, SLIME_TRAIL_KNOCKBACK = 1;
+    public static final int SLIME_TRAIL_DAMAGE = 1, SLIME_TRAIL_KNOCKBACK = 1;
 
     private float distanceTraveledSinceLastProjectile;
     private float angle;
@@ -54,7 +54,7 @@ public class SB_SimmerAttack extends State {
         distanceTraveledSinceLastProjectile += moveSpeed;
         if (distanceTraveledSinceLastProjectile > 20) {
             distanceTraveledSinceLastProjectile -= 20;
-            Application.currentScreen.addInanimateEntity(new StaticProjectile(null, false, slimeBoss.getCenteredPosition().x, slimeBoss.getCenteredPosition().y));
+            Application.getInstance().currentScreen.addInanimateEntity(new StaticProjectile(null, false, slimeBoss.getCenteredPosition().x, slimeBoss.getCenteredPosition().y));
         }
     }
 

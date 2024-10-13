@@ -27,6 +27,7 @@ public class Assets {
     public static TextureRegion gray;
     public static TextureRegion shadowImage;
     public static TextureRegion[][] particleImages;
+    public static TextureRegion[] numbers;
 
     private Assets() {
         assetManager = createAssetManager();
@@ -36,9 +37,11 @@ public class Assets {
         testTexture = textureAtlas.findRegion("sand").split(TILE_WIDTH, TILE_HEIGHT)[0][0];
         shadowImage = textureAtlas.findRegion("shadow").split(Application.TILE_WIDTH,Application.TILE_HEIGHT)[0][0];
         particleImages = textureAtlas.findRegion("particles").split(8,8);
+        numbers = textureAtlas.findRegion("numbers").split(9, 11)[0];
         light = new TextureRegion(new Texture(Gdx.files.internal("images/R0x4x.png")));
         dark = new TextureRegion(new Texture(Gdx.files.internal("images/dark.png")));
         gray = new TextureRegion(new Texture(Gdx.files.internal("images/gray.png")));
+
 
         font = new BitmapFont(Gdx.files.internal("fonts/EquipmentPro.fnt"));
         font.getData().setScale(1f);
@@ -110,8 +113,10 @@ public class Assets {
         AssetManager assetManager = new AssetManager();
         assetManager.load("images/The Infernal Depths.atlas", TextureAtlas.class);
         assetManager.load("sound/caveTheme.mp3", Music.class);
+        assetManager.load("sound/caveThemeOld.mp3", Music.class);
         assetManager.load("sound/townTheme.mp3", Music.class);
         assetManager.load("sound/hubba_bubba.mp3", Music.class);
+        assetManager.load("sound/webbedSong.mp3", Music.class);
         assetManager.finishLoading();
         return assetManager;
     }

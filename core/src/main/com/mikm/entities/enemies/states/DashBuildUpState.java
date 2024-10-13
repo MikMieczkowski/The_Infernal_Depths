@@ -1,24 +1,26 @@
 package com.mikm.entities.enemies.states;
 
+import com.mikm.entities.Entity;
 import com.mikm.entities.State;
 import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.enemies.Slime;
 
 public class DashBuildUpState extends State {
-    private final float MAX_BUILDUP_TIME = 1;
+    private float maxBuildupTime;
     private float angle;
-    private Slime slime;
+    private Entity entity;
     private boolean slimeBossMinion;
 
-    public DashBuildUpState(Slime slime) {
-        super(slime);
-        this.slime = slime;
+    public DashBuildUpState(Entity entity, float maxBuildupTime) {
+        super(entity);
+        this.maxBuildupTime = maxBuildupTime;
+        this.entity = entity;
     }
 
     @Override
     public void enter() {
         super.enter();
-        slime.startSquish(0, 1.5f, MAX_BUILDUP_TIME, false);
+        entity.startSquish(0, 1.5f, maxBuildupTime, false);
         slimeBossMinion = false;
     }
 
@@ -35,11 +37,11 @@ public class DashBuildUpState extends State {
 
     @Override
     public void checkForStateTransition() {
-        if (timeElapsedInState > MAX_BUILDUP_TIME) {
+        if (timeElapsedInState > maxBuildupTime) {
             if (slimeBossMinion) {
-                slime.dashingState.enter(angle);
+                entity.dashingState.enter(angle);
             } else {
-                slime.dashingState.enter();
+                entity.dashingState.enter();
             }
         }
     }

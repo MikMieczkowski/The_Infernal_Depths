@@ -37,7 +37,7 @@ public class ParticleEffect {
             final float xOffset = MathUtils.cos(offsetAngle) * RandomUtils.getFloat(0, positionOffsetRadius);
             final float yOffset = MathUtils.sin(offsetAngle) * RandomUtils.getFloat(0, positionOffsetRadius);
             particle.setPosition(x + xOffset, y + yOffset);
-            Application.currentScreen.addInanimateEntity(particle);
+            Application.getInstance().currentScreen.addInanimateEntity(particle);
         }
     }
 

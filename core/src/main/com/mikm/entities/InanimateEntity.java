@@ -28,7 +28,7 @@ public abstract class InanimateEntity {
     }
 
     public void die() {
-        Application.currentScreen.removeInanimateEntity(this);
+        Application.getInstance().currentScreen.removeInanimateEntity(this);
     }
 
     public abstract void update();
@@ -39,8 +39,10 @@ public abstract class InanimateEntity {
     }
 
     public void move() {
-        x += xVel * DeltaTime.deltaTime();
-        y += yVel * DeltaTime.deltaTime();
+        if (DeltaTime.deltaTime() < 3) {
+            x += xVel * DeltaTime.deltaTime();
+            y += yVel * DeltaTime.deltaTime();
+        }
     }
 
     public void onWallCollision() {

@@ -9,15 +9,17 @@ import com.mikm.rendering.screens.CaveScreen;
 public class Rock extends InanimateEntity {
     private final TextureRegion image;
     public final RockType rockType;
-
-    public Rock(int x, int y, RockType rockType) {
+    //used for serialization
+    public int recolorLevel;
+    public Rock(int x, int y, RockType rockType, int recolorLevel) {
         super(x, y);
         this.rockType = rockType;
         if (rockType == RockType.NORMAL) {
-            this.image = CaveScreen.rockImages[CaveScreen.getRecolorLevel()][RandomUtils.getInt(2)];
+            this.image = CaveScreen.rockImages[recolorLevel][RandomUtils.getInt(2)];
         } else {
             this.image = CaveScreen.oreImages[rockType.spritesheetPosition];
         }
+        this.recolorLevel = recolorLevel;
     }
 
     @Override

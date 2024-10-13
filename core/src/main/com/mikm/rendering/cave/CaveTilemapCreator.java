@@ -19,9 +19,9 @@ import com.mikm.serialization.Serializer;
 import java.util.ArrayList;
 
 public class CaveTilemapCreator {
-    public static final int MAP_WIDTH = 130, MAP_HEIGHT = 130;
+    public static final int MAP_WIDTH = 80, MAP_HEIGHT = 80;
     final static int FILL_CELL_PERCENT_CHANCE = 52;
-    public final static int CHASM_AMOUNT = 200, CHASM_LENGTH_MIN = 2, CHASM_LENGTH_MAX = 3, CHASM_WIDTH = 0, CHASM_MIN_SIZE = 4;
+    public final static int CHASM_AMOUNT = 24, CHASM_LENGTH_MIN = 2, CHASM_LENGTH_MAX = 3, CHASM_WIDTH = 0, CHASM_MIN_SIZE = 4;
     private final CaveScreen caveScreen;
 
     //Images
@@ -66,6 +66,7 @@ public class CaveTilemapCreator {
 
         ruleCellPositionGenerator = new RuleCellPositionGenerator();
         ruleCellPositions = ruleCellPositionGenerator.createRuleCellPositions();
+        collidablePositions = new boolean[MAP_HEIGHT][MAP_WIDTH];
     }
 
     public void generateNewMap() {
@@ -86,6 +87,7 @@ public class CaveTilemapCreator {
     }
 
     public void activate(CaveFloorMemento memento) {
+        recolorImagesAndCells();
         clearLayers();
         ruleCellPositions = memento.ruleCellPositions;
         collidablePositions = Serializer.getInstance().copy(ruleCellPositions);
@@ -166,7 +168,7 @@ public class CaveTilemapCreator {
             if (holePosition.x < MAP_WIDTH) {
                 holePositionsToCheckGrid[holePosition.y][holePosition.x] = true;
                 holeRuleCellLayer.setRuleCell(holePosition.x, holePosition.y, holeRuleCell);
-                collidablePositions[holePosition.y][holePosition.x] = true;
+                //collidablePositions[holePosition.y][holePosition.x] = true;
             }
         }
         holeRuleCellLayer.updateRuleCells();

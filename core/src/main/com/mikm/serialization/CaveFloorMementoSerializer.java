@@ -1,5 +1,6 @@
 package com.mikm.serialization;
 
+import com.badlogic.gdx.math.Vector2;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
@@ -8,6 +9,7 @@ import com.mikm.Vector2Int;
 import com.mikm.entities.Entity;
 import com.mikm.entities.InanimateEntity;
 import com.mikm.entities.RemovableArray;
+import com.mikm.entities.Rope;
 import com.mikm.rendering.cave.CaveFloorMemento;
 import com.mikm.rendering.cave.Rock;
 import com.mikm.rendering.screens.Application;
@@ -19,6 +21,7 @@ public class CaveFloorMementoSerializer extends Serializer<CaveFloorMemento> {
     @Override
     public void write(Kryo kryo, Output output, CaveFloorMemento object) {
         kryo.writeObject(output, object.spawnPosition);
+        kryo.writeObject(output, object.ropePosition);
         kryo.writeObject(output, object.holePositions);
 
         ArrayList<InanimateEntity> rocks = new ArrayList<>();
@@ -40,6 +43,7 @@ public class CaveFloorMementoSerializer extends Serializer<CaveFloorMemento> {
     @Override
     public CaveFloorMemento read(Kryo kryo, Input input, Class<? extends CaveFloorMemento> type) {
         Vector2Int spawnPosition = kryo.readObject(input, Vector2Int.class);
+        Vector2Int ropePosition = kryo.readObject(input, Vector2Int.class);
 
         ArrayList<Vector2Int> holePositions = kryo.readObject(input, ArrayList.class);
 
@@ -48,6 +52,7 @@ public class CaveFloorMementoSerializer extends Serializer<CaveFloorMemento> {
         RemovableArray<InanimateEntity> inanimateEntities = new RemovableArray<>(inanimateEntitiesRaw);
         RemovableArray<Entity> enemies = new RemovableArray<>(enemiesRaw);
 
+
         boolean[][] ruleCellPositions = kryo.readObject(input, boolean[][].class);
         for (Vector2Int holePosition : holePositions) {
             ruleCellPositions[holePosition.y][holePosition.x] = false;
@@ -55,7 +60,7 @@ public class CaveFloorMementoSerializer extends Serializer<CaveFloorMemento> {
         for (InanimateEntity rock : inanimateEntities) {
             ruleCellPositions[(int) rock.y/Application.TILE_HEIGHT][(int) rock.x / Application.TILE_WIDTH] = false;
         }
-
-        return new CaveFloorMemento(spawnPosition, ruleCellPositions, holePositions, inanimateEntities, enemies);
+        CaveFloorMemento memento = new CaveFloorMemento(spawnPosition, ropePosition, ruleCellPositions, holePositions, inanimateEntities, enemies);
+        return memento;
     }
 }

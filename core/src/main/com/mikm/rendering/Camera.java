@@ -11,7 +11,8 @@ import com.mikm.input.GameInput;
 import com.mikm.rendering.screens.Application;
 
 public class Camera {
-    public static final float VIEWPORT_ZOOM = .25f;
+    public static float VIEWPORT_ZOOM = .25f;
+    public static float DEFAULT_VIEWPORT_ZOOM = VIEWPORT_ZOOM;
     private final float CAMERA_SPEED = .25f;
     private final float LEAD_MULTIPLIER = 60;
     private final float CAMERA_LEAD_SPEED = .3f;
@@ -23,6 +24,7 @@ public class Camera {
     private static float lookDirectionX, lookDirectionY;
     private final Vector2 ignoredBoxOffset = new Vector2();
 
+    //why is this class not static
     public Camera() {
         orthographicCamera = new OrthographicCamera();
         orthographicCamera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());

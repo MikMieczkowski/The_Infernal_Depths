@@ -10,9 +10,10 @@ public class WanderingState extends DashInducingState {
     private final float TOTAL_WANDER_TIME = 1f;
     private final float MIN_WANDER_FORCE = .2f;
 
-    public WanderingState(Entity entity, float contactDamage) {
-        super(entity, contactDamage);
+    public WanderingState(Entity entity, int contactDamage, float detectionCircleRadius, float timeBetweenDashes) {
+        super(entity, contactDamage, detectionCircleRadius, timeBetweenDashes);
     }
+
 
     @Override
     public void enter() {
@@ -37,8 +38,8 @@ public class WanderingState extends DashInducingState {
     public void checkForStateTransition() {
         super.checkForStateTransition();
         if (timeElapsedInState > TOTAL_WANDER_TIME) {
-            StandingState standingState = (StandingState) entity.standingState;
-            standingState.enter(timeSinceLastDash);
+            DashInducingStandingState dashInducingStandingState = (DashInducingStandingState) entity.standingState;
+            dashInducingStandingState.enter(timeSinceLastDash);
         }
     }
 

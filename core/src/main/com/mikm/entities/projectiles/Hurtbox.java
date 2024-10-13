@@ -31,7 +31,7 @@ public class Hurtbox {
     }
 
     public void checkIfHitEntities() {
-        for (Entity entity : Application.currentScreen.entities) {
+        for (Entity entity : Application.getInstance().currentScreen.entities) {
             if (entity != Application.player && entity.isAttackable && Intersector.overlaps(getHurtbox(), entity.getHitbox())) {
                 entity.damagedState.enter(damageInformation);
             }

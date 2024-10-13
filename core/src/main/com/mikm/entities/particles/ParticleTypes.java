@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.mikm.Assets;
+import com.mikm.rendering.Camera;
 import com.mikm.rendering.cave.RockType;
 
 public class ParticleTypes {
@@ -111,28 +112,51 @@ public class ParticleTypes {
     public static ParticleTypes getSlimeTrailParameters() {
         ParticleTypes slimeTrailParameters = new ParticleTypes();
         slimeTrailParameters.usesColor = true;
-        slimeTrailParameters.startColorMin = new Color(81/255f, 211/255f, 128/255f, 1);
-        slimeTrailParameters.startColorMax = new Color(31/255f, 147/255f, 94/255f, 1);
-        slimeTrailParameters.endColorMin = new Color(81/255f, 211/255f, 128/255f, 1);
-        slimeTrailParameters.endColorMax = new Color(31/255f, 147/255f, 94/255f, 1);
-        slimeTrailParameters.finalScale = .9f;
+        int r1 = 60, g1 = 91, b1 = 44;
+        int r2 = 18, g2 = 33, b2 = 24;
+        slimeTrailParameters.startColorMin = new Color(r1/255f, g1/255f, b1/255f, 1);
+        slimeTrailParameters.startColorMax = new Color((r1-10)/255f, (g1-10)/255f, (b1-10)/255f, 1);
+        slimeTrailParameters.endColorMin = new Color(r2/255f, g2/255f, b2/255f, 1);
+        slimeTrailParameters.endColorMax = new Color((r2-10)/255f, (g2-10)/255f, (b2-10)/255f, 1);
+        slimeTrailParameters.finalScale = 1.2f;
         slimeTrailParameters.image = Assets.particleImages[0][0];
-        slimeTrailParameters.positionOffsetRadius = 5;
+        slimeTrailParameters.positionOffsetRadius = 9;
         slimeTrailParameters.hasGravity = false;
         slimeTrailParameters.hasShadow = false;
         slimeTrailParameters.angleMin = 0;
         slimeTrailParameters.angleMax = MathUtils.PI2;
-        slimeTrailParameters.amountMin = 5;
-        slimeTrailParameters.amountMax = 5;
+        slimeTrailParameters.amountMin = 9;
+        slimeTrailParameters.amountMax = 9;
         slimeTrailParameters.speedMin = 0f;
         slimeTrailParameters.speedMax = .1f;
         slimeTrailParameters.peakHeight = 4;
-        slimeTrailParameters.sizeMin = .2f;
-        slimeTrailParameters.sizeMax = .5f;
+        slimeTrailParameters.sizeMin = 1.5f;
+        slimeTrailParameters.sizeMax = 1.5f;
         slimeTrailParameters.shouldDecelerate = true;
         slimeTrailParameters.proportionOfTimeSpentDecelerating = 1;
         slimeTrailParameters.maxLifeTime = 1f;
         slimeTrailParameters.collidesWithWalls = true;
         return slimeTrailParameters;
+    }
+
+    public static ParticleTypes getLightningParameters() {
+        ParticleTypes lightningParameters = new ParticleTypes();
+        lightningParameters.image = Assets.particleImages[0][1];
+        lightningParameters.amountMin = 3;
+        lightningParameters.amountMax = 3;
+        lightningParameters.positionOffsetRadius = 0;
+        lightningParameters.sizeMin = .5f;
+        lightningParameters.sizeMax = .7f;
+        lightningParameters.speedMin = 2f;
+        lightningParameters.speedMax = 2f;
+        lightningParameters.proportionOfTimeSpentDecelerating = 1;
+        lightningParameters.maxLifeTime = .2f;
+        lightningParameters.hasGravity = true;
+        lightningParameters.hasShadow = false;
+        lightningParameters.shouldDecelerate = true;
+        lightningParameters.angleMin = 0;
+        lightningParameters.angleMax = MathUtils.PI2;
+        lightningParameters.peakHeight = 15;
+        return lightningParameters;
     }
 }

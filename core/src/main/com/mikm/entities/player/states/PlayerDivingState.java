@@ -9,6 +9,7 @@ import com.mikm.entities.State;
 import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.player.Player;
 import com.mikm.input.GameInput;
+import com.mikm.rendering.SoundEffects;
 
 public class PlayerDivingState extends State {
     private final Player player;
@@ -24,6 +25,7 @@ public class PlayerDivingState extends State {
     @Override
     public void enter() {
         super.enter();
+        SoundEffects.play(SoundEffects.dash);
         player.xVel = 0;
         player.yVel = 0;
         sinCounter = player.DIVE_STARTING_SIN_COUNT;

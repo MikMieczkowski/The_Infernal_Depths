@@ -1,6 +1,7 @@
 package com.mikm.entities.player.weapons;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.mikm.entities.particles.ParticleTypes;
@@ -10,22 +11,28 @@ import com.mikm.input.GameInput;
 import com.mikm.rendering.screens.Application;
 
 public class Bow extends Weapon{
-    private TextureRegion[] images;
+    private TextureRegion[] stringImages;
     private TextureRegion arrowImage;
 
     private float timeHeld, timeSinceLastAttack;
     private boolean attacking;
     private int powerLevel;
-    private final float TIME_PER_POWER_LEVEL = .3f;
-    private final float ARROW_SPEED = 2;
-    private final int ARROW_DAMAGE = 1;
-    public final float ARROW_KNOCKBACK_FORCE = 1;
-    private final float COOLDOWN = .4f;
 
-    public Bow(TextureRegion[] images, TextureRegion arrowImage) {
-        super(images[0]);
-        this.images = images;
+    private float timePerPowerLevel;
+    private float arrowSpeed;
+    private int arrowDamage;
+    public float arrowKnockback;
+    private float cooldown;
+
+    public Bow(TextureRegion image, TextureRegion[] stringImages, TextureRegion arrowImage, int arrowDamage, float arrowKnockback, float cooldown, float timePerPowerLevel, float arrowSpeed) {
+        super(image);
+        this.stringImages = stringImages;
         this.arrowImage = arrowImage;
+        this.arrowDamage = arrowDamage;
+        this.arrowKnockback = arrowKnockback;
+        this.cooldown = cooldown;
+        this.timePerPowerLevel = timePerPowerLevel;
+        this.arrowSpeed = arrowSpeed;
     }
 
     @Override
@@ -40,14 +47,14 @@ public class Bow extends Weapon{
 
     @Override
     public void updateDuringAttackState() {
-        if (timeSinceLastAttack > COOLDOWN && !attacking) {
+        if (timeSinceLastAttack > cooldown && !attacking) {
             attacking = true;
             powerLevel = 0;
             timeHeld = 0;
         }
         if (attacking) {
             timeHeld += Gdx.graphics.getDeltaTime();
-            powerLevel = Math.min(3, (int) (timeHeld / TIME_PER_POWER_LEVEL) + 1);
+            powerLevel = Math.min(3, (int) (timeHeld / timePerPowerLevel) + 1);
         }
     }
 
@@ -60,12 +67,11 @@ public class Bow extends Weapon{
         weaponRotation = angleToMouse + .75f*MathUtils.PI;
         x = player.getCenteredPosition().x + orbitDistance * MathUtils.cos(angleToMouse) - getFullBounds().width/2;
         y = player.getCenteredPosition().y + orbitDistance * MathUtils.sin(angleToMouse) - getFullBounds().height/2 - 6;
-        image = images[powerLevel];
     }
 
     @Override
     public void checkForStateTransition() {
-        if (!GameInput.isAttackButtonPressed()) {
+        if (!GameInput.isAttackButtonPressed() || powerLevel == 3 && timeHeld>timePerPowerLevel*3) {
             exitAttackState();
             player.walkingState.enter();
         }
@@ -75,13 +81,19 @@ public class Bow extends Weapon{
     public void exitAttackState() {
         if (powerLevel > 0) {
             Projectile arrow = new Projectile(arrowImage, ParticleTypes.getArrowParameters(),.4f, x, y);
-            arrow.setMovementAndDamageInformation(angleToMouse, ARROW_SPEED * powerLevel, getDamageInformation());
-            Application.currentScreen.addInanimateEntity(arrow);
+            arrow.setMovementAndDamageInformation(angleToMouse, arrowSpeed * powerLevel, getDamageInformation());
+            Application.getInstance().currentScreen.addInanimateEntity(arrow);
             timeHeld = 0;
             powerLevel = 0;
             attacking = false;
             timeSinceLastAttack = 0;
         }
+    }
+
+    @Override
+    public void draw(Batch batch) {
+        super.draw(batch);
+        batch.draw(stringImages[powerLevel], x, y, 8, 8, getFullBounds().width, getFullBounds().height, 1, 1, weaponRotation * MathUtils.radDeg);
     }
 
     @Override
@@ -91,6 +103,8 @@ public class Bow extends Weapon{
 
     @Override
     public DamageInformation getDamageInformation() {
-        return new DamageInformation(angleToMouse, ARROW_KNOCKBACK_FORCE, ARROW_DAMAGE * powerLevel);
+        return new DamageInformation(angleToMouse, arrowKnockback, arrowDamage);
     }
+
+
 }

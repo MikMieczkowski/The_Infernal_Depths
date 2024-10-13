@@ -5,11 +5,15 @@ import com.badlogic.gdx.graphics.Color;
 import java.util.Random;
 
 public class RandomUtils {
-    private static final long SEED = 21;
+    public static final long SEED = 21;
     private static final Random random = new Random();
 
     private RandomUtils() {
 
+    }
+
+    public static void setSeed(long s) {
+        random.setSeed(s);
     }
 
     public static Color getColor(Color color1, Color color2) {
@@ -27,7 +31,7 @@ public class RandomUtils {
     }
 
     public static int getInt(int min, int max) {
-        return random.nextInt(min, max+1);
+        return random.nextInt(max+1-min)+min;
     }
 
     /**

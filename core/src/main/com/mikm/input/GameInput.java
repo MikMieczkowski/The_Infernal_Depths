@@ -2,8 +2,11 @@ package com.mikm.input;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.mikm.Assets;
 import com.mikm.Vector2Int;
 import com.mikm.ExtraMathUtils;
 import com.mikm.rendering.Camera;
@@ -40,10 +43,10 @@ public class GameInput {
     }
 
     private static int keyboardHorizontalAxisInt() {
-        if (InputRaw.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+        if (InputRaw.isKeyPressed(Input.Keys.D) || InputRaw.isKeyPressed(Input.Keys.RIGHT)) {
             return 1;
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+        if (InputRaw.isKeyPressed(Input.Keys.A) || InputRaw.isKeyPressed(Input.Keys.LEFT)) {
             return -1;
         }
         return 0;
@@ -84,6 +87,13 @@ public class GameInput {
         return Gdx.input.isTouched();
     }
 
+    public static boolean isAttackButtonJustPressed() {
+        if (InputRaw.usingController) {
+            return InputRaw.isControllerButtonJustPressed(controllerMapping.buttonR2);
+        }
+        return Gdx.input.isButtonJustPressed(0)||Gdx.input.isButtonJustPressed(1);
+    }
+
     public static boolean isSwitchButtonJustPressed() {
         if (InputRaw.usingController) {
             return InputRaw.isControllerButtonJustPressed(controllerMapping.buttonB);
@@ -92,7 +102,16 @@ public class GameInput {
     }
 
     public static boolean isTalkButtonJustPressed() {
-        return isDiveButtonJustPressed();
+        if (InputRaw.usingController) {
+            return InputRaw.isControllerButtonJustPressed(controllerMapping.buttonX);
+        }
+        return Gdx.input.isKeyJustPressed(Input.Keys.E);
+    }
+
+    private static TextureRegion square = Assets.getInstance().getTextureRegion("SQUARE"),
+    E = Assets.getInstance().getTextureRegion("E");
+    public static TextureRegion getTalkButtonImage() {
+        return InputRaw.usingController ? square : E;
     }
 
     public static Vector2Int getAttackingDirectionInt() {
@@ -113,6 +132,9 @@ public class GameInput {
         return new Vector2(mousePosRelativeToPlayer().x/pixelsPerOneDistance, mousePosRelativeToPlayer().y/pixelsPerOneDistance);
     }
 
+    public static Vector2 getMousePos() {
+        return new Vector2(InputRaw.mouseXPosition(), InputRaw.mouseYPosition());
+    }
     public static Vector2 mousePosRelativeToPlayer() {
         return new Vector2(InputRaw.mouseXPosition() + Camera.x - Application.player.getCenteredPosition().x - Gdx.graphics.getWidth()/2f*Camera.VIEWPORT_ZOOM,
                 InputRaw.mouseYPosition() + Camera.y - Application.player.getCenteredPosition().y - Gdx.graphics.getHeight()/2f * Camera.VIEWPORT_ZOOM);

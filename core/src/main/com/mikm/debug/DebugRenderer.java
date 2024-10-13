@@ -3,6 +3,7 @@ package com.mikm.debug;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.Assets;
 import com.mikm.Method;
@@ -67,6 +68,11 @@ public class DebugRenderer {
         Application.batch.setColor(Color.WHITE);
     }
 
+    public void drawRectangle(Rectangle r) {
+        drawPoint(r.x, r.y);
+        drawPoint(r.x+r.width, r.y+r.height);
+    }
+
     public void drawTile(float tileX, float tileY) {
         Application.batch.setColor(DEBUG_BLUE);
         Application.batch.draw(Assets.testTexture, tileX * Application.TILE_WIDTH, tileY * Application.TILE_HEIGHT);
@@ -83,6 +89,19 @@ public class DebugRenderer {
         Application.batch.setColor(DEBUG_BLUE);
         Application.batch.draw(Assets.testTexture, tileX * Application.TILE_WIDTH, tileY * Application.TILE_HEIGHT, width, height);
         Application.batch.setColor(Color.WHITE);
+    }
+
+    public void drawCollidableGrid(boolean[][] collidableGrid) {
+        Application.batch.begin();
+        //swap length and [0].length?
+        for (int i = 0; i < collidableGrid.length; i++) {
+            for (int j = 0; j < collidableGrid[0].length; j++) {
+                if (collidableGrid[i][j]) {
+                    DebugRenderer.getInstance().drawTile(j, i);
+                }
+            }
+        }
+        Application.batch.end();
     }
 
 
