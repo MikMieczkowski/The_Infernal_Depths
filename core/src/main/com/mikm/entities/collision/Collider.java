@@ -29,7 +29,13 @@ public class Collider {
 
         ArrayList<Vector2Int> tilePositionsToCheck = getWallTilePositionsToCheck();
         for (Vector2Int v : tilePositionsToCheck) {
-            if (isOutOfBounds(v) || collidableMap[v.y][v.x]) {
+            boolean vInMap = false;
+            try {
+                vInMap = collidableMap[v.y][v.x];
+            } catch (Exception e) {
+
+            }
+            if (isOutOfBounds(v) || vInMap) {
                 Vector2 nearestPoint = new Vector2(
                         ExtraMathUtils.clamp(nextPosition.x, v.x * Application.TILE_WIDTH, (v.x+1) * Application.TILE_WIDTH),
                         ExtraMathUtils.clamp(nextPosition.y, v.y * Application.TILE_HEIGHT, (v.y+1) * Application.TILE_HEIGHT)

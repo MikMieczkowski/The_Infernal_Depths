@@ -1,39 +1,52 @@
 package com.mikm.serialization;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.Vector2;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import com.mikm.Method;
 import com.mikm.Vector2Int;
+import com.mikm.entities.Grave;
+import com.mikm.entities.Rope;
+import com.mikm.entities.collision.Collider;
 import com.mikm.entities.enemies.Bat;
 import com.mikm.entities.enemies.Rat;
 import com.mikm.entities.enemies.Slime;
+import com.mikm.entities.player.weapons.Weapon;
 import com.mikm.rendering.cave.CaveFloorMemento;
 import com.mikm.rendering.cave.Rock;
 import com.mikm.rendering.cave.RockType;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class Serializer {
     private static Serializer instance;
-    //TODO
-    private final String SAVEFILE_PATH = "testingFile";
+    private final String SAVEFILE_PATH = "InfernalDepthsSaveFiles/save";
 
     private final Kryo kryo;
-    private Input[] input = new Input[10];
-    private Output[] output = new Output[10];
+    private Input[] input = new Input[11];
+    private Output[] output = new Output[11];
 
     private Serializer() {
         kryo = new Kryo();
         registerKryo();
         try {
-            for (int i = 0; i < 10; i++) {
-                File yourFile = new File(SAVEFILE_PATH + i + ".bin");
-                yourFile.createNewFile();
+            FileHandle f = Gdx.files.local("InfernalDepthsSaveFiles");
+            if (!f.exists()) {
+                f.mkdirs();
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            for (int i = 0; i < 11; i++) {
+                f = Gdx.files.local(SAVEFILE_PATH + i + ".bin");
+                if (!f.exists()) {
+                    f.writeString("", false);
+                }
+            }
+        } catch (Exception e) {
+            throw e;
         }
     }
 
@@ -46,8 +59,8 @@ public class Serializer {
 
     public void write(Object object, int fileIndex) {
         try {
-            output[fileIndex] = new Output(new FileOutputStream(SAVEFILE_PATH + fileIndex + ".bin"));
-        } catch (FileNotFoundException e) {
+            output[fileIndex] = getOutput(SAVEFILE_PATH + fileIndex + ".bin");
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         kryo.writeObject(output[fileIndex], object);
@@ -55,13 +68,20 @@ public class Serializer {
     }
 
     public <T> T read(Class<T> type, int fileIndex) {
-
         try {
-            input[fileIndex] = new Input(new FileInputStream(SAVEFILE_PATH + fileIndex + ".bin"));
-        } catch (FileNotFoundException e) {
+            input[fileIndex] = getInput(SAVEFILE_PATH + fileIndex + ".bin");
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return kryo.readObject(input[fileIndex], type);
+    }
+
+    private Input getInput(String filepath) {
+        return new Input(Gdx.files.local(filepath).read());
+    }
+
+    private Output getOutput(String filepath) {
+        return new Output(Gdx.files.local(filepath).write(false));
     }
 
     public <T> T copy(T o) {
@@ -69,7 +89,7 @@ public class Serializer {
     }
 
     public void dispose() {
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 11; i++) {
             if (input[i] != null) {
                 input[i].close();
             }
@@ -83,6 +103,8 @@ public class Serializer {
     private void registerKryo() {
         //Disallows multiple instances of an object
         kryo.setReferences(false);
+        kryo.register(Weapon.class);
+        kryo.register(Grave.class, new GraveSerializer());
         kryo.register(Slime.class, new EntitySerializer());
         kryo.register(Bat.class, new EntitySerializer());
         kryo.register(Rat.class, new EntitySerializer());

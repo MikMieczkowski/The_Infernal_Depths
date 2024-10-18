@@ -105,6 +105,10 @@ public class Camera {
         Vector2 mousePosRelativeToPlayer = GameInput.mousePosRelativeToPlayer();
         return new Vector2(mousePosRelativeToPlayer.x+x, mousePosRelativeToPlayer.y+y);
     }
+
+    public static Vector2 getCenterOfScreenWorldCoordinates() {
+        return new Vector2(Camera.orthographicCamera.position.x, Camera.orthographicCamera.position.y);
+    }
 }
 
 

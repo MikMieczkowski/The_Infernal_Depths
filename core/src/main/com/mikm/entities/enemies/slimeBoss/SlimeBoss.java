@@ -7,11 +7,15 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.Assets;
 import com.mikm.entities.Entity;
+import com.mikm.entities.Grave;
 import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.animation.DirectionalAnimation;
+import com.mikm.entities.enemies.states.DamagedState;
+import com.mikm.rendering.SoundEffects;
 import com.mikm.rendering.screens.SlimeBossRoomScreen;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,7 +29,6 @@ public class SlimeBoss extends Entity {
     public SB_DashAttack dashState;
     public SB_DashBuildUpState dashBuildUpState;
     public SB_SimmerBuildUpState simmerBuildUpState;
-    public SB_SplitAttack splitState;
     private static Map<AnimationName, DirectionalAnimation> animations = new HashMap<>();
 
     public SB_StateManager stateManager;
@@ -34,11 +37,13 @@ public class SlimeBoss extends Entity {
 
     public static TextureRegion slimeBossImage = Assets.getInstance().getTextureRegion("slimeBoss", 32, 32);
     private static TextureRegion shapeDrawerTexture = Assets.getInstance().getTextureRegion("shapeDrawerTexture", 4, 4);
+    public static boolean defeated = false;
 
     public SlimeBoss(SlimeBossRoomScreen screen, float x, float y) {
         super(x, y);
         isAttackable = true;
         this.screen = screen;
+        hitSound = SoundEffects.slimeHit;
     }
 
     @Override
@@ -59,7 +64,6 @@ public class SlimeBoss extends Entity {
         dashState = new SB_DashAttack(this);
         simmerBuildUpState = new SB_SimmerBuildUpState(this);
         dashBuildUpState = new SB_DashBuildUpState(this);
-        splitState = new SB_SplitAttack(this);
 
         stateManager.updateState();
     }
@@ -98,6 +102,6 @@ public class SlimeBoss extends Entity {
 
     @Override
     public int getMaxHp() {
-        return 100;
+        return 90;
     }
 }

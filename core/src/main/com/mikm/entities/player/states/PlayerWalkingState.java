@@ -1,8 +1,11 @@
 package com.mikm.entities.player.states;
 
+import com.badlogic.gdx.math.Vector2;
 import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.player.Player;
 import com.mikm.input.GameInput;
+import com.mikm.rendering.screens.Application;
+import com.mikm.rendering.screens.BlacksmithScreen;
 
 
 public class PlayerWalkingState extends PlayerWalking {
@@ -30,7 +33,9 @@ public class PlayerWalkingState extends PlayerWalking {
     @Override
     public void checkForStateTransition() {
         if (GameInput.isDiveButtonJustPressed()) {
-            player.divingState.enter();
+            if (!(Application.getInstance().currentScreen == Application.getInstance().blacksmithScreen && BlacksmithScreen.showMenu)) {
+                player.divingState.enter();
+            }
         }
         if (!GameInput.isMoving()) {
             player.standingState.enter();

@@ -8,19 +8,22 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.mikm.Assets;
 import com.mikm.DeltaTime;
 import com.mikm.debug.DebugRenderer;
-import com.mikm.entities.Entity;
-import com.mikm.entities.InanimateEntity;
-import com.mikm.entities.RemovableArray;
-import com.mikm.entities.Shadow;
+import com.mikm.entities.*;
+import com.mikm.entities.particles.ParticleTypes;
 import com.mikm.rendering.Camera;
+import com.mikm.rendering.SoundEffects;
 import com.mikm.rendering.cave.RockType;
+
+import java.awt.*;
 
 public abstract class GameScreen extends ScreenAdapter {
     public static ScreenViewport viewport;
@@ -34,8 +37,9 @@ public abstract class GameScreen extends ScreenAdapter {
     public TiledMap tiledMap;
 
 
-    private TextureRegion hpBar, hpBarBottom;
-    private TextureRegion[][] health;
+    private final TextureRegion hpBar, hpBarBottom;
+    private final TextureRegion[][] health;
+    private final TextureRegion pauseMenu;
     private float healthAnimationTimer, healthAnimationFrameDuration = .1f;
 
 
@@ -47,6 +51,7 @@ public abstract class GameScreen extends ScreenAdapter {
         hpBar = Assets.getInstance().getTextureRegion("hpBar", 16, 80);
         hpBarBottom = Assets.getInstance().getTextureRegion("hpBarBottom", 16, 80);
         health = Assets.getInstance().getSplitTextureRegion("health", 16, 8);
+        pauseMenu = Assets.getInstance().getTextureRegion("controls", 350, 300);
 
         entities = new RemovableArray<>();
         entities.add(Application.player);
@@ -72,11 +77,38 @@ public abstract class GameScreen extends ScreenAdapter {
         return output;
     }
 
+    void readAndCreateDestructiblesTiledmapLayer(int layer, int w, int h) {
+        int GRASS = 24;
+        int DOUBLEPOT = 20;
+        int POT = 18;
+        TextureRegion[] imgs = Assets.getInstance().getSplitTextureRegion("destructibles")[0];
+        TextureRegion grass = Assets.getInstance().getTextureRegion("grass");
+        TextureRegion[][] particleImgs = Assets.getInstance().getSplitTextureRegion("particles",8,8);
+        TiledMapTileLayer l = (TiledMapTileLayer)tiledMap.getLayers().get(layer);
+        for (int i = 0; i < w; i++) {
+            for (int j = 0; j < h; j++) {
+                if (l.getCell(i,j) == null) {
+                    continue;
+                }
+                if (l.getCell(i, j).getTile().getId() == GRASS) {
+                    addInanimateEntity(new Destructible(imgs[2], ParticleTypes.getDestructibleParameters(particleImgs[2][0]), SoundEffects.grassBreak, i*16,j*16));
+                } else if (l.getCell(i, j).getTile().getId() == DOUBLEPOT) {
+                    addInanimateEntity(new Destructible(imgs[1], ParticleTypes.getDestructibleParameters(particleImgs[0][3]), SoundEffects.potBreak, i*16,j*16));
+                } else if (l.getCell(i, j).getTile().getId() == POT) {
+                    addInanimateEntity(new Destructible(imgs[0], ParticleTypes.getDestructibleParameters(particleImgs[0][3]), SoundEffects.potBreak, i*16,j*16));
+                } else {
+                    continue;
+                }
+                l.getCell(i,j).setTile(new StaticTiledMapTile(grass));
+            }
+        }
+    }
+
     public abstract boolean[][] isCollidableGrid();
 
     @Override
     public void render(float delta) {
-        if (!Application.getInstance().timestop) {
+        if (!Application.getInstance().timestop && !Application.getInstance().paused) {
             camera.update();
             Application.batch.begin();
             Application.batch.setProjectionMatrix(Camera.orthographicCamera.combined);
@@ -94,32 +126,61 @@ public abstract class GameScreen extends ScreenAdapter {
 
     public void renderUI() {
         Application.batch.setShader(null);
+        if (Application.getInstance().paused) {
+            renderPauseMenu();
+        }
         for (int i = 1; i < Assets.particleImages[0].length; i++) {
-            if (RockType.get(i).oreAmount != 0) {
-                drawComponentOnEdge(Assets.particleImages[1][i], false, false, true, 2, -5, (i-1)*17+5);
-                drawComponentOnEdge(Assets.numbers[MathUtils.clamp(RockType.get(i).oreAmount, 0, 9)], false, false, true, 1, -3, (i - 1) * 17 + 3);
+            if (RockType.get(i).getOreAmount() != 0) {
+                drawComponentOnEdge(Assets.particleImages[1][i], 8, 2, -5, (i - 1) * 17 + 5);
+                int ores = MathUtils.clamp(RockType.get(i).getOreAmount(), 0, 99);
+                drawComponentOnEdge(Assets.numbers[ores % 10], 8, 1, -3, (i - 1) * 17 + 3);
+                if (ores / 10 != 0) {
+                    drawComponentOnEdge(Assets.numbers[ores / 10], 8, 1, -11, (i - 1) * 17 + 3);
+                }
             }
         }
-        drawComponentOnEdge(hpBar, false, true, true, 1, -4, 1);
+        drawComponentOnEdge(hpBar, 6, 1, -4, 1);
         healthAnimationTimer += Gdx.graphics.getDeltaTime();
-        int f = (int)(healthAnimationTimer/healthAnimationFrameDuration);
+        int f = (int) (healthAnimationTimer / healthAnimationFrameDuration);
         if (f >= health[0].length) {
             healthAnimationTimer = 0;
-            f=0;
+            f = 0;
         }
-        for (int i = 0; i < Application.player.hp+1; i++) {
-            drawComponentOnEdge(health[(Application.player.hp-i)%10][f], false, true, true, 1, -4, 1+i*8);
+        for (int i = 0; i < Application.player.hp + 1; i++) {
+            drawComponentOnEdge(health[(Application.player.hp - i) % 10][f], 6, 1, -4, 1 + i * 8);
         }
-        drawComponentOnEdge(hpBarBottom, false, true, true, 1, -4, 1);
+        drawComponentOnEdge(hpBarBottom, 6, 1, -4, 1);
     }
 
-    public void drawComponentOnEdge(TextureRegion image, boolean centerY, boolean left, boolean down, int mul, int xOffset, int yOffset) {
+    private void renderPauseMenu() {
+        ScreenUtils.clear(0, 0, 0f, 1);
+        drawComponentOnEdge(pauseMenu, 4, .8f, 40, -20);
+    }
+
+    public void drawComponentOnEdge(TextureRegion image, int position, float mul, int xOffset, int yOffset) {
+        drawComponentOnEdge(image, position, mul, xOffset, yOffset, 0);
+    }
+
+    public void drawComponentOnEdge(TextureRegion image, int position, float mul, float xOffset, float yOffset, float rotation) {
         float x = Camera.orthographicCamera.position.x;
         float y = Camera.orthographicCamera.position.y;
         float w = Camera.VIEWPORT_ZOOM* Gdx.graphics.getWidth();
         float h = Camera.VIEWPORT_ZOOM* Gdx.graphics.getHeight();
         float imgW = image.getRegionWidth()*mul;
         float imgH = image.getRegionHeight()*mul;
+        boolean centerX=false, centerY = false;
+        boolean left=false,down=false;
+        if (3 <= position && position < 6) {
+            centerY = true;
+        } else if (position >= 6){
+            down = true;
+        }
+
+        if (position%3 ==0) {
+            left = true;
+        } else if (position%3 ==1) {
+            centerX = true;
+        }
         if (!centerY) {
             if (down) {
                 y -= h / 2;
@@ -129,14 +190,17 @@ public abstract class GameScreen extends ScreenAdapter {
         } else {
             y-= imgH/2;
         }
-
-        if (left) {
-            x -= w / 2;
+        if (!centerX) {
+            if (left) {
+                x -= w / 2;
+            } else {
+                x += w / 2 - imgW;
+            }
         } else {
-            x += w / 2 - imgW;
+            x-= imgW/2;
         }
 
-        Application.batch.draw(image, x + xOffset, y + yOffset, imgW, imgH);
+        Application.batch.draw(image, x + xOffset, y + yOffset, imgW/2, imgW/2, imgW, imgH, 1, 1, rotation);
     }
 
 
@@ -150,8 +214,13 @@ public abstract class GameScreen extends ScreenAdapter {
         entities.draw(Application.batch);
         Camera.renderLighting(Application.batch);
         Camera.updateOrthographicCamera();
+        drawOther();
         renderUI();
         Application.batch.end();
+    }
+
+    public void drawOther() {
+
     }
 
     public void playSong() {

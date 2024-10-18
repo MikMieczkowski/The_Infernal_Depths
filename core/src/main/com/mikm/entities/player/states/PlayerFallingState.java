@@ -4,6 +4,7 @@ import com.mikm.ExtraMathUtils;
 import com.mikm.entities.State;
 import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.player.Player;
+import com.mikm.rendering.SoundEffects;
 import com.mikm.rendering.screens.Application;
 
 public class PlayerFallingState extends State {
@@ -20,6 +21,7 @@ public class PlayerFallingState extends State {
         super.enter();
         player.height = 0;
         player.isAttackable = false;
+        SoundEffects.play(SoundEffects.dash);
     }
 
     @Override

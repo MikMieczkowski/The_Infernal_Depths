@@ -6,6 +6,7 @@ import com.mikm.entities.InanimateEntity;
 import com.mikm.entities.particles.ParticleTypes;
 import com.mikm.entities.particles.ParticleEffect;
 import com.mikm.entities.projectiles.DamageInformation;
+import com.mikm.rendering.SoundEffects;
 import com.mikm.rendering.cave.CaveFloorMemento;
 import com.mikm.rendering.screens.Application;
 import com.mikm.rendering.screens.CaveScreen;
@@ -22,13 +23,20 @@ public class Pickaxe extends SwingableWeapon {
 
     @Override
     public void checkForHit() {
+        super.checkForHit();
+        if (Application.getInstance().currentScreen != Application.getInstance().caveScreen) {
+            return;
+        }
         for (InanimateEntity inanimateEntity : caveScreen.inanimateEntities) {
             if (inanimateEntity.getClass() == Rock.class && Intersector.overlaps(inanimateEntity.getHitbox(), hurtbox.getHurtbox())) {
                 inanimateEntity.die();
+
                 caveScreen.isCollidableGrid()[(int)inanimateEntity.y/ Application.TILE_HEIGHT][(int)inanimateEntity.x / Application.TILE_WIDTH] = false;
                 RockType rockType = ((Rock)inanimateEntity).rockType;
+                SoundEffects.play(SoundEffects.rockBreak);
                 if (rockType != RockType.NORMAL) {
-                    rockType.increaseOreAmount(rockType);
+                    rockType.increaseOreAmount();
+                    SoundEffects.playQuiet(SoundEffects.reward);
                 }
                 new ParticleEffect(ParticleTypes.getRockParameters(rockType), inanimateEntity.x, inanimateEntity.y);
             }
@@ -37,6 +45,6 @@ public class Pickaxe extends SwingableWeapon {
 
     @Override
     public DamageInformation getDamageInformation() {
-        return new DamageInformation(0, 0, 0);
+        return new DamageInformation(angleToMouse, 1, 0);
     }
 }

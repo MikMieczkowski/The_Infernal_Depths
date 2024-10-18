@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
+import com.mikm.RandomUtils;
 import com.mikm.debug.DebugRenderer;
 import com.mikm.entities.player.Player;
 import com.mikm.input.GameInput;
@@ -22,10 +23,11 @@ public class NPC extends InanimateEntity {
 
     @Override
     public void update() {
-        if (GameInput.isTalkButtonJustPressed() && isPlayerInTalkingRange()) {
+        if ((GameInput.isTalkButtonJustPressed()||GameInput.isSwitchButtonJustPressed()) && isPlayerInTalkingRange()) {
             Application.getInstance().blacksmithScreen.showMenu = !Application.getInstance().blacksmithScreen.showMenu;
+
+            Application.getInstance().blacksmithScreen.tipNumber = RandomUtils.getBoolean() ? 0 : 2;
         }
-        DebugRenderer.getInstance().drawHitboxes(new Circle(x+TALKING_RANGE_DIAMETER/2-16, y+TALKING_RANGE_DIAMETER/2-16, TALKING_RANGE_DIAMETER/2));
     }
 
     private void sellPlayerOres() {

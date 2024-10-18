@@ -1,5 +1,6 @@
 package com.mikm.entities.enemies.slimeBoss;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.mikm.entities.Entity;
 import com.mikm.entities.animation.AnimationName;
@@ -7,10 +8,9 @@ import com.mikm.entities.enemies.states.DamagedState;
 import com.mikm.entities.particles.ParticleTypes;
 import com.mikm.entities.particles.ParticleEffect;
 import com.mikm.entities.projectiles.DamageInformation;
+import com.mikm.rendering.SoundEffects;
 
 public class SB_DamagedState extends DamagedState {
-
-    private DamageInformation damageInformation;
 
     public SB_DamagedState(Entity entity) {
         super(entity);
@@ -21,13 +21,15 @@ public class SB_DamagedState extends DamagedState {
         if (entity.inInvincibility) {
             return;
         }
+        SoundEffects.play(SoundEffects.hit);
         this.damageInformation = damageInformation;
         entity.hp -= damageInformation.damage;
         entity.startInvincibilityFrames();
         if (entity.hp <= 0) {
             entity.flash(Color.RED);
             dead = true;
-            super.enter(damageInformation);
+            SlimeBoss.defeated = true;
+            super.enter();
         } else {
             entity.flash(Color.WHITE);
         }
@@ -35,6 +37,7 @@ public class SB_DamagedState extends DamagedState {
 
     @Override
     public void update() {
+        timeElapsedInState+=Gdx.graphics.getDeltaTime();
         if (dead) {
             super.update();
         }

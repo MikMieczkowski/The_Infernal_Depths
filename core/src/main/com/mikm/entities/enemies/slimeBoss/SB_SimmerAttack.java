@@ -12,9 +12,9 @@ public class SB_SimmerAttack extends State {
     private SlimeBoss slimeBoss;
     private Player player;
 
-    private final float TIME_SPENT_SIMMERING = 7f;
-    private final float SIMMER_MOVE_SPEED_MAX = 3f;
-    private final float SIMMER_MOVE_SPEED_MIN = .2f;
+    private final float TIME_SPENT_SIMMERING = 4f;
+    private final float SIMMER_MOVE_SPEED_MAX = .2f;
+    private final float SIMMER_MOVE_SPEED_MIN = 1.7f;
     public static final int SLIME_TRAIL_DAMAGE = 1, SLIME_TRAIL_KNOCKBACK = 1;
 
     private float distanceTraveledSinceLastProjectile;

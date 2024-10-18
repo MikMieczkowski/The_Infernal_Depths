@@ -111,9 +111,14 @@ public class CaveTilemapCreator {
     }
 
     private void recolorImagesAndCells() {
-        boolean onRecolorFloor = CaveScreen.floor %5 == 1 && CaveScreen.floor != 1;
+        wallCellTypes = new TiledMapTileLayer.Cell[5];
+        for (int i = 0; i < 5; i++) {
+            wallCellTypes[i] = new TiledMapTileLayer.Cell();
+            wallCellTypes[i].setTile(new StaticTiledMapTile(wallImages[i]));
+        }
+        boolean onRecolorFloor = CaveScreen.floor %5 == 1 || CaveScreen.floor %5 == 4;
         if (onRecolorFloor) {
-            int recolorLevel = (CaveScreen.floor+1)/5;
+            int recolorLevel = (CaveScreen.floor)/5;
             ruleCell = new RuleCell(caveScreen.caveTilesetRecolors.get(recolorLevel), ruleCellMetadata);
             createImages();
             StaticTiledMapTile floorTile = new StaticTiledMapTile(floorImage);
@@ -217,11 +222,6 @@ public class CaveTilemapCreator {
     }
 
     private void fillInWalls() {
-        wallCellTypes = new TiledMapTileLayer.Cell[5];
-        for (int i = 0; i < 5; i++) {
-            wallCellTypes[i] = new TiledMapTileLayer.Cell();
-            wallCellTypes[i].setTile(new StaticTiledMapTile(wallImages[i]));
-        }
         for (int y = MAP_HEIGHT - 1; y >= 0; y--) {
             for (int x = 0; x < MAP_WIDTH; x++) {
                 checkIfShouldFillWallAt(y, x, wallCellTypes);

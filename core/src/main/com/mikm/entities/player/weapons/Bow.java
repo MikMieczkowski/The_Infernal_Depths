@@ -8,6 +8,7 @@ import com.mikm.entities.particles.ParticleTypes;
 import com.mikm.entities.projectiles.DamageInformation;
 import com.mikm.entities.projectiles.Projectile;
 import com.mikm.input.GameInput;
+import com.mikm.rendering.SoundEffects;
 import com.mikm.rendering.screens.Application;
 
 public class Bow extends Weapon{
@@ -23,6 +24,7 @@ public class Bow extends Weapon{
     private int arrowDamage;
     public float arrowKnockback;
     private float cooldown;
+    private boolean powerLevelWasZero = true;
 
     public Bow(TextureRegion image, TextureRegion[] stringImages, TextureRegion arrowImage, int arrowDamage, float arrowKnockback, float cooldown, float timePerPowerLevel, float arrowSpeed) {
         super(image);
@@ -50,11 +52,16 @@ public class Bow extends Weapon{
         if (timeSinceLastAttack > cooldown && !attacking) {
             attacking = true;
             powerLevel = 0;
+            powerLevelWasZero = true;
             timeHeld = 0;
         }
         if (attacking) {
             timeHeld += Gdx.graphics.getDeltaTime();
             powerLevel = Math.min(3, (int) (timeHeld / timePerPowerLevel) + 1);
+            if (powerLevelWasZero && powerLevel == 1) {
+                powerLevelWasZero = false;
+                SoundEffects.playQuiet(SoundEffects.bowReady);
+            }
         }
     }
 
@@ -80,11 +87,13 @@ public class Bow extends Weapon{
     @Override
     public void exitAttackState() {
         if (powerLevel > 0) {
+            SoundEffects.play(SoundEffects.bowShoot);
             Projectile arrow = new Projectile(arrowImage, ParticleTypes.getArrowParameters(),.4f, x, y);
             arrow.setMovementAndDamageInformation(angleToMouse, arrowSpeed * powerLevel, getDamageInformation());
             Application.getInstance().currentScreen.addInanimateEntity(arrow);
             timeHeld = 0;
             powerLevel = 0;
+            powerLevelWasZero = true;
             attacking = false;
             timeSinceLastAttack = 0;
         }

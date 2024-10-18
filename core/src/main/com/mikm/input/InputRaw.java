@@ -5,10 +5,11 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.ControllerMapping;
 import com.badlogic.gdx.controllers.Controllers;
+import com.badlogic.gdx.math.MathUtils;
 import com.mikm.rendering.Camera;
 
 public class InputRaw {
-    static boolean usingController = false;
+    public static boolean usingController = false;
     public static ControllerMapping controllerMapping;
 
     private static Controller controller;
@@ -127,14 +128,18 @@ public class InputRaw {
 
     static float controllerXAxis() {
         float controllerXAxis = controller.getAxis(controllerMapping.axisLeftX);
+        controllerXAxis += controller.getButton(controllerMapping.buttonDpadLeft) ? -1 : 0;
+        controllerXAxis += controller.getButton(controllerMapping.buttonDpadRight) ? 1 : 0;
         if (Math.abs(controllerXAxis) > deadzone) {
-            return controllerXAxis;
+            return MathUtils.clamp(controllerXAxis, -1, 1);
         }
         return 0;
     }
 
     static int controllerXAxisInt() {
         float controllerXAxis = controller.getAxis(controllerMapping.axisLeftX);
+        controllerXAxis += controller.getButton(controllerMapping.buttonDpadLeft) ? -1 : 0;
+        controllerXAxis += controller.getButton(controllerMapping.buttonDpadRight) ? 1 : 0;
         if (controllerXAxis > deadzone) {
             return 1;
         }
@@ -147,14 +152,18 @@ public class InputRaw {
 
     static float controllerYAxis() {
         float controllerYAxis = controller.getAxis(controllerMapping.axisLeftY);
+        controllerYAxis += controller.getButton(controllerMapping.buttonDpadDown) ? 1 : 0;
+        controllerYAxis += controller.getButton(controllerMapping.buttonDpadUp) ? -1 : 0;
         if (Math.abs(controllerYAxis) > deadzone) {
-            return -controllerYAxis;
+            return -MathUtils.clamp(controllerYAxis, -1, 1);
         }
         return 0;
     }
 
     static int controllerYAxisInt() {
         float controllerYAxis = controller.getAxis(controllerMapping.axisLeftY);
+        controllerYAxis += controller.getButton(controllerMapping.buttonDpadDown) ? 1 : 0;
+        controllerYAxis += controller.getButton(controllerMapping.buttonDpadUp) ? -1 : 0;
         if (controllerYAxis > deadzone) {
             return -1;
         }

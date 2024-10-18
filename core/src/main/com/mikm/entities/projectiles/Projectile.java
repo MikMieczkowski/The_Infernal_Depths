@@ -9,6 +9,7 @@ import com.mikm.ExtraMathUtils;
 import com.mikm.entities.InanimateEntity;
 import com.mikm.entities.particles.ParticleTypes;
 import com.mikm.entities.particles.ParticleEffect;
+import com.mikm.rendering.SoundEffects;
 
 public class Projectile extends InanimateEntity {
     private TextureRegion image;
@@ -81,6 +82,7 @@ public class Projectile extends InanimateEntity {
 
     @Override
     public void die() {
+        SoundEffects.playLoud(SoundEffects.bowImpact);
         new ParticleEffect(particleParameters, x, y);
         super.die();
     }

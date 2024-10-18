@@ -15,10 +15,11 @@ public class SB_DashAttack extends State {
     private float angle;
 
     private final float JUMP_HEIGHT = 5f;
-    private final float DASH_DISTANCE = 140;
+    private final float DASH_DISTANCE = 130;
     private final float MAX_TIME_SPENT_DASHING = .3f;
     private final float ANGLE_OF_APPROACH_FROM_PERPENDICULAR = 15 * MathUtils.degRad;
     private final float TIME_BETWEEN_DASH_EFFECT_IMAGES = .05f;
+    float distanceToPlayer = 0;
 
 
     private boolean firstDash;
@@ -49,12 +50,13 @@ public class SB_DashAttack extends State {
             angle = angleToPlayer -MathUtils.PI/2f + ANGLE_OF_APPROACH_FROM_PERPENDICULAR;
         }
         dashingRightOfAngleToPlayer = !dashingRightOfAngleToPlayer;
+        distanceToPlayer = ExtraMathUtils.distance(slimeBoss.x, slimeBoss.y, player.x, player.y);
     }
 
     @Override
     public void update() {
         super.update();
-        float speed = DASH_DISTANCE / (MAX_TIME_SPENT_DASHING * 60);
+        float speed = (distanceToPlayer/100f) * DASH_DISTANCE / (MAX_TIME_SPENT_DASHING * 60);
         slimeBoss.xVel = speed * MathUtils.cos(angle);
         slimeBoss.yVel = speed * MathUtils.sin(angle);
 

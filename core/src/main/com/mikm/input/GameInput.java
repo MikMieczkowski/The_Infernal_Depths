@@ -11,6 +11,7 @@ import com.mikm.Vector2Int;
 import com.mikm.ExtraMathUtils;
 import com.mikm.rendering.Camera;
 import com.mikm.rendering.screens.Application;
+import com.mikm.rendering.screens.BlacksmithScreen;
 
 import static com.mikm.input.InputRaw.controllerMapping;
 
@@ -64,6 +65,9 @@ public class GameInput {
 
     private static Vector2 movementVector() {
         if (InputRaw.usingController) {
+            if (Application.getInstance().currentScreen == Application.getInstance().blacksmithScreen && BlacksmithScreen.showMenu) {
+                return Vector2.Zero;
+            }
             return new Vector2(InputRaw.controllerXAxis(), InputRaw.controllerYAxis());
         }
         return new Vector2(keyboardHorizontalAxisInt(), keyboardVerticalAxisInt());
@@ -99,6 +103,20 @@ public class GameInput {
             return InputRaw.isControllerButtonJustPressed(controllerMapping.buttonB);
         }
         return InputRaw.isKeyJustPressed(Input.Keys.Q);
+    }
+
+    public static boolean isPickaxeButtonJustPressed() {
+        if (!InputRaw.usingController) {
+            return InputRaw.isKeyJustPressed(Input.Keys.NUM_1);
+        }
+        return false;
+    }
+
+    public static boolean isWeaponButtonJustPressed() {
+        if (!InputRaw.usingController) {
+            return InputRaw.isKeyJustPressed(Input.Keys.NUM_2);
+        }
+        return false;
     }
 
     public static boolean isTalkButtonJustPressed() {

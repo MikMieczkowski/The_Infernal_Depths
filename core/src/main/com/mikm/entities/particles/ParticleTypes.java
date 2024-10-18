@@ -159,4 +159,10 @@ public class ParticleTypes {
         lightningParameters.peakHeight = 15;
         return lightningParameters;
     }
+
+    public static ParticleTypes getDestructibleParameters(TextureRegion particleImage) {
+        ParticleTypes output = getRockParameters(RockType.NORMAL);
+        output.image = particleImage;
+        return output;
+    }
 }

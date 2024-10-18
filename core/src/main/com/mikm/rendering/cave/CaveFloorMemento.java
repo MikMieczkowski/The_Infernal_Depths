@@ -1,8 +1,5 @@
 package com.mikm.rendering.cave;
 
-import com.badlogic.gdx.math.Vector2;
-import com.esotericsoftware.kryo.Kryo;
-import com.mikm.rendering.screens.Application;
 import com.mikm.rendering.screens.CaveScreen;
 import com.mikm.serialization.Serializer;
 import com.mikm.Vector2Int;
@@ -21,6 +18,7 @@ public class CaveFloorMemento {
     public RemovableArray<Entity> enemies;
     public RemovableArray<InanimateEntity> inanimateEntities;
     public Vector2Int ropePosition;
+    public ArrayList<InanimateEntity> graves;
     public CaveFloorMemento(Vector2Int spawnPosition, Vector2Int ropePosition, boolean[][] ruleCellPositions, ArrayList<Vector2Int> holePositions, RemovableArray<InanimateEntity> inanimateEntities, RemovableArray<Entity> enemies) {
         this.spawnPosition = spawnPosition;
         this.ropePosition = ropePosition;

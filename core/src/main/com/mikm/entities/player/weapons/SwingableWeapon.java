@@ -7,10 +7,14 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.mikm.entities.Destructible;
 import com.mikm.entities.Entity;
+import com.mikm.entities.InanimateEntity;
+import com.mikm.entities.particles.ParticleEffect;
 import com.mikm.entities.player.states.PlayerAttackingAndWalkingState;
 import com.mikm.entities.projectiles.Hurtbox;
 import com.mikm.rendering.BatchUtils;
+import com.mikm.rendering.SoundEffects;
 import com.mikm.rendering.screens.Application;
 
 public abstract class SwingableWeapon extends Weapon {
@@ -42,11 +46,8 @@ public abstract class SwingableWeapon extends Weapon {
 
     @Override
     public void checkForHit() {
-        for (Entity entity : Application.getInstance().currentScreen.entities) {
-            if (entity != player && entity.isAttackable && Intersector.overlaps(hurtbox.getHurtbox(), entity.getHitbox())) {
-                entity.damagedState.enter(getDamageInformation());
-            }
-        }
+        hurtbox.setDamageInformation(getDamageInformation());
+        hurtbox.checkIfHitEntities();
     }
 
     @Override

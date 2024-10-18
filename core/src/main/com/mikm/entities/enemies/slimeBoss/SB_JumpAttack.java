@@ -14,6 +14,7 @@ public class SB_JumpAttack extends State {
     private float jumpDistance;
     private float timeSpentJumping;
     private float angleToPlayer;
+    float distanceToPlayer = 0;
 
     public SB_JumpAttack(SlimeBoss slimeBoss) {
         super(slimeBoss);
@@ -31,12 +32,13 @@ public class SB_JumpAttack extends State {
         this.jumpDistance = jumpDistance;
         this.timeSpentJumping = timeSpentJumping;
         angleToPlayer = MathUtils.atan2(player.y - slimeBoss.y, player.x - slimeBoss.x);
+        distanceToPlayer = ExtraMathUtils.distance(slimeBoss.x, slimeBoss.y, player.x, player.y);
     }
 
     @Override
     public void update() {
         super.update();
-        float speed = jumpDistance / (timeSpentJumping * 60);
+        float speed = (distanceToPlayer /100f) * jumpDistance / (timeSpentJumping * 60);
         slimeBoss.xVel = speed * MathUtils.cos(angleToPlayer);
         slimeBoss.yVel = speed * MathUtils.sin(angleToPlayer);
 

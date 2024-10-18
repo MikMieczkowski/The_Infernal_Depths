@@ -17,12 +17,15 @@ import com.mikm.entities.player.Player;
 import com.mikm.input.GameInput;
 import com.mikm.input.InputRaw;
 import com.mikm.rendering.Camera;
+import com.mikm.rendering.SoundEffects;
 import com.mikm.rendering.cave.RockType;
 
 public class WizardScreen extends GameScreen{
     private Color BG_COLOR = CaveScreen.caveFillColorLevel6;
     boolean[][] collidableGrid;
     private HealingEffect lastHealingEffect = null;
+    private float soundEffectTimer = 0;
+    private final float TIME_UNTIL_SOUND_EFFECT = 1.5f;
 
     WizardScreen() {
         super();
@@ -49,6 +52,13 @@ public class WizardScreen extends GameScreen{
         Camera.orthographicCamera.update();
         renderUI();
         Application.batch.end();
+        soundEffectTimer+= Gdx.graphics.getDeltaTime();
+        if (soundEffectTimer > TIME_UNTIL_SOUND_EFFECT) {
+            if (Application.player.hp != Application.player.getMaxHp()) {
+                SoundEffects.play(SoundEffects.reward);
+                Application.player.hp = Application.player.getMaxHp();
+            }
+        }
     }
 
 
@@ -59,6 +69,7 @@ public class WizardScreen extends GameScreen{
 
     @Override
     public void onEnter() {
+        soundEffectTimer = 0;
         Camera.VIEWPORT_ZOOM = .2f;
         viewport.setUnitsPerPixel(Camera.VIEWPORT_ZOOM);
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());

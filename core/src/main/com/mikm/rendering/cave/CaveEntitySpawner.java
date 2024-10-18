@@ -2,7 +2,6 @@ package com.mikm.rendering.cave;
 
 import com.mikm.RandomUtils;
 import com.mikm.Vector2Int;
-import com.mikm.debug.DebugRenderer;
 import com.mikm.entities.Entity;
 import com.mikm.entities.InanimateEntity;
 import com.mikm.entities.Rope;
@@ -38,8 +37,14 @@ public class CaveEntitySpawner {
 
     public void activate(CaveFloorMemento memento) {
         resetInanimateAndAnimateEntities();
-        caveScreen.inanimateEntities.addInstantly(new Rope(memento.ropePosition.x+8, memento.ropePosition.y+8));
+        Vector2Int ropePosition = new Vector2Int(memento.ropePosition.x+8, memento.ropePosition.y+8);
+        caveScreen.inanimateEntities.addInstantly(new Rope(ropePosition.x, ropePosition.y));
+        caveScreen.currentRopePosition = ropePosition;
+
         for (InanimateEntity i : memento.inanimateEntities) {
+            caveScreen.addInanimateEntity(i);
+        }
+        for (InanimateEntity i : memento.graves) {
             caveScreen.addInanimateEntity(i);
         }
         for (Entity e : memento.enemies) {
