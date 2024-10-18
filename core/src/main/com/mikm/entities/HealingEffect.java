@@ -37,7 +37,6 @@ public class HealingEffect extends Entity {
         currentState.update();
         if (animationManager.isFinished()) {
             die();
-            Application.player.hp = Application.player.getMaxHp();
         }
     }
 

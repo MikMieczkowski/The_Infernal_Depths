@@ -15,7 +15,7 @@ public class SB_JumpBuildUpState extends State {
 
     private float SHORT_JUMP_SQUISH_AMOUNT = 1.2f;
     private float SHORT_JUMP_BUILD_UP_TIME = 1;
-    private float SHORT_JUMP_DISTANCE = 50;
+    private float SHORT_JUMP_DISTANCE = 80;
     private float SHORT_JUMP_TIME_SPENT_JUMPING = 1;
 
     private float LONG_JUMP_SQUISH_AMOUNT = 2;

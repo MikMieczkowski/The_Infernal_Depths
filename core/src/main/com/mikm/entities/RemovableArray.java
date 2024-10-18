@@ -2,6 +2,7 @@ package com.mikm.entities;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.mikm.Method;
+import com.mikm.serialization.Serializer;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,8 +47,8 @@ public class RemovableArray<T extends InanimateEntity> extends ArrayList<T> {
         }
         if (executeMethodAfterRender) {
             executeMethodAfterRender = false;
-            for (Method queuedAction : queuedActionsToDoAfterRender) {
-                queuedAction.invoke();
+            for (int i = 0; i < queuedActionsToDoAfterRender.size(); i++) {
+                queuedActionsToDoAfterRender.get(i).invoke();
             }
             queuedActionsToDoAfterRender.clear();
         }

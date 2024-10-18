@@ -6,12 +6,14 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.DeltaTime;
 import com.mikm.Vector2Int;
 import com.mikm.debug.DebugRenderer;
 import com.mikm.entities.Entity;
+import com.mikm.entities.Grave;
 import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.animation.DirectionalAnimation;
 import com.mikm.entities.player.states.*;
@@ -88,7 +90,24 @@ public class Player extends Entity {
         handleInput();
         checkHolePositions();
         super.update();
+        if (collider.inWall()) {
+            int xDirection = (int)x - CaveTilemapCreator.MAP_WIDTH*16/2;
+            xDirection = -MathUtils.clamp(xDirection, -1,1);
+            x += xDirection*Application.TILE_WIDTH;
+            int yDirection = (int)y - CaveTilemapCreator.MAP_HEIGHT*16/2;
+            yDirection = -MathUtils.clamp(yDirection, -1,1);
+            y += yDirection*Application.TILE_WIDTH;
+        }
         currentHeldItem.update();
+    }
+
+    @Override
+    public void die() {
+        super.die();
+        dead = true;
+        if (RockType.playerHasAnyTempOre()) {
+            Application.getInstance().currentScreen.addInanimateEntity(new Grave(16 * (int) Application.player.x / 16, 16 * (int) Application.player.y / 16));
+        }
     }
 
     private void checkHolePositions() {
@@ -119,7 +138,13 @@ public class Player extends Entity {
         Vector2Int v = new Vector2Int(checkedWallTilePosition.x + x, checkedWallTilePosition.y + y);
         Rectangle checkedTileBounds = new Rectangle(v.x * Application.TILE_WIDTH, v.y * Application.TILE_HEIGHT, Application.TILE_WIDTH, Application.TILE_HEIGHT);
         boolean isInBounds = v.x >= 0 && v.x < holePositions.length && v.y >= 0 && v.y < holePositions[0].length;
-        if (isInBounds && holePositions[v.y][v.x]) {
+        boolean vIsHole = false;
+        try {
+            vIsHole = holePositions[v.y][v.x];
+        } catch (Exception e) {
+
+        }
+        if (isInBounds && vIsHole) {
             if (checkedTileBounds.contains(new Circle(getHitbox().x, getHitbox().y, getHitbox().radius-6))) {
                 fallingState.enter();
             }
@@ -141,6 +166,15 @@ public class Player extends Entity {
                 currentHeldItem = weaponInstances.pickaxe;
             }
             holdingPickaxe = !holdingPickaxe;
+        }
+        if (GameInput.isPickaxeButtonJustPressed()) {
+            currentHeldItem.exitAttackState();
+            currentHeldItem = weaponInstances.pickaxe;
+            holdingPickaxe = true;
+        }
+        if (GameInput.isWeaponButtonJustPressed()) {
+            currentHeldItem = equippedWeapon;
+            holdingPickaxe = false;
         }
     }
 

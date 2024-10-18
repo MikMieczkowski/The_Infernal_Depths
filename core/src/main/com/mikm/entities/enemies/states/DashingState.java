@@ -8,6 +8,7 @@ import com.mikm.entities.State;
 import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.enemies.Slime;
 import com.mikm.entities.player.Player;
+import com.mikm.rendering.SoundEffects;
 import com.mikm.rendering.screens.Application;
 
 public class DashingState extends State {
@@ -68,6 +69,9 @@ public class DashingState extends State {
         }
         changed = changed || handlePlayerCollision(DASH_DAMAGE, true);
         if (changed) {
+            if (entity.getClass() == Slime.class) {
+                SoundEffects.playLoud(SoundEffects.slimeJump);
+            }
             entity.height = startHeight;
             entity.xVel = 0;
             entity.yVel = 0;

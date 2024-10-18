@@ -21,10 +21,12 @@ public class SB_StateManager {
     }
 
     public void updateState() {
-        if (dashing) {
-            updateDashState();
-        } else {
-            updateAttackByPhase();
+        if (!slimeBoss.damagedState.dead) {
+            if (dashing) {
+                updateDashState();
+            } else {
+                updateAttackByPhase();
+            }
         }
     }
 
@@ -47,7 +49,8 @@ public class SB_StateManager {
         } else if (phase == 1){
             updatePhase1();
         } else {
-            enterAttack(SlimeBossAttackType.SPLIT);
+            //no phase 2 in the game
+            updatePhase1();
         }
     }
 
@@ -100,8 +103,6 @@ public class SB_StateManager {
                 }
                 firstDash = false;
                 break;
-            case SPLIT:
-                slimeBoss.splitState.enter();
         }
     }
 }

@@ -11,11 +11,13 @@ import com.mikm.Assets;
 import com.mikm.entities.Door;
 import com.mikm.entities.enemies.Slime;
 import com.mikm.rendering.Camera;
+import com.mikm.rendering.cave.RockType;
 
 public class TownScreen extends GameScreen {
 
     private static TextureRegion stallroof = Assets.getInstance().getTextureRegion("stallroof", 80, 48);
     private static TextureRegion blacksmithroof = Assets.getInstance().getTextureRegion("blacksmithRoof", 80, 96);
+    private static TextureRegion jarBugFix = Assets.getInstance().getTextureRegion("weirdJarBug", 80, 96);
     private static TextureRegion tree = Assets.getInstance().getTextureRegion("treetop", 48, 48);
     private static TextureRegion roof = Assets.getInstance().getTextureRegion("houseRoof", 64,96);
     private boolean[][] collidableGrid;
@@ -30,6 +32,7 @@ public class TownScreen extends GameScreen {
         createMusic(Assets.getInstance().getAsset("sound/townTheme.mp3", Music.class));
         collidableGrid = readCollisionTiledmapLayer(2, MAP_WIDTH, MAP_HEIGHT);
         holePositions = readCollisionTiledmapLayer(3, MAP_WIDTH, MAP_HEIGHT);
+        readAndCreateDestructiblesTiledmapLayer(1, MAP_WIDTH, MAP_HEIGHT);
 
         int offset = 15*16;
         addInanimateEntity(new Door(offset+3*16, offset+13*16, 4));
@@ -44,15 +47,31 @@ public class TownScreen extends GameScreen {
     }
 
     @Override
+    public void onEnter() {
+        RockType.validateOres();
+        Application.player.hp = Application.player.getMaxHp();
+    }
+
+    @Override
     public boolean[][] isCollidableGrid() {
         return collidableGrid;
     }
 
     @Override
     void drawAssets() {
-        super.drawAssets();
         int offset = 15*16;
-        Application.batch.setShader(null);
+        Application.batch.draw(jarBugFix, offset+6*16, offset+6*16);
+        super.drawAssets();
+        drawHighLayer();
+    }
+
+    @Override
+    public void drawOther() {
+        drawHighLayer();
+    }
+
+    private void drawHighLayer() {
+        int offset = 15*16;
         Application.batch.draw(blacksmithroof, offset+6*16, offset+8*16);
         Application.batch.draw(tree, offset+5*16, offset+14*16);
         Application.batch.draw(tree, offset+-1*16,offset+ 11*16);
@@ -62,9 +81,7 @@ public class TownScreen extends GameScreen {
         Application.batch.draw(tree, offset+21*16,offset+ 16*16);
         Application.batch.draw(roof, offset+12*16,offset+ 9*16);
         Application.batch.draw(roof, offset+16*16,offset+ 9*16);
-
     }
-
 
     public boolean[][] getHolePositions() {
         return holePositions;

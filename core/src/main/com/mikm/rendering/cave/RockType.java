@@ -21,18 +21,35 @@ public enum RockType {
     public static final int SIZE = VALUES.size();
     public int spritesheetPosition;
     public int sellPrice;
-    public int oreAmount;
+    private int oreAmount;
+    public int tempOreAmount;
 
     RockType(int spritesheetPosition, int sellPrice) {
         this.spritesheetPosition = spritesheetPosition;
         this.sellPrice = sellPrice;
     }
 
-    public void increaseOreAmount(RockType rockType) {
-        if (rockType == NORMAL) {
-            throw new RuntimeException("Can't increase ore amount of normal rock");
+
+    public int getOreAmount() {
+        return oreAmount;
+    }
+
+    public void zeroOreAmount() {
+        oreAmount = 0;
+    }
+    public void increaseOreAmount() {
+        increaseOreAmount(1);
+    }
+
+    public void increaseOreAmount(int i) {
+        oreAmount+=i;
+        tempOreAmount+=i;
+    }
+
+    public static void validateOres() {
+        for (int i = 0; i < SIZE; i++) {
+            RockType.get(i).tempOreAmount = 0;
         }
-        rockType.oreAmount++;
     }
 
     public TextureRegion getParticleImage() {
@@ -44,6 +61,14 @@ public enum RockType {
             }
         }
         return Assets.particleImages[1][spritesheetPosition+1];
+    }
+
+    public static boolean playerHasAnyOre() {
+        return !(RockType.get(1).oreAmount == 0 && RockType.get(2).oreAmount == 0 && RockType.get(3).oreAmount == 0 && RockType.get(4).oreAmount == 0);
+    }
+
+    public static boolean playerHasAnyTempOre() {
+        return !(RockType.get(1).tempOreAmount == 0 && RockType.get(2).tempOreAmount == 0 && RockType.get(3).tempOreAmount == 0 && RockType.get(4).tempOreAmount == 0);
     }
 
     public static RockType getRandomRockType(float[] chances) {

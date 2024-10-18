@@ -43,7 +43,7 @@ public class Assets {
         gray = new TextureRegion(new Texture(Gdx.files.internal("images/gray.png")));
 
 
-        font = new BitmapFont(Gdx.files.internal("fonts/EquipmentPro.fnt"));
+        font = new BitmapFont(Gdx.files.internal("fonts/EquipmentPro.fnt"), new TextureRegion(new Texture(Gdx.files.internal("fonts/EquipmentPro.png"))));
         font.getData().setScale(1f);
 
     }

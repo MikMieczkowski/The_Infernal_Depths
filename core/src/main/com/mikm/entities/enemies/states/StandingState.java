@@ -8,8 +8,8 @@ public class StandingState extends DashInducingState {
     private float timeBetweenWanders;
     private final float TIME_BETWEEN_WANDERS_MIN = 1f, TIME_BETWEEN_WANDERS_MAX = 4f;
 
-    public StandingState(Entity entity, float contactDamage) {
-        super(entity, contactDamage);
+    public StandingState(Entity entity, int contactDamage) {
+        super(entity, contactDamage, 0, 0);
     }
 
     @Override

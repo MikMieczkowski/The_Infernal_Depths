@@ -1,6 +1,7 @@
 package com.mikm.entities;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
@@ -13,6 +14,7 @@ import com.mikm.entities.animation.DirectionalAnimation;
 import com.mikm.entities.animation.Directions;
 import com.mikm.entities.enemies.states.DamagedState;
 import com.mikm.entities.enemies.states.DashingState;
+import com.mikm.rendering.cave.RockType;
 import com.mikm.rendering.screens.Application;
 
 import java.util.Map;
@@ -33,6 +35,7 @@ public abstract class Entity extends InanimateEntity {
     public State detectedPlayerState;
     public DashingState dashingState;
     public AnimationHandler animationManager;
+    public Sound hitSound = null;
 
     private float squishTimer;
     private float squishAmount;
@@ -86,6 +89,11 @@ public abstract class Entity extends InanimateEntity {
         handleSquish();
         handleInvincibility();
         moveAndCheckCollisions();
+        if (this != Application.player) {
+            if (collider.inWall() && !damagedState.dead) {
+                die();
+            }
+        }
     }
 
     @Override
@@ -125,9 +133,6 @@ public abstract class Entity extends InanimateEntity {
 
     public void die() {
         Application.getInstance().currentScreen.removeEntity(this);
-        if (this == Application.player) {
-            Application.player.dead = true;
-        }
     }
 
 

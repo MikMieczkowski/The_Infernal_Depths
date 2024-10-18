@@ -27,9 +27,9 @@ public class WeaponInstances {
         crystalSword = new Sword(items[0][2], sliceSpritesheet, 2, 5, .3f, 48);
         infernalSword = new Sword(items[0][3], sliceSpritesheet, 3, 7, .1f, 64);
         pickaxe = new Pickaxe(caveScreen, items[1][0], sliceSpritesheet);
-        copperBow = new Bow(items[0][4], strings, arrowImage, 1, 1, .2f, .2f, 2);
-        ironBow = new Bow(items[0][5], strings, arrowImage, 3, 3, .4f, .4f, 2);
-        crystalBow = new Bow(items[0][6], strings, arrowImage, 3, 3, .1f, .3f, 4);
+        copperBow = new Bow(items[0][4], strings, arrowImage, 1, 1, .4f, .2f, 1f);
+        ironBow = new Bow(items[0][5], strings, arrowImage, 4, 5, 1.5f, .7f, 1.5f);
+        crystalBow = new Bow(items[0][6], strings, arrowImage, 3, 3, .2f, .2f, 4);
         infernalBow = new Bow(items[0][7], strings, arrowImage, 3, 10, .01f, .01f, 10);
         swords = new Sword[]{copperSword, ironSword, crystalSword, infernalSword};
         bows = new Bow[]{copperBow, ironBow, crystalBow, infernalBow};

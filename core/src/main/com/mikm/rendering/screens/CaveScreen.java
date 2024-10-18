@@ -1,16 +1,21 @@
 package com.mikm.rendering.screens;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.esotericsoftware.kryo.io.KryoBufferUnderflowException;
 import com.mikm.Assets;
-import com.mikm.RandomUtils;
+import com.mikm.ExtraMathUtils;
 import com.mikm.Vector2Int;
+import com.mikm.entities.Grave;
+import com.mikm.entities.InanimateEntity;
 import com.mikm.entities.Rope;
+import com.mikm.entities.enemies.slimeBoss.SlimeBoss;
 import com.mikm.input.GameInput;
 import com.mikm.rendering.Camera;
 import com.mikm.rendering.cave.CaveEntitySpawner;
@@ -41,6 +46,10 @@ public class CaveScreen extends GameScreen {
 
     public boolean displayButtonIndicator = false;
     public Vector2 buttonIndicatorPosition;
+    public Vector2Int currentRopePosition = Vector2Int.ZERO;
+    private TextureRegion ropePointer = Assets.getInstance().getTextureRegion("ropePointer");
+    private final int POINTER_RADIUS = 80;
+    public ArrayList<Grave> graves = new ArrayList<>();
 
     CaveScreen() {
         super();
@@ -51,7 +60,7 @@ public class CaveScreen extends GameScreen {
         for (int i = 0; i < 10; i++) {
             try {
                 caveFloorMementos[i] = Serializer.getInstance().read(CaveFloorMemento.class, i);
-            } catch (Exception e) {
+            } catch (KryoBufferUnderflowException e) {
                 caveFloorMementos[i] = null;
             }
         }
@@ -62,7 +71,8 @@ public class CaveScreen extends GameScreen {
         entities.doAfterRender(() -> {
             updateCurrentMemento();
             floor--;
-            handleScreenChange();
+            Application.player.startInvincibilityFrames();
+            handleScreenChange(-1);
             if (floor % 5 == 0) {
                 return;
             }
@@ -74,7 +84,8 @@ public class CaveScreen extends GameScreen {
         entities.doAfterRender(() -> {
             updateCurrentMemento();
             floor++;
-            handleScreenChange();
+            Application.player.startInvincibilityFrames();
+            handleScreenChange(1);
             if (floor % 5 == 0) {
                 return;
             }
@@ -82,7 +93,9 @@ public class CaveScreen extends GameScreen {
                 generateNewFloor();
                 Vector2Int position = putPlayerInOpenTile();
                 Vector2Int ropePosition = caveTilemapCreator.getSpawnablePosition();
-                inanimateEntities.addInstantly(new Rope(ropePosition.x+8, ropePosition.y+8));
+                ropePosition = new Vector2Int(ropePosition.x + 8, ropePosition.y+8);
+                currentRopePosition = ropePosition;
+                inanimateEntities.addInstantly(new Rope(ropePosition.x, ropePosition.y));
                 CaveFloorMemento memento = CaveFloorMemento.create(position, ropePosition, caveTilemapCreator.ruleCellPositions, caveTilemapCreator.holePositions, inanimateEntities, entities);
                 caveFloorMementos[floor - 1] = memento;
             } else {
@@ -91,9 +104,10 @@ public class CaveScreen extends GameScreen {
         });
     }
 
-    private void updateCurrentMemento() {
+    public void updateCurrentMemento() {
         if (CaveScreen.floor % 5 != 0) {
             caveFloorMementos[CaveScreen.floor - 1] = CaveFloorMemento.create(caveFloorMementos[CaveScreen.floor - 1].spawnPosition, caveFloorMementos[CaveScreen.floor - 1].ropePosition, caveFloorMementos[CaveScreen.floor - 1].ruleCellPositions, caveFloorMementos[CaveScreen.floor - 1].holePositions, inanimateEntities, caveFloorMementos[CaveScreen.floor - 1].enemies);
+
         }
     }
 
@@ -117,7 +131,24 @@ public class CaveScreen extends GameScreen {
             Application.batch.draw(GameInput.getTalkButtonImage(), buttonIndicatorPosition.x, buttonIndicatorPosition.y);
         }
         super.renderUI();
+        drawPointer(currentRopePosition.x, currentRopePosition.y);
+        if (floor != 0) {
+            for (int i = 0; i < caveFloorMementos[floor - 1].graves.size(); i++) {
+                InanimateEntity g = caveFloorMementos[floor - 1].graves.get(i);
+                drawPointer(g.x, g.y);
+            }
+        }
     }
+
+    private void drawPointer(float x, float y) {
+        float distanceToRope = ExtraMathUtils.distance(Camera.getCenterOfScreenWorldCoordinates().x, Camera.getCenterOfScreenWorldCoordinates().y, x, y);
+        if (distanceToRope > Gdx.graphics.getWidth() * Camera.VIEWPORT_ZOOM / 2) {
+            float angle = MathUtils.atan2(y - Camera.getCenterOfScreenWorldCoordinates().y, x - Camera.getCenterOfScreenWorldCoordinates().x);
+            float screenMultiplier = Gdx.graphics.getWidth() / 1440f;
+            drawComponentOnEdge(ropePointer, 4, 1, screenMultiplier * POINTER_RADIUS * MathUtils.cos(angle), screenMultiplier * POINTER_RADIUS * MathUtils.sin(angle), MathUtils.radDeg * angle);
+        }
+    }
+
 
     @Override
     public void dispose() {
@@ -147,13 +178,20 @@ public class CaveScreen extends GameScreen {
         Application.player.y = currentMemento.spawnPosition.y;
     }
 
-    private void handleScreenChange() {
+    private void handleScreenChange(int i) {
         if (floor <= 0) {
             Application.getInstance().setGameScreen(Application.getInstance().townScreen);
         } else if (Application.getInstance().currentScreen != Application.getInstance().caveScreen) {
             Application.getInstance().setGameScreen(Application.getInstance().caveScreen);
         } else if (floor == 5) {
-            Application.getInstance().setGameScreen(Application.getInstance().slimeBossRoomScreen);
+            if (!SlimeBoss.defeated) {
+                Application.getInstance().setGameScreen(Application.getInstance().slimeBossRoomScreen);
+            } else {
+                floor += i;
+                Application.getInstance().setGameScreen(Application.getInstance().caveScreen);
+            }
+        } else if (floor == 10) {
+            Application.getInstance().setGameScreen(Application.getInstance().motiScreen);
         }
     }
 

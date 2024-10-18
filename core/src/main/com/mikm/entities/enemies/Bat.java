@@ -8,6 +8,7 @@ import com.mikm.entities.Entity;
 import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.animation.DirectionalAnimation;
 import com.mikm.entities.enemies.states.*;
+import com.mikm.rendering.SoundEffects;
 import com.mikm.rendering.screens.Application;
 
 import java.util.HashMap;
@@ -26,11 +27,13 @@ public class Bat extends Entity {
 
     public Bat() {
         super(0,0);
+        hitSound = SoundEffects.batHit;
     }
     public Bat(float x, float y) {
         super(x, y);
         this.x-=xVel;
         this.y-=yVel;
+        hitSound = SoundEffects.batHit;
     }
 
     @Override

@@ -7,11 +7,12 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.esotericsoftware.kryo.io.KryoBufferUnderflowException;
 import com.mikm.Assets;
 import com.mikm.debug.DebugRenderer;
+import com.mikm.entities.Grave;
+import com.mikm.entities.enemies.slimeBoss.SlimeBoss;
 import com.mikm.entities.player.Player;
-import com.mikm.entities.player.weapons.Weapon;
 import com.mikm.entities.player.weapons.WeaponInstances;
 import com.mikm.entities.projectiles.DamageInformation;
 import com.mikm.input.InputRaw;
@@ -19,6 +20,8 @@ import com.mikm.rendering.Camera;
 import com.mikm.rendering.SoundEffects;
 import com.mikm.rendering.cave.RockType;
 import com.mikm.serialization.Serializer;
+
+import java.util.ArrayList;
 
 public class Application extends Game {
 	private static Application instance;
@@ -46,12 +49,14 @@ public class Application extends Game {
 	public SlimeBossRoomScreen slimeBossRoomScreen;
 	public BlacksmithScreen blacksmithScreen;
 	public WizardScreen wizardScreen;
+	public MotiScreen motiScreen;
 
 	public GameScreen[] screens;
 
 	public static Player player;
 
 	public boolean timestop;
+	public boolean paused = false;
 	private int timeStopFrames;
 	private final int MAX_TIMESTOP_FRAMES = 10;
 
@@ -70,11 +75,46 @@ public class Application extends Game {
 		blacksmithScreen = new BlacksmithScreen();
 		slimeBossRoomScreen = new SlimeBossRoomScreen();
 		wizardScreen = new WizardScreen();
-		screens= new GameScreen[]{caveScreen, townScreen, slimeBossRoomScreen, blacksmithScreen, wizardScreen};
+		motiScreen = new MotiScreen();
+		screens= new GameScreen[]{caveScreen, townScreen, slimeBossRoomScreen, blacksmithScreen, wizardScreen, motiScreen};
 
 		Camera.setPositionDirectlyToPlayerPosition();
 		setGameScreen(townScreen);
 
+		try {
+
+			Application.player.swordLevel = readSaveData();
+			Application.player.bowLevel = readSaveData();
+			for (int i = 0; i < RockType.SIZE; i++) {
+				RockType.get(i).increaseOreAmount(readSaveData());
+				RockType.get(i).tempOreAmount = 0;
+			}
+
+			boolean b = readSaveData() == 1;
+			if (b) {
+				if (Application.player.bowLevel != 0) {
+					Application.player.equippedWeapon = Application.player.weaponInstances.bows[Application.player.bowLevel - 1];
+				}
+			} else {
+				if (Application.player.swordLevel != 0) {
+					Application.player.equippedWeapon = Application.player.weaponInstances.swords[Application.player.swordLevel-1];
+				}
+			}
+			SlimeBoss.defeated = readSaveData() == 1;
+		} catch (KryoBufferUnderflowException e) {
+			//file was empty, don't load anything
+		}
+	}
+
+	private static int n = 0;
+	private ArrayList<Integer> saveData;
+	@SuppressWarnings("unchecked")
+	private int readSaveData() {
+		if (n==0) {
+			saveData = (ArrayList<Integer>) Serializer.getInstance().read(ArrayList.class, 10);
+		}
+		n++;
+		return saveData.get(n-1);
 	}
 
 	private void createPlayerAndCaveScreen() {
@@ -96,7 +136,7 @@ public class Application extends Game {
 				timestop = false;
 			}
 		}
-		InputRaw.handleThisFrameInput();
+ 		InputRaw.handleThisFrameInput();
 		checkRespawn();
 		handleDebugInput();
 	}
@@ -105,22 +145,50 @@ public class Application extends Game {
 		if (player.dead) {
 			player.deadTime += Gdx.graphics.getDeltaTime();
 			if (player.deadTime > player.RESPAWN_TIME) {
-				player.dead = false;
+				//respawn
+				Application.getInstance().caveScreen.updateCurrentMemento();
+				CaveScreen.floor = 0;
 				player.deadTime -= player.RESPAWN_TIME;
 				player.hp = player.getMaxHp();
 				player.damagedState.dead = false;
-				for (int i = 0; i < RockType.SIZE; i++) {
-					RockType.get(i).oreAmount = 0;
-				}
 				Application.getInstance().currentScreen.entities.doAfterRender(()->{
 					Application.getInstance().setGameScreen(Application.getInstance().townScreen);
+					player.dead = false;
 				});
 			}
 		}
 	}
 
+	private void onApplicationExit() {
+		if (RockType.playerHasAnyTempOre()) {
+			Application.getInstance().currentScreen.addInanimateEntityInstantly(new Grave(Application.player.x, Application.player.y));
+			caveScreen.updateCurrentMemento();
+		}
+		writeSaveData();
+	}
+
+	private void writeSaveData() {
+		if (currentScreen == caveScreen) {
+			caveScreen.updateCurrentMemento();
+		}
+		ArrayList<Integer> saveData = new ArrayList<>();
+		saveData.add(Application.player.swordLevel);
+		saveData.add(Application.player.bowLevel);
+		for (int i = 0; i < RockType.SIZE; i++) {
+			saveData.add(RockType.get(i).getOreAmount()- RockType.get(i).tempOreAmount);
+		}
+		int b = 0;
+		if (Application.player.bowLevel != 0 && Application.player.equippedWeapon == Application.player.weaponInstances.bows[Application.player.bowLevel-1]) {
+			b = 1;
+		}
+		saveData.add(b);
+		saveData.add(SlimeBoss.defeated ? 1:0);
+		Serializer.getInstance().write(saveData, 10);
+	}
+
 	@Override
 	public void dispose() {
+		onApplicationExit();
 		batch.dispose();
 		caveScreen.dispose();
 		townScreen.dispose();
@@ -131,6 +199,7 @@ public class Application extends Game {
 		DebugRenderer.getInstance().dispose();
 		SoundEffects.dispose();
 		Serializer.getInstance().dispose();
+
 	}
 
 	public void freezeTime() {
@@ -171,6 +240,10 @@ public class Application extends Game {
 
 
 	private void handleDebugInput() {
+
+		if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+			paused = !paused;
+		}
 		if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
 			if (currentScreen == caveScreen) {
 				Application.getInstance().caveScreen.entities.doAfterRender(()-> {
@@ -186,15 +259,21 @@ public class Application extends Game {
 		}
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.U)) {
-			RockType.get(0).oreAmount+=5;
+			RockType.get(1).increaseOreAmount(7);
+			RockType.get(2).increaseOreAmount(7);
+			RockType.get(3).increaseOreAmount(7);
+			RockType.get(4).increaseOreAmount(7);
 		}
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.V)) {
+			setGameScreen(caveScreen);
 			caveScreen.decreaseFloor();
 		}
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
-			freezeTime();
+			Application.player.hp =1;
+			Application.player.damagedState.enter(new DamageInformation(1, 0 ,1));
 		}
+
 	}
 }

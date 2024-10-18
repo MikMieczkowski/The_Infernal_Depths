@@ -1,15 +1,11 @@
 package com.mikm.serialization;
 
-import com.badlogic.gdx.math.Vector2;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.mikm.Vector2Int;
-import com.mikm.entities.Entity;
-import com.mikm.entities.InanimateEntity;
-import com.mikm.entities.RemovableArray;
-import com.mikm.entities.Rope;
+import com.mikm.entities.*;
 import com.mikm.rendering.cave.CaveFloorMemento;
 import com.mikm.rendering.cave.Rock;
 import com.mikm.rendering.screens.Application;
@@ -25,12 +21,16 @@ public class CaveFloorMementoSerializer extends Serializer<CaveFloorMemento> {
         kryo.writeObject(output, object.holePositions);
 
         ArrayList<InanimateEntity> rocks = new ArrayList<>();
+        ArrayList<InanimateEntity> otherInanimateEntities = new ArrayList<>();
         for (InanimateEntity inanimateEntity : object.inanimateEntities) {
             if (inanimateEntity.getClass().equals(Rock.class)) {
                 rocks.add(inanimateEntity);
+            } else if (inanimateEntity.getClass() == Grave.class) {
+                otherInanimateEntities.add(inanimateEntity);
             }
         }
         kryo.writeObject(output, rocks);
+        kryo.writeObject(output, otherInanimateEntities);
 
         ArrayList<Entity> enemiesArrayList = new ArrayList<>(object.enemies);
         enemiesArrayList.remove(Application.player);
@@ -47,9 +47,10 @@ public class CaveFloorMementoSerializer extends Serializer<CaveFloorMemento> {
 
         ArrayList<Vector2Int> holePositions = kryo.readObject(input, ArrayList.class);
 
-        ArrayList<InanimateEntity> inanimateEntitiesRaw = kryo.readObject(input, ArrayList.class);
+        ArrayList<InanimateEntity> rocks = kryo.readObject(input, ArrayList.class);
+        ArrayList<InanimateEntity> otherInanimateEntities = kryo.readObject(input, ArrayList.class);
         ArrayList<Entity> enemiesRaw = kryo.readObject(input, ArrayList.class);
-        RemovableArray<InanimateEntity> inanimateEntities = new RemovableArray<>(inanimateEntitiesRaw);
+        RemovableArray<InanimateEntity> inanimateEntities = new RemovableArray<>(rocks);
         RemovableArray<Entity> enemies = new RemovableArray<>(enemiesRaw);
 
 
@@ -61,6 +62,8 @@ public class CaveFloorMementoSerializer extends Serializer<CaveFloorMemento> {
             ruleCellPositions[(int) rock.y/Application.TILE_HEIGHT][(int) rock.x / Application.TILE_WIDTH] = false;
         }
         CaveFloorMemento memento = new CaveFloorMemento(spawnPosition, ropePosition, ruleCellPositions, holePositions, inanimateEntities, enemies);
+        memento.graves = otherInanimateEntities;
         return memento;
+
     }
 }

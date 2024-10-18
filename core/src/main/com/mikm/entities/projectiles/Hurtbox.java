@@ -3,7 +3,14 @@ package com.mikm.entities.projectiles;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
+import com.mikm.entities.Destructible;
 import com.mikm.entities.Entity;
+import com.mikm.entities.InanimateEntity;
+import com.mikm.entities.particles.ParticleEffect;
+import com.mikm.entities.particles.ParticleTypes;
+import com.mikm.rendering.SoundEffects;
+import com.mikm.rendering.cave.Rock;
+import com.mikm.rendering.cave.RockType;
 import com.mikm.rendering.screens.Application;
 
 public class Hurtbox {
@@ -32,8 +39,20 @@ public class Hurtbox {
 
     public void checkIfHitEntities() {
         for (Entity entity : Application.getInstance().currentScreen.entities) {
-            if (entity != Application.player && entity.isAttackable && Intersector.overlaps(getHurtbox(), entity.getHitbox())) {
+            if (entity != Application.player && Intersector.overlaps(getHurtbox(), entity.getHitbox())) {
                 entity.damagedState.enter(damageInformation);
+            }
+        }
+        if (Application.getInstance().currentScreen == Application.getInstance().townScreen) {
+            for (InanimateEntity inanimateEntity : Application.getInstance().townScreen.inanimateEntities) {
+                if (inanimateEntity.getClass() == Destructible.class&& Intersector.overlaps(inanimateEntity.getHitbox(), getHurtbox())) {
+                    inanimateEntity.die();
+                    Destructible d = (Destructible)inanimateEntity;
+
+                    Application.getInstance().townScreen.isCollidableGrid()[(int)inanimateEntity.y/ Application.TILE_HEIGHT][(int)inanimateEntity.x / Application.TILE_WIDTH] = false;
+                    SoundEffects.play(d.sound);
+                    new ParticleEffect(d.particleEffect, inanimateEntity.x, inanimateEntity.y);
+                }
             }
         }
     }

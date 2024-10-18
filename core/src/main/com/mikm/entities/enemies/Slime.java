@@ -8,6 +8,7 @@ import com.mikm.entities.enemies.states.DashBuildUpState;
 import com.mikm.entities.enemies.states.DashingState;
 import com.mikm.entities.enemies.states.DashInducingStandingState;
 import com.mikm.entities.enemies.states.WanderingState;
+import com.mikm.rendering.SoundEffects;
 import com.mikm.rendering.screens.Application;
 
 import java.util.HashMap;
@@ -20,7 +21,6 @@ public class Slime extends Entity {
     public final float TIME_BETWEEN_DASHES = 2f;
     private final float DASH_SPEED = 6f;
     private float angle;
-    private boolean slimeBossMinion;
 
     private static Map<AnimationName, DirectionalAnimation> animations = new HashMap<>();
 
@@ -29,17 +29,12 @@ public class Slime extends Entity {
     private Slime() {
         //serialization constructor
         super(0, 0);
+        hitSound = SoundEffects.slimeHit;
     }
 
     public Slime(int x, int y) {
         super(x, y);
-    }
-
-    public Slime(float x, float y, float angle) {
-        super(x, y);
-        this.angle = angle;
-        slimeBossMinion = true;
-        hp = 1;
+        hitSound = SoundEffects.slimeHit;
     }
 
     @Override
@@ -50,11 +45,7 @@ public class Slime extends Entity {
         detectedPlayerState = dashingState;
         dashBuildUpState = new DashBuildUpState(this, 1);
         super.detectedPlayerBuildUpState = dashBuildUpState;
-        if(!slimeBossMinion) {
-            standingState.enter();
-        } else {
-            dashBuildUpState.enter(angle);
-        }
+        standingState.enter();
     }
 
     @Override

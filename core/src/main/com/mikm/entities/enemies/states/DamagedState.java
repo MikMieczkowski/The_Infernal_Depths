@@ -9,6 +9,7 @@ import com.mikm.ExtraMathUtils;
 import com.mikm.entities.Entity;
 import com.mikm.entities.State;
 import com.mikm.entities.animation.AnimationName;
+import com.mikm.entities.enemies.Bat;
 import com.mikm.entities.particles.ParticleEffect;
 import com.mikm.entities.particles.ParticleTypes;
 import com.mikm.entities.projectiles.DamageInformation;
@@ -16,11 +17,11 @@ import com.mikm.rendering.SoundEffects;
 import com.mikm.rendering.screens.Application;
 
 public class DamagedState extends State {
-    private final float TOTAL_KNOCKBACK_TIME = .25f;
+    protected final float TOTAL_KNOCKBACK_TIME = .25f;
     private final float JUMP_HEIGHT = 8f;
-    private final float DEATH_KNOCKBACK_MULTIPLIER = 3f;
+    final float DEATH_KNOCKBACK_MULTIPLIER = 3f;
 
-    private DamageInformation damageInformation;
+    protected DamageInformation damageInformation;
     public boolean dead;
 
 
@@ -29,16 +30,23 @@ public class DamagedState extends State {
     }
 
     public void enter(DamageInformation damageInformation) {
-        if (entity.inInvincibility) {
+        if (entity.inInvincibility || !entity.isAttackable) {
             return;
         }
         super.enter();
+        this.damageInformation = damageInformation;
+        entity.startSquish(TOTAL_KNOCKBACK_TIME*.75f, 1.2f);
+        if (damageInformation.damage == 0) {
+            return;
+        }
         if (entity == Application.player) {
             SoundEffects.play(SoundEffects.playerHit);
         } else {
             SoundEffects.play(SoundEffects.hit);
         }
-        this.damageInformation = damageInformation;
+        if (entity.hitSound!=null) {
+            SoundEffects.play(entity.hitSound);
+        }
         entity.hp -= damageInformation.damage;
         if (entity.hp <= 0) {
             entity.flash(Color.RED);
@@ -50,7 +58,6 @@ public class DamagedState extends State {
             Application.getInstance().freezeTime();
             Application.player.equippedWeapon.exitAttackState();
         }
-        entity.startSquish(TOTAL_KNOCKBACK_TIME*.75f, 1.2f);
         entity.startInvincibilityFrames();
     }
 
