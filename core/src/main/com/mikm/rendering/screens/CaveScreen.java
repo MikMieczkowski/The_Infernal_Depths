@@ -49,7 +49,6 @@ public class CaveScreen extends GameScreen {
     public Vector2Int currentRopePosition = Vector2Int.ZERO;
     private TextureRegion ropePointer = Assets.getInstance().getTextureRegion("ropePointer");
     private final int POINTER_RADIUS = 80;
-    public ArrayList<Grave> graves = new ArrayList<>();
 
     CaveScreen() {
         super();
@@ -132,7 +131,7 @@ public class CaveScreen extends GameScreen {
         }
         super.renderUI();
         drawPointer(currentRopePosition.x, currentRopePosition.y);
-        if (floor != 0) {
+        if (floor %5!= 0) {
             for (int i = 0; i < caveFloorMementos[floor - 1].graves.size(); i++) {
                 InanimateEntity g = caveFloorMementos[floor - 1].graves.get(i);
                 drawPointer(g.x, g.y);

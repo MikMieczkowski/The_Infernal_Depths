@@ -119,6 +119,13 @@ public class GameInput {
         return false;
     }
 
+    public static boolean isTalkButtonPressed() {
+        if (InputRaw.usingController) {
+            return InputRaw.isControllerButtonPressed(controllerMapping.buttonX);
+        }
+        return Gdx.input.isKeyPressed(Input.Keys.E);
+    }
+
     public static boolean isTalkButtonJustPressed() {
         if (InputRaw.usingController) {
             return InputRaw.isControllerButtonJustPressed(controllerMapping.buttonX);

@@ -5,10 +5,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.math.Circle;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.*;
+import com.mikm.Assets;
 import com.mikm.DeltaTime;
 import com.mikm.Vector2Int;
 import com.mikm.debug.DebugRenderer;
@@ -72,6 +70,8 @@ public class Player extends Entity {
     public float deadTime = 0;
     public final float RESPAWN_TIME = 3;
 
+    private boolean aboveHole;
+
     public Player(float x, float y) {
         super(x, y);
         damagesPlayer = false;
@@ -121,20 +121,22 @@ public class Player extends Entity {
                 return;
             }
             ArrayList<Vector2Int> wallTilesToCheck = collider.getWallTilePositionsToCheck();
+            boolean aboveHole = false;
             for (Vector2Int checkedWallTilePosition : wallTilesToCheck) {
                 int x = 0, y;
                 for (y = -1; y <= 1; y += 1) {
-                    checkTile(checkedWallTilePosition, holePositions, x, y);
+                    aboveHole = aboveHole || checkTile(checkedWallTilePosition, holePositions, x, y);
                 }
                 y=0;
                 for (x = -1; x <= 1; x += 1) {
-                    checkTile(checkedWallTilePosition, holePositions, x, y);
+                    aboveHole = aboveHole || checkTile(checkedWallTilePosition, holePositions, x, y);
                 }
             }
+            this.aboveHole = aboveHole;
         }
     }
 
-    private void checkTile(Vector2Int checkedWallTilePosition, boolean[][] holePositions, int x, int y) {
+    private boolean checkTile(Vector2Int checkedWallTilePosition, boolean[][] holePositions, int x, int y) {
         Vector2Int v = new Vector2Int(checkedWallTilePosition.x + x, checkedWallTilePosition.y + y);
         Rectangle checkedTileBounds = new Rectangle(v.x * Application.TILE_WIDTH, v.y * Application.TILE_HEIGHT, Application.TILE_WIDTH, Application.TILE_HEIGHT);
         boolean isInBounds = v.x >= 0 && v.x < holePositions.length && v.y >= 0 && v.y < holePositions[0].length;
@@ -144,11 +146,16 @@ public class Player extends Entity {
         } catch (Exception e) {
 
         }
+        boolean output = false;
         if (isInBounds && vIsHole) {
-            if (checkedTileBounds.contains(new Circle(getHitbox().x, getHitbox().y, getHitbox().radius-6))) {
-                fallingState.enter();
+            if (Intersector.overlaps(new Circle(getHitbox().x, getHitbox().y, getHitbox().radius+6), checkedTileBounds)) {
+                output = true;
+                if (GameInput.isTalkButtonPressed()) {
+                    fallingState.enter();
+                }
             }
         }
+        return output;
     }
 
 
@@ -181,6 +188,9 @@ public class Player extends Entity {
     @Override
     public void draw(Batch batch) {
         drawPlayerAndWeaponBasedOnZIndex(batch);
+        if (aboveHole) {
+            batch.draw(GameInput.getTalkButtonImage(), x+8, y+20);
+        }
     }
 
     private void drawPlayerAndWeaponBasedOnZIndex(Batch batch) {
