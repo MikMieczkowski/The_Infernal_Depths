@@ -23,9 +23,6 @@ public class Grave extends InanimateEntity {
     }
     public Grave(float x, float y) {
         super(x, y);
-        if (Application.getInstance().currentScreen == Application.getInstance().caveScreen) {
-            Application.getInstance().caveScreen.graves.add(this);
-        }
         new ParticleEffect(ParticleTypes.getRockParameters(RockType.NORMAL), x, y);
         new ParticleEffect(ParticleTypes.getRockParameters(RockType.NORMAL), x, y);
         new ParticleEffect(ParticleTypes.getRockParameters(RockType.NORMAL), x, y);
@@ -52,9 +49,6 @@ public class Grave extends InanimateEntity {
                 SoundEffects.playQuiet(SoundEffects.reward);
                 if (Application.getInstance().currentScreen == Application.getInstance().slimeBossRoomScreen) {
                     Application.getInstance().slimeBossRoomScreen.graves.remove(this);
-                }
-                if (Application.getInstance().currentScreen == Application.getInstance().caveScreen) {
-                    Application.getInstance().caveScreen.graves.remove(this);
                 }
                 Application.getInstance().caveScreen.updateCurrentMemento();
                 die();

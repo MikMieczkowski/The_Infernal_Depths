@@ -1,5 +1,6 @@
 package com.mikm.rendering.screens;
 
+import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -87,6 +88,7 @@ public class Application extends Game {
 			Application.player.bowLevel = readSaveData();
 			for (int i = 0; i < RockType.SIZE; i++) {
 				RockType.get(i).increaseOreAmount(readSaveData());
+				System.out.println(RockType.get(i).getOreAmount());
 				RockType.get(i).tempOreAmount = 0;
 			}
 
@@ -94,10 +96,12 @@ public class Application extends Game {
 			if (b) {
 				if (Application.player.bowLevel != 0) {
 					Application.player.equippedWeapon = Application.player.weaponInstances.bows[Application.player.bowLevel - 1];
+					Application.player.currentHeldItem = Application.player.equippedWeapon;
 				}
 			} else {
 				if (Application.player.swordLevel != 0) {
 					Application.player.equippedWeapon = Application.player.weaponInstances.swords[Application.player.swordLevel-1];
+					Application.player.currentHeldItem = Application.player.equippedWeapon;
 				}
 			}
 			SlimeBoss.defeated = readSaveData() == 1;
@@ -138,7 +142,7 @@ public class Application extends Game {
 		}
  		InputRaw.handleThisFrameInput();
 		checkRespawn();
-		handleDebugInput();
+		//handleDebugInput();
 	}
 
 	private void checkRespawn() {
