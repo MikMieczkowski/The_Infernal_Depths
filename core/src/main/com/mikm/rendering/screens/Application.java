@@ -80,7 +80,7 @@ public class Application extends Game {
 		screens= new GameScreen[]{caveScreen, townScreen, slimeBossRoomScreen, blacksmithScreen, wizardScreen, motiScreen};
 
 		Camera.setPositionDirectlyToPlayerPosition();
-		setGameScreen(townScreen);
+		setGameScreen(motiScreen);
 
 		try {
 
@@ -142,7 +142,7 @@ public class Application extends Game {
 		}
  		InputRaw.handleThisFrameInput();
 		checkRespawn();
-		//handleDebugInput();
+		handleDebugInput();
 	}
 
 	private void checkRespawn() {

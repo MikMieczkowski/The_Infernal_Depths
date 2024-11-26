@@ -23,6 +23,7 @@ public class DamagedState extends State {
 
     protected DamageInformation damageInformation;
     public boolean dead;
+    public boolean interruptState = false;
 
 
     public DamagedState(Entity entity) {
@@ -33,10 +34,13 @@ public class DamagedState extends State {
         if (entity.inInvincibility || !entity.isAttackable) {
             return;
         }
-        super.enter();
-        this.damageInformation = damageInformation;
-        entity.startSquish(TOTAL_KNOCKBACK_TIME*.75f, 1.2f);
+        if (!interruptState) {
+            super.enter();
+            this.damageInformation = damageInformation;
+            entity.startSquish(TOTAL_KNOCKBACK_TIME * .75f, 1.2f);
+        }
         if (damageInformation.damage == 0) {
+            SoundEffects.playLoud(SoundEffects.bowImpact);
             return;
         }
         if (entity == Application.player) {
@@ -44,8 +48,9 @@ public class DamagedState extends State {
         } else {
             SoundEffects.play(SoundEffects.hit);
         }
-        if (entity.hitSound!=null) {
-            SoundEffects.play(entity.hitSound);
+
+        if (entity.getHitSound()!=null) {
+            SoundEffects.play(entity.getHitSound());
         }
         entity.hp -= damageInformation.damage;
         if (entity.hp <= 0) {

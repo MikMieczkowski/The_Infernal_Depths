@@ -89,6 +89,16 @@ public class WizardScreen extends GameScreen{
     }
 
     @Override
+    public int getMapWidth() {
+        return 4;
+    }
+
+    @Override
+    public int getMapHeight() {
+        return 4;
+    }
+
+    @Override
     public Vector2 getInitialPlayerPosition() {
         return new Vector2(32, 32);
     }

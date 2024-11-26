@@ -19,7 +19,9 @@ import com.mikm.rendering.cave.RockType;
 import java.util.ArrayList;
 
 public class SlimeBossRoomScreen extends GameScreen {
-    private final int MAP_WIDTH = 25, MAP_HEIGHT = 25;
+
+
+
     private boolean[][] collidableGrid;
     private Entity slimeBoss;
     private float nextRoomTimer = 0;
@@ -33,7 +35,7 @@ public class SlimeBossRoomScreen extends GameScreen {
         tiledMap = new TmxMapLoader().load("SlimeBoss.tmx");
 
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, 1);
-        collidableGrid = readCollisionTiledmapLayer(2, MAP_WIDTH,MAP_HEIGHT);
+        collidableGrid = readCollisionTiledmapLayer(2, getMapWidth(),getMapHeight());
 
         createMusic(Assets.getInstance().getAsset("sound/hubba_bubba.mp3", Music.class));
     }
@@ -71,15 +73,24 @@ public class SlimeBossRoomScreen extends GameScreen {
         entities.removeInstantly(Application.player);
         entities.clear();
         inanimateEntities.clear();
-        entities.addInstantly(Application.player);
+        addEntity(Application.player);
         inanimateEntities.addAll(graves);
         slimeBoss = new SlimeBoss(this, 200, 200);
-        entities.addInstantly(slimeBoss);
-        addPlayerShadow();
+        addEntity(slimeBoss);
     }
 
     @Override
     public Vector2 getInitialPlayerPosition() {
         return new Vector2(96,96);
+    }
+
+    @Override
+    public int getMapWidth() {
+        return 25;
+    }
+
+    @Override
+    public int getMapHeight() {
+        return 25;
     }
 }

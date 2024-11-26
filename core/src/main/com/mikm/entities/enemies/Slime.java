@@ -1,5 +1,6 @@
 package com.mikm.entities.enemies;
 
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.mikm.entities.Entity;
 import com.mikm.entities.animation.AnimationName;
@@ -29,12 +30,10 @@ public class Slime extends Entity {
     private Slime() {
         //serialization constructor
         super(0, 0);
-        hitSound = SoundEffects.slimeHit;
     }
 
     public Slime(int x, int y) {
         super(x, y);
-        hitSound = SoundEffects.slimeHit;
     }
 
     @Override
@@ -75,5 +74,10 @@ public class Slime extends Entity {
     @Override
     public int getMaxHp() {
         return 3;
+    }
+
+    @Override
+    public Sound getHitSound() {
+        return SoundEffects.slimeHit;
     }
 }

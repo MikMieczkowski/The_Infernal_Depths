@@ -14,6 +14,7 @@ import com.mikm.entities.animation.DirectionalAnimation;
 import com.mikm.entities.animation.Directions;
 import com.mikm.entities.enemies.states.DamagedState;
 import com.mikm.entities.enemies.states.DashingState;
+import com.mikm.rendering.cave.CaveTilemapCreator;
 import com.mikm.rendering.cave.RockType;
 import com.mikm.rendering.screens.Application;
 
@@ -35,8 +36,6 @@ public abstract class Entity extends InanimateEntity {
     public State detectedPlayerState;
     public DashingState dashingState;
     public AnimationHandler animationManager;
-    public Sound hitSound = null;
-
     private float squishTimer;
     private float squishAmount;
     private boolean squishing;
@@ -89,10 +88,13 @@ public abstract class Entity extends InanimateEntity {
         handleSquish();
         handleInvincibility();
         moveAndCheckCollisions();
-        if (this != Application.player) {
-            if (collider.inWall() && !damagedState.dead) {
-                die();
-            }
+        if (collider.inWall()) {
+            int xDirection = (int)x - Application.getInstance().currentScreen.getMapWidth()*16/2;
+            xDirection = -MathUtils.clamp(xDirection, -1,1);
+            x += xDirection*Application.TILE_WIDTH;
+            int yDirection = (int)y - Application.getInstance().currentScreen.getMapHeight()*16/2;
+            yDirection = -MathUtils.clamp(yDirection, -1,1);
+            y += yDirection*Application.TILE_WIDTH;
         }
     }
 
@@ -201,5 +203,9 @@ public abstract class Entity extends InanimateEntity {
 
     public float getSpeed() {
         throw new RuntimeException("never defined this speed");
+    }
+
+    public Sound getHitSound() {
+        return null;
     }
 }

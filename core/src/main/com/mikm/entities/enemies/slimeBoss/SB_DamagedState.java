@@ -22,6 +22,7 @@ public class SB_DamagedState extends DamagedState {
             return;
         }
         SoundEffects.play(SoundEffects.hit);
+        SoundEffects.play(entity.getHitSound());
         this.damageInformation = damageInformation;
         entity.hp -= damageInformation.damage;
         entity.startInvincibilityFrames();

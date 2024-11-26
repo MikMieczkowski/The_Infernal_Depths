@@ -15,6 +15,8 @@ public class Moti_StateManager {
     private int LONG_JUMP_CHANCE_PERCENT = 50;
     private int jumpsPerDash = 5;
 
+    public boolean trip = false;
+
 
     public Moti_StateManager(Moti moti) {
         this.moti = moti;
@@ -22,11 +24,13 @@ public class Moti_StateManager {
 
     public void updateState() {
         if (!moti.damagedState.dead) {
-            if (dashing) {
-                updateDashState();
+            if (trip) {
+                enterAttack(MotiAttackType.TripleDash);
             } else {
-                updateAttackByPhase();
+                enterAttack(MotiAttackType.WebAttack);
             }
+            trip = !trip;
+            System.out.println(trip);
         }
     }
 
@@ -81,31 +85,14 @@ public class Moti_StateManager {
     }
 
 
-    private void enterAttack(Moti attackType) {
-        /*
+    private void enterAttack(MotiAttackType attackType) {
         switch (attackType) {
-            case SHORTJUMP:
-                slimeBoss.jumpBuildUpState.enter(true);
+            case TripleDash:
+                moti.tripleDashState.enter();
                 break;
-            case LONGJUMP:
-                slimeBoss.jumpBuildUpState.enter(false);
-                if (RandomUtils.getPercentage(50)) {
-                    dashing = true;
-                }
-                break;
-            case SIMMER:
-                slimeBoss.simmerBuildUpState.enter();
-                break;
-            case DASH:
-                if (firstDash) {
-                    slimeBoss.dashBuildUpState.enter(dashOriginalPosition);
-                }  else {
-                    slimeBoss.dashState.enter(dashOriginalPosition, false);
-                }
-                firstDash = false;
+            case WebAttack:
+                moti.webAttack.enter();
                 break;
         }
-
-         */
     }
 }

@@ -80,7 +80,7 @@ public class PlayerRollingState extends State {
                 heightSinCounter = 0;
                 hurtbox.setPosition(player.getCenteredPosition().x, player.getCenteredPosition().y, 0, 0);
                 hurtbox.setDamageInformation(new DamageInformation(RandomUtils.getFloat(0, MathUtils.PI2), KNOCKBACK_MULTIPLIER, DAMAGE));
-                hurtbox.checkIfHitEntities();
+                hurtbox.checkIfHitEntities(true);
                 new ParticleEffect(ParticleTypes.getDiveDustParameters(), player.getCenteredPosition().x, player.getBounds().y - 3);
                 SoundEffects.playLoud(SoundEffects.step);
                 player.startSquish(0.01f, 1.2f);

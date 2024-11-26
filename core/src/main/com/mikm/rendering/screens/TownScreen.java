@@ -23,16 +23,15 @@ public class TownScreen extends GameScreen {
     private boolean[][] collidableGrid;
     private boolean[][] holePositions;
 
-    private final int MAP_WIDTH = 60, MAP_HEIGHT = 50;
     TownScreen() {
         super();
         tiledMap = new TmxMapLoader().load("Overworld.tmx");
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, 1);
         tiledMapRenderer.setView(Camera.orthographicCamera);
         createMusic(Assets.getInstance().getAsset("sound/townTheme.mp3", Music.class));
-        collidableGrid = readCollisionTiledmapLayer(2, MAP_WIDTH, MAP_HEIGHT);
-        holePositions = readCollisionTiledmapLayer(3, MAP_WIDTH, MAP_HEIGHT);
-        readAndCreateDestructiblesTiledmapLayer(1, MAP_WIDTH, MAP_HEIGHT);
+        collidableGrid = readCollisionTiledmapLayer(2, getMapWidth(), getMapHeight());
+        holePositions = readCollisionTiledmapLayer(3, getMapWidth(), getMapHeight());
+        readAndCreateDestructiblesTiledmapLayer(1, getMapWidth(), getMapHeight());
 
         int offset = 15*16;
         addInanimateEntity(new Door(offset+3*16, offset+13*16, 4));
@@ -90,5 +89,15 @@ public class TownScreen extends GameScreen {
     @Override
     public Vector2 getInitialPlayerPosition() {
         return new Vector2(320,290);
+    }
+
+    @Override
+    public int getMapWidth() {
+        return 60;
+    }
+
+    @Override
+    public int getMapHeight() {
+        return 50;
     }
 }

@@ -1,5 +1,6 @@
 package com.mikm.entities.enemies.slimeBoss;
 
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Circle;
@@ -43,7 +44,6 @@ public class SlimeBoss extends Entity {
         super(x, y);
         isAttackable = true;
         this.screen = screen;
-        hitSound = SoundEffects.slimeHit;
     }
 
     @Override
@@ -103,5 +103,10 @@ public class SlimeBoss extends Entity {
     @Override
     public int getMaxHp() {
         return 90;
+    }
+
+    @Override
+    public Sound getHitSound() {
+        return SoundEffects.slimeHit;
     }
 }

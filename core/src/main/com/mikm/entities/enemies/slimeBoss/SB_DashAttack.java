@@ -1,12 +1,14 @@
 package com.mikm.entities.enemies.slimeBoss;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.ExtraMathUtils;
 import com.mikm.entities.State;
 import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.player.Player;
+import com.mikm.rendering.SoundEffects;
 import com.mikm.rendering.screens.Application;
 
 public class SB_DashAttack extends State {
@@ -50,6 +52,7 @@ public class SB_DashAttack extends State {
             angle = angleToPlayer -MathUtils.PI/2f + ANGLE_OF_APPROACH_FROM_PERPENDICULAR;
         }
         dashingRightOfAngleToPlayer = !dashingRightOfAngleToPlayer;
+        SoundEffects.play(SoundEffects.dash);
         distanceToPlayer = ExtraMathUtils.distance(slimeBoss.x, slimeBoss.y, player.x, player.y);
     }
 

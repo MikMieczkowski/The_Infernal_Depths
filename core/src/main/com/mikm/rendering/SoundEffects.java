@@ -15,7 +15,7 @@ public class SoundEffects {
     private static Sound swing2;
     private static Sound swing3;
     public static Sound[] swing;
-    public static Sound reward, rockBreak, ropeClimb, slimeJump, batHit, slimeHit, potBreak, grassBreak;
+    public static Sound reward, rockBreak, ropeClimb, slimeJump, slimeLand, batHit, slimeHit, potBreak, grassBreak;
     public static Sound bowImpact, bowReady, bowShoot, menuDeny;
 
     public static void create() {
@@ -29,6 +29,7 @@ public class SoundEffects {
         rockBreak = Gdx.audio.newSound(Gdx.files.internal("sound/effects/rockBreak.ogg"));
         ropeClimb = Gdx.audio.newSound(Gdx.files.internal("sound/effects/ropeClimb.ogg"));
         slimeJump = Gdx.audio.newSound(Gdx.files.internal("sound/effects/slimeJump.ogg"));
+        slimeLand = Gdx.audio.newSound(Gdx.files.internal("sound/effects/slimeLand.ogg"));
         slimeHit = Gdx.audio.newSound(Gdx.files.internal("sound/effects/slimeHit.ogg"));
         batHit = Gdx.audio.newSound(Gdx.files.internal("sound/effects/batHit.ogg"));
         step = Gdx.audio.newSound(Gdx.files.internal("sound/effects/step.ogg"));

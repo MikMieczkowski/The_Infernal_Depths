@@ -131,12 +131,14 @@ public abstract class GameScreen extends ScreenAdapter {
         }
         for (int i = 1; i < Assets.particleImages[0].length; i++) {
             if (RockType.get(i).getOreAmount() != 0) {
-                drawComponentOnEdge(Assets.particleImages[1][i], 8, 2, -5, (i - 1) * 17 + 5);
+                int offset = 15;
+                drawComponentOnEdge(Assets.particleImages[1][i], 6, 2, -5+offset, (i - 1) * 17 + 5);
                 int ores = MathUtils.clamp(RockType.get(i).getOreAmount(), 0, 99);
-                drawComponentOnEdge(Assets.numbers[ores % 10], 8, 1, -3, (i - 1) * 17 + 3);
                 if (ores / 10 != 0) {
-                    drawComponentOnEdge(Assets.numbers[ores / 10], 8, 1, -11, (i - 1) * 17 + 3);
+                    offset+=4;
+                    drawComponentOnEdge(Assets.numbers[ores / 10], 6, 1, -11+offset, (i - 1) * 17 + 3);
                 }
+                drawComponentOnEdge(Assets.numbers[ores % 10], 6, 1, -3+offset, (i - 1) * 17 + 3);
             }
         }
         drawComponentOnEdge(hpBar, 6, 1, -4, 1);
@@ -316,6 +318,10 @@ public abstract class GameScreen extends ScreenAdapter {
             song.dispose();
         }
     }
+
+    public abstract int getMapWidth();
+
+    public abstract int getMapHeight();
 
     public abstract Vector2 getInitialPlayerPosition();
 }
