@@ -1,5 +1,6 @@
 package com.mikm.entities.enemies;
 
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.mikm.RandomUtils;
@@ -15,11 +16,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Bat extends Entity {
-    public static final float SPEED = 2;
-    public static final float ANGULAR_SPEED = 1f;
+    public static final float SPEED = 4;
+    public static final float ANGULAR_SPEED = 1.57f;
     private final float DETECTION_CIRCLE_RADIUS = 200f;
     private final int CONTACT_DAMAGE = 1;
-    public final float TIME_BETWEEN_DASHES = .5f;
+    public final float TIME_BETWEEN_DASHES = .2f;
     private final float DASH_BUILDUP_TIME = .1f;
     private final float DASH_SPEED = 4f;
     public DashBuildUpState dashBuildUpState;
@@ -27,13 +28,11 @@ public class Bat extends Entity {
 
     public Bat() {
         super(0,0);
-        hitSound = SoundEffects.batHit;
     }
     public Bat(float x, float y) {
         super(x, y);
         this.x-=xVel;
         this.y-=yVel;
-        hitSound = SoundEffects.batHit;
     }
 
     @Override
@@ -69,5 +68,10 @@ public class Bat extends Entity {
     @Override
     protected Map<?, ?> getAnimations() {
         return animations;
+    }
+
+    @Override
+    public Sound getHitSound() {
+        return SoundEffects.batHit;
     }
 }

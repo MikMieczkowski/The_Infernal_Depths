@@ -13,14 +13,13 @@ public class StaticProjectile extends InanimateEntity {
     private Hurtbox hurtbox;
     private boolean visible;
 
-    public StaticProjectile(TextureRegion image, boolean visible, float x, float y) {
+    public StaticProjectile(TextureRegion image, boolean visible, DamageInformation damageInformation, float x, float y) {
         super(x, y);
         this.image = image;
         this.visible = visible;
         hurtbox = new Hurtbox(10, true);
         hurtbox.setPosition(x+5, y+5);
-        hurtbox.setDamageInformation(new DamageInformation(0, SB_SimmerAttack.SLIME_TRAIL_KNOCKBACK, SB_SimmerAttack.SLIME_TRAIL_DAMAGE));
-        new ParticleEffect(ParticleTypes.getSlimeTrailParameters(), x, y);
+        hurtbox.setDamageInformation(damageInformation);
     }
 
     @Override

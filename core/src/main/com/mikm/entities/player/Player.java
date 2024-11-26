@@ -87,17 +87,10 @@ public class Player extends Entity {
 
     @Override
     public void update() {
+        System.out.println(x + "," + y);
         handleInput();
         checkHolePositions();
         super.update();
-        if (collider.inWall()) {
-            int xDirection = (int)x - CaveTilemapCreator.MAP_WIDTH*16/2;
-            xDirection = -MathUtils.clamp(xDirection, -1,1);
-            x += xDirection*Application.TILE_WIDTH;
-            int yDirection = (int)y - CaveTilemapCreator.MAP_HEIGHT*16/2;
-            yDirection = -MathUtils.clamp(yDirection, -1,1);
-            y += yDirection*Application.TILE_WIDTH;
-        }
         currentHeldItem.update();
     }
 
@@ -118,6 +111,7 @@ public class Player extends Entity {
             } else if (Application.getInstance().currentScreen == Application.getInstance().townScreen) {
                 holePositions = Application.getInstance().townScreen.getHolePositions();
             } else {
+                this.aboveHole = false;
                 return;
             }
             ArrayList<Vector2Int> wallTilesToCheck = collider.getWallTilePositionsToCheck();

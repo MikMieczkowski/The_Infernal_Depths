@@ -3,10 +3,10 @@ package com.mikm.rendering.cave;
 public class SpawnProbabilityConstants {
     public static final SpawnProbability ROCK_FILL = new SpawnProbability(6, 9, 12, 15);
 
-    public static final SpawnProbability NORMAL_CHANCE = new SpawnProbability(92, 75.99f, 54.5f, 27.5f);
+    public static final SpawnProbability NORMAL_CHANCE = new SpawnProbability(92, 76.59f, 54.5f, 27.5f);
     public static final SpawnProbability COPPER_CHANCE = new SpawnProbability(7.5f, 20, 5, .5f);
     public static final SpawnProbability IRON_CHANCE = new SpawnProbability(.5f, 3, 20, 10);
-    public static final SpawnProbability CRYSTAL_CHANCE = new SpawnProbability(0, 1f, 20, 30);
+    public static final SpawnProbability CRYSTAL_CHANCE = new SpawnProbability(0, .4f, 20, 30);
     public static final SpawnProbability INFERNAL_CHANCE = new SpawnProbability(0, .01f, 1.5f, 30);
     public static final SpawnProbability GEM_CHANCE = new SpawnProbability(0, 0, 0, 0);
 

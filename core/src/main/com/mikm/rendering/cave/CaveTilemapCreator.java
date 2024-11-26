@@ -19,7 +19,6 @@ import com.mikm.serialization.Serializer;
 import java.util.ArrayList;
 
 public class CaveTilemapCreator {
-    public static final int MAP_WIDTH = 80, MAP_HEIGHT = 80;
     final static int FILL_CELL_PERCENT_CHANCE = 52;
     public final static int CHASM_AMOUNT = 24, CHASM_LENGTH_MIN = 2, CHASM_LENGTH_MAX = 3, CHASM_WIDTH = 0, CHASM_MIN_SIZE = 4;
     private final CaveScreen caveScreen;
@@ -38,7 +37,7 @@ public class CaveTilemapCreator {
     public boolean[][] collidablePositions;
     public ArrayList<Vector2Int> openTiles;
     private final ArrayList<Vector2Int> incollidableWallPositionsToDelete = new ArrayList<>();
-    public boolean[][] holePositionsToCheckGrid = new boolean[MAP_HEIGHT][MAP_WIDTH];
+    public boolean[][] holePositionsToCheckGrid;
     public ArrayList<Vector2Int> holePositions;
 
     //Subclasses
@@ -51,10 +50,14 @@ public class CaveTilemapCreator {
     private RuleCellTiledMapTileLayer ruleCellTiledMapTileLayer;
     public RuleCellTiledMapTileLayer holeRuleCellLayer;
     private TiledMapTileLayer floorAndWallLayer;
+    public static int MAP_WIDTH, MAP_HEIGHT;
 
 
     public CaveTilemapCreator(CaveScreen caveScreen) {
         this.caveScreen = caveScreen;
+        MAP_WIDTH = caveScreen.getMapWidth();
+        MAP_HEIGHT = caveScreen.getMapHeight();
+        holePositionsToCheckGrid = new boolean[MAP_HEIGHT][MAP_WIDTH];
 
         ruleCellMetadata = readMetadata("images/caveTiles.meta.txt");
         holeRuleCellMetadata = readMetadata("images/holes.meta.txt");

@@ -4,8 +4,12 @@ import com.badlogic.gdx.math.MathUtils;
 import com.mikm.ExtraMathUtils;
 import com.mikm.entities.State;
 import com.mikm.entities.animation.AnimationName;
+import com.mikm.entities.particles.ParticleEffect;
+import com.mikm.entities.particles.ParticleTypes;
 import com.mikm.entities.player.Player;
+import com.mikm.entities.projectiles.DamageInformation;
 import com.mikm.entities.projectiles.StaticProjectile;
+import com.mikm.rendering.SoundEffects;
 import com.mikm.rendering.screens.Application;
 
 public class SB_SimmerAttack extends State {
@@ -53,8 +57,10 @@ public class SB_SimmerAttack extends State {
     private void handleSlimeTrail(float moveSpeed) {
         distanceTraveledSinceLastProjectile += moveSpeed;
         if (distanceTraveledSinceLastProjectile > 20) {
+            SoundEffects.play(SoundEffects.slimeHit);
             distanceTraveledSinceLastProjectile -= 20;
-            Application.getInstance().currentScreen.addInanimateEntity(new StaticProjectile(null, false, slimeBoss.getCenteredPosition().x, slimeBoss.getCenteredPosition().y));
+            Application.getInstance().currentScreen.addInanimateEntity(new StaticProjectile(null, false, new DamageInformation(0, SB_SimmerAttack.SLIME_TRAIL_KNOCKBACK, SB_SimmerAttack.SLIME_TRAIL_DAMAGE), slimeBoss.getCenteredPosition().x, slimeBoss.getCenteredPosition().y));
+            new ParticleEffect(ParticleTypes.getSlimeTrailParameters(), slimeBoss.getCenteredPosition().x, slimeBoss.getCenteredPosition().y);
         }
     }
 

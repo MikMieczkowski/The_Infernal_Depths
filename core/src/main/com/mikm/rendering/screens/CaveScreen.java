@@ -227,4 +227,14 @@ public class CaveScreen extends GameScreen {
     public static int getRecolorLevel() {
         return floor/5;
     }
+
+    @Override
+    public int getMapWidth() {
+        return 80;
+    }
+
+    @Override
+    public int getMapHeight() {
+        return 80;
+    }
 }

@@ -22,6 +22,7 @@ public class BatFlyState extends DashInducingState {
     @Override
     public void update() {
         super.update();
+        angle = MathUtils.atan2(Application.player.y - entity.y, Application.player.x - entity.x);
         angle += RandomUtils.getFloat(-Bat.ANGULAR_SPEED, Bat.ANGULAR_SPEED);
         entity.height = 3+MathUtils.sin(timeElapsedInState*3)*3;
         entity.xVel = Bat.SPEED * MathUtils.cos(angle);

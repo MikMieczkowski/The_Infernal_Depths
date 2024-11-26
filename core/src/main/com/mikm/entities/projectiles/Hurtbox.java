@@ -37,9 +37,15 @@ public class Hurtbox {
         this.damageInformation = damageInformation;
     }
 
-    public void checkIfHitEntities() {
+    public void checkIfHitEntities(boolean playerProjectile) {
         for (Entity entity : Application.getInstance().currentScreen.entities) {
-            if (entity != Application.player && Intersector.overlaps(getHurtbox(), entity.getHitbox())) {
+            boolean b;
+            if (playerProjectile) {
+                b = entity != Application.player;
+            } else {
+                b = entity == Application.player;
+            }
+            if (b && Intersector.overlaps(getHurtbox(), entity.getHitbox())) {
                 entity.damagedState.enter(damageInformation);
             }
         }

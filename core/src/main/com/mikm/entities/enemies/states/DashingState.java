@@ -1,6 +1,7 @@
 package com.mikm.entities.enemies.states;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
 import com.mikm.ExtraMathUtils;
 import com.mikm.entities.Entity;
@@ -38,12 +39,20 @@ public class DashingState extends State {
         entity.xVel = 0;
         entity.yVel = 0;
         angleToPlayer = MathUtils.atan2(player.getCenteredPosition().y - entity.y, player.getCenteredPosition().x - entity.x);
+        if (entity.getClass() == Slime.class) {
+            SoundEffects.play(SoundEffects.slimeJump);
+        }
     }
 
     public void enter(float angle) {
         super.enter();
         bounceTimer = 0;
         angleToPlayer = angle;
+        if (entity.getClass() == Slime.class) {
+            SoundEffects.play(SoundEffects.slimeJump);
+        } else {
+            SoundEffects.play(SoundEffects.dash);
+        }
     }
 
     @Override
@@ -70,7 +79,7 @@ public class DashingState extends State {
         changed = changed || handlePlayerCollision(DASH_DAMAGE, true);
         if (changed) {
             if (entity.getClass() == Slime.class) {
-                SoundEffects.playLoud(SoundEffects.slimeJump);
+                SoundEffects.playLoud(SoundEffects.slimeLand);
             }
             entity.height = startHeight;
             entity.xVel = 0;

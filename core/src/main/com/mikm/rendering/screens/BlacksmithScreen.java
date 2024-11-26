@@ -268,4 +268,14 @@ public class BlacksmithScreen extends GameScreen{
     public Vector2 getInitialPlayerPosition() {
         return new Vector2(80, 32);
     }
+
+    @Override
+    public int getMapWidth() {
+        return 9;
+    }
+
+    @Override
+    public int getMapHeight() {
+        return 9;
+    }
 }

@@ -34,6 +34,9 @@ public class Grave extends InanimateEntity {
         if (Application.getInstance().currentScreen == Application.getInstance().slimeBossRoomScreen) {
             Application.getInstance().slimeBossRoomScreen.graves.add(this);
         }
+        if (Application.getInstance().currentScreen == Application.getInstance().motiScreen) {
+            Application.getInstance().motiScreen.graves.add(this);
+        }
     }
 
     public boolean isPlayerInTalkingRange() {
@@ -50,8 +53,13 @@ public class Grave extends InanimateEntity {
                 if (Application.getInstance().currentScreen == Application.getInstance().slimeBossRoomScreen) {
                     Application.getInstance().slimeBossRoomScreen.graves.remove(this);
                 }
-                Application.getInstance().caveScreen.updateCurrentMemento();
+                if (Application.getInstance().currentScreen == Application.getInstance().motiScreen) {
+                    Application.getInstance().motiScreen.graves.remove(this);
+                }
                 die();
+                Application.getInstance().currentScreen.inanimateEntities.doAfterRender(()-> {
+                    Application.getInstance().caveScreen.updateCurrentMemento();
+                });
             }
         }
     }

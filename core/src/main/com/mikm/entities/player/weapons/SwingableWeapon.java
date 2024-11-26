@@ -47,7 +47,7 @@ public abstract class SwingableWeapon extends Weapon {
     @Override
     public void checkForHit() {
         hurtbox.setDamageInformation(getDamageInformation());
-        hurtbox.checkIfHitEntities();
+        hurtbox.checkIfHitEntities(true);
     }
 
     @Override

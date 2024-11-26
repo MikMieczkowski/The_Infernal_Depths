@@ -39,7 +39,7 @@ public class Bow extends Weapon{
 
     @Override
     public void checkForHit() {
-        hurtbox.checkIfHitEntities();
+        hurtbox.checkIfHitEntities(true);
     }
 
     @Override
@@ -88,7 +88,7 @@ public class Bow extends Weapon{
     public void exitAttackState() {
         if (powerLevel > 0) {
             SoundEffects.play(SoundEffects.bowShoot);
-            Projectile arrow = new Projectile(arrowImage, ParticleTypes.getArrowParameters(),.4f, x, y);
+            Projectile arrow = new Projectile(arrowImage, ParticleTypes.getArrowParameters(),.4f, x, y, true);
             arrow.setMovementAndDamageInformation(angleToMouse, arrowSpeed * powerLevel, getDamageInformation());
             Application.getInstance().currentScreen.addInanimateEntity(arrow);
             timeHeld = 0;

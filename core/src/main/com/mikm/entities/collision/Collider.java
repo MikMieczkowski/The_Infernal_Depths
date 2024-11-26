@@ -42,7 +42,7 @@ public class Collider {
                 );
 
                 Vector2 vectorToNearestPoint = nearestPoint.sub(nextPosition);
-                float overlapDistance = inanimateEntity.getHitbox().radius - vectorToNearestPoint.len();
+                float overlapDistance = inanimateEntity.getHitbox().radius - vectorToNearestPoint.len() * (inanimateEntity.getHitbox().radius/7f);
 
                 if (Float.isNaN(overlapDistance)) {
                     throw new RuntimeException("overlap is NaN");

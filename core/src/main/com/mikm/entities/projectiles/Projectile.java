@@ -20,8 +20,9 @@ public class Projectile extends InanimateEntity {
     private float time;
     private final float STARTING_HEIGHT = 10;
     private final float DIP_ROTATION_MULTIPLIER = .7f;
+    private boolean playerProjectile = false;
 
-    public Projectile(TextureRegion image, ParticleTypes deathParticleParameters, float lifeTime, float x, float y) {
+    public Projectile(TextureRegion image, ParticleTypes deathParticleParameters, float lifeTime, float x, float y, boolean playerProjectile) {
         super(x, y);
         this.lifeTime = lifeTime;
         xScale = .5f;
@@ -30,6 +31,7 @@ public class Projectile extends InanimateEntity {
         hurtbox = new Hurtbox(4f, false);
         this.image = image;
         this.particleParameters = deathParticleParameters;
+        this.playerProjectile = playerProjectile;
     }
 
     public void setMovementAndDamageInformation(float angle, float speed, DamageInformation damageInformation) {
@@ -44,10 +46,12 @@ public class Projectile extends InanimateEntity {
         xVel = MathUtils.cos(angle) * speed;
         yVel = MathUtils.sin(angle) * speed;
         time += Gdx.graphics.getDeltaTime();
-        height = ExtraMathUtils.sinLerp(time, lifeTime*2, .5f, 1f, STARTING_HEIGHT);
-        hurtbox.setPosition(x + getFullBounds().width/2, y + getFullBounds().width/2 + height - STARTING_HEIGHT);
-        hurtbox.checkIfHitEntities();
-        rotation = angle + 1.25f * MathUtils.PI + ExtraMathUtils.lerpAngle(time, lifeTime, 0, finalDipRotation);
+        if (playerProjectile) {
+            height = ExtraMathUtils.sinLerp(time, lifeTime * 2, .5f, 1f, STARTING_HEIGHT);
+            hurtbox.setPosition(x + getFullBounds().width / 2, y + getFullBounds().width / 2 + height - STARTING_HEIGHT);
+            hurtbox.checkIfHitEntities(playerProjectile);
+            rotation = angle + 1.25f * MathUtils.PI + ExtraMathUtils.lerpAngle(time, lifeTime, 0, finalDipRotation);
+        }
         moveAndCheckCollisions();
         if (time > lifeTime) {
             die();
