@@ -63,8 +63,8 @@ public class MotiScreen extends GameScreen {
             float y = Camera.orthographicCamera.position.y;
             float w = Camera.VIEWPORT_ZOOM* Gdx.graphics.getWidth();
             float h = Camera.VIEWPORT_ZOOM* Gdx.graphics.getHeight();
-            float imgW = 200;
-            float imgH = 30;
+            float imgW = w-10;
+            float imgH = 0;
             x-= imgW/2;
             y-= imgH/2;
             Application.batch.begin();

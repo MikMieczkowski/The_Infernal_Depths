@@ -19,9 +19,9 @@ public class Moti_Dig extends State {
 
     private boolean buildup;
     private float buildupTimer;
-    private final float BUILDUP_TIME = 1f;
-    private final float MAX_TIME = 1f;
-    public static final int WEB_DAMAGE = 1, WEB_KNOCKBACK = 1;
+    private final float BUILDUP_TIME = 1.5f;
+    private final float MAX_TIME = 1.5f;
+    public static final int DIG_DAMAGE = 2, DIG_KNOCKBACK = 2;
 
     private float angle;
 
@@ -36,11 +36,14 @@ public class Moti_Dig extends State {
 
     @Override
     public void enter() {
+        System.out.println("Dig enter");
         super.enter();
         moti.xVel = 0;
         moti.yVel = 0;
         angle = MathUtils.atan2(player.y - moti.y, player.x - moti.x);
         shot = false;
+        buildup = true;
+        buildupTimer = 0;
         moti.startSquish(0, 2, BUILDUP_TIME, true);
     }
 
@@ -57,9 +60,12 @@ public class Moti_Dig extends State {
         } else {
             if (!shot) {
                 shot = true;
+                // Dig attack shoots more projectiles in a wider spread
                 addProjectile(angle);
-                addProjectile(angle-15*MathUtils.degRad);
-                addProjectile(angle+15*MathUtils.degRad);
+                addProjectile(angle-20*MathUtils.degRad);
+                addProjectile(angle+20*MathUtils.degRad);
+                addProjectile(angle-40*MathUtils.degRad);
+                addProjectile(angle+40*MathUtils.degRad);
             }
         }
 
@@ -67,8 +73,8 @@ public class Moti_Dig extends State {
     }
 
     private void addProjectile(float angle) {
-        Moti_WebProjectile p = new Moti_WebProjectile(Assets.testTexture, ParticleTypes.getKnockbackDustParameters(), 1, moti.getCenteredPosition().x, moti.getCenteredPosition().y, false);
-        p.setMovementAndDamageInformation(angle, 2, new DamageInformation(angle, WEB_KNOCKBACK, WEB_DAMAGE));
+        Moti_WebProjectile p = new Moti_WebProjectile(Assets.testTexture, ParticleTypes.getKnockbackDustParameters(), 1.5f, moti.getCenteredPosition().x, moti.getCenteredPosition().y, false);
+        p.setMovementAndDamageInformation(angle, 3, new DamageInformation(angle, DIG_KNOCKBACK, DIG_DAMAGE));
         Application.getInstance().currentScreen.addInanimateEntityInstantly(p);
     }
 

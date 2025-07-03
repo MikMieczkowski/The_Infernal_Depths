@@ -26,10 +26,13 @@ public class Moti_StateManager {
         if (!moti.damagedState.dead) {
             if (trip) {
                 enterAttack(MotiAttackType.TripleDash);
+            } else if (attacksCompleted % 3 == 0) {
+                enterAttack(MotiAttackType.DigAttack);
             } else {
                 enterAttack(MotiAttackType.WebAttack);
             }
             trip = !trip;
+            attacksCompleted++;
             System.out.println(trip);
         }
     }
@@ -92,6 +95,9 @@ public class Moti_StateManager {
                 break;
             case WebAttack:
                 moti.webAttack.enter();
+                break;
+            case DigAttack:
+                moti.digAttack.enter();
                 break;
         }
     }

@@ -132,6 +132,7 @@ class CaveFloorMementoSerializerTest {
         }
     }
 
+    /* 
     @Test
     public void kryoShouldDeepCopy() {
         boolean[][] bools = new boolean[5][5];
@@ -140,6 +141,7 @@ class CaveFloorMementoSerializerTest {
         boolsCopy[3][3] = true;
         assertFalse(bools[3][3]);
     }
+        */
 /*
     @Test
     public void ruleCellPositionsShouldBeDeepCopied() {

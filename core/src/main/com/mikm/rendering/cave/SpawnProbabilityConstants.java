@@ -1,5 +1,8 @@
 package com.mikm.rendering.cave;
 
+import com.mikm.rendering.screens.Application;
+import com.mikm.rendering.screens.CaveScreen;
+
 public class SpawnProbabilityConstants {
     public static final SpawnProbability ROCK_FILL = new SpawnProbability(6, 9, 12, 15);
 
@@ -10,7 +13,10 @@ public class SpawnProbabilityConstants {
     public static final SpawnProbability INFERNAL_CHANCE = new SpawnProbability(0, .01f, 1.5f, 30);
     public static final SpawnProbability GEM_CHANCE = new SpawnProbability(0, 0, 0, 0);
 
-    public static final SpawnProbability ENEMY_AMOUNT = new SpawnProbability(300, 1700, 3000, 0);
+    private static final float mapScaleConstant = (float) (Application.getInstance().caveScreen.getMapWidth() * Application.getInstance().caveScreen.getMapHeight()) / 6400;
+    public static final SpawnProbability ENEMY_AMOUNT = new SpawnProbability(
+            mapScaleConstant*300, mapScaleConstant*1700, mapScaleConstant*3000, mapScaleConstant*0);
+
     public static float[] getOreDistributionsByFloor(int floor) {
         return new float[]{
                 NORMAL_CHANCE.getProbabilityByFloor(floor),

@@ -16,6 +16,7 @@ import com.mikm.entities.enemies.slimeBoss.SlimeBoss;
 import com.mikm.entities.player.Player;
 import com.mikm.entities.player.weapons.WeaponInstances;
 import com.mikm.entities.projectiles.DamageInformation;
+import com.mikm.input.GameInput;
 import com.mikm.input.InputRaw;
 import com.mikm.rendering.Camera;
 import com.mikm.rendering.SoundEffects;
@@ -80,7 +81,7 @@ public class Application extends Game {
 		screens= new GameScreen[]{caveScreen, townScreen, slimeBossRoomScreen, blacksmithScreen, wizardScreen, motiScreen};
 
 		Camera.setPositionDirectlyToPlayerPosition();
-		setGameScreen(motiScreen);
+		setGameScreen(townScreen);
 
 		try {
 
@@ -245,7 +246,7 @@ public class Application extends Game {
 
 	private void handleDebugInput() {
 
-		if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+		if (GameInput.isPauseButtonJustPressed()) {
 			paused = !paused;
 		}
 		if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {

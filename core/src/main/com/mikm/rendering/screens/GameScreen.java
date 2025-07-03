@@ -163,6 +163,9 @@ public abstract class GameScreen extends ScreenAdapter {
         drawComponentOnEdge(image, position, mul, xOffset, yOffset, 0);
     }
 
+    //position: 0 top left, 1 top, 2 top right,
+    //3 center left, 4 center, 5 center right,
+    //6 bottom left, 7 bottom, 8 bottom right
     public void drawComponentOnEdge(TextureRegion image, int position, float mul, float xOffset, float yOffset, float rotation) {
         float x = Camera.orthographicCamera.position.x;
         float y = Camera.orthographicCamera.position.y;
