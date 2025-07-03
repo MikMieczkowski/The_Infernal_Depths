@@ -33,7 +33,7 @@ public class InputRaw {
 
     private static void setUpController() {
         usedButtonCodes = new int[]{controllerMapping.buttonA, controllerMapping.buttonB, controllerMapping.buttonX, controllerMapping.buttonY,
-        controllerMapping.buttonR2};
+        controllerMapping.buttonR2, controllerMapping.buttonStart};
         buttonCodePressedLastFrame = new boolean[usedButtonCodes.length];
         buttonCodeJustPressed = new boolean[usedButtonCodes.length];
     }

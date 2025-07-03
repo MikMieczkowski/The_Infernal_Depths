@@ -230,11 +230,11 @@ public class CaveScreen extends GameScreen {
 
     @Override
     public int getMapWidth() {
-        return 80;
+        return 60;
     }
 
     @Override
     public int getMapHeight() {
-        return 80;
+        return 60;
     }
 }

@@ -28,6 +28,9 @@ public class HolePositionGenerator {
     private void generateLines() {
         ArrayList<Vector2Int> shuffledOpenTiles = new ArrayList<>(openTiles);
         Collections.shuffle(shuffledOpenTiles);
+        if (shuffledOpenTiles.isEmpty()) {
+            return;
+        }
         for (int i = 0; i < CaveTilemapCreator.CHASM_AMOUNT; i++) {
             Vector2Int randomizedNearbyPosition = new Vector2Int(shuffledOpenTiles.get(i));
             int forks = 0;

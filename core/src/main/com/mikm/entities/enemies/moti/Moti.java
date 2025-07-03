@@ -24,6 +24,7 @@ public class Moti extends Entity {
     public Moti_StateManager stateManager;
     public Moti_TripleDashState tripleDashState;
     public Moti_WebAttack webAttack;
+    public Moti_Dig digAttack;
     public MotiScreen screen;
 
     public static TextureRegion motiImage = Assets.getInstance().getTextureRegion("moti", 48, 48);
@@ -45,6 +46,7 @@ public class Moti extends Entity {
         stateManager = new Moti_StateManager(this);
         tripleDashState = new Moti_TripleDashState(this);
         webAttack = new Moti_WebAttack(this);
+        digAttack = new Moti_Dig(this);
         damagedState = new Moti_DamagedState(this);
         damagedState.interruptState = false;
         stateManager.updateState();

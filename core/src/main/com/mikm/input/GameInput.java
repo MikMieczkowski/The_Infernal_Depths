@@ -133,6 +133,13 @@ public class GameInput {
         return Gdx.input.isKeyJustPressed(Input.Keys.E);
     }
 
+    public static boolean isPauseButtonJustPressed() {
+        if (InputRaw.usingController) {
+            return InputRaw.isControllerButtonJustPressed(controllerMapping.buttonStart);
+        }
+        return Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE);
+    }
+
     private static TextureRegion square = Assets.getInstance().getTextureRegion("SQUARE"),
     E = Assets.getInstance().getTextureRegion("E");
     public static TextureRegion getTalkButtonImage() {
