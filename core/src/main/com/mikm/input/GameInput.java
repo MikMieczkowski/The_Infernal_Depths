@@ -140,6 +140,34 @@ public class GameInput {
         return Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE);
     }
 
+    public static boolean isDpadUpJustPressed() {
+        if (InputRaw.usingController) {
+            return InputRaw.isControllerButtonJustPressed(controllerMapping.buttonDpadUp);
+        }
+        return Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.W);
+    }
+
+    public static boolean isDpadDownJustPressed() {
+        if (InputRaw.usingController) {
+            return InputRaw.isControllerButtonJustPressed(controllerMapping.buttonDpadDown);
+        }
+        return Gdx.input.isKeyJustPressed(Input.Keys.DOWN) || Gdx.input.isKeyJustPressed(Input.Keys.S);
+    }
+
+    public static boolean isDpadLeftJustPressed() {
+        if (InputRaw.usingController) {
+            return InputRaw.isControllerButtonJustPressed(controllerMapping.buttonDpadLeft);
+        }
+        return Gdx.input.isKeyJustPressed(Input.Keys.LEFT) || Gdx.input.isKeyJustPressed(Input.Keys.A);
+    }
+
+    public static boolean isDpadRightJustPressed() {
+        if (InputRaw.usingController) {
+            return InputRaw.isControllerButtonJustPressed(controllerMapping.buttonDpadRight);
+        }
+        return Gdx.input.isKeyJustPressed(Input.Keys.RIGHT) || Gdx.input.isKeyJustPressed(Input.Keys.D);
+    }
+
     private static TextureRegion square = Assets.getInstance().getTextureRegion("SQUARE"),
     E = Assets.getInstance().getTextureRegion("E");
     public static TextureRegion getTalkButtonImage() {

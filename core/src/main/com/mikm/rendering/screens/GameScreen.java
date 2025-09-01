@@ -256,8 +256,10 @@ public abstract class GameScreen extends ScreenAdapter {
 
     void drawAssets() {
         tiledMapRenderer.render();
-        inanimateEntities.render(Application.batch);
-        entities.render(Application.batch);
+        if (!Application.getInstance().paused) {
+            inanimateEntities.render(Application.batch);
+            entities.render(Application.batch);
+        }
     }
 
     public void addEntity(Entity entity) {
