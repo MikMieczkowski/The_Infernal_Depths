@@ -7,6 +7,8 @@ public class SoundEffects {
     private SoundEffects() {
 
     }
+    public static float SFX_VOLUME = 1;
+    
     public static Sound step;
     public static Sound dash;
     public static Sound hit;
@@ -42,20 +44,20 @@ public class SoundEffects {
         swing = new Sound[]{swing1, swing2, swing3};
     }
     public static long playLoud(Sound sound) {
-        return play(sound, 2);
+        return play(sound, 2 * SFX_VOLUME);
     }
     public static long play(Sound sound) {
-        return play(sound, 1);
+        return play(sound, 1* SFX_VOLUME);
     }
 
     public static long playQuiet(Sound sound) {
-        return play(sound, 0.3f);
+        return play(sound, 0.3f* SFX_VOLUME);
     }
     private static long play(Sound sound, float mul) {
         if (sound == step) {
-            return sound.play(1.5f*mul);
+            return sound.play(1.5f*mul* SFX_VOLUME);
         } else {
-            return sound.play(mul);
+            return sound.play(mul* SFX_VOLUME);
         }
     }
 

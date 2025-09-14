@@ -16,7 +16,6 @@ public class CaveEntitySpawner {
     private final CaveScreen caveScreen;
 
     private boolean[][] ruleCellPositions;
-    private boolean[][] collidablePositions;
     private ArrayList<Vector2Int> openTilePositions;
 
 
@@ -24,9 +23,8 @@ public class CaveEntitySpawner {
         this.caveScreen = caveScreen;
     }
     
-    public void generateNewEnemies(CaveTilemapCreator tilemap) {
+    public void spawn(CaveTilemapCreator tilemap) {
         this.ruleCellPositions = tilemap.ruleCellPositions;
-        this.collidablePositions = tilemap.collidablePositions;
         this.openTilePositions = tilemap.openTiles;
 
         resetInanimateAndAnimateEntities();
@@ -89,7 +87,8 @@ public class CaveEntitySpawner {
             if (RandomUtils.getFloatRoundedToTenths(100) < rockDistribution.getProbabilityByFloor(CaveScreen.floor) * 100f) {
                 RockType randomRockType = RockType.getRandomRockType(SpawnProbabilityConstants.getOreDistributionsByFloor(CaveScreen.floor));
                 caveScreen.inanimateEntities.addInstantly(new Rock(tilePosition.x * Application.TILE_WIDTH, tilePosition.y * Application.TILE_HEIGHT, randomRockType, CaveScreen.getRecolorLevel()));
-                collidablePositions[tilePosition.y][tilePosition.x] = true;
+                caveScreen.caveTilemapCreator.rockCollidablePositions[tilePosition.y][tilePosition.x] = true;
+                caveScreen.caveTilemapCreator.collidablePositions[tilePosition.y][tilePosition.x] = true;
                 positionsToDelete.add(tilePosition);
             }
         }

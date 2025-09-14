@@ -33,7 +33,7 @@ public class Moti_StateManager {
             }
             trip = !trip;
             attacksCompleted++;
-            System.out.println(trip);
+            //System.out.println(trip);
         }
     }
 

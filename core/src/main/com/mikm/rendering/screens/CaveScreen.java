@@ -6,12 +6,14 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.esotericsoftware.kryo.io.KryoBufferUnderflowException;
 import com.mikm.Assets;
 import com.mikm.ExtraMathUtils;
 import com.mikm.Vector2Int;
+import com.mikm.debug.DebugRenderer;
 import com.mikm.entities.Grave;
 import com.mikm.entities.InanimateEntity;
 import com.mikm.entities.Rope;
@@ -22,6 +24,9 @@ import com.mikm.rendering.cave.CaveEntitySpawner;
 import com.mikm.rendering.cave.CaveFloorMemento;
 import com.mikm.rendering.cave.CaveTilemapCreator;
 import com.mikm.serialization.Serializer;
+
+import static com.mikm.rendering.cave.CaveTilemapCreator.MAP_HEIGHT;
+import static com.mikm.rendering.cave.CaveTilemapCreator.MAP_WIDTH;
 
 import java.util.ArrayList;
 
@@ -47,7 +52,9 @@ public class CaveScreen extends GameScreen {
     public boolean displayButtonIndicator = false;
     public Vector2 buttonIndicatorPosition;
     public Vector2Int currentRopePosition = Vector2Int.ZERO;
-    private TextureRegion ropePointer = Assets.getInstance().getTextureRegion("ropePointer");
+    private TextureRegion pointer = Assets.getInstance().getTextureRegion("ropePointer");
+    private TextureRegion ropeImg = Assets.getInstance().getTextureRegion("rope");
+    private TextureRegion graveImg = Assets.getInstance().getTextureRegion("grave");
     private final int POINTER_RADIUS = 80;
 
     CaveScreen() {
@@ -55,6 +62,18 @@ public class CaveScreen extends GameScreen {
         createImages();
         createMusic(Assets.getInstance().getAsset("sound/caveTheme.mp3", Music.class));
         createTiledMapRenderer();
+        caveFloorMementos = new CaveFloorMemento[10];
+        for (int i = 0; i < 10; i++) {
+            try {
+                caveFloorMementos[i] = Serializer.getInstance().read(CaveFloorMemento.class, i);
+            } catch (KryoBufferUnderflowException e) {
+                caveFloorMementos[i] = null;
+            }
+        }
+        spawner= new CaveEntitySpawner(this);
+    }
+
+    public void init() {
         caveFloorMementos = new CaveFloorMemento[10];
         for (int i = 0; i < 10; i++) {
             try {
@@ -122,29 +141,43 @@ public class CaveScreen extends GameScreen {
     public void render(float delta) {
         ScreenUtils.clear(caveFillColors[CaveScreen.getRecolorLevel()]);
         super.render(delta);
+        //DebugRenderer.getInstance().drawCollidableGrid(caveTilemapCreator.collidablePositions, DebugRenderer.DEBUG_RED);
+        //DebugRenderer.getInstance().drawCollidableGrid(caveTilemapCreator.rockCollidablePositions, DebugRenderer.DEBUG_BLUE);
     }
 
     @Override
     public void renderUI() {
+        if (Application.getInstance().paused) {
+            super.renderUI();
+            return;
+        }
         if (displayButtonIndicator) {
             Application.batch.draw(GameInput.getTalkButtonImage(), buttonIndicatorPosition.x, buttonIndicatorPosition.y);
         }
         super.renderUI();
-        drawPointer(currentRopePosition.x, currentRopePosition.y);
+        drawPointer(currentRopePosition.x, currentRopePosition.y, false);
         if (floor %5!= 0) {
             for (int i = 0; i < caveFloorMementos[floor - 1].graves.size(); i++) {
                 InanimateEntity g = caveFloorMementos[floor - 1].graves.get(i);
-                drawPointer(g.x, g.y);
+                drawPointer(g.x, g.y, true);
             }
         }
     }
 
-    private void drawPointer(float x, float y) {
+    private void drawPointer(float x, float y, boolean grave) {
+        TextureRegion img = ropeImg;
+        if (grave) {
+            img = graveImg;
+        }
+
         float distanceToRope = ExtraMathUtils.distance(Camera.getCenterOfScreenWorldCoordinates().x, Camera.getCenterOfScreenWorldCoordinates().y, x, y);
         if (distanceToRope > Gdx.graphics.getWidth() * Camera.VIEWPORT_ZOOM / 2) {
             float angle = MathUtils.atan2(y - Camera.getCenterOfScreenWorldCoordinates().y, x - Camera.getCenterOfScreenWorldCoordinates().x);
             float screenMultiplier = Gdx.graphics.getWidth() / 1440f;
-            drawComponentOnEdge(ropePointer, 4, 1, screenMultiplier * POINTER_RADIUS * MathUtils.cos(angle), screenMultiplier * POINTER_RADIUS * MathUtils.sin(angle), MathUtils.radDeg * angle);
+            drawComponentOnEdge(pointer, 4, 1, screenMultiplier * POINTER_RADIUS * MathUtils.cos(angle), screenMultiplier * POINTER_RADIUS * MathUtils.sin(angle), MathUtils.radDeg * angle);
+            int imgRadius = POINTER_RADIUS - 5;
+            drawComponentOnEdge(img, 4, 1, screenMultiplier * imgRadius * MathUtils.cos(angle), screenMultiplier * imgRadius * MathUtils.sin(angle), 0);
+        
         }
     }
 
@@ -163,7 +196,7 @@ public class CaveScreen extends GameScreen {
     private void generateNewFloor() {
         caveTilemapCreator.generateNewMap();
         spawner= new CaveEntitySpawner(this);
-        spawner.generateNewEnemies(caveTilemapCreator);
+        spawner.spawn(caveTilemapCreator);
     }
 
     private void loadFloor(int floor) {
@@ -217,7 +250,7 @@ public class CaveScreen extends GameScreen {
 
     @Override
     public boolean[][] isCollidableGrid() {
-        return caveTilemapCreator.getIsCollidableGrid();
+        return caveTilemapCreator.collidablePositions;
     }
 
     public boolean[][] getHolePositionsToCheck() {

@@ -12,10 +12,11 @@ import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.mikm.Assets;
-import com.mikm.DeltaTime;
+// removed unused import
 import com.mikm.debug.DebugRenderer;
 import com.mikm.entities.*;
 import com.mikm.entities.particles.ParticleTypes;
@@ -23,7 +24,7 @@ import com.mikm.rendering.Camera;
 import com.mikm.rendering.SoundEffects;
 import com.mikm.rendering.cave.RockType;
 
-import java.awt.*;
+// removed unused imports
 
 public abstract class GameScreen extends ScreenAdapter {
     public static ScreenViewport viewport;
@@ -40,6 +41,9 @@ public abstract class GameScreen extends ScreenAdapter {
     private final TextureRegion hpBar, hpBarBottom;
     private final TextureRegion[][] health;
     private final TextureRegion pauseMenu;
+    private final TextureRegion musicIconOn;
+    private final TextureRegion musicIconOff;
+    private Rectangle musicIconBounds = new Rectangle();
     private float healthAnimationTimer, healthAnimationFrameDuration = .1f;
 
 
@@ -52,6 +56,8 @@ public abstract class GameScreen extends ScreenAdapter {
         hpBarBottom = Assets.getInstance().getTextureRegion("hpBarBottom", 16, 80);
         health = Assets.getInstance().getSplitTextureRegion("health", 16, 8);
         pauseMenu = Assets.getInstance().getTextureRegion("controls", 350, 300);
+        musicIconOn = Assets.getInstance().getSplitTextureRegion("musicIcons", 32, 32)[0][0]; // simple placeholder texture
+        musicIconOff = Assets.getInstance().getSplitTextureRegion("musicIcons", 32, 32)[0][1]; // simple placeholder texture
 
         entities = new RemovableArray<>();
         entities.add(Application.player);
@@ -157,6 +163,33 @@ public abstract class GameScreen extends ScreenAdapter {
     private void renderPauseMenu() {
         ScreenUtils.clear(0, 0, 0f, 1);
         drawComponentOnEdge(pauseMenu, 4, .8f, 40, -20);
+
+        //ChatGPT being a far better coder than i and fixing my ui spaghetti
+
+        // Draw music toggle icon in bottom-right corner of pause menu area
+        float iconScale = 1f;
+        TextureRegion icon = Application.musicOn ? musicIconOn : musicIconOff;
+        // Position relative to screen bottom-right
+        float x = Camera.orthographicCamera.position.x + (Camera.VIEWPORT_ZOOM * Gdx.graphics.getWidth())/2 - icon.getRegionWidth()*iconScale - 16;
+        float y = Camera.orthographicCamera.position.y - (Camera.VIEWPORT_ZOOM * Gdx.graphics.getHeight())/2 + 16;
+        Application.batch.draw(icon, x, y, icon.getRegionWidth()*iconScale, icon.getRegionHeight()*iconScale);
+        musicIconBounds.set(x, y, icon.getRegionWidth()*iconScale, icon.getRegionHeight()*iconScale);
+
+        // Handle click/tap
+        if (Gdx.input.justTouched()) {
+            Vector2 mouse = new Vector2(Gdx.input.getX(), Gdx.input.getY());
+            // convert to world coords
+            Vector3 world3 = Camera.orthographicCamera.unproject(new Vector3(mouse.x, mouse.y, 0));
+            Vector2 world = new Vector2(world3.x, world3.y);
+            if (musicIconBounds.contains(world)) {
+                Application.musicOn = !Application.musicOn;
+                if (Application.musicOn) {
+                    playSong();
+                } else {
+                    stopSong();
+                }
+            }
+        }
     }
 
     public void drawComponentOnEdge(TextureRegion image, int position, float mul, int xOffset, int yOffset) {
@@ -229,13 +262,13 @@ public abstract class GameScreen extends ScreenAdapter {
     }
 
     public void playSong() {
-        if (Application.PLAY_MUSIC) {
+        if (Application.musicOn && song != null) {
             song.play();
         }
     }
 
     public void stopSong() {
-        if (Application.PLAY_MUSIC) {
+        if (song != null) {
             song.stop();
         }
     }

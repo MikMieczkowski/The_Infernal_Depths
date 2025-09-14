@@ -105,6 +105,13 @@ public class GameInput {
         return InputRaw.isKeyJustPressed(Input.Keys.Q);
     }
 
+    public static boolean isMenuCancelButtonJustPressed() {
+        if (InputRaw.usingController) {
+            return InputRaw.isControllerButtonJustPressed(controllerMapping.buttonB);
+        }
+        return InputRaw.isKeyJustPressed(Input.Keys.ESCAPE);
+    }
+
     public static boolean isPickaxeButtonJustPressed() {
         if (!InputRaw.usingController) {
             return InputRaw.isKeyJustPressed(Input.Keys.NUM_1);
@@ -139,6 +146,8 @@ public class GameInput {
         }
         return Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE);
     }
+
+    
 
     public static boolean isDpadUpJustPressed() {
         if (InputRaw.usingController) {

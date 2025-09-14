@@ -22,7 +22,7 @@ public abstract class InanimateEntity {
         this.y = y;
     }
 
-    void render(Batch batch) {
+    public void render(Batch batch) {
         update();
         draw(batch);
     }

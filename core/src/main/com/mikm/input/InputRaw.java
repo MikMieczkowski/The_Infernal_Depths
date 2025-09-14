@@ -3,6 +3,7 @@ package com.mikm.input;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.controllers.Controller;
+import com.badlogic.gdx.controllers.ControllerAdapter;
 import com.badlogic.gdx.controllers.ControllerMapping;
 import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.math.MathUtils;
@@ -22,6 +23,8 @@ public class InputRaw {
     private static boolean hasSetUpController = false;
     private static boolean controllerHasInput = true;
 
+
+
     public static void checkForControllers() {
         if (Controllers.getControllers().size == 0) {
             useController(false);
@@ -29,6 +32,18 @@ public class InputRaw {
         }
         useController(controllerHasInput);
         setControllerHasInput();
+        
+        Controllers.addListener(new ControllerAdapter() {
+            @Override
+            public boolean buttonDown(Controller controller, int buttonIndex) {
+                System.out.println("Pressed: " + buttonIndex + " (" + controller.getName() + ")");
+                return true;
+            }
+        });
+        if (controller.getButton(controllerMapping.buttonStart)) {
+            System.out.println("did");
+        }
+    
     }
 
     private static void setUpController() {

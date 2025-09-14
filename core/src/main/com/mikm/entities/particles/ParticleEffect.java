@@ -2,11 +2,12 @@ package com.mikm.entities.particles;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.mikm.RandomUtils;
+import com.mikm.entities.InanimateEntity;
 import com.mikm.rendering.screens.Application;
 
 public class ParticleEffect {
     int positionOffsetRadius;
-    Particle[] particles;
+    public Particle[] particles;
 
     public ParticleEffect(ParticleTypes parameters, float x, float y) {
         createParticles(parameters, 0, x, y);
@@ -37,7 +38,13 @@ public class ParticleEffect {
             final float xOffset = MathUtils.cos(offsetAngle) * RandomUtils.getFloat(0, positionOffsetRadius);
             final float yOffset = MathUtils.sin(offsetAngle) * RandomUtils.getFloat(0, positionOffsetRadius);
             particle.setPosition(x + xOffset, y + yOffset);
-            Application.getInstance().currentScreen.addInanimateEntity(particle);
+            
+            //smokeparticles hard code
+            if (Application.getInstance().currentScreen == Application.getInstance().townScreen) {
+                Application.getInstance().townScreen.addSmokeParticle(particle);
+            } else {
+                Application.getInstance().currentScreen.addInanimateEntity(particle);
+            }
         }
     }
 
