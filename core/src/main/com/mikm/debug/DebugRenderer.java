@@ -15,8 +15,8 @@ import java.util.ArrayList;
 public class DebugRenderer {
     private static DebugRenderer instance;
     private final ShapeRenderer shapeRenderer;
-    public static final Color DEBUG_BLUE = new Color(0, 0, 1, .75f);
-    public static final Color DEBUG_RED = new Color(1, 0, 0, .75f);
+    public static final Color DEBUG_BLUE = new Color(0, 0, 1, .5f);
+    public static final Color DEBUG_RED = new Color(1, 0, 0, .5f);
     private ArrayList<Method> toDrawRepeatedly = new ArrayList<>();
 
     private DebugRenderer() {
@@ -91,13 +91,13 @@ public class DebugRenderer {
         Application.batch.setColor(Color.WHITE);
     }
 
-    public void drawCollidableGrid(boolean[][] collidableGrid) {
+    public void drawCollidableGrid(boolean[][] collidableGrid, Color color) {
         Application.batch.begin();
         //swap length and [0].length?
         for (int i = 0; i < collidableGrid.length; i++) {
             for (int j = 0; j < collidableGrid[0].length; j++) {
                 if (collidableGrid[i][j]) {
-                    DebugRenderer.getInstance().drawTile(j, i);
+                    DebugRenderer.getInstance().drawTile(j, i, color);
                 }
             }
         }

@@ -7,9 +7,10 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.mikm.ExtraMathUtils;
 import com.mikm.entities.InanimateEntity;
+import com.mikm.rendering.screens.Application;
 
-class Particle extends InanimateEntity {
-    private ParticleTypes parameters;
+public class Particle extends InanimateEntity {
+    public ParticleTypes parameters;
     private float size, angle, startingSpeed;
     private float timer;
     private boolean checkedOnce = false;
@@ -106,6 +107,15 @@ class Particle extends InanimateEntity {
         batch.draw(parameters.image, x, y+height, 4, 4, 8, 8, xScale, yScale, 0);
         if (parameters.usesColor) {
             batch.setColor(Color.WHITE);
+        }
+    }
+
+    @Override
+    public void die() {
+        if (Application.getInstance().currentScreen == Application.getInstance().townScreen) {
+            Application.getInstance().townScreen.removeSmokeParticle(this);
+        } else {
+            super.die();
         }
     }
 }

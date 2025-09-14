@@ -35,6 +35,7 @@ public class CaveTilemapCreator {
     //2D arrays
     public boolean[][] ruleCellPositions;
     public boolean[][] collidablePositions;
+    public boolean[][] rockCollidablePositions;
     public ArrayList<Vector2Int> openTiles;
     private final ArrayList<Vector2Int> incollidableWallPositionsToDelete = new ArrayList<>();
     public boolean[][] holePositionsToCheckGrid;
@@ -70,6 +71,7 @@ public class CaveTilemapCreator {
         ruleCellPositionGenerator = new RuleCellPositionGenerator();
         ruleCellPositions = ruleCellPositionGenerator.createRuleCellPositions();
         collidablePositions = new boolean[MAP_HEIGHT][MAP_WIDTH];
+        rockCollidablePositions = new boolean[MAP_HEIGHT][MAP_WIDTH];
     }
 
     public void generateNewMap() {
@@ -78,6 +80,7 @@ public class CaveTilemapCreator {
 
         ruleCellPositions = ruleCellPositionGenerator.createRuleCellPositions();
         collidablePositions = Serializer.getInstance().copy(ruleCellPositions);
+        rockCollidablePositions = new boolean[MAP_HEIGHT][MAP_WIDTH];
 
         fillRuleCellLayerFromRuleCellPositions();
         fillInWalls();
@@ -94,12 +97,15 @@ public class CaveTilemapCreator {
         clearLayers();
         ruleCellPositions = memento.ruleCellPositions;
         collidablePositions = Serializer.getInstance().copy(ruleCellPositions);
+        rockCollidablePositions = new boolean[MAP_HEIGHT][MAP_WIDTH];
         fillRuleCellLayerFromRuleCellPositions();
         fillInWalls();
         holePositions = memento.holePositions;
         fillHoleRuleCellLayerAndMakeHolesCollidable();
         for (InanimateEntity rock : memento.inanimateEntities) {
+            
             collidablePositions[(int) rock.y/Application.TILE_HEIGHT][(int) rock.x / Application.TILE_WIDTH] = true;
+            rockCollidablePositions[(int) rock.y/Application.TILE_HEIGHT][(int) rock.x / Application.TILE_WIDTH] = true;
         }
     }
 
@@ -259,9 +265,5 @@ public class CaveTilemapCreator {
         } else {
             return wallCellTypes[2];
         }
-    }
-
-    public boolean[][] getIsCollidableGrid() {
-        return collidablePositions;
     }
 }

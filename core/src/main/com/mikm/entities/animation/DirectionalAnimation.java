@@ -21,6 +21,8 @@ public class DirectionalAnimation {
         animations = createAnimationsFromFirstFramesOf(animation);
     }
 
+    //Multiple direction animation (default width/height = 32)
+    //These Look for startswith + Down, Up, Left, Right
     public DirectionalAnimation(String startsWith, float frameDuration, Animation.PlayMode playMode) {
         this.frameDuration = frameDuration;
         this.playMode = playMode;
@@ -28,6 +30,7 @@ public class DirectionalAnimation {
         animations = textureRegionsToAnimations(spriteSheetsRaw);
     }
 
+    //Multiple direction animation with width/height
     public DirectionalAnimation(String startsWith, int imageWidth, int imageHeight, float frameDuration, Animation.PlayMode playMode) {
         this.frameDuration = frameDuration;
         this.playMode = playMode;
@@ -35,8 +38,8 @@ public class DirectionalAnimation {
         animations = textureRegionsToAnimations(spriteSheetsRaw);
     }
 
+    //Single direction animation
     public DirectionalAnimation(String spritesheetName, int width, int height, float frameDuration, int frames, Animation.PlayMode playMode) {
-        //Single direction animation
         this.frameDuration = frameDuration;
         animations = new ArrayList<>();
         TextureRegion[][] t = Assets.getInstance().getSplitTextureRegion(spritesheetName, width, height);

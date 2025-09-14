@@ -14,21 +14,27 @@ public class BatFlyState extends DashInducingState {
     private final float TOTAL_FLY_TIME = 6f;
     private float angle;
     private int distanceTraveledSinceLastProjectile = 0;
+    private Bat bat;
 
-    public BatFlyState(Entity entity, int contactDamage, float detectionCircleRadius, float timeBetweenDashes) {
-        super(entity, contactDamage, detectionCircleRadius, timeBetweenDashes);
+    public BatFlyState(Bat bat, int contactDamage, float detectionCircleRadius, float timeBetweenDashes) {
+        super(bat, contactDamage, detectionCircleRadius, timeBetweenDashes);
+        this.bat = bat;
     }
 
     @Override
+    public void enter() {
+        super.enter();
+        angle = RandomUtils.getFloat(0, MathUtils.PI2);
+    }
+    @Override
     public void update() {
         super.update();
-        angle = MathUtils.atan2(Application.player.y - entity.y, Application.player.x - entity.x);
-        angle += RandomUtils.getFloat(-Bat.ANGULAR_SPEED, Bat.ANGULAR_SPEED);
+        angle += Bat.ANGULAR_SPEED;
         entity.height = 3+MathUtils.sin(timeElapsedInState*3)*3;
         entity.xVel = Bat.SPEED * MathUtils.cos(angle);
         entity.yVel = Bat.SPEED * MathUtils.sin(angle);
         distanceTraveledSinceLastProjectile += (int) Bat.SPEED;
-        if (isPlayerInDetectionCircle() && distanceTraveledSinceLastProjectile > 20) {
+        if (isPlayerInDetectionCircle() && distanceTraveledSinceLastProjectile > 10) {
             new ParticleEffect(ParticleTypes.getLightningParameters(), entity.x, entity.y);
             distanceTraveledSinceLastProjectile = 0;
         }
@@ -43,10 +49,9 @@ public class BatFlyState extends DashInducingState {
     public void checkForStateTransition() {
         super.checkForStateTransition();
         if (timeElapsedInState > TOTAL_FLY_TIME) {
-            State standingState = entity.standingState;
             entity.xVel = 0;
             entity.yVel = 0;
-            standingState.enter();
+            //bat.shockState.enter();
         }
     }
 }

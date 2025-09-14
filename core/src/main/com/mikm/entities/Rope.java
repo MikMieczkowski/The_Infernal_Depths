@@ -24,6 +24,7 @@ public class Rope extends InanimateEntity {
             Application.getInstance().caveScreen.buttonIndicatorPosition = new Vector2(x, y);
             if (GameInput.isTalkButtonJustPressed()) {
                 SoundEffects.playLoud(SoundEffects.ropeClimb);
+                Application.getInstance().setGameScreen(Application.getInstance().caveScreen);
                 Application.getInstance().caveScreen.entities.doAfterRender(()->{
                     Application.getInstance().caveScreen.decreaseFloor();
                 });

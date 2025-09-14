@@ -36,7 +36,7 @@ public class Moti_Dig extends State {
 
     @Override
     public void enter() {
-        System.out.println("Dig enter");
+        //System.out.println("Dig enter");
         super.enter();
         moti.xVel = 0;
         moti.yVel = 0;

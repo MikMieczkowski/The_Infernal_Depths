@@ -23,10 +23,13 @@ public class NPC extends InanimateEntity {
 
     @Override
     public void update() {
-        if ((GameInput.isTalkButtonJustPressed()||GameInput.isSwitchButtonJustPressed()) && isPlayerInTalkingRange()) {
+        if (GameInput.isTalkButtonJustPressed() && isPlayerInTalkingRange()) {
             Application.getInstance().blacksmithScreen.showMenu = !Application.getInstance().blacksmithScreen.showMenu;
 
             Application.getInstance().blacksmithScreen.tipNumber = RandomUtils.getBoolean() ? 0 : 2;
+        }
+        if (GameInput.isMenuCancelButtonJustPressed()) {
+            Application.getInstance().blacksmithScreen.showMenu = false;
         }
     }
 

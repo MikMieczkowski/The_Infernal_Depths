@@ -2,6 +2,7 @@ package com.mikm.entities.player.weapons;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mikm.Assets;
+import com.mikm.rendering.screens.Application;
 import com.mikm.rendering.screens.CaveScreen;
 
 public class WeaponInstances {
@@ -17,7 +18,7 @@ public class WeaponInstances {
     public Bow infernalBow;
     public Bow[] bows;
 
-    public WeaponInstances(CaveScreen caveScreen) {
+    public WeaponInstances() {
         TextureRegion[][] items = Assets.getInstance().getSplitTextureRegion("items");
         TextureRegion arrowImage = Assets.getInstance().getTextureRegion("arrow");
         TextureRegion[] strings = Assets.getInstance().getSplitTextureRegion("strings")[0];
@@ -26,7 +27,7 @@ public class WeaponInstances {
         ironSword = new Sword(items[0][1], sliceSpritesheet, 1, 3, .3f, 32);
         crystalSword = new Sword(items[0][2], sliceSpritesheet, 2, 5, .3f, 48);
         infernalSword = new Sword(items[0][3], sliceSpritesheet, 3, 7, .1f, 64);
-        pickaxe = new Pickaxe(caveScreen, items[1][0], sliceSpritesheet);
+        pickaxe = new Pickaxe(Application.getInstance().caveScreen, items[1][0], sliceSpritesheet);
         copperBow = new Bow(items[0][4], strings, arrowImage, 1, 1, .4f, .2f, 1f);
         ironBow = new Bow(items[0][5], strings, arrowImage, 4, 5, .9f, .3f, 2f);
         crystalBow = new Bow(items[0][6], strings, arrowImage, 3, 3, .2f, .05f, 3);

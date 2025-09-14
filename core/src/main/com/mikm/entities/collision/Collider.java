@@ -5,6 +5,7 @@ import com.mikm.DeltaTime;
 import com.mikm.ExtraMathUtils;
 import com.mikm.Vector2Int;
 import com.mikm.entities.InanimateEntity;
+import com.mikm.entities.enemies.Bat;
 import com.mikm.rendering.cave.CaveTilemapCreator;
 import com.mikm.rendering.screens.Application;
 
@@ -15,6 +16,7 @@ public class Collider {
     private Vector2 nextPosition;
     private Vector2Int tilePosition = new Vector2Int();
     private Vector2Int nextTilePosition = new Vector2Int();
+    public boolean isBat = false;
 
     public Collider(InanimateEntity inanimateEntity) {
         this.inanimateEntity = inanimateEntity;
@@ -22,6 +24,7 @@ public class Collider {
 
     public void updateCollisions() {
         boolean[][] collidableMap = Application.getInstance().currentScreen.isCollidableGrid();
+        boolean[][] rockCollidableMap = Application.getInstance().caveScreen.caveTilemapCreator.rockCollidablePositions;
 
         tilePosition = ExtraMathUtils.toTileCoordinates(inanimateEntity.getHitbox().x, inanimateEntity.getHitbox().y);
         nextPosition = new Vector2(inanimateEntity.getHitbox().x + inanimateEntity.xVel * DeltaTime.deltaTime(), inanimateEntity.getHitbox().y + inanimateEntity.yVel * DeltaTime.deltaTime());
@@ -32,6 +35,11 @@ public class Collider {
             boolean vInMap = false;
             try {
                 vInMap = collidableMap[v.y][v.x];
+                if (isBat) {
+                    if (rockCollidableMap[v.y][v.x]) {
+                        vInMap = false;
+                    }
+                }
             } catch (Exception e) {
 
             }
@@ -85,7 +93,14 @@ public class Collider {
         if (isOutOfBounds(tilePosition)) {
             return true;
         }
-        return collidableMap[tilePosition.y][tilePosition.x];
+        boolean output = collidableMap[tilePosition.y][tilePosition.x];
+        if (isBat) {
+            boolean[][] rockCollidableMap = Application.getInstance().caveScreen.caveTilemapCreator.rockCollidablePositions;
+            if (rockCollidableMap[tilePosition.y][tilePosition.x]) {
+                output = false;
+            }
+        }
+        return output;
     }
 
     private Vector2Int getTopLeftTilePosition() {

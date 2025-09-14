@@ -66,6 +66,28 @@ public class ParticleTypes {
         return knockbackDustParameters;
     }
 
+    public static ParticleTypes getSmokeParameters() {
+        ParticleTypes knockbackDustParameters = new ParticleTypes();
+        knockbackDustParameters.image = Assets.particleImages[0][0];
+        knockbackDustParameters.amountMin = 1;
+        knockbackDustParameters.amountMax = 1;
+        knockbackDustParameters.positionOffsetRadius = 5;
+        knockbackDustParameters.sizeMin = .5f;
+        knockbackDustParameters.sizeMax = 1f;
+        knockbackDustParameters.speedMin = 0.25f;
+        knockbackDustParameters.speedMax = 0.5f;
+        knockbackDustParameters.proportionOfTimeSpentDecelerating = 1;
+        knockbackDustParameters.maxLifeTime = 3f;
+        knockbackDustParameters.hasGravity = false;
+        knockbackDustParameters.hasShadow = false;
+        knockbackDustParameters.shouldDecelerate = false;
+        knockbackDustParameters.angleMin = -MathUtils.PI/8f;
+        knockbackDustParameters.angleMax = MathUtils.PI/8f;
+        knockbackDustParameters.peakHeight = 0;
+        knockbackDustParameters.collidesWithWalls = false;
+        return knockbackDustParameters;
+    } 
+
     public static ParticleTypes getDiveDustParameters() {
         ParticleTypes diveDustParameters = new ParticleTypes();
         diveDustParameters.image = Assets.particleImages[0][0];

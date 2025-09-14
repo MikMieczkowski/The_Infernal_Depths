@@ -25,7 +25,7 @@ import java.util.Objects;
 
 public class Serializer {
     private static Serializer instance;
-    private final String SAVEFILE_PATH = "InfernalDepthsSaveFiles/save";
+    public static final String SAVEFILE_PATH = "InfernalDepthsSaveFiles/save";
 
     private final Kryo kryo;
     private Input[] input = new Input[11];
@@ -41,6 +41,7 @@ public class Serializer {
             }
             for (int i = 0; i < 11; i++) {
                 f = Gdx.files.local(SAVEFILE_PATH + i + ".bin");
+                //Create file if it doesn't exist
                 if (!f.exists()) {
                     f.writeString("", false);
                 }
@@ -55,6 +56,37 @@ public class Serializer {
             instance = new Serializer();
         }
         return instance;
+    }
+
+    public boolean saveFilesExist() {
+        FileHandle f = Gdx.files.local("InfernalDepthsSaveFiles");
+        if (!f.exists()) {
+            return false;
+        }
+        for (int i = 0; i <= 10; i++) {
+            f = Gdx.files.local(Serializer.SAVEFILE_PATH + i + ".bin");
+            if (f.exists() && f.length() > 0) return true;
+        }
+        return false;
+    }
+    
+    public void resetSaveFiles() {
+        try {
+            FileHandle f = Gdx.files.local("InfernalDepthsSaveFiles");
+            if (!f.exists()) {
+                throw new RuntimeException("InfernalDepthsSaveFiles should exist");
+            }
+            for (int i = 0; i < 11; i++) {
+                f = Gdx.files.local(SAVEFILE_PATH + i + ".bin");
+                //Create file if it doesn't exist
+                if (!f.exists()) {
+                    throw new RuntimeException(SAVEFILE_PATH + i + " should exist");
+                }
+                f.writeString("", false);
+            }
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     public void write(Object object, int fileIndex) {

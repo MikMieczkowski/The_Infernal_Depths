@@ -3,12 +3,14 @@ package com.mikm.entities;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.mikm.Assets;
 import com.mikm.entities.particles.ParticleTypes;
 
 public class Destructible extends InanimateEntity {
     private final TextureRegion image;
     public ParticleTypes particleEffect;
     public Sound sound;
+    private TextureRegion destructibleShadow = Assets.getInstance().getTextureRegion("destructibleShadow", 48,48);
 
     public Destructible(TextureRegion image, ParticleTypes particleEffect, Sound sound, float x, float y) {
         super(x, y);
@@ -30,5 +32,6 @@ public class Destructible extends InanimateEntity {
     @Override
     public void draw(Batch batch) {
         batch.draw(image, x, y);
+        batch.draw(destructibleShadow, x-4, y-4, 24, 24);
     }
 }

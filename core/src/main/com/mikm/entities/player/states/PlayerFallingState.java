@@ -38,12 +38,8 @@ public class PlayerFallingState extends State {
     public void checkForStateTransition() {
         if (timeElapsedInState > FALLING_TIME) {
             Application.getInstance().currentScreen.entities.doAfterRender(() -> {
-                if (Application.getInstance().currentScreen == Application.getInstance().townScreen) {
-                    Application.getInstance().setGameScreen(Application.getInstance().caveScreen);
-                    Application.getInstance().caveScreen.increaseFloor();
-                } else {
-                    Application.getInstance().caveScreen.increaseFloor();
-                }
+                Application.getInstance().setGameScreen(Application.getInstance().caveScreen);
+                Application.getInstance().caveScreen.increaseFloor();
                 player.isAttackable = true;
                 player.walkingState.enter();
             });
@@ -52,6 +48,6 @@ public class PlayerFallingState extends State {
 
     @Override
     protected AnimationName getAnimationName() {
-        return AnimationName.HIT;
+        return AnimationName.PLAYER_FALL;
     }
 }

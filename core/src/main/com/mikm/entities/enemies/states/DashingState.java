@@ -60,8 +60,8 @@ public class DashingState extends State {
         super.update();
         entity.height = startHeight+ExtraMathUtils.bounceLerp(bounceTimer, MAX_DASH_TIME, 15f, 1, 10.6f);
         bounceTimer += Gdx.graphics.getDeltaTime();
-        entity.xVel = MathUtils.cos(angleToPlayer) * dashSpeed* (1-timeElapsedInState/ MAX_DASH_TIME);
-        entity.yVel = MathUtils.sin(angleToPlayer) * dashSpeed * (1-timeElapsedInState/ MAX_DASH_TIME);
+        entity.xVel = MathUtils.cos(angleToPlayer) * dashSpeed* (timeElapsedInState/ MAX_DASH_TIME);
+        entity.yVel = MathUtils.sin(angleToPlayer) * dashSpeed * (timeElapsedInState/ MAX_DASH_TIME);
     }
 
     @Override

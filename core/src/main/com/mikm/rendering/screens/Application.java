@@ -1,6 +1,6 @@
 package com.mikm.rendering.screens;
 
-import com.badlogic.gdx.ApplicationListener;
+// removed unused import
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -40,7 +40,7 @@ public class Application extends Game {
 	}
 
 	public static final int TILE_WIDTH = 16, TILE_HEIGHT = 16;
-	public static final boolean PLAY_MUSIC = true;
+	public static boolean musicOn = true;
 
 	public static SpriteBatch batch;
 	public ShaderProgram fillColorShader;
@@ -83,6 +83,20 @@ public class Application extends Game {
 		Camera.setPositionDirectlyToPlayerPosition();
 		setGameScreen(townScreen);
 
+	}
+
+	private static int n = 0;
+	private ArrayList<Integer> saveData;
+	@SuppressWarnings("unchecked")
+	private int readSaveData() {
+		if (n==0) {
+			saveData = (ArrayList<Integer>) Serializer.getInstance().read(ArrayList.class, 10);
+		}
+		n++;
+		return saveData.get(n-1);
+	}
+
+	public void loadAllSaveData() {
 		try {
 
 			Application.player.swordLevel = readSaveData();
@@ -111,21 +125,10 @@ public class Application extends Game {
 		}
 	}
 
-	private static int n = 0;
-	private ArrayList<Integer> saveData;
-	@SuppressWarnings("unchecked")
-	private int readSaveData() {
-		if (n==0) {
-			saveData = (ArrayList<Integer>) Serializer.getInstance().read(ArrayList.class, 10);
-		}
-		n++;
-		return saveData.get(n-1);
-	}
-
 	private void createPlayerAndCaveScreen() {
 		player = new Player(448, 448);
 		caveScreen = new CaveScreen();
-		player.setWeapons(new WeaponInstances(caveScreen));
+		player.setWeapons(new WeaponInstances());
 		Camera.setPositionDirectlyToPlayerPosition();
 	}
 
@@ -141,9 +144,9 @@ public class Application extends Game {
 				timestop = false;
 			}
 		}
+		handleDebugInput();
  		InputRaw.handleThisFrameInput();
 		checkRespawn();
-		handleDebugInput();
 	}
 
 	private void checkRespawn() {
@@ -245,12 +248,19 @@ public class Application extends Game {
 
 
 	private void handleDebugInput() {
-
+		// Handle pause button logic
 		if (GameInput.isPauseButtonJustPressed()) {
-			paused = !paused;
+			System.out.println("pressed");
+			if (currentScreen instanceof TownScreen && ((TownScreen)currentScreen).isMainMenuActive()) {
+				// Main menu is active - ignore pause button
+			} else {
+				// Main menu is not active - handle pause normally
+				paused = !paused;
+			}
 		}
+
 		if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
-			if (currentScreen == caveScreen) {
+			if (currentScreen == caveScreen && !paused) {
 				Application.getInstance().caveScreen.entities.doAfterRender(()-> {
 					Camera.setPositionDirectlyToPlayerPosition();
 					setGameScreen(townScreen);
@@ -259,25 +269,33 @@ public class Application extends Game {
 		}
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.C)) {
-			setGameScreen(caveScreen);
-			caveScreen.increaseFloor();
+			if (CaveScreen.floor < CaveScreen.LAST_FLOOR-5 && !paused) {
+				setGameScreen(caveScreen);
+				caveScreen.increaseFloor();
+			}
 		}
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.U)) {
-			RockType.get(1).increaseOreAmount(7);
-			RockType.get(2).increaseOreAmount(7);
-			RockType.get(3).increaseOreAmount(7);
-			RockType.get(4).increaseOreAmount(7);
+			if (!paused) {
+				RockType.get(1).increaseOreAmount(7);
+				RockType.get(2).increaseOreAmount(7);
+				RockType.get(3).increaseOreAmount(7);
+				RockType.get(4).increaseOreAmount(7);
+			}
 		}
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.V)) {
-			setGameScreen(caveScreen);
-			caveScreen.decreaseFloor();
+			if (CaveScreen.floor > 0 && !paused) {
+				setGameScreen(caveScreen);
+				caveScreen.decreaseFloor();
+			}
 		}
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
-			Application.player.hp =1;
-			Application.player.damagedState.enter(new DamageInformation(1, 0 ,1));
+			if (!paused) {
+				Application.player.hp =1;
+				Application.player.damagedState.enter(new DamageInformation(1, 0 ,1));
+			}
 		}
 
 	}

@@ -5,5 +5,7 @@ public enum AnimationName {
     WALK,
     HIT,
     PLAYER_DIVE,
-    PLAYER_ROLL
+    PLAYER_ROLL,
+    PLAYER_FALL,
+    BAT_SHOCK
 }

@@ -87,7 +87,6 @@ public class Player extends Entity {
 
     @Override
     public void update() {
-        System.out.println(x + "," + y);
         handleInput();
         checkHolePositions();
         super.update();
@@ -110,6 +109,8 @@ public class Player extends Entity {
                 holePositions = Application.getInstance().caveScreen.getHolePositionsToCheck();
             } else if (Application.getInstance().currentScreen == Application.getInstance().townScreen) {
                 holePositions = Application.getInstance().townScreen.getHolePositions();
+            } else if (Application.getInstance().currentScreen == Application.getInstance().slimeBossRoomScreen) {
+                holePositions = Application.getInstance().slimeBossRoomScreen.getHolePositions();
             } else {
                 this.aboveHole = false;
                 return;
@@ -142,7 +143,7 @@ public class Player extends Entity {
         }
         boolean output = false;
         if (isInBounds && vIsHole) {
-            if (Intersector.overlaps(new Circle(getHitbox().x, getHitbox().y, getHitbox().radius+6), checkedTileBounds)) {
+            if (checkedTileBounds.contains(getHitbox().x, getHitbox().y)) {
                 output = true;
                 if (GameInput.isTalkButtonPressed()) {
                     fallingState.enter();
@@ -252,6 +253,7 @@ public class Player extends Entity {
         animations.put(AnimationName.HIT, new DirectionalAnimation("Character_DiveDown", 32,32));
         animations.put(AnimationName.PLAYER_DIVE, new DirectionalAnimation("Character_Dive", .1f, Animation.PlayMode.NORMAL));
         animations.put(AnimationName.PLAYER_ROLL, new DirectionalAnimation("Character_Roll", .055f, Animation.PlayMode.NORMAL));
+        animations.put(AnimationName.PLAYER_FALL, new DirectionalAnimation("Character_Fall", 32, 32,.055f, 4,Animation.PlayMode.NORMAL));
     }
 
     @Override
