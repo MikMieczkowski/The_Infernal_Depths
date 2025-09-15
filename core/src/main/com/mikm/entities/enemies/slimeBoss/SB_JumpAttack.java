@@ -2,7 +2,7 @@ package com.mikm.entities.enemies.slimeBoss;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.mikm.ExtraMathUtils;
-import com.mikm.entities.State;
+import com.mikm.entities.enemies.states.State;
 import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.player.Player;
 import com.mikm.rendering.screens.Application;

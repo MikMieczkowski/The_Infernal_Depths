@@ -2,7 +2,7 @@ package com.mikm.entities.enemies.slimeBoss;
 
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.ExtraMathUtils;
-import com.mikm.entities.State;
+import com.mikm.entities.enemies.states.State;
 import com.mikm.entities.animation.AnimationName;
 
 public class SB_DashBuildUpState extends State {

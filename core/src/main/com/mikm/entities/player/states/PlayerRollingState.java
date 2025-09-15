@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.DeltaTime;
 import com.mikm.RandomUtils;
-import com.mikm.entities.State;
+import com.mikm.entities.enemies.states.State;
 import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.particles.ParticleEffect;
 import com.mikm.entities.particles.ParticleTypes;

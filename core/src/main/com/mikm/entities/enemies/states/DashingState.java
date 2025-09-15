@@ -1,11 +1,9 @@
 package com.mikm.entities.enemies.states;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
 import com.mikm.ExtraMathUtils;
 import com.mikm.entities.Entity;
-import com.mikm.entities.State;
 import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.enemies.Slime;
 import com.mikm.entities.player.Player;

@@ -14,8 +14,8 @@ import com.mikm.entities.animation.DirectionalAnimation;
 import com.mikm.entities.animation.Directions;
 import com.mikm.entities.enemies.states.DamagedState;
 import com.mikm.entities.enemies.states.DashingState;
-import com.mikm.rendering.cave.CaveTilemapCreator;
-import com.mikm.rendering.cave.RockType;
+import com.mikm.entities.enemies.states.State;
+import com.mikm.entities.inanimateEntities.InanimateEntity;
 import com.mikm.rendering.screens.Application;
 
 import java.util.Map;

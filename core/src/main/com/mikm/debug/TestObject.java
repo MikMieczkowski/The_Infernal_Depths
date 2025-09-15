@@ -3,7 +3,7 @@ package com.mikm.debug;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.mikm.Assets;
-import com.mikm.entities.InanimateEntity;
+import com.mikm.entities.inanimateEntities.InanimateEntity;
 import com.mikm.rendering.screens.Application;
 
 public class TestObject extends InanimateEntity {

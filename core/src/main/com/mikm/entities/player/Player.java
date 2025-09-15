@@ -1,30 +1,23 @@
 package com.mikm.entities.player;
 
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.*;
-import com.mikm.Assets;
-import com.mikm.DeltaTime;
 import com.mikm.Vector2Int;
-import com.mikm.debug.DebugRenderer;
 import com.mikm.entities.Entity;
-import com.mikm.entities.Grave;
+import com.mikm.entities.inanimateEntities.Grave;
 import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.animation.DirectionalAnimation;
 import com.mikm.entities.player.states.*;
 import com.mikm.entities.player.weapons.Weapon;
 import com.mikm.entities.player.weapons.WeaponInstances;
 import com.mikm.input.GameInput;
-import com.mikm.rendering.cave.CaveTilemapCreator;
 import com.mikm.rendering.cave.RockType;
 import com.mikm.rendering.screens.Application;
-import com.mikm.rendering.screens.CaveScreen;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 

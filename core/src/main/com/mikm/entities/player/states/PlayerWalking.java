@@ -1,11 +1,10 @@
 package com.mikm.entities.player.states;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.DeltaTime;
 import com.mikm.ExtraMathUtils;
-import com.mikm.entities.State;
+import com.mikm.entities.enemies.states.State;
 import com.mikm.entities.player.Player;
 import com.mikm.input.GameInput;
 import com.mikm.rendering.SoundEffects;

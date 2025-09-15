@@ -1,4 +1,4 @@
-package com.mikm.entities;
+package com.mikm.entities.inanimateEntities;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;

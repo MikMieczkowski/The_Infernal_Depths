@@ -11,10 +11,10 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.mikm.Assets;
 // removed unused imports
-import com.mikm.entities.Door;
-import com.mikm.entities.InanimateEntity;
+import com.mikm.entities.inanimateEntities.Door;
+import com.mikm.entities.inanimateEntities.InanimateEntity;
 import com.mikm.entities.RemovableArray;
-import com.mikm.entities.Shadow;
+import com.mikm.entities.inanimateEntities.Shadow;
 // removed unused imports
 import com.mikm.entities.particles.ParticleEffect;
 import com.mikm.entities.particles.ParticleTypes;

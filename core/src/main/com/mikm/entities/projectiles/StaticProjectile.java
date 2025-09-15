@@ -2,10 +2,7 @@ package com.mikm.entities.projectiles;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.mikm.entities.InanimateEntity;
-import com.mikm.entities.enemies.slimeBoss.SB_SimmerAttack;
-import com.mikm.entities.particles.ParticleTypes;
-import com.mikm.entities.particles.ParticleEffect;
+import com.mikm.entities.inanimateEntities.InanimateEntity;
 import com.mikm.rendering.screens.Application;
 
 public class StaticProjectile extends InanimateEntity {

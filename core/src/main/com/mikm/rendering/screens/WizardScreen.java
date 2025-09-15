@@ -2,23 +2,15 @@ package com.mikm.rendering.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.mikm.Assets;
 import com.mikm.debug.DebugRenderer;
-import com.mikm.entities.Door;
-import com.mikm.entities.HealingEffect;
-import com.mikm.entities.player.Player;
-import com.mikm.input.GameInput;
-import com.mikm.input.InputRaw;
+import com.mikm.entities.inanimateEntities.Door;
+import com.mikm.entities.inanimateEntities.HealingEffect;
 import com.mikm.rendering.Camera;
 import com.mikm.rendering.SoundEffects;
-import com.mikm.rendering.cave.RockType;
 
 public class WizardScreen extends GameScreen{
     private Color BG_COLOR = CaveScreen.caveFillColorLevel6;

@@ -1,14 +1,8 @@
 package com.mikm.entities.enemies.states;
 
-import com.badlogic.gdx.math.MathUtils;
-import com.mikm.RandomUtils;
 import com.mikm.entities.Entity;
-import com.mikm.entities.State;
 import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.enemies.Bat;
-import com.mikm.entities.particles.ParticleEffect;
-import com.mikm.entities.particles.ParticleTypes;
-import com.mikm.rendering.screens.Application;
 
 public class BatShockState extends State {
     private final float TOTAL_SHOCK_TIME = 0.1f*6;

@@ -15,6 +15,7 @@ public class DirectionalAnimation {
     private ArrayList<Animation<TextureRegion>> animations;
     private Animation<TextureRegion> currentAnimation;
 
+    //copy constructor
     private DirectionalAnimation(DirectionalAnimation animation) {
         frameDuration = animation.frameDuration;
         playMode = animation.playMode;
@@ -62,12 +63,8 @@ public class DirectionalAnimation {
         currentAnimation = animation;
     }
 
-    public boolean isFinished(float animationTime) {
-        return currentAnimation.isAnimationFinished(animationTime);
-    }
-
+    //Static animation (one image only)
     public DirectionalAnimation(String staticImageName, int width, int height) {
-        //Static animation
         this.frameDuration = 10;
         this.playMode = Animation.PlayMode.LOOP;
         animations = new ArrayList<>();
@@ -76,6 +73,10 @@ public class DirectionalAnimation {
         animations.add(animation);
         currentAnimation = animation;
     }
+    public boolean isFinished(float animationTime) {
+        return currentAnimation.isAnimationFinished(animationTime);
+    }
+
 
     public DirectionalAnimation createDirectionalAnimationFromFirstFrames() {
         return new DirectionalAnimation(this);

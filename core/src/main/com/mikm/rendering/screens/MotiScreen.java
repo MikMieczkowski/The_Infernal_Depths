@@ -8,9 +8,8 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.mikm.Assets;
-import com.mikm.entities.Grave;
+import com.mikm.entities.inanimateEntities.Grave;
 import com.mikm.entities.enemies.moti.Moti;
-import com.mikm.entities.enemies.slimeBoss.SlimeBoss;
 import com.mikm.rendering.Camera;
 
 import java.util.ArrayList;

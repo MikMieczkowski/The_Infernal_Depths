@@ -1,8 +1,9 @@
-package com.mikm.entities;
+package com.mikm.entities.enemies.states;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
+import com.mikm.entities.Entity;
 import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.projectiles.DamageInformation;
 import com.mikm.rendering.screens.Application;

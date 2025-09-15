@@ -7,7 +7,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.mikm.RandomUtils;
 import com.mikm.Vector2Int;
-import com.mikm.entities.InanimateEntity;
+import com.mikm.entities.inanimateEntities.InanimateEntity;
 import com.mikm.rendering.cave.ruleCell.RuleCell;
 import com.mikm.rendering.cave.ruleCell.RuleCellMetadata;
 import com.mikm.rendering.cave.ruleCell.RuleCellMetadataReader;

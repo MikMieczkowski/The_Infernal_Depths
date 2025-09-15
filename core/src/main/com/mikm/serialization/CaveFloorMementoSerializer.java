@@ -6,6 +6,8 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.mikm.Vector2Int;
 import com.mikm.entities.*;
+import com.mikm.entities.inanimateEntities.Grave;
+import com.mikm.entities.inanimateEntities.InanimateEntity;
 import com.mikm.rendering.cave.CaveFloorMemento;
 import com.mikm.rendering.cave.Rock;
 import com.mikm.rendering.screens.Application;

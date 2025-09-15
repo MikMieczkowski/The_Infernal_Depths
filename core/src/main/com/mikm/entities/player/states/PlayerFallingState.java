@@ -1,7 +1,7 @@
 package com.mikm.entities.player.states;
 
 import com.mikm.ExtraMathUtils;
-import com.mikm.entities.State;
+import com.mikm.entities.enemies.states.State;
 import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.player.Player;
 import com.mikm.rendering.SoundEffects;

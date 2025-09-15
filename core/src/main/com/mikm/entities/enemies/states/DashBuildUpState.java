@@ -1,9 +1,7 @@
 package com.mikm.entities.enemies.states;
 
 import com.mikm.entities.Entity;
-import com.mikm.entities.State;
 import com.mikm.entities.animation.AnimationName;
-import com.mikm.entities.enemies.Slime;
 
 public class DashBuildUpState extends State {
     private float maxBuildupTime;

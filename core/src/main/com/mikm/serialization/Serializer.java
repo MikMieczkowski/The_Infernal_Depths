@@ -6,11 +6,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import com.mikm.Method;
 import com.mikm.Vector2Int;
-import com.mikm.entities.Grave;
-import com.mikm.entities.Rope;
-import com.mikm.entities.collision.Collider;
+import com.mikm.entities.inanimateEntities.Grave;
 import com.mikm.entities.enemies.Bat;
 import com.mikm.entities.enemies.Rat;
 import com.mikm.entities.enemies.Slime;
@@ -19,9 +16,7 @@ import com.mikm.rendering.cave.CaveFloorMemento;
 import com.mikm.rendering.cave.Rock;
 import com.mikm.rendering.cave.RockType;
 
-import java.io.*;
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class Serializer {
     private static Serializer instance;
