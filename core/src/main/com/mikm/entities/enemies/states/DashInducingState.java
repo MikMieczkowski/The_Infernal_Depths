@@ -5,7 +5,6 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Intersector;
 import com.mikm.RandomUtils;
 import com.mikm.entities.Entity;
-import com.mikm.entities.State;
 import com.mikm.rendering.screens.Application;
 
 public abstract class DashInducingState extends State {

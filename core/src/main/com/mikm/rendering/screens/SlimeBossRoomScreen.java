@@ -1,27 +1,20 @@
 package com.mikm.rendering.screens;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.mikm.Assets;
 import com.mikm.entities.Entity;
-import com.mikm.entities.Rope;
-import com.mikm.entities.Grave;
+import com.mikm.entities.inanimateEntities.Rope;
+import com.mikm.entities.inanimateEntities.Grave;
 import com.mikm.entities.enemies.slimeBoss.SlimeBoss;
 import com.mikm.rendering.cave.RockType;
-import com.mikm.rendering.screens.Application;
 import com.mikm.input.GameInput;
 import com.mikm.rendering.Camera;
 import com.mikm.debug.DebugRenderer;
-import java.util.Arrays;
-import com.mikm.Assets;
 
 import java.util.ArrayList;
 

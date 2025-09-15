@@ -8,15 +8,12 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.Assets;
 import com.mikm.entities.Entity;
-import com.mikm.entities.Grave;
 import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.animation.DirectionalAnimation;
-import com.mikm.entities.enemies.states.DamagedState;
 import com.mikm.rendering.SoundEffects;
 import com.mikm.rendering.screens.SlimeBossRoomScreen;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 

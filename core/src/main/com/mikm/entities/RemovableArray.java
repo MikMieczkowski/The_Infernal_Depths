@@ -2,7 +2,7 @@ package com.mikm.entities;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.mikm.Method;
-import com.mikm.serialization.Serializer;
+import com.mikm.entities.inanimateEntities.InanimateEntity;
 
 import java.util.ArrayList;
 import java.util.Collection;

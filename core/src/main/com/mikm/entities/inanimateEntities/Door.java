@@ -1,12 +1,8 @@
-package com.mikm.entities;
+package com.mikm.entities.inanimateEntities;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Intersector;
-import com.mikm.Assets;
-import com.mikm.input.GameInput;
 import com.mikm.rendering.screens.Application;
-import com.mikm.rendering.screens.GameScreen;
 
 public class Door extends InanimateEntity {
     private int screenNumber;

@@ -19,6 +19,9 @@ import com.mikm.Assets;
 // removed unused import
 import com.mikm.debug.DebugRenderer;
 import com.mikm.entities.*;
+import com.mikm.entities.inanimateEntities.Destructible;
+import com.mikm.entities.inanimateEntities.InanimateEntity;
+import com.mikm.entities.inanimateEntities.Shadow;
 import com.mikm.entities.particles.ParticleTypes;
 import com.mikm.rendering.Camera;
 import com.mikm.rendering.SoundEffects;

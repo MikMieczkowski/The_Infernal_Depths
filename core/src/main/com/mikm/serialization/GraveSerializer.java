@@ -5,8 +5,7 @@ import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.mikm.Vector2Int;
-import com.mikm.entities.Grave;
-import com.mikm.rendering.cave.Rock;
+import com.mikm.entities.inanimateEntities.Grave;
 import com.mikm.rendering.cave.RockType;
 
 public class GraveSerializer extends Serializer<Grave> {

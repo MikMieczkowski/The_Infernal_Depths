@@ -11,7 +11,7 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.esotericsoftware.kryo.io.KryoBufferUnderflowException;
 import com.mikm.Assets;
 import com.mikm.debug.DebugRenderer;
-import com.mikm.entities.Grave;
+import com.mikm.entities.inanimateEntities.Grave;
 import com.mikm.entities.enemies.slimeBoss.SlimeBoss;
 import com.mikm.entities.player.Player;
 import com.mikm.entities.player.weapons.WeaponInstances;
@@ -290,7 +290,6 @@ public class Application extends Game {
 				caveScreen.decreaseFloor();
 			}
 		}
-
 		if (Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
 			if (!paused) {
 				Application.player.hp =1;

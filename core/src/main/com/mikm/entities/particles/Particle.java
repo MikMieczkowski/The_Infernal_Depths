@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.mikm.ExtraMathUtils;
-import com.mikm.entities.InanimateEntity;
+import com.mikm.entities.inanimateEntities.InanimateEntity;
 import com.mikm.rendering.screens.Application;
 
 public class Particle extends InanimateEntity {

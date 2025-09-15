@@ -2,7 +2,6 @@ package com.mikm.entities.particles;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.mikm.RandomUtils;
-import com.mikm.entities.InanimateEntity;
 import com.mikm.rendering.screens.Application;
 
 public class ParticleEffect {

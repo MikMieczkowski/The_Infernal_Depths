@@ -4,7 +4,7 @@
 //import com.esotericsoftware.kryo.Serializer;
 //import com.esotericsoftware.kryo.io.Input;
 //import com.esotericsoftware.kryo.io.Output;
-//import com.mikm.entities.InanimateEntity;
+//import com.mikm.entities.inanimateEntities.InanimateEntity;
 //import com.mikm.entities.RemovableArray;
 //
 //public class RemovableArraySerializer<T extends InanimateEntity> extends Serializer<RemovableArray<T>> {

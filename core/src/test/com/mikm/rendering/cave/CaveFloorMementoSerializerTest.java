@@ -3,11 +3,9 @@ package com.mikm.rendering.cave;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import com.mikm.serialization.Serializer;
 import com.mikm.Vector2Int;
-import com.mikm.debug.TestObject;
 import com.mikm.entities.Entity;
-import com.mikm.entities.InanimateEntity;
+import com.mikm.entities.inanimateEntities.InanimateEntity;
 import com.mikm.entities.RemovableArray;
 import org.junit.jupiter.api.Test;
 
@@ -15,9 +13,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class CaveFloorMementoSerializerTest {
 

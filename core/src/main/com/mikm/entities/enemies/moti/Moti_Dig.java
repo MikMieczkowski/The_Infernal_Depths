@@ -1,16 +1,13 @@
 package com.mikm.entities.enemies.moti;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.math.MathUtils;
 import com.mikm.Assets;
-import com.mikm.ExtraMathUtils;
-import com.mikm.entities.State;
+import com.mikm.entities.enemies.states.State;
 import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.particles.ParticleTypes;
 import com.mikm.entities.player.Player;
 import com.mikm.entities.projectiles.DamageInformation;
-import com.mikm.entities.projectiles.StaticProjectile;
 import com.mikm.rendering.screens.Application;
 
 public class Moti_Dig extends State {

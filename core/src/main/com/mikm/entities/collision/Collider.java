@@ -4,8 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.mikm.DeltaTime;
 import com.mikm.ExtraMathUtils;
 import com.mikm.Vector2Int;
-import com.mikm.entities.InanimateEntity;
-import com.mikm.entities.enemies.Bat;
+import com.mikm.entities.inanimateEntities.InanimateEntity;
 import com.mikm.rendering.cave.CaveTilemapCreator;
 import com.mikm.rendering.screens.Application;
 

@@ -2,12 +2,11 @@ package com.mikm.entities.player.weapons;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Intersector;
-import com.mikm.entities.InanimateEntity;
+import com.mikm.entities.inanimateEntities.InanimateEntity;
 import com.mikm.entities.particles.ParticleTypes;
 import com.mikm.entities.particles.ParticleEffect;
 import com.mikm.entities.projectiles.DamageInformation;
 import com.mikm.rendering.SoundEffects;
-import com.mikm.rendering.cave.CaveFloorMemento;
 import com.mikm.rendering.screens.Application;
 import com.mikm.rendering.screens.CaveScreen;
 import com.mikm.rendering.cave.Rock;

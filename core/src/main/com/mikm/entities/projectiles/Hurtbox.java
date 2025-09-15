@@ -3,14 +3,11 @@ package com.mikm.entities.projectiles;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
-import com.mikm.entities.Destructible;
+import com.mikm.entities.inanimateEntities.Destructible;
 import com.mikm.entities.Entity;
-import com.mikm.entities.InanimateEntity;
+import com.mikm.entities.inanimateEntities.InanimateEntity;
 import com.mikm.entities.particles.ParticleEffect;
-import com.mikm.entities.particles.ParticleTypes;
 import com.mikm.rendering.SoundEffects;
-import com.mikm.rendering.cave.Rock;
-import com.mikm.rendering.cave.RockType;
 import com.mikm.rendering.screens.Application;
 
 public class Hurtbox {

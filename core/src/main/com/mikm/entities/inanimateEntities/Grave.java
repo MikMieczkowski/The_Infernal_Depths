@@ -1,4 +1,4 @@
-package com.mikm.entities;
+package com.mikm.entities.inanimateEntities;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -7,7 +7,6 @@ import com.badlogic.gdx.math.Intersector;
 import com.mikm.Assets;
 import com.mikm.entities.particles.ParticleEffect;
 import com.mikm.entities.particles.ParticleTypes;
-import com.mikm.input.GameInput;
 import com.mikm.rendering.SoundEffects;
 import com.mikm.rendering.cave.RockType;
 import com.mikm.rendering.screens.Application;

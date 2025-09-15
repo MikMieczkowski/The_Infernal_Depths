@@ -6,17 +6,14 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.esotericsoftware.kryo.io.KryoBufferUnderflowException;
 import com.mikm.Assets;
 import com.mikm.ExtraMathUtils;
 import com.mikm.Vector2Int;
-import com.mikm.debug.DebugRenderer;
-import com.mikm.entities.Grave;
-import com.mikm.entities.InanimateEntity;
-import com.mikm.entities.Rope;
+import com.mikm.entities.inanimateEntities.InanimateEntity;
+import com.mikm.entities.inanimateEntities.Rope;
 import com.mikm.entities.enemies.slimeBoss.SlimeBoss;
 import com.mikm.input.GameInput;
 import com.mikm.rendering.Camera;
@@ -24,9 +21,6 @@ import com.mikm.rendering.cave.CaveEntitySpawner;
 import com.mikm.rendering.cave.CaveFloorMemento;
 import com.mikm.rendering.cave.CaveTilemapCreator;
 import com.mikm.serialization.Serializer;
-
-import static com.mikm.rendering.cave.CaveTilemapCreator.MAP_HEIGHT;
-import static com.mikm.rendering.cave.CaveTilemapCreator.MAP_WIDTH;
 
 import java.util.ArrayList;
 

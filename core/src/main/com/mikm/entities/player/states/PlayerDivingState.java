@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.mikm.DeltaTime;
 import com.mikm.ExtraMathUtils;
 import com.mikm.Vector2Int;
-import com.mikm.entities.State;
+import com.mikm.entities.enemies.states.State;
 import com.mikm.entities.animation.AnimationName;
 import com.mikm.entities.player.Player;
 import com.mikm.input.GameInput;

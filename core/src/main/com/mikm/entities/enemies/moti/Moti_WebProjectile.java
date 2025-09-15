@@ -2,11 +2,9 @@ package com.mikm.entities.enemies.moti;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Rectangle;
 import com.mikm.Assets;
 import com.mikm.debug.DebugRenderer;
-import com.mikm.entities.Destructible;
 import com.mikm.entities.particles.ParticleTypes;
 import com.mikm.entities.projectiles.DamageInformation;
 import com.mikm.entities.projectiles.Projectile;
