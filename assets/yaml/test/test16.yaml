@@ -1,0 +1,12 @@
+CONFIG:
+  NAME: "test2"
+BEHAVIOURS:
+  Idle:
+    SINGLE_FRAME: #one of - already implemented
+      IMAGE_NAME: "sand" #
+ROUTINES:
+  start:
+    CYCLE:
+      - BEHAVIOUR: Idle
+    TRANSITIONS:
+      - NO_REPEAT: start #this or on_condition
