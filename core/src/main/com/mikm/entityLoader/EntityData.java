@@ -1,4 +1,4 @@
-package com.mikm.entities;
+package com.mikm.entityLoader;
 
 import java.util.List;
 import java.util.Map;
@@ -43,6 +43,8 @@ public class EntityData {
     public static class SpawnConfig {
         public float LEVEL_1_SPAWN_PERCENT;
         public float LEVEL_2_SPAWN_PERCENT;
+        public float LEVEL_3_SPAWN_PERCENT;
+        public float LEVEL_4_SPAWN_PERCENT;
     }
 
     public static class BehaviourData {
@@ -55,7 +57,6 @@ public class EntityData {
         public String ON_HITTING_PLAYER_INTERRUPT_AND_GO_TO;
         public String COPY_CONFIG;
         public Map<String, Object> CONFIG;
-        public Map<String, BehaviourData> TELEGRAPH;
 
         public static class AnimData {
             public String STARTS_WITH;
@@ -71,7 +72,7 @@ public class EntityData {
 
 
         public static class TransitionData {
-            public Map<String, Object> ON_CONDITION;
+            public String ON_CONDITION;
             public String GO_TO;
             public String NO_REPEAT;
         }

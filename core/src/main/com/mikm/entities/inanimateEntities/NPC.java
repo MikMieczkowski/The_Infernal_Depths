@@ -8,6 +8,8 @@ import com.mikm.RandomUtils;
 import com.mikm.entities.player.Player;
 import com.mikm.input.GameInput;
 import com.mikm.rendering.screens.Application;
+import com.mikm.rendering.screens.BlacksmithScreen;
+import com.mikm.rendering.sound.SoundEffects;
 
 public class NPC extends InanimateEntity {
     private Player player;
@@ -24,6 +26,15 @@ public class NPC extends InanimateEntity {
             Application.getInstance().blacksmithScreen.showMenu = !Application.getInstance().blacksmithScreen.showMenu;
 
             Application.getInstance().blacksmithScreen.tipNumber = RandomUtils.getBoolean() ? 0 : 2;
+            // Play blacksmith talking line at open
+            if (Application.getInstance().blacksmithScreen.showMenu) {
+                if (BlacksmithScreen.talkedToTimes >= 4) {
+                    SoundEffects.play(BlacksmithScreen.BLACKSMITH_ANNOYED_SOUND_EFFECT);
+                } else {
+                    SoundEffects.play("blacksmith");
+                }
+                BlacksmithScreen.talkedToTimes++;
+            }
         }
         if (GameInput.isMenuCancelButtonJustPressed()) {
             Application.getInstance().blacksmithScreen.showMenu = false;

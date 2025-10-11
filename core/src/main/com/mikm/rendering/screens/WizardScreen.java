@@ -8,14 +8,13 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.mikm.debug.DebugRenderer;
 import com.mikm.entities.inanimateEntities.Door;
-import com.mikm.entities.inanimateEntities.HealingEffect;
 import com.mikm.rendering.Camera;
-import com.mikm.rendering.SoundEffects;
+import com.mikm.rendering.sound.SoundEffects;
 
 public class WizardScreen extends GameScreen{
     private Color BG_COLOR = CaveScreen.caveFillColorLevel6;
     boolean[][] collidableGrid;
-    private HealingEffect lastHealingEffect = null;
+    //private HealingEffect lastHealingEffect = null;
     private float soundEffectTimer = 0;
     private final float TIME_UNTIL_SOUND_EFFECT = 1.5f;
 
@@ -45,12 +44,12 @@ public class WizardScreen extends GameScreen{
         renderUI();
         Application.batch.end();
         soundEffectTimer+= Gdx.graphics.getDeltaTime();
-        if (soundEffectTimer > TIME_UNTIL_SOUND_EFFECT) {
-            if (Application.player.hp != Application.player.getMaxHp()) {
-                SoundEffects.play(SoundEffects.reward);
-                Application.player.hp = Application.player.getMaxHp();
-            }
-        }
+        //if (soundEffectTimer > TIME_UNTIL_SOUND_EFFECT) {
+        //    if (Application.player.hp != Application.player.MAX_HP) {
+        //        SoundEffects.play(SoundEffects.reward);
+        //        Application.player.hp = Application.player.getMaxHp();
+        //    }
+        //}
     }
 
 
@@ -66,13 +65,13 @@ public class WizardScreen extends GameScreen{
         viewport.setUnitsPerPixel(Camera.VIEWPORT_ZOOM);
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         tiledMapRenderer.setView(Camera.orthographicCamera);
-        lastHealingEffect = new HealingEffect(16, 16);
-        addEntity(lastHealingEffect);
+        //lastHealingEffect = new HealingEffect(16, 16);
+        //addEntity(lastHealingEffect);
     }
 
     @Override
     public void onExit() {
-        lastHealingEffect.die();
+        //lastHealingEffect.die();
         Camera.VIEWPORT_ZOOM = Camera.DEFAULT_VIEWPORT_ZOOM;
         viewport.setUnitsPerPixel(Camera.VIEWPORT_ZOOM);
         Application.player.x = 278;

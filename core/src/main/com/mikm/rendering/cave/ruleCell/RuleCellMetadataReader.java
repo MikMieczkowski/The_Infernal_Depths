@@ -42,7 +42,6 @@ public class RuleCellMetadataReader {
             firstNumberString = String.valueOf(rawMetadata.charAt(i+1));
         } else {
             firstNumberString = rawMetadata.substring(i+1, i+2+1);
-            System.out.println(firstNumberString);
             //make i act as if number was one digit
             i++;
         }

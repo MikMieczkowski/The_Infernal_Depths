@@ -6,9 +6,11 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
-import com.mikm.entities.player.states.PlayerAttackingAndWalkingState;
-import com.mikm.entities.projectiles.Hurtbox;
+import com.mikm.entities.actions.PlayerAttackingAction;
+import com.mikm.entities.inanimateEntities.projectiles.Hurtbox;
 import com.mikm.rendering.BatchUtils;
+import com.mikm.rendering.sound.SequentialSound;
+import com.mikm.rendering.sound.SoundEffects;
 
 public abstract class SwingableWeapon extends Weapon {
     private final Animation<TextureRegion> sliceAnimation;
@@ -21,6 +23,8 @@ public abstract class SwingableWeapon extends Weapon {
     //how fast one swing is
     private float timePerSwing;
     private int sliceWidth;
+    private SequentialSound swing;
+    private String SWING_SOUND_EFFECT_STARTS_WITH = "swing";
 
 
     public SwingableWeapon(TextureRegion image, TextureRegion[] sliceSpritesheet, float timePerSwing, int sliceWidth) {
@@ -44,13 +48,10 @@ public abstract class SwingableWeapon extends Weapon {
     }
 
     @Override
-    public void checkForStateTransition() {
-        if (attackTimer > player.currentHeldItem.getTotalAttackTime()) {
-            shouldSwingRight = !shouldSwingRight;
-            PlayerAttackingAndWalkingState.ready = true;
-            showSlice = false;
-            player.walkingState.enter();
-        }
+    public void exitAttackState() {
+        shouldSwingRight = !shouldSwingRight;
+        SoundEffects.play(SWING_SOUND_EFFECT_STARTS_WITH);
+        showSlice = false;
     }
 
     @Override
@@ -65,11 +66,11 @@ public abstract class SwingableWeapon extends Weapon {
     public void update() {
         attackTimer += Gdx.graphics.getDeltaTime();
         orbitAroundMouse();
-        hurtbox.setPosition(player.getCenteredPosition().x, player.getCenteredPosition().y, getSliceBounds().width/2f, angleToMouse);
+        hurtbox.setPosition(player.getHitbox().x, player.getHitbox().y, getSliceBounds().width/2f, angleToMouse);
     }
 
     public void updateDuringAttackState() {
-        angleOffset += (shouldSwingRight? 1 : -1) * SWORD_MOVEMENT_ANIMATION_SPEED;
+        angleOffset += (shouldSwingRight? 1 : -1) * SWORD_MOVEMENT_ANIMATION_SPEED * Gdx.graphics.getDeltaTime() * 60f;
         clampAngleOffset();
     }
 
@@ -104,6 +105,6 @@ public abstract class SwingableWeapon extends Weapon {
     }
 
     private Rectangle getSliceBounds() {
-        return new Rectangle(player.getCenteredPosition().x, player.getCenteredPosition().y, sliceWidth, 32);
+        return new Rectangle(player.getHitbox().x, player.getHitbox().y, sliceWidth, 32);
     }
 }

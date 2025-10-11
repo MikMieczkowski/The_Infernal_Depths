@@ -1,5 +1,7 @@
 package com.mikm.rendering.cave;
 
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.mikm.Assets;
 import com.mikm.Vector2Int;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -48,6 +50,7 @@ public class JavaTest
 //        System.out.println(Float.POSITIVE_INFINITY/Float.NEGATIVE_INFINITY);
 //        System.out.println(Float.NEGATIVE_INFINITY/Float.POSITIVE_INFINITY);
 //    }
+
 
     @Test
     public void createGoodArray() {

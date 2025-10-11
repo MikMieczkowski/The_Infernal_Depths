@@ -1,10 +1,9 @@
-package com.mikm.entities.particles;
+package com.mikm.entities.inanimateEntities.particles;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.mikm.Assets;
-import com.mikm.rendering.Camera;
 import com.mikm.rendering.cave.RockType;
 
 public class ParticleTypes {

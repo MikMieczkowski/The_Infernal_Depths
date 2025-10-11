@@ -34,7 +34,6 @@ public class RemovableArray<T extends InanimateEntity> extends ArrayList<T> {
         }
         if (!toAdd.isEmpty()) {
             super.addAll(toAdd);
-            this.sort(Comparator.comparing(InanimateEntity::getZOrder));
         }
         if (!toRemove.isEmpty()) {
             super.removeAll(toRemove);
@@ -56,7 +55,6 @@ public class RemovableArray<T extends InanimateEntity> extends ArrayList<T> {
 
     public void addInstantly(T t) {
         super.add(t);
-        this.sort(Comparator.comparing(InanimateEntity::getZOrder));
     }
 
     @Override
@@ -69,7 +67,6 @@ public class RemovableArray<T extends InanimateEntity> extends ArrayList<T> {
     @Override
     public boolean addAll(Collection<? extends T> c) {
         boolean b = super.addAll(c);
-        this.sort(Comparator.comparing(InanimateEntity::getZOrder));
         return b;
     }
 

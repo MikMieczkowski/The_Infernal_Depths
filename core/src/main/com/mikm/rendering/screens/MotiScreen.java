@@ -8,19 +8,19 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.mikm.Assets;
+import com.mikm.entities.Entity;
 import com.mikm.entities.inanimateEntities.Grave;
-import com.mikm.entities.enemies.moti.Moti;
 import com.mikm.rendering.Camera;
 
 import java.util.ArrayList;
 
 public class MotiScreen extends GameScreen {
     private boolean[][] collidableGrid;
-    private Moti moti;
     private float nextRoomTimer = 0;
     private float NEXT_ROOM_WAIT_TIME = 3;
     private boolean gameCompleted = false;
     public ArrayList<Grave> graves = new ArrayList<>();
+    private Entity moti;
 
     MotiScreen() {
         super();
@@ -31,8 +31,7 @@ public class MotiScreen extends GameScreen {
         collidableGrid = readCollisionTiledmapLayer(2, getMapWidth(),getMapHeight());
 
         createMusic(Assets.getInstance().getAsset("sound/webbedSong.mp3", Music.class));
-        moti = new Moti(this, 50, 50);
-        addEntity(moti);
+        moti = addEntity("moti", 50, 50);
     }
 
     @Override
@@ -45,7 +44,7 @@ public class MotiScreen extends GameScreen {
         ScreenUtils.clear(CaveScreen.caveFillColorLevel6);
         if (!gameCompleted) {
             super.render(delta);
-            if (moti.damagedState.dead) {
+            if (moti.damagedAction.dead) {
                 nextRoomTimer += Gdx.graphics.getDeltaTime();
                 if (nextRoomTimer > NEXT_ROOM_WAIT_TIME) {
                     nextRoomTimer = 0;
@@ -83,10 +82,9 @@ public class MotiScreen extends GameScreen {
         entities.removeInstantly(Application.player);
         entities.clear();
         inanimateEntities.clear();
-        addEntity(Application.player);
+        addPlayer();
         inanimateEntities.addAll(graves);
-        moti = new Moti(this, getMapWidth() * Application.TILE_WIDTH /2f +48, getMapHeight() * Application.TILE_HEIGHT /2f + 48);
-        addEntity(moti);
+        moti = addEntity("moti", getMapWidth() * Application.TILE_WIDTH /2 +48, getMapHeight() * Application.TILE_HEIGHT /2 + 48);
     }
 
     @Override

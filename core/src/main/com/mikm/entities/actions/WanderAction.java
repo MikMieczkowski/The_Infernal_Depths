@@ -3,11 +3,11 @@ package com.mikm.entities.actions;
 import com.mikm.ExtraMathUtils;
 import com.mikm.entities.Entity;
 
-public class WanderBehaviour extends Behaviour {
+public class WanderAction extends Action {
     private float SPEED_MIN;
     private float SPEED_MAX;
 
-    public WanderBehaviour(Entity entity) {
+    public WanderAction(Entity entity) {
         super(entity);
     }
 

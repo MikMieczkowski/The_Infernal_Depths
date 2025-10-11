@@ -90,6 +90,7 @@ public class CaveTilemapCreator {
         HolePositionGenerator holePositionGenerator = new HolePositionGenerator(this);
         holePositions = holePositionGenerator.createHolePositions();
         fillHoleRuleCellLayerAndMakeHolesCollidable();
+
     }
 
     public void activate(CaveFloorMemento memento) {
@@ -110,7 +111,7 @@ public class CaveTilemapCreator {
     }
 
     public Vector2Int getSpawnablePosition() {
-        if (openTiles.size() == 0) {
+        if (openTiles.isEmpty()) {
             System.err.println("Zero tiles");
             return Vector2Int.ZERO;
         }

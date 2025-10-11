@@ -1,23 +1,18 @@
-package com.mikm.entities;
+package com.mikm.entityLoader;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.math.Circle;
-import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
-import com.mikm.RandomUtils;
 import com.mikm.Vector2Int;
-import com.mikm.entities.actions.RollAction;
+import com.mikm.entities.Entity;
 import com.mikm.entities.animation.DirectionalAnimation;
 import com.mikm.entities.animation.SingleAnimation;
 import com.mikm.entities.animation.SingleFrame;
 import com.mikm.entities.actions.Action;
 import com.mikm.entities.animation.SuperAnimation;
 import com.mikm.entities.player.Player;
-import com.mikm.entities.player.weapons.Bow;
 import com.mikm.entities.routineHandler.*;
-import com.mikm.input.GameInput;
 import com.mikm.rendering.cave.SpawnProbability;
 import com.mikm.rendering.screens.Application;
 import org.reflections.Reflections;
@@ -30,10 +25,10 @@ import java.util.function.Predicate;
 
 //Add checks whenever there is only supposed to be one entry but there is multiple
 public class EntityLoader {
-    private static final String BEHAVIOUR_CLASSES_PACKAGE = "com.mikm.entities.actions";
+    private static final String ACTION_CLASSES_PACKAGE = "com.mikm.entities.actions";
 
     //"wander" -> WanderBehaviour.class
-    private static Map<String, Class<? extends Action>> actionClasses = new HashMap<>();
+    private static Map<String, Class<? extends Action>> actionClasses;
     //"slime" -> Created Slime instance
     private static Map<String, Entity> entities = new HashMap<>();
 
@@ -47,6 +42,12 @@ public class EntityLoader {
     //used to implement interrupt routines since routines must be loaded first
     private static Map<String, String> behaviourNameToInterruptRoutine = new HashMap<>();
     private static List<Transitions> transitionsToInit = new ArrayList<>();
+
+    static {
+        BlackboardBindings.setNameToBehaviour(nameToBehaviour);
+    }
+
+    //ANY CHANGES MADE HERE MUST ALSO BE MADE TO COPY ENTITY
 
     private static class TransitionToImplement {
         boolean isRepeatTransition;
@@ -63,19 +64,23 @@ public class EntityLoader {
     private static String fileName;
 
     static {
-        readBehaviourClassesFromSourceCode();
+        actionClasses = getActionClasses();
     }
 
-    private static void readBehaviourClassesFromSourceCode() {
-        Reflections reflections = new Reflections(BEHAVIOUR_CLASSES_PACKAGE);
-        Set<Class<? extends Action>> readClasses =
-                reflections.getSubTypesOf(Action.class);
+    public static Map<String, Class<? extends Action>> getActionClasses() {
+        if (actionClasses == null) {
+            actionClasses = new HashMap<>();
+            Reflections reflections = new Reflections(ACTION_CLASSES_PACKAGE);
+            Set<Class<? extends Action>> readClasses =
+                    reflections.getSubTypesOf(Action.class);
 
-        for (Class<? extends Action> c : readClasses) {
-            String name = c.getSimpleName()
-                    .replace("Action", "");
-            actionClasses.put(name, c);
+            for (Class<? extends Action> c : readClasses) {
+                String name = c.getSimpleName()
+                        .replace("Action", "");
+                actionClasses.put(name, c);
+            }
         }
+        return actionClasses;
     }
 
     public static Entity create(String entityName) {
@@ -101,13 +106,13 @@ public class EntityLoader {
         Yaml yaml = new Yaml();
         EntityData data = yaml.loadAs(input, EntityData.class);
         Entity entity = createEntityFromEntityData(data);
+        if (entityName.equals("bat")) {
+            entity.collider.isBat = true;
+        }
         entities.put(entityName, entity);
         return entity;
     }
 
-
-
-    //TODO: Error checking and default setting
     private static Entity createEntityFromEntityData(EntityData data) {
         Entity entity;
         if (data.CONFIG.NAME.equals("player")) {
@@ -118,16 +123,8 @@ public class EntityLoader {
 
         //Must load in this order: FULL_BOUNDS_DIMENSIONS (in CONFIG), BEHAVIOURS, ROUTINES, then CONFIG/SPAWN_CONFIG
 
-        int w, h;
-        if (data.CONFIG.BOUNDS == null) {
-            w = Application.TILE_WIDTH;
-            h = Application.TILE_HEIGHT;
-        } else {
-            w = varOrDef(data.CONFIG.BOUNDS.IMAGE_WIDTH, Application.TILE_WIDTH);
-            h = varOrDef(data.CONFIG.BOUNDS.IMAGE_HEIGHT, Application.TILE_HEIGHT);
-        }
-        entity.FULL_BOUNDS_DIMENSIONS = new Vector2Int(w, h);
         entity.NAME = data.CONFIG.NAME;
+        loadConfigBounds(entity, data.CONFIG);
 
         loadBehaviourDataMap(entity, data.BEHAVIOURS);
         loadRoutineData(entity, data.ROUTINES);
@@ -139,16 +136,49 @@ public class EntityLoader {
         loadConfig(entity, data.CONFIG, data);
         //load SPAWN_CONFIG
         if (data.SPAWN_CONFIG != null) {
-            entity.spawnProbability = new SpawnProbability(data.SPAWN_CONFIG.LEVEL_1_SPAWN_PERCENT, data.SPAWN_CONFIG.LEVEL_2_SPAWN_PERCENT, 0, 0);
+            data.SPAWN_CONFIG.LEVEL_4_SPAWN_PERCENT = data.SPAWN_CONFIG.LEVEL_3_SPAWN_PERCENT;
+            entity.spawnProbability = new SpawnProbability(data.SPAWN_CONFIG.LEVEL_1_SPAWN_PERCENT, data.SPAWN_CONFIG.LEVEL_2_SPAWN_PERCENT, data.SPAWN_CONFIG.LEVEL_3_SPAWN_PERCENT, data.SPAWN_CONFIG.LEVEL_4_SPAWN_PERCENT);
         }
         return entity;
+    }
+
+    private static void loadConfigBounds(Entity entity, EntityData.Config config) {
+
+        if (config.BOUNDS == null) {
+            config.BOUNDS = new EntityData.Config.BoundsData();
+        }
+        int w = varOrDef(config.BOUNDS.IMAGE_WIDTH, Application.TILE_WIDTH);
+        int h = varOrDef(config.BOUNDS.IMAGE_HEIGHT, Application.TILE_HEIGHT);
+        entity.FULL_BOUNDS_DIMENSIONS = new Vector2Int(w, h);
+
+        entity.ORIGIN_X = varOrDef(config.ORIGIN_X, entity.FULL_BOUNDS_DIMENSIONS.x/2);
+
+        //BOUNDS
+        //DEFAULTS
+
+        boolean shadow = config.BOUNDS.HAS_SHADOW == null || config.BOUNDS.HAS_SHADOW;
+
+        int sw = varOrDef(config.BOUNDS.SHADOW_WIDTH, Application.TILE_WIDTH);
+        int sh = varOrDef(config.BOUNDS.SHADOW_HEIGHT, Application.TILE_HEIGHT);
+
+        int hr = (config.BOUNDS.HITBOX_RADIUS == 0) ? 8 : config.BOUNDS.HITBOX_RADIUS;
+
+        entity.HAS_SHADOW = shadow;
+        entity.SHADOW_BOUNDS_OFFSETS = new Rectangle(
+                config.BOUNDS.SHADOW_OFFSET_X,
+                config.BOUNDS.SHADOW_OFFSET_Y,
+                sw,
+                sh
+        );
+        entity.HITBOX_OFFSETS = new Vector2Int(config.BOUNDS.HITBOX_OFFSET_X, config.BOUNDS.HITBOX_OFFSET_Y);
+        entity.HITBOX_RADIUS = hr;
+
     }
 
     private static void loadInterruptRoutines() {
         for (Map.Entry<String, String> entry : behaviourNameToInterruptRoutine.entrySet()) {
             String behaviourName = entry.getKey();
             String routineName = entry.getValue();
-            //TODO look at test
             if (!nameToBehaviour.containsKey(behaviourName)) {
                 throw new RuntimeException("This error should not occur " + routineName + " " + behaviourName + " in " + fileName);
             }
@@ -157,8 +187,7 @@ public class EntityLoader {
             }
 
             Action behaviour = nameToBehaviour.get(behaviourName);
-            Routine interruptRoutine = nameToRoutine.get(routineName);
-            behaviour.ON_HITTING_PLAYER_INTERRUPT_AND_GO_TO = interruptRoutine;
+            behaviour.ON_HITTING_PLAYER_INTERRUPT_AND_GO_TO = nameToRoutine.get(routineName);
         }
     }
 
@@ -186,8 +215,6 @@ public class EntityLoader {
             }
         }
         loadActionAnimation(entity, entity.damagedAction, b);
-        entity.damagedAction.isTelegraph = false;
-        entity.damagedAction.enteredTelegraph = true;
         entity.damagedAction.name = "damaged";
 
 
@@ -199,28 +226,6 @@ public class EntityLoader {
 
         entity.routineHandler.CHECK_TRANSITIONS_EVERY_FRAME = config.CHECK_TRANSITIONS_EVERY_FRAME;
 
-        //BOUNDS
-        //DEFAULTS
-        if (config.BOUNDS == null) {
-            config.BOUNDS = new EntityData.Config.BoundsData();
-        }
-
-        boolean shadow = config.BOUNDS.HAS_SHADOW == null || config.BOUNDS.HAS_SHADOW;
-
-        int sw = varOrDef(config.BOUNDS.SHADOW_WIDTH, Application.TILE_WIDTH);
-        int sh = varOrDef(config.BOUNDS.SHADOW_HEIGHT, Application.TILE_HEIGHT);
-
-        int hr = (config.BOUNDS.HITBOX_RADIUS == 0) ? 8 : config.BOUNDS.HITBOX_RADIUS;
-
-        entity.HAS_SHADOW = shadow;
-        entity.SHADOW_BOUNDS_OFFSETS = new Rectangle(
-                config.BOUNDS.SHADOW_OFFSET_X,
-                config.BOUNDS.SHADOW_OFFSET_Y,
-                sw,
-                sh
-        );
-        entity.HITBOX_OFFSETS = new Vector2Int(config.BOUNDS.HITBOX_OFFSET_X, config.BOUNDS.HITBOX_OFFSET_Y);
-        entity.HITBOX_RADIUS = hr;
     }
 
     private static int varOrDef(int var, int def) {
@@ -254,11 +259,16 @@ public class EntityLoader {
 
             boolean noBehaviourUnderThatNameExists = !actionClasses.containsKey(behaviourData.ACTION);
             if (noBehaviourUnderThatNameExists) {
-                throw new RuntimeException(fileName + ": No behaviour class associated with " + behaviourData.ACTION + " in " + BEHAVIOUR_CLASSES_PACKAGE);
+                throw new RuntimeException(fileName + ": No behaviour class associated with " + behaviourData.ACTION + " in " + ACTION_CLASSES_PACKAGE);
             }
             yamlAction = null;
             loadBehaviourData(entity, name, behaviourData, behaviourDataMap);
             yamlAction.name = behaviourData.ACTION;
+            yamlAction.configVars = behaviourData.CONFIG;
+            entity.usedActionClasses.add(behaviourData.ACTION);
+        }
+        for (String s: entity.usedActionClasses) {
+            Blackboard.getInstance().bind("timeSince" + s, entity, 0f);
         }
     }
 
@@ -279,7 +289,6 @@ public class EntityLoader {
         }
         loadBehaviourConfig(entity, name, behaviourData);
         yamlAction.postConfigRead();
-        loadBehaviourTelegraph(entity, name, behaviourData, behaviourDataMap);
     }
 
     private static void loadBehaviourAnimation(Entity entity, String name, EntityData.BehaviourData behaviourData) {
@@ -375,16 +384,16 @@ public class EntityLoader {
             varName = varName.toUpperCase();
 
             Object varValue = entry.getValue();
-            setVarInClass(behaviourClass, varName, varValue);
+            setVarInClass(behaviourClass, yamlAction, varName, varValue);
         }
     }
 
-    private static void setVarInClass(Class<? extends Action> clazz, String varName, Object varValue) {
+    public static void setVarInClass(Class<? extends Action> clazz, Action instance, String varName, Object varValue) {
         try {
             //getField allows for fields in superclasses
             Field f = findField(clazz, varName);
             f.setAccessible(true);
-            setField(f, varValue);
+            setField(instance, f, varValue);
         } catch (NoSuchFieldException e) {
             throw new IllegalArgumentException("No field in " + clazz.getSimpleName() + " for config var: " + varName + " in file " + fileName, e);
         } catch (IllegalAccessException e) {
@@ -405,30 +414,90 @@ public class EntityLoader {
         throw new NoSuchFieldException(name);
     }
 
-    private static void setField(Field var, Object varValue) throws IllegalAccessException {
+    private static void setField(Action instance, Field var, Object varValue) throws IllegalAccessException {
         if (varValue == null) {
             return;
         }
+
+        var.setAccessible(true);
         Class<?> type = var.getType();
-        boolean canBeCastToNumber = ((Number.class.isAssignableFrom(type) ||
-                (type.isPrimitive() && type != boolean.class)) &&
-                type != Boolean.class);
-        if (canBeCastToNumber) {
-            Number n = (Number) varValue;
-            if (type == int.class || type == Integer.class) {
-                //yamlBehaviour.var = n.intValue();
-                var.setInt(yamlAction, n.intValue());
-            } else if (type == float.class || type == Float.class) {
-                var.setFloat(yamlAction, n.floatValue());
-            } else if (type == double.class || type == Double.class) {
-                var.setDouble(yamlAction, n.doubleValue());
-            } else {
-                var.set(yamlAction, n); // fallback
+
+        // --- Boolean ---
+        if (type == boolean.class || type == Boolean.class) {
+            if (!(varValue instanceof Boolean)) {
+                throw new IllegalArgumentException(String.format(
+                        "Field '%s' expects a boolean, but got %s (%s).",
+                        var.getName(), varValue.getClass().getSimpleName(), varValue)+ " in " + fileName);
             }
-        } else {
-            var.set(yamlAction, varValue);
+            var.setBoolean(instance, (Boolean) varValue);
+            return;
         }
+
+        // --- Numeric types ---
+        if (Number.class.isAssignableFrom(varValue.getClass())) {
+            Number n = (Number) varValue;
+
+            // Integer
+            if (type == int.class || type == Integer.class) {
+                double d = n.doubleValue();
+                if (d % 1 != 0) {
+                    throw new IllegalArgumentException(String.format(
+                            "Field '%s' expects an integer, but got a fractional number: %s.",
+                            var.getName(), n) + " in " + fileName);
+                }
+                if (d < Integer.MIN_VALUE || d > Integer.MAX_VALUE) {
+                    throw new IllegalArgumentException(String.format(
+                            "Field '%s' integer value %s is out of range [%d, %d].",
+                            var.getName(), n, Integer.MIN_VALUE, Integer.MAX_VALUE)+ " in " + fileName);
+                }
+                var.setInt(instance, n.intValue());
+                return;
+            }
+
+            // Float
+            if (type == float.class || type == Float.class) {
+                double d = n.doubleValue();
+                if (!Double.isFinite(d)) {
+                    throw new IllegalArgumentException(String.format(
+                            "Field '%s' expects a finite float value, but got %s.",
+                            var.getName(), n)+ " in " + fileName);
+                }
+                if (Math.abs(d) > Float.MAX_VALUE) {
+                    throw new IllegalArgumentException(String.format(
+                            "Field '%s' float value %s exceeds float range (±%e).",
+                            var.getName(), n, Float.MAX_VALUE)+ " in " + fileName);
+                }
+                var.setFloat(instance, n.floatValue());
+                return;
+            }
+
+            // Double
+            if (type == double.class || type == Double.class) {
+                double d = n.doubleValue();
+                if (!Double.isFinite(d)) {
+                    throw new IllegalArgumentException(String.format(
+                            "Field '%s' expects a finite double value, but got %s.",
+                            var.getName(), n)+ " in " + fileName);
+                }
+                var.setDouble(instance, d);
+                return;
+            }
+
+            // Unknown numeric target
+            throw new IllegalArgumentException(String.format(
+                    "Field '%s' has unsupported numeric type %s.", var.getName(), type.getSimpleName())+ " in " + fileName);
+        }
+
+        // --- Fallback for all other field types ---
+        if (!type.isInstance(varValue)) {
+            throw new IllegalArgumentException(String.format(
+                    "Field '%s' expects %s but got %s (%s).",
+                    var.getName(), type.getSimpleName(), varValue.getClass().getSimpleName(), varValue)+ " in " + fileName);
+        }
+
+        var.set(instance, varValue);
     }
+
 
     private static Action createEmptyBehaviourFromName(Entity entity, String name, EntityData.BehaviourData behaviourData) {
         Class<? extends Action> behaviourClass = actionClasses.get(behaviourData.ACTION);
@@ -440,51 +509,6 @@ public class EntityLoader {
             throw new RuntimeException(e);
         }
         return action;
-    }
-
-    private static void loadBehaviourTelegraph(Entity entity, String name, EntityData.BehaviourData behaviourData, Map<String, EntityData.BehaviourData> behaviourDataMap) {
-        //TODO Refactor this function
-        Action saved = yamlAction;
-        yamlAction = null;
-
-        if (behaviourData.TELEGRAPH == null) {
-            saved.enteredTelegraph = true;
-            yamlAction = saved;
-            return;
-        }
-
-        Iterator<Map.Entry<String, EntityData.BehaviourData>> it = behaviourData.TELEGRAPH.entrySet().iterator();
-        Map.Entry<String, EntityData.BehaviourData> onlyEntry = it.next();
-        if (it.hasNext()) {
-            throw new RuntimeException("Only one type of telegraph allowed in " + name + " in file " + fileName);
-        }
-
-        String telegraphBehaviourName = onlyEntry.getKey();
-        EntityData.BehaviourData telegraphBehaviourData = onlyEntry.getValue();
-
-        int count = numberOfAnimationFields(telegraphBehaviourData);
-        if (count == 0) {
-            telegraphBehaviourData.COPY_ANIMATION = name;
-        }
-
-        //repeated code
-        if (telegraphBehaviourData.ACTION == null) {
-            telegraphBehaviourData.ACTION = telegraphBehaviourName;
-        }
-
-        boolean noBehaviourUnderThatNameExists = !actionClasses.containsKey(telegraphBehaviourData.ACTION);
-        if (noBehaviourUnderThatNameExists) {
-            throw new RuntimeException(fileName + ":No behaviour class associated with " + telegraphBehaviourData.ACTION + " in " + BEHAVIOUR_CLASSES_PACKAGE);
-        }
-        loadBehaviourData(entity, telegraphBehaviourName, telegraphBehaviourData, behaviourDataMap);
-        yamlAction.name = telegraphBehaviourData.ACTION;
-
-        //now yamlAction = Telegraph action
-        saved.associatedTelegraphAction = yamlAction;
-        saved.associatedTelegraphAction.associatedTelegraphAction = saved;
-        saved.associatedTelegraphAction.isTelegraph = true;
-
-        yamlAction = saved;
     }
 
     private static void loadRoutineData(Entity entity, Map<String, EntityData.RoutineData> routineDataMap) {
@@ -505,6 +529,7 @@ public class EntityLoader {
             Cycle cycle = loadCycleData(entity, routineData);
             Transitions transitions = loadCycleTransitionsData(entity, name, routineData);
             routine.init(cycle, transitions);
+            routine.name = name;
             routines.add(routine);
         }
         entity.routineHandler.init(routines);
@@ -607,7 +632,6 @@ public class EntityLoader {
         //Multiple transitions per behaviour
         for (EntityData.RoutineData.TransitionData transitionData : routineData.TRANSITIONS) {
             if (transitionData.NO_REPEAT != null) {
-                //TODO to_init these and look at tests
                 if (noRepeatGoToString != null) {
                     throw new RuntimeException("Multiple NoRepeat conditions specified in " + fileName);
                 }
@@ -615,7 +639,7 @@ public class EntityLoader {
             } else if (transitionData.GO_TO != null) {
 
                 //build conditionTransition
-                Predicate<Entity> condition = loadCompoundCondition(entity, transitionData);
+                Predicate<Entity> condition = loadCompoundCondition(transitionData);
 
                 ConditionTransition conditionTransition = new ConditionTransition(condition, transitionData.GO_TO);
                 conditionTransitions.add(conditionTransition);
@@ -639,121 +663,10 @@ public class EntityLoader {
         return transitions;
     }
 
-    private static Predicate<Entity> loadCompoundCondition(Entity entity, EntityData.RoutineData.TransitionData transitionData) {
-        Iterator<Map.Entry<String, Object>> it = transitionData.ON_CONDITION.entrySet().iterator();
-        Map.Entry<String, Object> onlyEntry = it.next();
-        if (it.hasNext()) {
-            throw new RuntimeException("Only one child allowed in ROUTINES.TRANSITIONS.ON_CONDITION in " + fileName);
-        }
-
-
-
-        String orAndOrCondition = onlyEntry.getKey();
-        if (orAndOrCondition.equals("OR") || orAndOrCondition.equals("AND")) {
-            if (!(onlyEntry.getValue() instanceof Map)) {
-                throw new RuntimeException("Should be a Map under AND: in ON_CONDITION in " + fileName);
-            }
-            @SuppressWarnings("unchecked")
-            Map<String, Object> subConditions = (Map<String, Object>) onlyEntry.getValue();
-            Predicate<Entity> output = e -> false;
-            for (Map.Entry<String, Object> subCondition : subConditions.entrySet()) {
-                Predicate<Entity> subConditionPredicate = loadSimpleCondition(subCondition.getKey(), subCondition.getValue());
-                if (orAndOrCondition.equals("AND")) {
-                    output = output.and(subConditionPredicate);
-                } else {
-                    output = output.or(subConditionPredicate);
-                }
-            }
-            return output;
-        } else {
-            return loadSimpleCondition(orAndOrCondition, onlyEntry.getValue());
-        }
+    private static Predicate<Entity> loadCompoundCondition(EntityData.RoutineData.TransitionData transitionData) {
+        return ConditionCompiler.compile(transitionData.ON_CONDITION);
     }
 
-    @SuppressWarnings("unchecked")
-    private static Predicate<Entity> loadSimpleCondition(String type, Object conditionData) {
-        switch (type) {
-            case "IN_RADIUS_OF_PLAYER":
-                if (!(conditionData instanceof Number)) {
-                    throw new IllegalArgumentException("Expected a number, got: " + conditionData.getClass() + " in routine transition condition type " + type + " in " + fileName);
-                }
-                float detectionPlayerRadius = ((Number) conditionData).floatValue();
-                return e -> Intersector.overlaps(new Circle(e.x, e.y, detectionPlayerRadius), Application.player.getHitbox());
-            case "BEHAVIOUR_READY":
-                if (!(conditionData instanceof Map)) {
-                    throw new IllegalArgumentException(
-                            "Expected a map, got: " + conditionData.getClass() + " in routine transition condition type " + type + " in " + fileName
-                    );
-                }
-                Map<String, Object> behaviourReadyData = (Map<String, Object>) conditionData;
-
-                return e -> {
-                    String behaviourName = (String) behaviourReadyData.get("BEHAVIOUR");
-                    float timeSince = ((Number) behaviourReadyData.get("TIME_SINCE_IS_GREATER_THAN")).floatValue();
-
-                    return e.routineHandler.getTimeSinceBehaviour(nameToBehaviour.get(behaviourName)) > timeSince;
-                };
-            case "FINISHED":
-                if (!(conditionData instanceof String)) {
-                    throw new IllegalArgumentException("Expected a string, got: " + conditionData.getClass() + " in routine transition condition type " + type + " in " + fileName);
-                }
-                String behaviourName = (String) conditionData;
-                return e -> e.routineHandler.getBehaviourJustCompleted().equals(behaviourName);
-            case "RANDOM":
-                float f = ((Number) conditionData).floatValue();
-                return e -> RandomUtils.getPercentage((int) (f * 100));
-            case "BUTTON_PRESSED":
-                return e -> GameInput.isActionPressed((String)conditionData);
-            case "BUTTON_JUST_PRESSED":
-                return e-> GameInput.isActionJustPressed((String)conditionData);
-            case "ENDS_WITHIN":
-                //Must be on Roll action for now
-                return e -> {
-                    Action a = nameToBehaviour.get(e.routineHandler.getBehaviourJustCompleted());
-                    if (!(a instanceof RollAction)) {
-                        throw new IllegalArgumentException("ENDS_WITHIN must be on RollAction, got: " + conditionData.getClass() + " in routine transition condition type " + type + " in " + fileName);
-                    }
-                    return ((RollAction)a).endsWithin(((Number)conditionData).floatValue());
-                };
-            case "IS_MOVING":
-                return e -> {
-                    boolean b = (boolean) conditionData;
-                    if (b) {
-                        return !(e.xVel == 0 && e.yVel == 0);
-                    } else {
-                        return e.xVel == 0 && e.yVel == 0;
-                    }
-                    //b ^ (e.xVel == 0 && e.yVel == 0)
-                };
-            case "HAS_BEEN_STILL_FOR":
-                //Must be on AcceleratedMove action for now
-                return e -> {
-                    return false;
-//                    Action a = e.routineHandler.currentRoutine.cycle.currentAction;
-//                    return ((AcceleratedMoveAction)a).hasBeenStillFor(((Number)conditionData).floatValue());
-                };
-            case "CAN_FALL":
-                //must be used on player
-                return e -> {
-                    if (!(e instanceof Player)) {
-                        throw new IllegalArgumentException("CAN_FALL must be on Player, got: " + conditionData.getClass() + " in routine transition condition type " + type + " in " + fileName);
-                    }
-                    Player p = (Player) e;
-                    return p.canFall;
-                };
-            case "BOW_RELEASED":
-                //must be used on player
-                return e -> {
-                    if (!(e instanceof Player)) {
-                        throw new IllegalArgumentException("BOW_RELEASED must be on Player, got: " + conditionData.getClass() + " in routine transition condition type " + type + " in " + fileName);
-                    }
-                    Player p = (Player) e;
-                    return p.currentHeldItem instanceof Bow && ((Bow)p.currentHeldItem).isReleased();
-                };
-            default:
-                throw new RuntimeException("Unimplemented routine transition condition type " + type + " in " + fileName);
-        }
-    }
 
     public static List<String> getEntitiesInYamlFolder() {
         List<String> names = new ArrayList<>();
@@ -786,11 +699,11 @@ public class EntityLoader {
     private static Entity copyEntity(Entity entity) {
         Entity output = new Entity(entity.x, entity.y);
         output.damagesPlayer = entity.damagesPlayer;
-        output.hp = entity.hp;
         output.NAME = entity.NAME;
         output.DAMAGE = entity.DAMAGE;
         output.KNOCKBACK = entity.KNOCKBACK;
         output.MAX_HP = entity.MAX_HP;
+        output.hp = output.MAX_HP;
         output.SPEED = entity.SPEED;
         output.ORIGIN_X = entity.ORIGIN_X;
         output.ORIGIN_Y = entity.ORIGIN_Y;
@@ -803,12 +716,19 @@ public class EntityLoader {
         output.FULL_BOUNDS_DIMENSIONS = entity.FULL_BOUNDS_DIMENSIONS;
         output.HITBOX_OFFSETS = entity.HITBOX_OFFSETS;
         output.HITBOX_RADIUS = entity.HITBOX_RADIUS;
+        //deep copy routines/cycles/actions
         output.routineHandler.init(entity.routineHandler);
-        //TODO duplicate each routine object (routine->cycle, transitions-> actions)
-        entity.damagedAction.isTelegraph = false;
-        entity.damagedAction.enteredTelegraph = true;
-        entity.damagedAction.name = "damaged";
-
+        output.damagedAction.name = "damaged";
+        output.damagedAction.animation = entity.damagedAction.animation.copy();
+        // Copy used action classes and (re)bind per-entity timeSince<Action> vars for this new entity
+        output.usedActionClasses.addAll(entity.usedActionClasses);
+        for (String actionName : output.usedActionClasses) {
+            Blackboard.getInstance().bind("timeSince" + actionName, output, 0f);
+        }
+        if (output.NAME.equals("bat")) {
+            output.collider.isBat = true;
+        }
+        output.isCopied = true;
         return output;
     }
 }

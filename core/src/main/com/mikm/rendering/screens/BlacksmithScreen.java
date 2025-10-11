@@ -18,7 +18,7 @@ import com.mikm.entities.inanimateEntities.NPC;
 import com.mikm.input.GameInput;
 import com.mikm.input.InputRaw;
 import com.mikm.rendering.Camera;
-import com.mikm.rendering.SoundEffects;
+import com.mikm.rendering.sound.SoundEffects;
 import com.mikm.rendering.cave.RockType;
 
 public class BlacksmithScreen extends GameScreen{
@@ -38,8 +38,18 @@ public class BlacksmithScreen extends GameScreen{
     private Rectangle r1, r2, r3;
     private Vector2 mousePos;
     private int lastControllerX = 0;
+    public static int talkedToTimes = 0;
 
     public int tipNumber = 0;
+
+    private String MENU_DENY_SOUND_EFFECT = "menuDeny.ogg";
+    public static  String BLACKSMITH_ANNOYED_SOUND_EFFECT = "blacksmithAnnoyed.ogg";
+    private String REWARD_SOUND_EFFECT = "reward.ogg";
+    public static final String FIRE_AMBIENCE = "fireCrackle.ogg";
+
+    private final float MAX_TIME_GRUNT = 2;
+    private float timeSinceGruntTimer = MAX_TIME_GRUNT;
+
     BlacksmithScreen() {
         super();
         collidableGrid = new boolean[][]{
@@ -55,7 +65,7 @@ public class BlacksmithScreen extends GameScreen{
         };
         tiledMap = new TiledMap();
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, 1);
-        entities.add(new BlacksmithRoom(0, -4));
+        addInanimateEntity(new BlacksmithRoom(0, -4));
         addInanimateEntity(new Door(88, 24, 1));
         npc = new NPC(77, 67);
         createMusic(Assets.getInstance().getAsset("sound/caveThemeOld.mp3", Music.class));
@@ -65,6 +75,7 @@ public class BlacksmithScreen extends GameScreen{
 
     @Override
     public void render(float delta) {
+        timeSinceGruntTimer+= Gdx.graphics.getDeltaTime();
         ScreenUtils.clear(BG_COLOR);
         Camera.x = 79;
         Camera.y = 66;
@@ -77,6 +88,7 @@ public class BlacksmithScreen extends GameScreen{
         DebugRenderer.getInstance().update();
         Camera.renderLighting(Application.batch);
         Camera.orthographicCamera.update();
+        handleSongTransition(true);
         Application.batch.draw(npcImage, 77, 67);
         if (npc.isPlayerInTalkingRange()) {
             Application.batch.draw(GameInput.getTalkButtonImage(), 77+8, 67+8+16);
@@ -123,17 +135,25 @@ public class BlacksmithScreen extends GameScreen{
                 if (RockType.get(Application.player.swordLevel + 1).getOreAmount() >= WEAPON_PRICE_IN_ORES) {
                     buy(true);
                 } else {
-                    SoundEffects.play(SoundEffects.menuDeny);
+                    playDenySound();
                 }
             } else if (selected == 2 && Application.player.bowLevel < 4) {
                 if (RockType.get(Application.player.bowLevel + 1).getOreAmount() >= WEAPON_PRICE_IN_ORES) {
                     buy(false);
                 } else {
-                    SoundEffects.play(SoundEffects.menuDeny);
+                    playDenySound();
                 }
             } else if (selected == 3) {
                 switchWeapon();
             }
+        }
+    }
+
+    private void playDenySound() {
+        SoundEffects.play(MENU_DENY_SOUND_EFFECT);
+        if (timeSinceGruntTimer > MAX_TIME_GRUNT) {
+            SoundEffects.play(BLACKSMITH_ANNOYED_SOUND_EFFECT);
+            timeSinceGruntTimer -= MAX_TIME_GRUNT;
         }
     }
 
@@ -154,14 +174,14 @@ public class BlacksmithScreen extends GameScreen{
                 if (RockType.get(Application.player.swordLevel + 1).getOreAmount() >= WEAPON_PRICE_IN_ORES) {
                     buy(true);
                 } else {
-                    SoundEffects.play(SoundEffects.menuDeny);
+                    playDenySound();
                 }
             }
             if (r2.contains(mousePos) && Application.player.bowLevel < 4) {
                 if (RockType.get(Application.player.bowLevel + 1).getOreAmount() >= WEAPON_PRICE_IN_ORES) {
                     buy(false);
                 } else {
-                    SoundEffects.play(SoundEffects.menuDeny);
+                    playDenySound();
                 }
             }
             if (r3.contains(mousePos)) {
@@ -171,7 +191,8 @@ public class BlacksmithScreen extends GameScreen{
     }
 
     private void buy(boolean sword) {
-        SoundEffects.play(SoundEffects.reward);
+        SoundEffects.play(REWARD_SOUND_EFFECT);
+        SoundEffects.play("hammerBuilt.ogg");
         if (sword) {
             Application.player.equippedWeapon = Application.player.weaponInstances.swords[Application.player.swordLevel];
             RockType.get(Application.player.swordLevel + 1).increaseOreAmount(-WEAPON_PRICE_IN_ORES);
@@ -247,6 +268,11 @@ public class BlacksmithScreen extends GameScreen{
 
     @Override
     public void onEnter() {
+        if (!SoundEffects.loopIsPlaying(FIRE_AMBIENCE)) {
+            SoundEffects.playLoop(FIRE_AMBIENCE);
+        }
+        SoundEffects.setLoopVolume(FIRE_AMBIENCE, 1);
+        talkedToTimes = 0;
         Camera.VIEWPORT_ZOOM = .2f;
         tipNumber = RandomUtils.getBoolean() ? 0 : 2;
         selected = 1;

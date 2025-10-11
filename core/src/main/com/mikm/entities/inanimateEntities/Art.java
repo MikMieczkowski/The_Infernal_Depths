@@ -21,11 +21,6 @@ public class Art extends InanimateEntity {
     }
 
     @Override
-    public int getZOrder() {
-        return -1;
-    }
-
-    @Override
     public boolean hasShadow() {
         return false;
     }

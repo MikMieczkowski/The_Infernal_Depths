@@ -10,7 +10,6 @@ import com.mikm.Assets;
 import com.mikm.entities.Entity;
 import com.mikm.entities.inanimateEntities.Rope;
 import com.mikm.entities.inanimateEntities.Grave;
-import com.mikm.entities.enemies.slimeBoss.SlimeBoss;
 import com.mikm.rendering.cave.RockType;
 import com.mikm.input.GameInput;
 import com.mikm.rendering.Camera;
@@ -27,6 +26,7 @@ public class SlimeBossRoomScreen extends GameScreen {
     private Entity slimeBoss;
     private float nextRoomTimer = 0;
     private float NEXT_ROOM_WAIT_TIME = 3;
+    public static boolean slimeBossDefeated = false;
 
     public ArrayList<Grave> graves = new ArrayList<>();
 
@@ -38,7 +38,7 @@ public class SlimeBossRoomScreen extends GameScreen {
         tiledMap = new TmxMapLoader().load("SlimeBoss.tmx");
 
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, 1);
-        collidableGrid = readCollisionTiledmapLayer(2, getMapWidth(),getMapHeight());
+        collidableGrid = readCollisionTiledmapLayer(3, getMapWidth(),getMapHeight());
 
         createMusic(Assets.getInstance().getAsset("sound/hubba_bubba.mp3", Music.class));
 
@@ -61,6 +61,7 @@ public class SlimeBossRoomScreen extends GameScreen {
             DebugRenderer.getInstance().update();
             Camera.renderLighting(Application.batch);
             Camera.updateOrthographicCamera();
+            handleSongTransition(true);
             renderUI();
             //difference 1 from super.render()
             if (Application.getInstance().caveScreen.displayButtonIndicator) {
@@ -74,7 +75,8 @@ public class SlimeBossRoomScreen extends GameScreen {
         } else {
             drawNoUpdate();
         }
-        if (slimeBoss.damagedState.dead && !awarded) {
+        if (slimeBoss.damagedAction.dead && !awarded) {
+            slimeBossDefeated = true;
             entities.doAfterRender(()-> {
                 RockType.get(1).increaseOreAmount(3);
                 RockType.get(2).increaseOreAmount(3);
@@ -90,6 +92,7 @@ public class SlimeBossRoomScreen extends GameScreen {
     @Override
     public void onEnter() {
         resetInanimateAndAnimateEntities();
+        song.play();
     }
 
     public boolean[][] getHolePositions() {
@@ -100,10 +103,9 @@ public class SlimeBossRoomScreen extends GameScreen {
         entities.removeInstantly(Application.player);
         entities.clear();
         inanimateEntities.clear();
-        addEntity(Application.player);
+        addPlayer();
         inanimateEntities.addAll(graves);
-        slimeBoss = new SlimeBoss(this, 200, 200);
-        addEntity(slimeBoss);
+        slimeBoss = addEntity("slimeBoss", 200, 200);
         addInanimateEntity(new Rope(112,48));
     }
 

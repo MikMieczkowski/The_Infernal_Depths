@@ -1,4 +1,4 @@
-package com.mikm.entities.enemies;
+package com.mikm.entities;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
 import com.mikm.DeltaTime;
 import com.mikm.ExtraMathUtils;
+import com.mikm.entities.Entity;
 import com.mikm.rendering.screens.Application;
 
 public class EntityEffectsHandler {

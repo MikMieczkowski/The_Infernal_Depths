@@ -3,6 +3,8 @@ package com.mikm;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -22,8 +24,8 @@ public class Assets {
     private TextureAtlas textureAtlas;
     public static BitmapFont font;
 
-    public static TextureRegion light;
-    public static TextureRegion dark;
+    public static TextureRegion light, light2;
+    public static TextureRegion dark, dark2;
     public static TextureRegion gray;
     public static TextureRegion shadowImage;
     public static TextureRegion[][] particleImages;
@@ -39,6 +41,7 @@ public class Assets {
         particleImages = textureAtlas.findRegion("particles").split(8,8);
         numbers = textureAtlas.findRegion("numbers").split(9, 11)[0];
         light = new TextureRegion(new Texture(Gdx.files.internal("images/R0x4x.png")));
+        light2 = new TextureRegion(new Texture(Gdx.files.internal("images/light2.png")));
         dark = new TextureRegion(new Texture(Gdx.files.internal("images/dark.png")));
         gray = new TextureRegion(new Texture(Gdx.files.internal("images/gray.png")));
 
@@ -61,6 +64,8 @@ public class Assets {
         font.dispose();
     }
 
+    public Sound getSoundEffect(String name) { return assetManager.get(name, Sound.class); }
+
     public <T> T getAsset(String name, Class<T> type) {
         return assetManager.get(name, type);
     }
@@ -74,11 +79,13 @@ public class Assets {
     }
 
     public TextureRegion[][] getSplitTextureRegion(String name) {
-        return textureAtlas.findRegion(name).split(TILE_WIDTH, TILE_HEIGHT);
+        TextureAtlas.AtlasRegion region = findRegionByNameOrLastSegment(name);
+        return region.split(TILE_WIDTH, TILE_HEIGHT);
     }
 
     public TextureRegion[][] getSplitTextureRegion(String name, int width, int height) {
-        return textureAtlas.findRegion(name).split(width, height);
+        TextureAtlas.AtlasRegion region = findRegionByNameOrLastSegment(name);
+        return region.split(width, height);
     }
 
     public ArrayList<TextureRegion[]> findImagesStartingWith(String startsWith) {
@@ -94,7 +101,16 @@ public class Assets {
         ArrayList<TextureAtlas.AtlasRegion> matched = new ArrayList<>();
         for (int i = 0, n = textureAtlas.getRegions().size; i < n; i++) {
             TextureAtlas.AtlasRegion region = textureAtlas.getRegions().get(i);
-            if (region.name.startsWith(startsWith)) {
+
+            // if (region.name.startsWith(startsWith)) {
+
+            //AI code
+            String name = region.name;
+            int slash = name.lastIndexOf('/')
+                    ;
+            String lastSegment = slash >= 0 ? name.substring(slash + 1) : name;
+            if (lastSegment.startsWith(startsWith)) {
+                //end ai code
                 matched.add(new TextureAtlas.AtlasRegion(region));
             }
         }
@@ -109,14 +125,45 @@ public class Assets {
         return output;
     }
 
+    private TextureAtlas.AtlasRegion findRegionByNameOrLastSegment(String name) {
+        TextureAtlas.AtlasRegion region = textureAtlas.findRegion(name);
+        if (region != null) {
+            return region;
+        }
+        String target = name;
+        int slashIdx = target.lastIndexOf('/');
+        String lastSegment = slashIdx >= 0 ? target.substring(slashIdx + 1) : target;
+        for (int i = 0, n = textureAtlas.getRegions().size; i < n; i++) {
+            TextureAtlas.AtlasRegion r = textureAtlas.getRegions().get(i);
+            String rname = r.name;
+            int si = rname.lastIndexOf('/');
+            String rlast = si >= 0 ? rname.substring(si + 1) : rname;
+            if (rlast.equals(lastSegment)) {
+                return r;
+            }
+        }
+        throw new RuntimeException("Atlas region not found: '" + name + "' (tried last segment '" + lastSegment + "'). Check pack output and names.");
+    }
+
     private AssetManager createAssetManager() {
         AssetManager assetManager = new AssetManager();
         assetManager.load("images/The Infernal Depths.atlas", TextureAtlas.class);
+
         assetManager.load("sound/caveTheme.mp3", Music.class);
         assetManager.load("sound/caveThemeOld.mp3", Music.class);
         assetManager.load("sound/townTheme.mp3", Music.class);
         assetManager.load("sound/hubba_bubba.mp3", Music.class);
         assetManager.load("sound/webbedSong.mp3", Music.class);
+
+        //load all sound effects
+        FileHandle dir = Gdx.files.internal("sound/effects"); // folder inside assets
+        for (FileHandle file : dir.list()) {
+            if (file.extension().equalsIgnoreCase("ogg")) {
+                assetManager.load(file.path(), Sound.class);
+            } else {
+                throw new RuntimeException("Non-ogg file in sound effects folder");
+            }
+        }
         assetManager.finishLoading();
         return assetManager;
     }

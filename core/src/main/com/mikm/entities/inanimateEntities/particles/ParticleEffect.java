@@ -1,4 +1,4 @@
-package com.mikm.entities.particles;
+package com.mikm.entities.inanimateEntities.particles;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.mikm.RandomUtils;

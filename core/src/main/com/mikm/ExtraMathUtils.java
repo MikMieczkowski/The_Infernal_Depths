@@ -68,6 +68,17 @@ public class ExtraMathUtils {
         return (value - a) / (b - a);
     }
 
+
+
+    //bounceCoefficient: nextPeakHeight = lastPeakHeight * bounceCoefficient.
+    // 0 = straight line
+    public static float bounceLerp(float timer, float maxTime, float peakValue, float bounceCoefficient, float bounceFrequency) {
+        if (timer > maxTime) {
+            return 0;
+        }
+        return (float)Math.pow(1/bounceCoefficient, -timer) * Math.abs(peakValue*MathUtils.sin(bounceFrequency*timer));
+    }
+
     public static float sinLerp(float timer, float maxTime, float peakValue) {
         if (timer > maxTime) {
             return 0;
@@ -76,13 +87,26 @@ public class ExtraMathUtils {
         return peakValue * MathUtils.sin(timeStretch * timer);
     }
 
-    public static float bounceLerp(float timer, float maxTime, float peakValue, float bounceCoefficient, float bounceFrequency) {
-        if (timer > maxTime) {
-            return 0;
-        }
-        return (float)Math.pow(1/bounceCoefficient, -timer) * Math.abs(peakValue*MathUtils.sin(bounceFrequency*timer));
-    }
-
+    /**
+     * Returns a sine-based interpolation value that scales smoothly between a start and end proportion
+     * of a time range, reaching a specified peak value.
+     * <p>
+     * This function is useful for creating smooth oscillations or easing effects that begin and end
+     * within defined proportions of an overall duration.
+     *
+     * @param timer           The current time or progress value.
+     * @param maxTime         The total duration or maximum time span.
+     * @param startProportion The normalized start point of the interpolation (0–1 range of maxTime).
+     * @param endProportion   The normalized end point of the interpolation (0–1 range of maxTime).
+     * @param peakValue       The maximum amplitude or output scaling factor.
+     * @return The interpolated sine value at the current timer position.
+     *
+     * @example
+     * <pre>
+     * float value = sinLerp(0.5f, 1f, 0f, 1f, 10f);
+     * // Produces a smooth sine curve rising to 10 and back down across the full time range.
+     * </pre>
+     */
     public static float sinLerp(float timer, float maxTime, float startProportion, float endProportion, float peakValue) {
         final float startTime = startProportion * maxTime;
         final float endTime = endProportion * maxTime;
@@ -164,5 +188,17 @@ public class ExtraMathUtils {
 
     public static boolean haveSameSign(float num1, float num2) {
         return sign(num1) == sign(num2);
+    }
+
+    //Random number between SPEED_MIN and SPEED_MAX, times pos or neg 1
+    public static float getRandomWanderVel(float SPEED_MIN, float SPEED_MAX) {
+        float randomForcePositive = RandomUtils.getFloat(SPEED_MIN, SPEED_MAX);
+        int randomSign = RandomUtils.getBoolean() ? 1 : -1;
+        return randomSign * randomForcePositive;
+    }
+
+    //Turns an angle to a direction vector with elements that are -1, 0 or 1.
+    public static Vector2Int angleToVector2Int(float radians) {
+        return new Vector2Int(MathUtils.round(MathUtils.cos(radians)), MathUtils.round(MathUtils.sin(radians)));
     }
 }

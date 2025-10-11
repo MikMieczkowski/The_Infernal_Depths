@@ -1,4 +1,4 @@
-package com.mikm.entities.projectiles;
+package com.mikm.entities.inanimateEntities.projectiles;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -6,10 +6,11 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.mikm.ExtraMathUtils;
+import com.mikm.entities.DamageInformation;
 import com.mikm.entities.inanimateEntities.InanimateEntity;
-import com.mikm.entities.particles.ParticleTypes;
-import com.mikm.entities.particles.ParticleEffect;
-import com.mikm.rendering.SoundEffects;
+import com.mikm.entities.inanimateEntities.particles.ParticleTypes;
+import com.mikm.entities.inanimateEntities.particles.ParticleEffect;
+import com.mikm.rendering.sound.SoundEffects;
 
 public class Projectile extends InanimateEntity {
     private TextureRegion image;
@@ -21,6 +22,8 @@ public class Projectile extends InanimateEntity {
     private final float STARTING_HEIGHT = 10;
     private final float DIP_ROTATION_MULTIPLIER = .7f;
     private boolean playerProjectile = false;
+
+    private String IMPACT_SOUND_EFFECT = "bowImpact";
 
     public Projectile(TextureRegion image, ParticleTypes deathParticleParameters, float lifeTime, float x, float y, boolean playerProjectile) {
         super(x, y);
@@ -53,7 +56,7 @@ public class Projectile extends InanimateEntity {
             rotation = angle + 1.25f * MathUtils.PI + ExtraMathUtils.lerpAngle(time, lifeTime, 0, finalDipRotation);
         }
         moveAndCheckCollisions();
-        if (time > lifeTime) {
+        if (collider.inWall() || time > lifeTime) {
             die();
         }
     }
@@ -81,12 +84,12 @@ public class Projectile extends InanimateEntity {
 
     @Override
     public void onWallCollision() {
-        die();
+        //die();
     }
 
     @Override
     public void die() {
-        SoundEffects.playLoud(SoundEffects.bowImpact);
+        SoundEffects.playLoud(IMPACT_SOUND_EFFECT);
         new ParticleEffect(particleParameters, x, y);
         super.die();
     }

@@ -1,9 +1,9 @@
 package com.mikm.rendering.cave;
 
+import com.mikm.entities.Entity;
 import com.mikm.rendering.screens.CaveScreen;
 import com.mikm.serialization.Serializer;
 import com.mikm.Vector2Int;
-import com.mikm.entities.Entity;
 import com.mikm.entities.inanimateEntities.InanimateEntity;
 import com.mikm.entities.RemovableArray;
 

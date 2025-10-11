@@ -1,4 +1,4 @@
-package com.mikm.entities.particles;
+package com.mikm.entities.inanimateEntities.particles;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -85,11 +85,6 @@ public class Particle extends InanimateEntity {
     @Override
     public Rectangle getShadowBounds() {
         return new Rectangle(x, y +3, 8, 8);
-    }
-
-    @Override
-    public int getZOrder() {
-        return -1;
     }
 
     @Override

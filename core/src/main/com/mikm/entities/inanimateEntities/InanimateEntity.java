@@ -2,9 +2,14 @@ package com.mikm.entities.inanimateEntities;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.DeltaTime;
+import com.mikm.Vector2Int;
+import com.mikm.entities.animation.AnimationHandler;
+import com.mikm.entities.animation.Directions;
+import com.mikm.entities.animation.EntityAnimationHandler;
 import com.mikm.entities.collision.Collider;
 import com.mikm.rendering.screens.Application;
 
@@ -16,10 +21,14 @@ public abstract class InanimateEntity {
     public float height;
     public InanimateEntity shadow;
     public Collider collider = new Collider(this);
+    public AnimationHandler animationHandler;
+    //Not really used for inanimate entities but needed for support with AnimationHandler
+    public Vector2Int direction = Directions.DOWN.vector2Int;
 
     public InanimateEntity(float x, float y) {
         this.x = x;
         this.y = y;
+        animationHandler = new AnimationHandler(this);
     }
 
     public void render(Batch batch) {
@@ -34,22 +43,24 @@ public abstract class InanimateEntity {
     public abstract void update();
 
     public void moveAndCheckCollisions() {
-        collider.updateCollisions();
-        move();
+        float dt = DeltaTime.deltaTime();
+        collider.moveWithCollisions(dt);
+        if (collider.inWall()) {
+            collider.ejectFromWalls();
+        }
     }
 
     public void move() {
-        if (DeltaTime.deltaTime() < 3) {
-            x += xVel * DeltaTime.deltaTime();
-            y += yVel * DeltaTime.deltaTime();
-        }
+        // Movement handled by collider.moveWithCollisions()
     }
 
     public void onWallCollision() {
 
     }
 
-    public abstract void draw(Batch batch);
+    public void draw(Batch batch) {
+        animationHandler.draw(batch);
+    }
 
     public int getXInt() {
         return (int)x;
@@ -81,9 +92,5 @@ public abstract class InanimateEntity {
 
     public boolean hasShadow() {
         return true;
-    }
-
-    public int getZOrder() {
-        return 0;
     }
 }
