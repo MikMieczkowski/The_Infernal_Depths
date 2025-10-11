@@ -101,8 +101,8 @@ class RuleCellPositionGenerator {
                 survivingRooms.add(new CaveRoom(roomRegion, ruleCellPositions));
             }
         }
-        if (survivingRooms.size() == 0) {
-            System.out.println("Map was empty");
+        if (survivingRooms.isEmpty()) {
+            System.err.println("Map was empty");
             return;
         }
         survivingRooms.sort(Comparator.naturalOrder());

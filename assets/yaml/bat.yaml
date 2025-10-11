@@ -1,0 +1,69 @@
+CONFIG:
+  NAME: bat
+  MAX_HP: 3
+  #DAMAGE: 1
+  #SPEED: 1
+  #ORIGIN_X: 0
+  #ORIGIN_Y: 0
+  HURT_SOUND_EFFECT: "batHit.ogg"
+  POST_HIT_ROUTINE: start
+  #INVINCIBLE: false
+  BOUNDS:
+    IMAGE_WIDTH: 32
+    IMAGE_HEIGHT: 32
+    #HAS_SHADOW: true
+    SHADOW_OFFSET_X: 8
+    SHADOW_OFFSET_Y: 6
+    #SHADOW_WIDTH: 16
+    #SHADOW_HEIGHT: 16
+    #HITBOX_OFFSET_X: 0
+    #HITBOX_OFFSET_Y: 0
+    HITBOX_RADIUS: 8
+SPAWN_CONFIG:
+  LEVEL_1_SPAWN_PERCENT: 0.2
+  LEVEL_2_SPAWN_PERCENT: 1.1
+  LEVEL_3_SPAWN_PERCENT: 1.95
+BEHAVIOURS:
+  Circle:
+    #ACTION: "Circle"
+    SINGLE_ANIMATION:
+      IMAGE_NAME: "batFly"
+      FPS: 10
+      LOOP: true
+    CONFIG:
+      MAX_TIME: 1
+      angular_speed: .1
+      #DAMAGE: 1
+  Explode:
+    SINGLE_ANIMATION:
+      IMAGE_NAME: "batShock"
+      FPS: 10
+      LOOP: false
+    CONFIG:
+      MAX_TIME: .6
+      multiply_activate_frame : 4
+      hitbox_multiplier: 2.5
+  Charge:
+    COPY_ANIMATION: Circle
+    ON_HITTING_PLAYER_INTERRUPT_AND_GO_TO: start
+    CONFIG:
+      MAX_TIME: .5
+      speed: 4
+      jump_height: 14
+      accelerate: true
+      start_sound_effect: "dash.ogg"
+      end_sound_effect:
+ROUTINES:
+  start:
+    CYCLE:
+      - BEHAVIOUR: Circle
+    TRANSITIONS:
+      - ON_CONDITION: "inRadiusOfPlayer(200) && timeSinceCharge > 1"
+        GO_TO: chase
+  chase:
+    CYCLE:
+      - BEHAVIOUR: Charge
+      - BEHAVIOUR: Explode
+    TRANSITIONS:
+      - ON_CONDITION: "!inRadiusOfPlayer(200)"
+        GO_TO: start

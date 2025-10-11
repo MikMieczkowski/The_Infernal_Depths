@@ -1,0 +1,179 @@
+CONFIG:
+  NAME: player
+  MAX_HP: 9
+  DAMAGE: 1
+  KNOCKBACK: 2
+  SPEED: 2
+  HURT_ANIMATION:
+    SINGLE_FRAME:
+      IMAGE_NAME: "playerDiveDown"
+  HURT_SOUND_EFFECT: "playerHit"
+  POST_HIT_ROUTINE: start
+  #INVINCIBLE: false
+  CHECK_TRANSITIONS_EVERY_FRAME: true
+  BOUNDS:
+    IMAGE_WIDTH: 32
+    IMAGE_HEIGHT: 32
+    SHADOW_OFFSET_X: 8
+    SHADOW_OFFSET_Y: 6
+    HITBOX_RADIUS: 7
+
+BEHAVIOURS:
+  Walk:
+    ACTION: AcceleratedMove
+    ON_HITTING_PLAYER_INTERRUPT_AND_GO_TO: start
+    DIRECTIONAL_ANIMATION:
+      STARTS_WITH: "playerWalk"
+      FPS: 3
+      LOOP: true
+    CONFIG:
+      step_sound_effect: "step.ogg"
+      acceleration_frames: 6
+      deceleration_frames: 3
+      movement_direction_type: "InputAxis"
+  Stand:
+    ACTION: AcceleratedMove
+    FROM_FIRST_FRAME_OF_EACH_DIR: Walk
+    COPY_CONFIG: Walk
+  PlayerAttacking:
+    COPY_ANIMATION: Walk
+    COPY_CONFIG: Walk
+  Dive:
+    DIRECTIONAL_ANIMATION:
+      STARTS_WITH: "playerDive"
+      FPS: 10
+      LOOP: false
+    CONFIG:
+      #sets IS_DONE instead of MAX_TIME
+      speed: 6
+      friction: .3
+      friction_speed: .317
+      starting_sin_count: 1
+      start_sound_effect: "dash.ogg"
+      start_sound_effect2: "playerDive"
+  Roll:
+    DIRECTIONAL_ANIMATION:
+      STARTS_WITH: "playerRoll"
+      FPS: 18
+      LOOP: false
+    CONFIG:
+      DAMAGE: 1
+      knockback_multiplier: 2
+      hurtbox_diameter: 20
+      #sets IS_DONE instead of MAX_TIME
+      end_early: .35
+      speed: 4
+      starting_sin_count: 0
+      friction: .3
+      friction_speed: .317
+      jump_speed: .25
+      jump_height: 12
+      end_sound_effect: "step.ogg"
+  Fall:
+    SINGLE_ANIMATION:
+      IMAGE_NAME: "playerFall"
+      FPS: 18
+      LOOP: false
+    CONFIG:
+      MAX_TIME: 1
+      start_sound_effect: "dash.ogg"
+  IdleYawn:
+    ACTION: Idle
+    SINGLE_ANIMATION:
+      IMAGE_NAME: "playerYawn"
+      FPS: 3
+      LOOP: false
+    CONFIG:
+      start_sound_effect: "playerYawn.ogg"
+  IdleLoop:
+    ACTION: Idle
+    SINGLE_ANIMATION:
+      IMAGE_NAME: "playerSit"
+      FPS: 3
+      LOOP: true
+    CONFIG:
+      start_sound_effect: "playerHum.ogg"
+      time_min: 6
+      time_max: 6
+
+ROUTINES:
+  start:
+    CYCLE:
+      - BEHAVIOUR: Stand
+    TRANSITIONS:
+      - ON_CONDITION: "isMoving"
+        GO_TO: walk
+
+      - ON_CONDITION: "idleTimer > 10"
+        GO_TO: idleYawn
+
+      - ON_CONDITION: "pressedATTACK"
+        GO_TO: attack
+
+      - ON_CONDITION: "canFall && pressedTALK"
+        GO_TO: fall
+  walk:
+    CYCLE:
+      - BEHAVIOUR: Walk
+    TRANSITIONS:
+      - ON_CONDITION: "!isMoving"
+        GO_TO: start
+
+      - ON_CONDITION: "pressedATTACK"
+        GO_TO: attack
+
+      - ON_CONDITION: "justPressedDIVE && !(currentScreen == 'BlacksmithScreen' && showMenu)"
+        GO_TO: dive
+
+      - ON_CONDITION: "canFall && pressedTALK"
+        GO_TO: fall
+  idleYawn:
+    CYCLE:
+      - BEHAVIOUR: IdleYawn
+    TRANSITIONS:
+      - ON_CONDITION: "isMoving"
+        GO_TO: start
+      - ON_CONDITION: "pressedATTACK"
+        GO_TO: attack
+      - ON_CONDITION: "canFall && pressedTALK"
+        GO_TO: fall
+      - ON_CONDITION: "idleTimer < 10"
+        GO_TO: start
+      - NO_REPEAT: idleLoop
+  idleLoop:
+    CYCLE:
+      - BEHAVIOUR: IdleLoop
+    TRANSITIONS:
+      - ON_CONDITION: "isMoving"
+        GO_TO: start
+      - ON_CONDITION: "pressedATTACK"
+        GO_TO: attack
+      - ON_CONDITION: "canFall && pressedTALK"
+        GO_TO: fall
+      - ON_CONDITION: "idleTimer < 10"
+        GO_TO: start
+  attack:
+    CYCLE:
+      - BEHAVIOUR: PlayerAttacking
+    TRANSITIONS:
+      - ON_CONDITION: "bowReleased"
+        GO_TO: start
+      - NO_REPEAT: start
+  dive:
+    CYCLE:
+      - BEHAVIOUR: Dive
+    TRANSITIONS:
+      #PI - .2 = 3?
+      - ON_CONDITION: "justPressedDIVE && !(currentScreen == 'BlacksmithScreen' && showMenu) && diveSinCounter > 3"
+        GO_TO: roll
+      - NO_REPEAT: roll
+  roll:
+    CYCLE:
+      - BEHAVIOUR: Roll
+    TRANSITIONS:
+      - NO_REPEAT: start
+  fall:
+    CYCLE:
+      - BEHAVIOUR: Fall
+    TRANSITIONS:
+      - NO_REPEAT: start

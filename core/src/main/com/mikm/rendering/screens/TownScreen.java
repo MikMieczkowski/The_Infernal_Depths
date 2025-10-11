@@ -11,15 +11,18 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.mikm.Assets;
 // removed unused imports
+import com.mikm.ExtraMathUtils;
+import com.mikm.Vector2Int;
+import com.mikm.entities.Entity;
 import com.mikm.entities.inanimateEntities.Door;
 import com.mikm.entities.inanimateEntities.InanimateEntity;
 import com.mikm.entities.RemovableArray;
 import com.mikm.entities.inanimateEntities.Shadow;
 // removed unused imports
-import com.mikm.entities.particles.ParticleEffect;
-import com.mikm.entities.particles.ParticleTypes;
+import com.mikm.entities.inanimateEntities.particles.ParticleEffect;
+import com.mikm.entities.inanimateEntities.particles.ParticleTypes;
 import com.mikm.rendering.Camera;
-import com.mikm.rendering.SoundEffects;
+import com.mikm.rendering.sound.SoundEffects;
 import com.mikm.rendering.cave.RockType;
 import com.mikm.serialization.Serializer;
 import com.badlogic.gdx.Gdx;
@@ -48,6 +51,8 @@ public class TownScreen extends GameScreen {
     private float masterVolume = 1.0f;
     private Vector2 lastMousePos = new Vector2();
     private boolean keyboardControllerActive = false;
+    private int lastControllerY = 0; // for left stick vertical menu navigation
+    private int lastControllerX = 0; // for left stick horizontal prompt toggling
     private TextureRegion menuBg = Assets.getInstance().getTextureRegion("UIbg", 97, 77);
     private TextureRegion volumeBg = Assets.getInstance().getTextureRegion("UIrect", 97, 77);
     private TextureRegion selector = Assets.getInstance().getTextureRegion("UISelector", 29, 29);
@@ -57,10 +62,15 @@ public class TownScreen extends GameScreen {
     private Rectangle volumeBarRect;
     private boolean mouseOverVolume = false;
     private boolean draggingVolumeBar = false;
+    private int controllerNavCooldownFrames = 0; // prevent dpad+stick double-move
+    private int controllerPromptCooldownFrames = 0; // prevent double toggle in prompt
     private Vector2 worldMouse = new Vector2();
 
     
     public final RemovableArray<InanimateEntity> smokeParticles = new RemovableArray<>();
+
+    private final String AMBIENCE_SOUND_EFFECT = "townAmbience.ogg";
+    private final Vector2Int blacksmithDoorCoords = new Vector2Int(24*16, 23*16);
 
     TownScreen() {
         super();
@@ -72,16 +82,16 @@ public class TownScreen extends GameScreen {
         holePositions = readCollisionTiledmapLayer(3, getMapWidth(), getMapHeight());
         readAndCreateDestructiblesTiledmapLayer(1, getMapWidth(), getMapHeight());
 
-        int offset = 15*16;
-        addInanimateEntity(new Door(offset+3*16, offset+13*16, 4));
-        addInanimateEntity(new Door(offset+9*16, offset+8*16, 3));
+        Vector2Int wizardDoorCoords = new Vector2Int(18*16, 28*16);
+        addInanimateEntity(new Door(wizardDoorCoords.x, wizardDoorCoords.y, 4));
+        addInanimateEntity(new Door(blacksmithDoorCoords.x, blacksmithDoorCoords.y, 3));
         //addInanimateEntity(new NPC(Assets.testTexture, 50, 50));
 
         // Check for save files
         hasSaveFile = Serializer.getInstance().saveFilesExist();
         showMainMenu = true;
         Application.getInstance().paused = true;
-
+        //Entity slime = addEntity("slime", 200, 200);
 
     }
 
@@ -99,13 +109,16 @@ public class TownScreen extends GameScreen {
             DebugRenderer.getInstance().update();
             Camera.renderLighting(Application.batch);
             Camera.updateOrthographicCamera();
+            handleSongTransition(true);
             Application.batch.end();
             renderMainMenu();
+            /*
             System.out.print("\033[2A"); // Move cursor up 2 lines
             System.out.print("\rMouse: " + worldMouse.x + " " + worldMouse.y + "    ");
             System.out.println();
             System.out.print("\rRect: " + menuOptionRects[0].x + " " + menuOptionRects[0].y + " " + menuOptionRects[0].width + " " + menuOptionRects[0].height + "    ");
             System.out.println();
+             */
         } else if (Application.getInstance().paused) {
             // Main menu is hidden but pause is on - show regular pause screen
             super.render(delta);
@@ -122,6 +135,8 @@ public class TownScreen extends GameScreen {
                 DebugRenderer.getInstance().update();
                 Camera.renderLighting(Application.batch);
                 Camera.updateOrthographicCamera();
+                handleSongTransition(true);
+                handleFireCrackling();
                 renderUI();
                 Application.batch.end();
             } else {
@@ -130,6 +145,18 @@ public class TownScreen extends GameScreen {
         }
     }
 
+    private void handleFireCrackling() {
+        float distToDoor = ExtraMathUtils.distance(Application.player.getHitbox().x, Application.player.getHitbox().y, blacksmithDoorCoords.x, blacksmithDoorCoords.y);
+        float soundRadius = 64;
+        float inverseClampedNumberOfSoundRadiusAwayFromDoor = 1 - MathUtils.clamp(distToDoor/soundRadius, 0, 1);
+        //square law of sound
+        float vol = inverseClampedNumberOfSoundRadiusAwayFromDoor * inverseClampedNumberOfSoundRadiusAwayFromDoor;
+        //Stupid bug requires this -- Apparently townScreen update is run after caveScreen enter
+        if (Application.getInstance().currentScreen == Application.getInstance().townScreen) {
+            SoundEffects.setLoopVolume(BlacksmithScreen.FIRE_AMBIENCE, vol);
+        }
+    }
+    
     private void renderMainMenu() {
         Camera.orthographicCamera.update();
         Application.batch.begin();
@@ -235,10 +262,22 @@ public class TownScreen extends GameScreen {
         // Convert to world coordinates
         com.badlogic.gdx.math.Vector3 world3 = Camera.orthographicCamera.unproject(new com.badlogic.gdx.math.Vector3(mouse.x, mouse.y, 0));
         worldMouse.set(world3.x, world3.y);
+        // Cooldown tick
+        if (controllerPromptCooldownFrames > 0) controllerPromptCooldownFrames--;
         
         // Handle navigation
         if (GameInput.isDpadLeftJustPressed() || GameInput.isDpadRightJustPressed()) {
             overwritePromptSelection = (overwritePromptSelection + 1) % 2;
+            controllerPromptCooldownFrames = 8;
+        }
+        // Also allow controller left stick horizontal to toggle (on release to neutral)
+        if (InputRaw.usingController) {
+            int horiz = InputRaw.controllerXAxisIntNoDpad();
+            if (controllerPromptCooldownFrames == 0 && lastControllerX != 0 && horiz == 0) {
+                overwritePromptSelection = (overwritePromptSelection + 1) % 2;
+                controllerPromptCooldownFrames = 8;
+            }
+            lastControllerX = horiz;
         }
         
         // Handle mouse X coordinate selection (only when not using controller)
@@ -309,6 +348,8 @@ public class TownScreen extends GameScreen {
         // Convert to world coordinates
         com.badlogic.gdx.math.Vector3 world3 = Camera.orthographicCamera.unproject(new com.badlogic.gdx.math.Vector3(mouse.x, mouse.y, 0));
         worldMouse.set(world3.x, world3.y);
+        // Cooldown tick
+        if (controllerNavCooldownFrames > 0) controllerNavCooldownFrames--;
         
         // Check if mouse has moved
         if (!lastMousePos.equals(worldMouse)) {
@@ -344,6 +385,7 @@ public class TownScreen extends GameScreen {
             } else {
                 selectedMenuIndex = (selectedMenuIndex + 1) % optionCount;
             }
+            controllerNavCooldownFrames = 8;
             // Skip grayed-out Continue option when navigating with keyboard
             if (!hasSaveFile && selectedMenuIndex == 0) {
                 if (GameInput.isDpadUpJustPressed()) {
@@ -352,6 +394,27 @@ public class TownScreen extends GameScreen {
                     selectedMenuIndex = 1; // Go to next option
                 }
             }
+        } else if (InputRaw.usingController) {
+            // Allow controller left stick vertical to navigate (trigger on release to neutral)
+            int vert = InputRaw.controllerYAxisIntNoDpad();
+            if (controllerNavCooldownFrames == 0 && lastControllerY != 0 && vert == 0) {
+                keyboardControllerActive = true;
+                if (lastControllerY == 1) {
+                    selectedMenuIndex = (selectedMenuIndex - 1 + optionCount) % optionCount; // up
+                } else if (lastControllerY == -1) {
+                    selectedMenuIndex = (selectedMenuIndex + 1) % optionCount; // down
+                }
+                controllerNavCooldownFrames = 8;
+                // Skip grayed-out Continue option when navigating with controller
+                if (!hasSaveFile && selectedMenuIndex == 0) {
+                    if (lastControllerY == 1) {
+                        selectedMenuIndex = optionCount - 1; // wrap to last option
+                    } else {
+                        selectedMenuIndex = 1; // go to next option
+                    }
+                }
+            }
+            lastControllerY = vert;
         } else if (mouseHover && !keyboardControllerActive) {
             // Don't allow mouse hover selection of grayed-out Continue
             if (hoveredIndex == 0 && !hasSaveFile) {
@@ -437,16 +500,24 @@ public class TownScreen extends GameScreen {
 
     private void changeVolume(float masterVolume) {
         song.setVolume(masterVolume);
-        Application.getInstance().caveScreen.song.setVolume(masterVolume);
-        Application.getInstance().slimeBossRoomScreen.song.setVolume(masterVolume);
-        Application.getInstance().motiScreen.song.setVolume(masterVolume);
         SoundEffects.SFX_VOLUME = masterVolume;
+        SoundEffects.updateLoopVolumes();
     }
 
     @Override
     public void onEnter() {
+        SoundEffects.playLoop(AMBIENCE_SOUND_EFFECT);
+        if (!SoundEffects.loopIsPlaying(BlacksmithScreen.FIRE_AMBIENCE)) {
+            SoundEffects.playLoop(BlacksmithScreen.FIRE_AMBIENCE);
+            SoundEffects.setLoopVolume(BlacksmithScreen.FIRE_AMBIENCE, 0);
+        }
         RockType.validateOres();
-        Application.player.hp = Application.player.getMaxHp();
+        Application.player.hp = Application.player.MAX_HP;
+    }
+
+    @Override
+    public void onExit() {
+        SoundEffects.stopLoop(AMBIENCE_SOUND_EFFECT);
     }
 
     @Override
@@ -527,7 +598,6 @@ public class TownScreen extends GameScreen {
             entity.shadow = shadow;
             smokeParticles.add(shadow);
         }
-        System.out.println("done");
     }
 
     public void removeSmokeParticle(InanimateEntity entity) {

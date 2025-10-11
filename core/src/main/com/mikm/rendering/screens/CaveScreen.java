@@ -14,12 +14,13 @@ import com.mikm.ExtraMathUtils;
 import com.mikm.Vector2Int;
 import com.mikm.entities.inanimateEntities.InanimateEntity;
 import com.mikm.entities.inanimateEntities.Rope;
-import com.mikm.entities.enemies.slimeBoss.SlimeBoss;
+import com.mikm.entityLoader.BlackboardBindings;
 import com.mikm.input.GameInput;
 import com.mikm.rendering.Camera;
 import com.mikm.rendering.cave.CaveEntitySpawner;
 import com.mikm.rendering.cave.CaveFloorMemento;
 import com.mikm.rendering.cave.CaveTilemapCreator;
+import com.mikm.rendering.sound.SoundEffects;
 import com.mikm.serialization.Serializer;
 
 import java.util.ArrayList;
@@ -175,6 +176,11 @@ public class CaveScreen extends GameScreen {
         }
     }
 
+    @Override
+    public void onEnter() {
+        super.onEnter();
+        SoundEffects.stopLoop(BlacksmithScreen.FIRE_AMBIENCE);
+    }
 
     @Override
     public void dispose() {
@@ -210,7 +216,7 @@ public class CaveScreen extends GameScreen {
         } else if (Application.getInstance().currentScreen != Application.getInstance().caveScreen) {
             Application.getInstance().setGameScreen(Application.getInstance().caveScreen);
         } else if (floor == 5) {
-            if (!SlimeBoss.defeated) {
+            if (!SlimeBossRoomScreen.slimeBossDefeated) {
                 Application.getInstance().setGameScreen(Application.getInstance().slimeBossRoomScreen);
             } else {
                 floor += i;

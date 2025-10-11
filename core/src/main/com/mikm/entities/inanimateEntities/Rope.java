@@ -6,11 +6,12 @@ import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.Assets;
 import com.mikm.input.GameInput;
-import com.mikm.rendering.SoundEffects;
+import com.mikm.rendering.sound.SoundEffects;
 import com.mikm.rendering.screens.Application;
 
 public class Rope extends InanimateEntity {
     private static TextureRegion image = Assets.getInstance().getTextureRegion("rope");
+    private String ROPE_CLIMB_SOUND_EFFECT = "ropeClimb.ogg";
 
     public Rope(float x, float y) {
         super(x, y);
@@ -22,7 +23,7 @@ public class Rope extends InanimateEntity {
             Application.getInstance().caveScreen.displayButtonIndicator = true;
             Application.getInstance().caveScreen.buttonIndicatorPosition = new Vector2(x, y);
             if (GameInput.isTalkButtonJustPressed()) {
-                SoundEffects.playLoud(SoundEffects.ropeClimb);
+                SoundEffects.playLoud(ROPE_CLIMB_SOUND_EFFECT);
                 Application.getInstance().setGameScreen(Application.getInstance().caveScreen);
                 Application.getInstance().caveScreen.entities.doAfterRender(()->{
                     Application.getInstance().caveScreen.decreaseFloor();

@@ -1,31 +1,41 @@
-package com.mikm.entities.enemies.cyclestep;
+package com.mikm.entities.routineHandler;
 
 import com.badlogic.gdx.math.MathUtils;
-import com.mikm.ExtraMathUtils;
 import com.mikm.RandomUtils;
-import com.mikm.entities.enemies.Behaviour;
+import com.mikm.entities.Entity;
+import com.mikm.entities.actions.Action;
 
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.List;
 
 public class WeightedRandomCycleStep implements CycleStep {
-    Map<Behaviour, Float> weightedRandom;
-    public WeightedRandomCycleStep(Map<Behaviour, Float> weightedRandom) {
+    Map<Action, Float> weightedRandom;
+    public WeightedRandomCycleStep(Map<Action, Float> weightedRandom) {
         this.weightedRandom = weightedRandom;
     }
 
     @Override
-    public Behaviour getBehaviour() {
+    public Action getAction() {
         int r = RandomUtils.getInt(1, 100);
-        for (Map.Entry<Behaviour, Float> entry : weightedRandom.entrySet()) {
-            Behaviour behaviour = entry.getKey();
+        for (Map.Entry<Action, Float> entry : weightedRandom.entrySet()) {
+            Action action = entry.getKey();
             int probability = MathUtils.round(entry.getValue() * 100);
             if (r <= probability) {
-                return behaviour;
+                return action;
             }
             r -= probability;
         }
         throw new RuntimeException("Error in code");
+    }
+
+    @Override
+    public CycleStep copy(Entity entity) {
+        Map<Action, Float> weightedRandom = new HashMap<>();
+        for (Map.Entry<Action, Float> entry : this.weightedRandom.entrySet()) {
+            Action action = entry.getKey();
+            float probability = entry.getValue();
+            weightedRandom.put(action.copy(entity), probability);
+        }
+        return new WeightedRandomCycleStep(weightedRandom);
     }
 }

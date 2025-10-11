@@ -5,9 +5,9 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Intersector;
 import com.mikm.Assets;
-import com.mikm.entities.particles.ParticleEffect;
-import com.mikm.entities.particles.ParticleTypes;
-import com.mikm.rendering.SoundEffects;
+import com.mikm.entities.inanimateEntities.particles.ParticleEffect;
+import com.mikm.entities.inanimateEntities.particles.ParticleTypes;
+import com.mikm.rendering.sound.SoundEffects;
 import com.mikm.rendering.cave.RockType;
 import com.mikm.rendering.screens.Application;
 
@@ -16,6 +16,8 @@ public class Grave extends InanimateEntity {
     public int[] ores = new int[RockType.SIZE];
 
     private final float TALKING_RANGE_DIAMETER = 72;
+    private String REWARD_SOUND_EFFECT = "reward.ogg";
+
     public Grave(float x, float y, boolean loadedFromFile) {
         super(x, y);
         if (!loadedFromFile) throw new RuntimeException("Use other constructor");
@@ -48,7 +50,7 @@ public class Grave extends InanimateEntity {
             for (int i = 0; i < RockType.SIZE; i++) {
                 RockType.get(i).increaseOreAmount(ores[i]);
                 new ParticleEffect(ParticleTypes.getLightningParameters(), x, y);
-                SoundEffects.playQuiet(SoundEffects.reward);
+                SoundEffects.playQuiet(REWARD_SOUND_EFFECT);
                 if (Application.getInstance().currentScreen == Application.getInstance().slimeBossRoomScreen) {
                     Application.getInstance().slimeBossRoomScreen.graves.remove(this);
                 }

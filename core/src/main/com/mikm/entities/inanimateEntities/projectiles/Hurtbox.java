@@ -1,13 +1,14 @@
-package com.mikm.entities.projectiles;
+package com.mikm.entities.inanimateEntities.projectiles;
 
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
+import com.mikm.entities.DamageInformation;
+import com.mikm.entities.Entity;
 import com.mikm.entities.inanimateEntities.Destructible;
-import com.mikm.entities.EntityOLD;
 import com.mikm.entities.inanimateEntities.InanimateEntity;
-import com.mikm.entities.particles.ParticleEffect;
-import com.mikm.rendering.SoundEffects;
+import com.mikm.entities.inanimateEntities.particles.ParticleEffect;
+import com.mikm.rendering.sound.SoundEffects;
 import com.mikm.rendering.screens.Application;
 
 public class Hurtbox {
@@ -35,7 +36,7 @@ public class Hurtbox {
     }
 
     public void checkIfHitEntities(boolean playerProjectile) {
-        for (EntityOLD entity : Application.getInstance().currentScreen.entities) {
+        for (Entity entity : Application.getInstance().currentScreen.entities) {
             boolean b;
             if (playerProjectile) {
                 b = entity != Application.player;
@@ -43,7 +44,16 @@ public class Hurtbox {
                 b = entity == Application.player;
             }
             if (b && Intersector.overlaps(getHurtbox(), entity.getHitbox())) {
-                entity.damagedState.enter(damageInformation);
+                if (damageInformation.damage > 0) {
+                    if (entity.hp == 1) {
+                        SoundEffects.play("hitFinal.ogg");
+                    } else {
+                        SoundEffects.play("hit.ogg");
+                    }
+                } else {
+                    SoundEffects.playLoud("step.ogg");
+                }
+                entity.damagedAction.enter(damageInformation);
             }
         }
         if (Application.getInstance().currentScreen == Application.getInstance().townScreen) {
@@ -53,7 +63,7 @@ public class Hurtbox {
                     Destructible d = (Destructible)inanimateEntity;
 
                     Application.getInstance().townScreen.isCollidableGrid()[(int)inanimateEntity.y/ Application.TILE_HEIGHT][(int)inanimateEntity.x / Application.TILE_WIDTH] = false;
-                    SoundEffects.play(d.sound);
+                    SoundEffects.play(d.soundName);
                     new ParticleEffect(d.particleEffect, inanimateEntity.x, inanimateEntity.y);
                 }
             }
@@ -63,8 +73,8 @@ public class Hurtbox {
     public void checkIfHitPlayer() {
         boolean hitboxesOverlap = Intersector.overlaps(getHurtbox(), Application.player.getHitbox());
         if (hitboxesOverlap) {
-            float angleToPlayer = MathUtils.atan2(Application.player.getCenteredPosition().y - y, Application.player.getCenteredPosition().x - x);
-            Application.player.damagedState.enter(new DamageInformation(angleToPlayer, damageInformation.knockbackForceMagnitude, damageInformation.damage));
+            float angleToPlayer = MathUtils.atan2(Application.player.getHitbox().y - y, Application.player.getHitbox().x - x);
+            Application.player.damagedAction.enter(damageInformation);
         }
     }
 

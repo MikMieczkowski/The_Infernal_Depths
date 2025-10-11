@@ -1,40 +1,70 @@
-NAME: slime
 CONFIG:
+  NAME: slime
   MAX_HP: 3
-  DAMAGE: 1
+  #DAMAGE: 1
+  #SPEED: 1
   #ORIGIN_X: 0
   #ORIGIN_Y: 0
+  #HURT_ANIMATION:
+    #COPY_ANIMATION: Idle
   HURT_SOUND_EFFECT: "slimeHit.ogg"
-  DEFAULT_BEHAVIOUR: start
-  POST_HIT_BEHAVIOUR: start
+  POST_HIT_ROUTINE: start
+  #INVINCIBLE: false
+  #BOUNDS:
+  #  IMAGE_WIDTH: 16
+  #  IMAGE_HEIGHT: 16
+SPAWN_CONFIG:
+  LEVEL_1_SPAWN_PERCENT: 0.2
+  LEVEL_2_SPAWN_PERCENT: 1.1
+  LEVEL_3_SPAWN_PERCENT: 1.95
 BEHAVIOURS:
-  wander:
-    DIRECTIONAL_ANIM:
+  Wander:
+    DIRECTIONAL_ANIMATION:
       STARTS_WITH: "slimeWalk"
-      FRAME_DURATION: .33
+      FPS: 3
       LOOP: true
     CONFIG:
-      time: 1
+      #DAMAGE: 1
+      MAX_TIME: 1
       speed_min: .2
       speed_max: 1
-  idle:
-    FROM_FIRST_FRAME_OF_EACH_DIR: wander
+  Idle:
+    FROM_FIRST_FRAME_OF_EACH_DIR: Wander
     CONFIG:
       time_min: 1
-      time_max: 4
-  jump:
-    COPY_ANIMATION: wander
+      time_max: 2
+  Charge:
+    COPY_ANIMATION: Wander
+    ON_HITTING_PLAYER_INTERRUPT_AND_GO_TO: start
     CONFIG:
-      time: 1
-      speed: 6
-      jump_sound_effect: "slimeJump.ogg"
-    TELEGRAPH:
-      SQUISH:
-        TIME: .2
-        AMOUNT: .6
-CYCLES:
+      MAX_TIME: .3
+      speed: 3
+      jump_height: 15
+      multiple_bounces: true
+      bounce_coefficient: 0.2
+      bounce_frequency: 10.6
+      start_sound_effect: "slimeJump.ogg"
+      end_sound_effect: "slimeLand.ogg"
+  ChargeSquish:
+    ACTION: Squish
+    COPY_ANIMATION: Charge
+    CONFIG:
+      MAX_TIME: .2
+      AMOUNT: 1.4
+#Entity starts in start routine
+ROUTINES:
   start:
-    RANDOM:
-      - idle
-      - wander
-      - jump
+    CYCLE:
+    - RANDOM:
+        - Idle
+        - Wander
+    TRANSITIONS:
+      - ON_CONDITION: "inRadiusOfPlayer(100) && timeSinceCharge > 1"
+        GO_TO: chase
+  chase:
+    CYCLE:
+      - BEHAVIOUR: ChargeSquish
+      - BEHAVIOUR: Charge
+    TRANSITIONS:
+      - NO_REPEAT: start
+

@@ -1,0 +1,154 @@
+CONFIG:
+  NAME: slimeBoss
+  MAX_HP: 90
+  HURT_SOUND_EFFECT: "slimeHit.ogg"
+  POST_HIT_ROUTINE: start
+  #INVINCIBLE: false
+  BOUNDS:
+    IMAGE_WIDTH: 32
+    IMAGE_HEIGHT: 32
+    SHADOW_WIDTH: 32
+    SHADOW_HEIGHT: 32
+    HITBOX_RADIUS: 16
+BEHAVIOURS:
+  ShortJump:
+    ACTION: Charge
+    SINGLE_ANIMATION:
+      IMAGE_NAME: "slimeBoss"
+      FPS: 5
+      LOOP: true
+    CONFIG:
+      MAX_TIME: 1
+      jump_height: 15
+      speed: 2.67
+      start_sound_effect: "slimeJump.ogg"
+      end_sound_effect: "slimeLand.ogg"
+
+  LongJump:
+    ACTION: Charge
+    COPY_ANIMATION: ShortJump
+    CONFIG:
+      MAX_TIME: .75
+      jump_height: 15
+      speed: 6.67
+      start_sound_effect: "slimeJump.ogg"
+      end_sound_effect: "slimeLand.ogg"
+
+  SimmerTowardsPlayer:
+    COPY_ANIMATION: ShortJump
+    CONFIG:
+      MAX_TIME: 4
+      speed_min: .2
+      speed_max: 1.7
+      slime_trail_sound_effect: "slimeHit.ogg"
+
+  SimmerTelegraph:
+    ACTION: Squish
+    COPY_ANIMATION: SimmerTowardsPlayer
+    CONFIG:
+      MAX_TIME: 2
+      AMOUNT: .6
+
+  ShortJumpTelegraph:
+    ACTION: Squish
+    COPY_ANIMATION: ShortJump
+    CONFIG:
+      MAX_TIME: 1
+      AMOUNT: 1.2
+
+  LongJumpTelegraph:
+    ACTION: Squish
+    COPY_ANIMATION: LongJump
+    CONFIG:
+      MAX_TIME: 1.5
+      AMOUNT: 2
+
+  #Zigzag Behaviours
+  FirstDashLeft:
+    ACTION: Charge
+    COPY_ANIMATION: ShortJump
+    CONFIG:
+      MAX_TIME: .3
+      speed: 7.22
+      jump_height: 5
+      has_afterimages: true
+      movement_direction_type: "LeftOfPlayer"
+      start_sound_effect: "dash.ogg"
+      end_sound_effect:
+  DashLeft:
+    ACTION: Charge
+    COPY_ANIMATION: ShortJump
+    COPY_CONFIG: FirstDashLeft
+    CONFIG:
+      speed: 14.44
+  DashRight:
+    ACTION: Charge
+    COPY_ANIMATION: ShortJump
+    COPY_CONFIG: DashLeft
+    CONFIG:
+      movement_direction_type: "RightOfPlayer"
+  ZigzagTelegraph:
+    #Charge with 0 speed = Jump in place
+    ACTION: Charge
+    COPY_ANIMATION: ShortJump
+    CONFIG:
+      MAX_TIME: 1.5
+      speed: 0
+      jump_height: 30
+      start_sound_effect: "slimeJump.ogg"
+      end_sound_effect: "slimeLand.ogg"
+
+ROUTINES:
+  start:
+    CYCLE:
+      - BEHAVIOUR: ShortJumpTelegraph
+      - BEHAVIOUR: ShortJump
+      - BEHAVIOUR: ShortJumpTelegraph
+      - BEHAVIOUR: ShortJump
+      - BEHAVIOUR: ShortJumpTelegraph
+      - BEHAVIOUR: ShortJump
+      - BEHAVIOUR: LongJumpTelegraph
+      - BEHAVIOUR: LongJump
+      - BEHAVIOUR: LongJumpTelegraph
+      - BEHAVIOUR: LongJump
+      - BEHAVIOUR: SimmerTelegraph
+      - BEHAVIOUR: SimmerTowardsPlayer
+    TRANSITIONS:
+      - NO_REPEAT: phase1
+  phase1:
+    CYCLE:
+      - RANDOM:
+          SimmerTowardsPlayer: .25
+          LongJump: .5
+          ShortJump: else
+    TRANSITIONS:
+      - ON_CONDITION: "finished(LongJump) && random(.5)"
+        GO_TO: zigzag
+  simmer:
+    CYCLE:
+      - BEHAVIOUR: SimmerTelegraph
+      - BEHAVIOUR: SimmerTowardsPlayer
+    TRANSITIONS:
+      - NO_REPEAT: phase1
+  longJump:
+    CYCLE:
+      - BEHAVIOUR: LongJumpTelegraph
+      - BEHAVIOUR: LongJump
+    TRANSITIONS:
+      - NO_REPEAT: phase1
+  shortJump:
+    CYCLE:
+      - BEHAVIOUR: ShortJumpTelegraph
+      - BEHAVIOUR: ShortJump
+    TRANSITIONS:
+      - NO_REPEAT: phase1
+  zigzag:
+    CYCLE:
+      - BEHAVIOUR: FirstDashLeft
+      - BEHAVIOUR: DashRight
+      - BEHAVIOUR: DashLeft
+      - BEHAVIOUR: DashRight
+      - BEHAVIOUR: DashLeft
+      - BEHAVIOUR: DashRight
+    TRANSITIONS:
+      - NO_REPEAT: phase1

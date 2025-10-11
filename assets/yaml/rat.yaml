@@ -1,0 +1,23 @@
+CONFIG: #
+  NAME: rat #
+  MAX_HP: 0
+  DAMAGE: 0
+  INVINCIBLE: true
+SPAWN_CONFIG:
+  LEVEL_1_SPAWN_PERCENT: .5
+  LEVEL_2_SPAWN_PERCENT: .2
+BEHAVIOURS: #
+  Idle: #
+    SINGLE_FRAME: #one of - already implemented
+      IMAGE_NAME: "ratIdle" #
+  Wander:
+    SINGLE_ANIMATION:
+      IMAGE_NAME: "ratWalk"
+      FPS: 4
+ROUTINES: #
+  start: #
+    CYCLE: #
+      - BEHAVIOUR: Idle #
+      - BEHAVIOUR: Wander
+    TRANSITIONS: #
+      - NO_REPEAT: start #this or on_condition

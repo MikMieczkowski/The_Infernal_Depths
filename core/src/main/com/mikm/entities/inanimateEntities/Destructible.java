@@ -4,18 +4,18 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mikm.Assets;
-import com.mikm.entities.particles.ParticleTypes;
+import com.mikm.entities.inanimateEntities.particles.ParticleTypes;
 
 public class Destructible extends InanimateEntity {
     private final TextureRegion image;
     public ParticleTypes particleEffect;
-    public Sound sound;
+    public String soundName;
     private TextureRegion destructibleShadow = Assets.getInstance().getTextureRegion("destructibleShadow", 48,48);
 
-    public Destructible(TextureRegion image, ParticleTypes particleEffect, Sound sound, float x, float y) {
+    public Destructible(TextureRegion image, ParticleTypes particleEffect, String soundName, float x, float y) {
         super(x, y);
         this.image = image;
-        this.sound = sound;
+        this.soundName = soundName;
         this.particleEffect = particleEffect;
     }
 

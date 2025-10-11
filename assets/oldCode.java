@@ -112,3 +112,55 @@ Iterator<Map.Entry<String, Object>> it = transitionData.ON_CONDITION.entrySet().
                 throw new RuntimeException("Unimplemented routine transition condition type " + type + " in " + fileName);
         }
     }
+
+
+//TEXTURE MASKING
+
+private TextureRegion dark = Assets.getInstance().getTextureRegion("dark", 583, 426);
+private static SpriteBatch batch = new SpriteBatch();
+        // 1. Draw mask into framebuffer
+        FrameBuffer maskBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, dark.getRegionWidth(), dark.getRegionHeight(), false);
+
+//TODO Does drawing stuff over other stuff cause lag?
+//            Application.batch.setBlendFunction(GL20.GL_ONE, GL20.GL_ZERO);
+//            Application.batch.setBlendFunction(GL20.GL_ZERO, GL20.GL_SRC_ALPHA);
+//            Application.batch.draw(Assets.light, Camera.x - Assets.light.getRegionWidth()/2f, Camera.y - Assets.light.getRegionHeight()/2f);
+//            Application.batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA); // Normal rendering
+
+//
+//            Application.batch.end();
+//
+//
+//            maskBuffer.begin();
+//
+//            Gdx.gl.glClearColor(.2f, .2f, .2f, 1f); // black = no light
+//            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+//
+//            Application.batch.begin();
+//            Application.batch.setBlendFunction(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_COLOR);
+//            Application.batch.draw(Assets.light, Camera.x - dark.getRegionWidth()/2 + Assets.light.getRegionWidth()/2, Camera.y- dark.getRegionHeight()/2 + Assets.light.getRegionHeight()/2, dark.getRegionWidth(), dark.getRegionHeight());
+//            Application.batch.draw(Assets.light, 250, 250, dark.getRegionWidth(), dark.getRegionHeight());
+//            Application.batch.draw(Assets.light, 0, 0, dark.getRegionWidth(), dark.getRegionHeight());
+//            Application.batch.end();
+//
+//            maskBuffer.end();
+//
+//// 2. Multiply mask brightness into your content
+//            Texture maskTex = maskBuffer.getColorBufferTexture();
+//            TextureRegion textureRegion = new TextureRegion(maskTex);
+//            textureRegion.flip(false, true);
+//
+//            Application.batch.begin();
+//
+//// Multiply destination (maskBuffer) * source (contentTexture)
+//            // Multiply colors, but keep content’s alpha
+//            Application.batch.setBlendFunctionSeparate(
+//                    GL20.GL_DST_COLOR, GL20.GL_ZERO,   // RGB multiply
+//                    GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA // preserve alpha blending
+//            );
+//            Application.batch.draw(textureRegion, Camera.x - dark.getRegionWidth()/2f, Camera.y - dark.getRegionHeight()/2f);
+//
+//
+//
+//// Reset blending
+//            Application.batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);

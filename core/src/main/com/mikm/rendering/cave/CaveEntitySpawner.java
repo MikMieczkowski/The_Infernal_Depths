@@ -3,14 +3,16 @@ package com.mikm.rendering.cave;
 import com.mikm.RandomUtils;
 import com.mikm.Vector2Int;
 import com.mikm.entities.Entity;
+import com.mikm.entityLoader.EntityLoader;
 import com.mikm.entities.inanimateEntities.InanimateEntity;
 import com.mikm.entities.inanimateEntities.Rope;
-import com.mikm.entities.enemies.Bat;
-import com.mikm.entities.enemies.Slime;
 import com.mikm.rendering.screens.Application;
 import com.mikm.rendering.screens.CaveScreen;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class CaveEntitySpawner {
     private final CaveScreen caveScreen;
@@ -46,8 +48,8 @@ public class CaveEntitySpawner {
             caveScreen.addInanimateEntity(i);
         }
         for (Entity e : memento.enemies) {
-            e.hp = e.getMaxHp();
-            e.damagedState.dead = false;
+            e.hp = e.MAX_HP;
+            e.damagedAction.dead = false;
             caveScreen.addEntity(e);
         }
     }
@@ -61,18 +63,31 @@ public class CaveEntitySpawner {
     }
 
     private void spawnEnemies() {
-        if (openTilePositions.size() == 0) {
+        if (openTilePositions.isEmpty()) {
             return;
         }
 
-        int enemyAmount = (int) SpawnProbabilityConstants.ENEMY_AMOUNT.getProbabilityByFloor(CaveScreen.floor-1);
-        for (int i = 0; i < enemyAmount; i++) {
-            Vector2Int randomTilePosition = openTilePositions.get(RandomUtils.getInt(openTilePositions.size()-1));
-            Slime slime = new Slime(randomTilePosition.x * Application.TILE_WIDTH, randomTilePosition.y * Application.TILE_HEIGHT);
-            caveScreen.addEntityInstantly(slime);
-            randomTilePosition = openTilePositions.get(RandomUtils.getInt(openTilePositions.size()-1));
-            Bat bat = new Bat(randomTilePosition.x * Application.TILE_WIDTH, randomTilePosition.y * Application.TILE_HEIGHT);
-            caveScreen.addEntityInstantly(bat);
+        Map<String, SpawnProbability> entityData = new HashMap<>();
+        for (String name : EntityLoader.getEntitiesInYamlFolder()) {
+            if (name.equals("player")) {
+                continue;
+            }
+            Entity entity = EntityLoader.create(name);
+            if (entity.spawnProbability != null) {
+                entityData.put(entity.NAME, entity.spawnProbability);
+            }
+        }
+
+        for (Map.Entry<String, SpawnProbability> entry : entityData.entrySet()) {
+            int times = (int)(entry.getValue().getProbabilityByFloor(CaveScreen.floor) * openTilePositions.size());
+            for (int i = 0; i < times; i++) {
+                Entity entity = EntityLoader.create(entry.getKey());
+                //spawn entity
+                Vector2Int randomTilePosition = openTilePositions.get(RandomUtils.getInt(openTilePositions.size()-1));
+                entity.x = randomTilePosition.x * Application.TILE_WIDTH;
+                entity.y = randomTilePosition.y * Application.TILE_HEIGHT;
+                caveScreen.addEntityInstantly(entity);
+            }
         }
     }
 

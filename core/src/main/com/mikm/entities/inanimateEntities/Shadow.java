@@ -35,10 +35,6 @@ public class Shadow extends InanimateEntity{
 
     }
 
-    @Override
-    public int getZOrder() {
-        return -2;
-    }
 
     @Override
     public void draw(Batch batch) {

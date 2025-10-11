@@ -1,3 +1,4 @@
 CONFIG:
   NAME: "test2"
 BEHAVIOURS:
+  Idle:

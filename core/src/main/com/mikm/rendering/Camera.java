@@ -3,9 +3,11 @@ package com.mikm.rendering;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.mikm.Assets;
 import com.mikm.DeltaTime;
 import com.mikm.input.GameInput;
 import com.mikm.rendering.screens.Application;
@@ -24,6 +26,7 @@ public class Camera {
     private static float lookDirectionX, lookDirectionY;
     private final Vector2 ignoredBoxOffset = new Vector2();
 
+
     //why is this class not static
     public Camera() {
         orthographicCamera = new OrthographicCamera();
@@ -37,7 +40,7 @@ public class Camera {
         lookDirectionX += (GameInput.getAttackingVector().x * LEAD_MULTIPLIER - lookDirectionX) * CAMERA_LEAD_SPEED;
         lookDirectionY += (GameInput.getAttackingVector().y * LEAD_MULTIPLIER - lookDirectionY) * CAMERA_LEAD_SPEED;
 
-        Vector2 targetPosition = new Vector2(Application.player.getCenteredPosition().x - x, Application.player.getCenteredPosition().y - y);
+        Vector2 targetPosition = new Vector2(Application.player.getHitbox().x - x, Application.player.getHitbox().y - y);
 
         setIgnoredBoxOffsetAndMoveCamera(targetPosition);
         updateOrthographicCamera();
@@ -70,14 +73,14 @@ public class Camera {
             if (Math.abs(xVel) < Math.abs(targetPosition.x)) {
                 x += xVel;
             } else {
-                x = Application.player.getCenteredPosition().x;
+                x = Application.player.getHitbox().x;
             }
         } else {
             float yVel = (targetPosition.y + ignoredBoxOffset.y) * CAMERA_SPEED * DeltaTime.deltaTime();
             if (Math.abs(yVel) < Math.abs(targetPosition.y)) {
                 y += yVel;
             } else {
-                y = Application.player.getCenteredPosition().y;
+                y = Application.player.getHitbox().y;
             }
         }
     }
@@ -96,8 +99,8 @@ public class Camera {
     }
 
     public static void setPositionDirectlyToPlayerPosition() {
-        x = Application.player.getCenteredPosition().x;
-        y = Application.player.getCenteredPosition().y;
+        x = Application.player.getHitbox().x;
+        y = Application.player.getHitbox().y;
         updateOrthographicCamera();
     }
 

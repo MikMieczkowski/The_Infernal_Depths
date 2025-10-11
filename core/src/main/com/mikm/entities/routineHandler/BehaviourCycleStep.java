@@ -1,16 +1,22 @@
-package com.mikm.entities.enemies.cyclestep;
+package com.mikm.entities.routineHandler;
 
-import com.mikm.entities.enemies.Behaviour;
+import com.mikm.entities.Entity;
+import com.mikm.entities.actions.Action;
 
 public class BehaviourCycleStep implements CycleStep {
-    Behaviour behaviour;
+    Action action;
 
-    public BehaviourCycleStep(Behaviour behaviour) {
-        this.behaviour = behaviour;
+    public BehaviourCycleStep(Action action) {
+        this.action = action;
     }
 
     @Override
-    public Behaviour getBehaviour() {
-        return behaviour;
+    public Action getAction() {
+        return action;
+    }
+
+    @Override
+    public CycleStep copy(Entity entity) {
+        return new BehaviourCycleStep(action.copy(entity));
     }
 }

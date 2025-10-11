@@ -4,11 +4,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
-import com.mikm.entities.particles.ParticleTypes;
-import com.mikm.entities.projectiles.DamageInformation;
-import com.mikm.entities.projectiles.Projectile;
+import com.mikm.entities.DamageInformation;
+import com.mikm.entities.actions.DamagedAction;
+import com.mikm.entities.inanimateEntities.particles.ParticleTypes;
+import com.mikm.entities.inanimateEntities.projectiles.Projectile;
 import com.mikm.input.GameInput;
-import com.mikm.rendering.SoundEffects;
+import com.mikm.rendering.sound.SoundEffects;
 import com.mikm.rendering.screens.Application;
 
 public class Bow extends Weapon{
@@ -21,12 +22,15 @@ public class Bow extends Weapon{
 
     private float timePerPowerLevel;
     private float arrowSpeed;
-    private int arrowDamage;
-    public float arrowKnockback;
     private float cooldown;
     private boolean powerLevelWasZero = true;
+    private int arrowDamage;
+    public float arrowKnockback;
 
-    public Bow(TextureRegion image, TextureRegion[] stringImages, TextureRegion arrowImage, int arrowDamage, float arrowKnockback, float cooldown, float timePerPowerLevel, float arrowSpeed) {
+    private String BOW_READY_SOUND_EFFECT = "bowReady.ogg";
+    private String BOW_SHOOT_SOUND_EFFECT = "bowShoot.ogg";
+
+    public Bow(TextureRegion image, TextureRegion[] stringImages, TextureRegion arrowImage, int arrowDamage, int arrowKnockback, float cooldown, float timePerPowerLevel, float arrowSpeed) {
         super(image);
         this.stringImages = stringImages;
         this.arrowImage = arrowImage;
@@ -60,7 +64,7 @@ public class Bow extends Weapon{
             powerLevel = Math.min(3, (int) (timeHeld / timePerPowerLevel) + 1);
             if (powerLevelWasZero && powerLevel == 1) {
                 powerLevelWasZero = false;
-                SoundEffects.playQuiet(SoundEffects.bowReady);
+                SoundEffects.playQuiet(BOW_READY_SOUND_EFFECT);
             }
         }
     }
@@ -72,22 +76,19 @@ public class Bow extends Weapon{
         }
         angleToMouse = GameInput.getAttackingAngle();
         weaponRotation = angleToMouse + .75f*MathUtils.PI;
-        x = player.getCenteredPosition().x + orbitDistance * MathUtils.cos(angleToMouse) - getFullBounds().width/2;
-        y = player.getCenteredPosition().y + orbitDistance * MathUtils.sin(angleToMouse) - getFullBounds().height/2 - 6;
+        x = player.getHitbox().x + orbitDistance * MathUtils.cos(angleToMouse) - getFullBounds().width/2;
+        y = player.getHitbox().y + orbitDistance * MathUtils.sin(angleToMouse) - getFullBounds().height/2 - 6;
     }
 
-    @Override
-    public void checkForStateTransition() {
-        if (!GameInput.isAttackButtonPressed() || powerLevel == 3 && timeHeld>timePerPowerLevel*3) {
-            exitAttackState();
-            player.walkingState.enter();
-        }
+
+    public boolean isReleased() {
+        return !GameInput.isAttackButtonPressed() || powerLevel == 3 && timeHeld>timePerPowerLevel*3;
     }
 
     @Override
     public void exitAttackState() {
         if (powerLevel > 0) {
-            SoundEffects.play(SoundEffects.bowShoot);
+            SoundEffects.play(BOW_SHOOT_SOUND_EFFECT);
             Projectile arrow = new Projectile(arrowImage, ParticleTypes.getArrowParameters(),.4f, x, y, true);
             arrow.setMovementAndDamageInformation(angleToMouse, arrowSpeed * powerLevel, getDamageInformation());
             Application.getInstance().currentScreen.addInanimateEntity(arrow);
@@ -114,6 +115,4 @@ public class Bow extends Weapon{
     public DamageInformation getDamageInformation() {
         return new DamageInformation(angleToMouse, arrowKnockback, arrowDamage);
     }
-
-
 }

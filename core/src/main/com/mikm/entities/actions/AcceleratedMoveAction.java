@@ -6,18 +6,18 @@ import com.badlogic.gdx.math.Vector2;
 import com.mikm.DeltaTime;
 import com.mikm.ExtraMathUtils;
 import com.mikm.entities.Entity;
+import com.mikm.entityLoader.Blackboard;
 import com.mikm.input.GameInput;
-import com.mikm.rendering.SoundEffects;
+import com.mikm.rendering.sound.SoundEffects;
 
 import java.util.function.Supplier;
 
-public abstract class AcceleratedMoveBehaviour extends Behaviour {
+public class AcceleratedMoveAction extends Action {
 
     private float ACCELERATION_FRAMES;
     private float DECELERATION_FRAMES;
     private String STEP_SOUND_EFFECT;
     private String MOVEMENT_DIRECTION_TYPE;
-    private Sound stepSound;
     private Supplier<Vector2> movementDirection;
 
     private Vector2 targetVelocity = new Vector2();
@@ -27,13 +27,14 @@ public abstract class AcceleratedMoveBehaviour extends Behaviour {
     float dec;
     private float stepTimer = 0;
 
-    public AcceleratedMoveBehaviour(Entity entity) {
+    private float idleTimer = 0;
+
+    public AcceleratedMoveAction(Entity entity) {
         super(entity);
     }
 
     @Override
     public void postConfigRead() {
-        stepSound = SoundEffects.load(STEP_SOUND_EFFECT);
         if (MOVEMENT_DIRECTION_TYPE.equals("InputAxis")) {
             movementDirection = () -> new Vector2(GameInput.getHorizontalAxis(), GameInput.getVerticalAxis());
         } else if (MOVEMENT_DIRECTION_TYPE.equals("Wander")) {
@@ -42,8 +43,15 @@ public abstract class AcceleratedMoveBehaviour extends Behaviour {
             movementDirection = () -> new Vector2(
                     ExtraMathUtils.getRandomWanderVel(shouldBeInConfig_min, shouldBeInConfig_max), ExtraMathUtils.getRandomWanderVel(shouldBeInConfig_min, shouldBeInConfig_max));
         } else {
-            throw new RuntimeException("Undefined AcceleratedMove MOVEMENT_DIRECTION_TYPE");
+            throw new RuntimeException("Undefined AcceleratedMove MOVEMENT_DIRECTION_TYPE " + MOVEMENT_DIRECTION_TYPE);
         }
+    }
+
+    @Override
+    public void enter() {
+        super.enter();
+        idleTimer = 0;
+        Blackboard.getInstance().bind("idleTimer", entity, 0);
     }
 
     @Override
@@ -54,7 +62,7 @@ public abstract class AcceleratedMoveBehaviour extends Behaviour {
         stepTimer -= Gdx.graphics.getDeltaTime();
         if (stepTimer < 0 && (entity.xVel != 0 || entity.yVel != 0)) {
             stepTimer += STEP_MAX;
-            SoundEffects.play(stepSound);
+            SoundEffects.play(STEP_SOUND_EFFECT);
         };
         if (movementDirection.get().x != 0) {
             xAccelerate();
@@ -66,6 +74,14 @@ public abstract class AcceleratedMoveBehaviour extends Behaviour {
             yAccelerate();
         } else {
             yDecelerate();
+        }
+
+        if (entity.xVel == 0 && entity.yVel == 0) {
+            idleTimer += Gdx.graphics.getDeltaTime();
+            Blackboard.getInstance().bind("idleTimer", entity, idleTimer);
+        } else {
+            idleTimer = 0;
+            Blackboard.getInstance().bind("idleTimer", entity, idleTimer);
         }
     }
 

@@ -1,7 +1,8 @@
-package com.mikm.entities.projectiles;
+package com.mikm.entities.inanimateEntities.projectiles;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.mikm.entities.DamageInformation;
 import com.mikm.entities.inanimateEntities.InanimateEntity;
 import com.mikm.rendering.screens.Application;
 
@@ -16,12 +17,13 @@ public class StaticProjectile extends InanimateEntity {
         this.visible = visible;
         hurtbox = new Hurtbox(10, true);
         hurtbox.setPosition(x+5, y+5);
+
         hurtbox.setDamageInformation(damageInformation);
     }
 
     @Override
     public void update() {
-        if (Application.player.currentState != Application.player.divingState) {
+        if (!Application.player.routineHandler.inAction("Dive")) {
             hurtbox.checkIfHitPlayer();
         }
     }

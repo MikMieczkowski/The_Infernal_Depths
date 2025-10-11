@@ -9,4 +9,5 @@ ROUTINES:
     CYCLE:
       - BEHAVIOUR: Idle
     TRANSITIONS:
-      - NO_REPEAT: start #this or on_condition
+      - ON_CONDITION: "isMoving"
+        GO_TO: start

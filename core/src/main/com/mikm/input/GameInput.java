@@ -112,6 +112,16 @@ public class GameInput {
         return InputRaw.isKeyJustPressed(Input.Keys.ESCAPE);
     }
 
+    public static boolean isDiveButtonPressed() {
+        if (Application.getInstance().currentScreen == Application.getInstance().blacksmithScreen && BlacksmithScreen.showMenu) {
+            return false;
+        }
+        if (InputRaw.usingController) {
+            return InputRaw.isControllerButtonPressed(controllerMapping.buttonA);
+        }
+        return Gdx.input.isKeyPressed(Input.Keys.SPACE);
+    }
+
     public static boolean isPickaxeButtonJustPressed() {
         if (!InputRaw.usingController) {
             return InputRaw.isKeyJustPressed(Input.Keys.NUM_1);
@@ -205,8 +215,8 @@ public class GameInput {
         return new Vector2(InputRaw.mouseXPosition(), InputRaw.mouseYPosition());
     }
     public static Vector2 mousePosRelativeToPlayer() {
-        return new Vector2(InputRaw.mouseXPosition() + Camera.x - Application.player.getCenteredPosition().x - Gdx.graphics.getWidth()/2f*Camera.VIEWPORT_ZOOM,
-                InputRaw.mouseYPosition() + Camera.y - Application.player.getCenteredPosition().y - Gdx.graphics.getHeight()/2f * Camera.VIEWPORT_ZOOM);
+        return new Vector2(InputRaw.mouseXPosition() + Camera.x - Application.player.getHitbox().x - Gdx.graphics.getWidth()/2f*Camera.VIEWPORT_ZOOM,
+                InputRaw.mouseYPosition() + Camera.y - Application.player.getHitbox().y - Gdx.graphics.getHeight()/2f * Camera.VIEWPORT_ZOOM);
     }
 
     public static float getAttackingAngle() {
@@ -246,14 +256,34 @@ public class GameInput {
     }
 
     private static Vector2Int controllerAxisToDirectionVectorInt() {
-        return angleToDirectionVectorInt(getAttackingAngle());
+        return ExtraMathUtils.angleToVector2Int(getAttackingAngle());
     }
 
     private static Vector2Int mousePositionToDirectionVectorInt() {
-        return angleToDirectionVectorInt(mouseAngle());
+        return ExtraMathUtils.angleToVector2Int(mouseAngle());
     }
 
-    private static Vector2Int angleToDirectionVectorInt(float radians) {
-        return new Vector2Int(MathUtils.round(MathUtils.cos(radians)), MathUtils.round(MathUtils.sin(radians)));
+    public static boolean isActionPressed(String action) {
+        switch (action) {
+            case "TALK": return isTalkButtonPressed();
+            case "ATTACK": return isAttackButtonPressed();
+            case "DIVE": return isDiveButtonPressed();
+            default: return false;
+        }
+    }
+
+    public static String[] inputActions = {"TALK", "ATTACK", "DPAD_UP", "DPAD_DOWN", "DPAD_LEFT", "DPAD_RIGHT", "DIVE", "SWITCH"};
+    public static boolean isActionJustPressed(String action) {
+        switch (action) {
+            case "TALK": return isTalkButtonJustPressed();
+            case "ATTACK": return isAttackButtonJustPressed();
+            case "DPAD_UP": return isDpadUpJustPressed();
+            case "DPAD_DOWN": return isDpadDownJustPressed();
+            case "DPAD_LEFT": return isDpadLeftJustPressed();
+            case "DPAD_RIGHT": return isDpadRightJustPressed();
+            case "DIVE": return isDiveButtonJustPressed();
+            case "SWITCH": return isSwitchButtonJustPressed() || isPickaxeButtonJustPressed() || isWeaponButtonJustPressed();
+            default: return false;
+        }
     }
 }

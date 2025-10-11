@@ -77,7 +77,7 @@ public enum RockType {
             sum += num;
         }
         if (sum > 1.01f || sum < .99f) {
-            System.err.println("chances added to " + sum);
+            throw new RuntimeException("chances added to " + sum);
         }
 
         float totalChance = 0;
@@ -88,8 +88,8 @@ public enum RockType {
                 return VALUES.get(i);
             }
         }
-        System.err.println("didn't choose a random float in Rock Type");
-        return VALUES.get(SIZE - 1);
+        throw new RuntimeException("didn't choose a random float in Rock Type");
+        //return VALUES.get(SIZE - 1);
     }
 
     public static RockType get(int i) {

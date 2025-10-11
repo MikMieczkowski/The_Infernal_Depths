@@ -2,59 +2,58 @@ package com.mikm.entities.actions;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.mikm.ExtraMathUtils;
-import com.mikm.entities.animation.AnimationName;
+import com.mikm.entities.DamageInformation;
+import com.mikm.entities.Entity;
 import com.mikm.entities.inanimateEntities.particles.ParticleEffect;
 import com.mikm.entities.inanimateEntities.particles.ParticleTypes;
-import com.mikm.entities.inanimateEntities.projectiles.DamageInformation;
 import com.mikm.entities.inanimateEntities.projectiles.StaticProjectile;
-import com.mikm.entities.old.slimeBoss.SB_SimmerAttack;
-import com.mikm.entities.old.slimeBoss.SlimeBoss;
-import com.mikm.entities.player.Player;
 import com.mikm.rendering.screens.Application;
 import com.mikm.rendering.sound.SoundEffects;
 
-public class SimmerAction {
-
-    private SlimeBoss slimeBoss;
-    private Player player;
-
-    private final float TIME_SPENT_SIMMERING = 4f;
-    private final float SIMMER_MOVE_SPEED_MAX = .2f;
-    private final float SIMMER_MOVE_SPEED_MIN = 1.7f;
-    public static final int SLIME_TRAIL_DAMAGE = 1, SLIME_TRAIL_KNOCKBACK = 1;
+public class SimmerTowardsPlayerAction extends Action {
+    private float SPEED_MIN;
+    private float SPEED_MAX;
+    private Float SLIME_TRAIL_KNOCKBACK;
+    private Float SLIME_TRAIL_DAMAGE;
     private String SLIME_TRAIL_SOUND_EFFECT;
 
     private float distanceTraveledSinceLastProjectile;
     private float angle;
 
+    public SimmerTowardsPlayerAction(Entity entity) {
+        super(entity);
+    }
 
-    public SB_SimmerAttack(SlimeBoss slimeBoss) {
-        super(slimeBoss);
-        this.slimeBoss = slimeBoss;
-        this.player = Application.player;
+    @Override
+    public void postConfigRead() {
+        if (SLIME_TRAIL_KNOCKBACK == null) {
+            SLIME_TRAIL_KNOCKBACK = 1F;
+        }
+        if (SLIME_TRAIL_DAMAGE == null) {
+            SLIME_TRAIL_DAMAGE = 1F;
+        }
     }
 
     @Override
     public void enter() {
         super.enter();
-        angle = MathUtils.atan2(player.y - slimeBoss.y, player.x - slimeBoss.x);
+        angle = MathUtils.atan2(Application.player.y - entity.y, Application.player.x - entity.x);
     }
 
     @Override
     public void update() {
         super.update();
 
-        float moveSpeed = ExtraMathUtils.lerp(timeElapsedInState, TIME_SPENT_SIMMERING, .3f, 1, SIMMER_MOVE_SPEED_MAX, SIMMER_MOVE_SPEED_MIN);
+        float moveSpeed = ExtraMathUtils.lerp(timeElapsedInState, MAX_TIME, .3f, 1, SPEED_MIN, SPEED_MAX);
         moveTowardsPlayer(moveSpeed);
         handleSlimeTrail(moveSpeed);
-        handlePlayerCollision(1, false);
     }
 
     private void moveTowardsPlayer(float moveSpeed) {
-        float angleToPlayer = MathUtils.atan2(player.y - slimeBoss.y, player.x - slimeBoss.x);
-        angle = ExtraMathUtils.lerpAngle(.5f, TIME_SPENT_SIMMERING, angle, angleToPlayer);
-        slimeBoss.xVel = MathUtils.cos(angle) * moveSpeed;
-        slimeBoss.yVel =  MathUtils.sin(angle) * moveSpeed;
+        float angleToPlayer = MathUtils.atan2(Application.player.y - entity.y, Application.player.x - entity.x);
+        angle = ExtraMathUtils.lerpAngle(.5f, MAX_TIME, angle, angleToPlayer);
+        entity.xVel = MathUtils.cos(angle) * moveSpeed;
+        entity.yVel =  MathUtils.sin(angle) * moveSpeed;
     }
 
     private void handleSlimeTrail(float moveSpeed) {
@@ -62,8 +61,8 @@ public class SimmerAction {
         if (distanceTraveledSinceLastProjectile > 20) {
             SoundEffects.play(SLIME_TRAIL_SOUND_EFFECT);
             distanceTraveledSinceLastProjectile -= 20;
-            Application.getInstance().currentScreen.addInanimateEntity(new StaticProjectile(null, false, new DamageInformation(0, SB_SimmerAttack.SLIME_TRAIL_KNOCKBACK, SB_SimmerAttack.SLIME_TRAIL_DAMAGE), slimeBoss.getCenteredPosition().x, slimeBoss.getCenteredPosition().y));
-            new ParticleEffect(ParticleTypes.getSlimeTrailParameters(), slimeBoss.getHitbox().x, slimeBoss.getHitbox().y);
+            Application.getInstance().currentScreen.addInanimateEntity(new StaticProjectile(null, false, new DamageInformation(0, SLIME_TRAIL_KNOCKBACK, entity.DAMAGE), entity.getHitbox().x, entity.getHitbox().y));
+            new ParticleEffect(ParticleTypes.getSlimeTrailParameters(), entity.getHitbox().x, entity.getHitbox().y);
         }
     }
 }

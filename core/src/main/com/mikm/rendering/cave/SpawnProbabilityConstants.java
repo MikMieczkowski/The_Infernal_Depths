@@ -14,6 +14,8 @@ public class SpawnProbabilityConstants {
     public static final SpawnProbability GEM_CHANCE = new SpawnProbability(0, 0, 0, 0);
 
     private static final float mapScaleConstant = (float) (Application.getInstance().caveScreen.getMapWidth() * Application.getInstance().caveScreen.getMapHeight()) / 6400;
+
+    //percentages are from 0 to 100 for some reason
     public static final SpawnProbability ENEMY_AMOUNT = new SpawnProbability(
             mapScaleConstant*300, mapScaleConstant*1700, mapScaleConstant*3000, mapScaleConstant*0);
 

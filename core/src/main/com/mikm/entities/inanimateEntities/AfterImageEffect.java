@@ -1,4 +1,4 @@
-package com.mikm.entities.old.slimeBoss;
+package com.mikm.entities.inanimateEntities;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -22,11 +22,6 @@ public class AfterImageEffect extends InanimateEntity {
     @Override
     public boolean hasShadow() {
         return false;
-    }
-
-    @Override
-    public int getZOrder() {
-        return -1;
     }
 
     @Override

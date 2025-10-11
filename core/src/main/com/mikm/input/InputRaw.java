@@ -33,16 +33,13 @@ public class InputRaw {
         useController(controllerHasInput);
         setControllerHasInput();
         
-        Controllers.addListener(new ControllerAdapter() {
-            @Override
-            public boolean buttonDown(Controller controller, int buttonIndex) {
-                System.out.println("Pressed: " + buttonIndex + " (" + controller.getName() + ")");
-                return true;
-            }
-        });
-        if (controller.getButton(controllerMapping.buttonStart)) {
-            System.out.println("did");
-        }
+//        Controllers.addListener(new ControllerAdapter() {
+//            @Override
+//            public boolean buttonDown(Controller controller, int buttonIndex) {
+//                System.out.println("Pressed: " + buttonIndex + " (" + controller.getName() + ")");
+//                return true;
+//            }
+//        });
     
     }
 
@@ -185,6 +182,21 @@ public class InputRaw {
         if (controllerYAxis < -deadzone) {
             return 1;
         }
+        return 0;
+    }
+
+    // Left stick only (no D-pad contribution) for menu navigation logic
+    public static int controllerXAxisIntNoDpad() {
+        float x = controller.getAxis(controllerMapping.axisLeftX);
+        if (x > deadzone) return 1;
+        if (x < -deadzone) return -1;
+        return 0;
+    }
+
+    public static int controllerYAxisIntNoDpad() {
+        float y = controller.getAxis(controllerMapping.axisLeftY);
+        if (y > deadzone) return -1; // up is negative axis
+        if (y < -deadzone) return 1; // down is positive axis
         return 0;
     }
 

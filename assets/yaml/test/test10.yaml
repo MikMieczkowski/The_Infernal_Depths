@@ -3,5 +3,7 @@ CONFIG:
 BEHAVIOURS:
   Idle:
     SINGLE_FRAME: #one of - already implemented
-      IMAGE_NAME: "a" #
+      IMAGE_NAME: "sand" #
 ROUTINES:
+  start:
+    CYCLE:

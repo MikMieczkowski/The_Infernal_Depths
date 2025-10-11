@@ -1,0 +1,21 @@
+CONFIG:
+  NAME: moti
+  MAX_HP: 90
+  HURT_SOUND_EFFECT: "slimeHit.ogg"
+  POST_HIT_ROUTINE: start
+  #INVINCIBLE: false
+  BOUNDS:
+    IMAGE_WIDTH: 48
+    IMAGE_HEIGHT: 48
+BEHAVIOURS:
+  Idle:
+    SINGLE_FRAME:
+      IMAGE_NAME: "moti"
+
+#Entity starts in start routine
+ROUTINES:
+  start:
+    CYCLE:
+      - BEHAVIOUR: Idle
+    TRANSITIONS:
+      - NO_REPEAT: start

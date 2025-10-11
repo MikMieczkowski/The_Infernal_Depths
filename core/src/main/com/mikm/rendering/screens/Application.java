@@ -4,22 +4,26 @@ package com.mikm.rendering.screens;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.math.Interpolation;
 import com.esotericsoftware.kryo.io.KryoBufferUnderflowException;
 import com.mikm.Assets;
 import com.mikm.debug.DebugRenderer;
+import com.mikm.entities.DamageInformation;
+import com.mikm.entityLoader.BlackboardBindings;
+import com.mikm.entityLoader.EntityLoader;
 import com.mikm.entities.inanimateEntities.Grave;
-import com.mikm.entities.enemies.slimeBoss.SlimeBoss;
 import com.mikm.entities.player.Player;
 import com.mikm.entities.player.weapons.WeaponInstances;
-import com.mikm.entities.projectiles.DamageInformation;
 import com.mikm.input.GameInput;
 import com.mikm.input.InputRaw;
 import com.mikm.rendering.Camera;
-import com.mikm.rendering.SoundEffects;
+import com.mikm.rendering.sound.SoundEffects;
 import com.mikm.rendering.cave.RockType;
 import com.mikm.serialization.Serializer;
 
@@ -72,7 +76,6 @@ public class Application extends Game {
 		}
 
 		createPlayerAndCaveScreen();
-		SoundEffects.create();
 		townScreen = new TownScreen();
 		blacksmithScreen = new BlacksmithScreen();
 		slimeBossRoomScreen = new SlimeBossRoomScreen();
@@ -82,7 +85,7 @@ public class Application extends Game {
 
 		Camera.setPositionDirectlyToPlayerPosition();
 		setGameScreen(townScreen);
-
+		townScreen.playSong(null);
 	}
 
 	private static int n = 0;
@@ -103,7 +106,6 @@ public class Application extends Game {
 			Application.player.bowLevel = readSaveData();
 			for (int i = 0; i < RockType.SIZE; i++) {
 				RockType.get(i).increaseOreAmount(readSaveData());
-				System.out.println(RockType.get(i).getOreAmount());
 				RockType.get(i).tempOreAmount = 0;
 			}
 
@@ -119,14 +121,16 @@ public class Application extends Game {
 					Application.player.currentHeldItem = Application.player.equippedWeapon;
 				}
 			}
-			SlimeBoss.defeated = readSaveData() == 1;
+			SlimeBossRoomScreen.slimeBossDefeated = readSaveData() == 1;
 		} catch (KryoBufferUnderflowException e) {
 			//file was empty, don't load anything
 		}
 	}
 
 	private void createPlayerAndCaveScreen() {
-		player = new Player(448, 448);
+		player = (Player) EntityLoader.create("player");
+		player.x = 448;
+		player.y = 448;
 		caveScreen = new CaveScreen();
 		player.setWeapons(new WeaponInstances());
 		Camera.setPositionDirectlyToPlayerPosition();
@@ -157,8 +161,8 @@ public class Application extends Game {
 				Application.getInstance().caveScreen.updateCurrentMemento();
 				CaveScreen.floor = 0;
 				player.deadTime -= player.RESPAWN_TIME;
-				player.hp = player.getMaxHp();
-				player.damagedState.dead = false;
+				player.hp = player.MAX_HP;
+				player.damagedAction.dead = false;
 				Application.getInstance().currentScreen.entities.doAfterRender(()->{
 					Application.getInstance().setGameScreen(Application.getInstance().townScreen);
 					player.dead = false;
@@ -190,7 +194,7 @@ public class Application extends Game {
 			b = 1;
 		}
 		saveData.add(b);
-		saveData.add(SlimeBoss.defeated ? 1:0);
+		saveData.add(SlimeBossRoomScreen.slimeBossDefeated ? 1:0);
 		Serializer.getInstance().write(saveData, 10);
 	}
 
@@ -232,12 +236,15 @@ public class Application extends Game {
 			}
 		}
 		if (currentScreen != null && currentScreen.song != null) {
-			currentScreen.stopSong();
+			currentScreen.stopSong(gameScreen);
 		}
+		GameScreen old = currentScreen;
 		currentScreen = gameScreen;
 		setScreen(gameScreen);
 		if (gameScreen.song != null) {
-			gameScreen.playSong();
+			if (old != null) {
+				gameScreen.playSong(old);
+			}
 		}
 		gameScreen.onEnter();
 	}
@@ -250,11 +257,7 @@ public class Application extends Game {
 	private void handleDebugInput() {
 		// Handle pause button logic
 		if (GameInput.isPauseButtonJustPressed()) {
-			System.out.println("pressed");
-			if (currentScreen instanceof TownScreen && ((TownScreen)currentScreen).isMainMenuActive()) {
-				// Main menu is active - ignore pause button
-			} else {
-				// Main menu is not active - handle pause normally
+			if (!(currentScreen instanceof TownScreen && ((TownScreen)currentScreen).isMainMenuActive())) {
 				paused = !paused;
 			}
 		}
@@ -293,7 +296,7 @@ public class Application extends Game {
 		if (Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
 			if (!paused) {
 				Application.player.hp =1;
-				Application.player.damagedState.enter(new DamageInformation(1, 0 ,1));
+				Application.player.damagedAction.enter(new DamageInformation(1, 0, 1));
 			}
 		}
 

@@ -1,9 +1,7 @@
 package com.mikm.entities.player.weapons;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.mikm.DeltaTime;
-import com.mikm.debug.DebugRenderer;
-import com.mikm.entities.projectiles.DamageInformation;
+import com.mikm.entities.DamageInformation;
 
 public class Sword extends SwingableWeapon {
     private float knockbackForce;
@@ -17,10 +15,8 @@ public class Sword extends SwingableWeapon {
         hurtbox.setDamageInformation(getDamageInformation());
     }
 
-
     @Override
     public DamageInformation getDamageInformation() {
         return new DamageInformation(angleToMouse, knockbackForce, damage);
     }
-
 }

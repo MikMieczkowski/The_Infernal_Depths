@@ -22,11 +22,15 @@ public class Collider {
     }
 
     public void updateCollisions() {
+        updateCollisions(DeltaTime.deltaTime());
+    }
+
+    public void updateCollisions(float dt) {
         boolean[][] collidableMap = Application.getInstance().currentScreen.isCollidableGrid();
         boolean[][] rockCollidableMap = Application.getInstance().caveScreen.caveTilemapCreator.rockCollidablePositions;
 
         tilePosition = ExtraMathUtils.toTileCoordinates(inanimateEntity.getHitbox().x, inanimateEntity.getHitbox().y);
-        nextPosition = new Vector2(inanimateEntity.getHitbox().x + inanimateEntity.xVel * DeltaTime.deltaTime(), inanimateEntity.getHitbox().y + inanimateEntity.yVel * DeltaTime.deltaTime());
+        nextPosition = new Vector2(inanimateEntity.getHitbox().x + inanimateEntity.xVel * dt, inanimateEntity.getHitbox().y + inanimateEntity.yVel * dt);
         nextTilePosition = ExtraMathUtils.toTileCoordinates(nextPosition);
 
         ArrayList<Vector2Int> tilePositionsToCheck = getWallTilePositionsToCheck();
@@ -44,12 +48,12 @@ public class Collider {
             }
             if (isOutOfBounds(v) || vInMap) {
                 Vector2 nearestPoint = new Vector2(
-                        ExtraMathUtils.clamp(nextPosition.x, v.x * Application.TILE_WIDTH, (v.x+1) * Application.TILE_WIDTH),
-                        ExtraMathUtils.clamp(nextPosition.y, v.y * Application.TILE_HEIGHT, (v.y+1) * Application.TILE_HEIGHT)
+                        ExtraMathUtils.clamp(nextPosition.x, v.x * Application.TILE_WIDTH, (v.x + 1) * Application.TILE_WIDTH),
+                        ExtraMathUtils.clamp(nextPosition.y, v.y * Application.TILE_HEIGHT, (v.y + 1) * Application.TILE_HEIGHT)
                 );
 
                 Vector2 vectorToNearestPoint = nearestPoint.sub(nextPosition);
-                float overlapDistance = inanimateEntity.getHitbox().radius - vectorToNearestPoint.len() * (inanimateEntity.getHitbox().radius/7f);
+                float overlapDistance = inanimateEntity.getHitbox().radius - vectorToNearestPoint.len() * (inanimateEntity.getHitbox().radius / 7f);
 
                 if (Float.isNaN(overlapDistance)) {
                     throw new RuntimeException("overlap is NaN");
@@ -65,6 +69,65 @@ public class Collider {
             }
         }
     }
+
+	public void moveWithCollisions(float dt) {
+		float speed = (float)Math.sqrt(inanimateEntity.xVel * inanimateEntity.xVel + inanimateEntity.yVel * inanimateEntity.yVel);
+		float maxStep = Application.TILE_WIDTH * 0.25f;
+		int steps = 1;
+		if (speed * dt > maxStep && speed > 0f) {
+			steps = Math.min(8, (int)Math.ceil((speed * dt) / maxStep));
+		}
+		float subDt = dt / steps;
+		for (int i = 0; i < steps; i++) {
+			updateCollisions(subDt);
+			if (subDt < 3) {
+				inanimateEntity.x += inanimateEntity.xVel * subDt;
+				inanimateEntity.y += inanimateEntity.yVel * subDt;
+			}
+		}
+	}
+
+	public void ejectFromWalls() {
+		if (!inWall()) {
+			return;
+		}
+		boolean[][] collidableMap = Application.getInstance().currentScreen.isCollidableGrid();
+		boolean[][] rockCollidableMap = Application.getInstance().caveScreen.caveTilemapCreator.rockCollidablePositions;
+		Vector2 center = new Vector2(inanimateEntity.getHitbox().x, inanimateEntity.getHitbox().y);
+		Vector2Int start = ExtraMathUtils.toTileCoordinates(center.x, center.y);
+		int maxRadius = 12;
+		Vector2Int best = null;
+		float bestDist2 = Float.MAX_VALUE;
+		for (int r = 0; r <= maxRadius; r++) {
+			for (int y = start.y - r; y <= start.y + r; y++) {
+				for (int x = start.x - r; x <= start.x + r; x++) {
+					if (x < 0 || y < 0 || y >= collidableMap.length || x >= collidableMap[0].length) continue;
+					boolean blocked = collidableMap[y][x];
+					if (isBat && rockCollidableMap[y][x]) blocked = false;
+					if (!blocked) {
+						float cx = x * Application.TILE_WIDTH + Application.TILE_WIDTH / 2f;
+						float cy = y * Application.TILE_HEIGHT + Application.TILE_HEIGHT / 2f;
+						float dx = cx - center.x;
+						float dy = cy - center.y;
+						float d2 = dx*dx + dy*dy;
+						if (d2 < bestDist2) {
+							bestDist2 = d2;
+							best = new Vector2Int(x, y);
+						}
+					}
+				}
+			}
+			if (best != null) break;
+		}
+		if (best != null) {
+			// Place entity so that hitbox.x - radius and hitbox.y - radius equal the free tile's bottom-left
+			inanimateEntity.x = best.x * Application.TILE_WIDTH;
+			inanimateEntity.y = best.y * Application.TILE_HEIGHT;
+			inanimateEntity.xVel = 0f;
+			inanimateEntity.yVel = 0f;
+		}
+	}
+
 
     public ArrayList<Vector2Int> getWallTilePositionsToCheck() {
         ArrayList<Vector2Int> output = new ArrayList<>();
@@ -83,7 +146,7 @@ public class Collider {
 
     private boolean isOutOfBounds(Vector2Int v) {
         boolean[][] collidableMap = Application.getInstance().currentScreen.isCollidableGrid();
-        return v.x <= 0 || v.x >= collidableMap.length || v.y <= 0 || v.y >= collidableMap[0].length;
+        return v.x < 0 || v.x >= collidableMap[0].length || v.y < 0 || v.y >= collidableMap.length;
     }
 
     public boolean inWall() {

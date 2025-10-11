@@ -4,28 +4,31 @@ package com.mikm.rendering.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.mikm.Assets;
 // removed unused import
+import com.mikm.entityLoader.EntityLoader;
 import com.mikm.debug.DebugRenderer;
 import com.mikm.entities.*;
 import com.mikm.entities.inanimateEntities.Destructible;
 import com.mikm.entities.inanimateEntities.InanimateEntity;
 import com.mikm.entities.inanimateEntities.Shadow;
-import com.mikm.entities.particles.ParticleTypes;
+import com.mikm.entities.inanimateEntities.particles.ParticleTypes;
 import com.mikm.rendering.Camera;
-import com.mikm.rendering.SoundEffects;
 import com.mikm.rendering.cave.RockType;
+import com.mikm.rendering.sound.SoundEffects;
 
 // removed unused imports
 
@@ -49,6 +52,10 @@ public abstract class GameScreen extends ScreenAdapter {
     private Rectangle musicIconBounds = new Rectangle();
     private float healthAnimationTimer, healthAnimationFrameDuration = .1f;
 
+    private String GRASS_BREAK_SOUND_EFFECT = "grassBreak.ogg";
+    private String POT_BREAK_SOUND_EFFECT = "potBreak.ogg";
+
+    private final float MASTER_SONG_MUL = .75f;
 
 
     GameScreen() {
@@ -100,11 +107,11 @@ public abstract class GameScreen extends ScreenAdapter {
                     continue;
                 }
                 if (l.getCell(i, j).getTile().getId() == GRASS) {
-                    addInanimateEntity(new Destructible(imgs[2], ParticleTypes.getDestructibleParameters(particleImgs[2][0]), SoundEffects.grassBreak, i*16,j*16));
+                    addInanimateEntity(new Destructible(imgs[2], ParticleTypes.getDestructibleParameters(particleImgs[2][0]), GRASS_BREAK_SOUND_EFFECT, i*16,j*16));
                 } else if (l.getCell(i, j).getTile().getId() == DOUBLEPOT) {
-                    addInanimateEntity(new Destructible(imgs[1], ParticleTypes.getDestructibleParameters(particleImgs[0][3]), SoundEffects.potBreak, i*16,j*16));
+                    addInanimateEntity(new Destructible(imgs[1], ParticleTypes.getDestructibleParameters(particleImgs[0][3]), POT_BREAK_SOUND_EFFECT, i*16,j*16));
                 } else if (l.getCell(i, j).getTile().getId() == POT) {
-                    addInanimateEntity(new Destructible(imgs[0], ParticleTypes.getDestructibleParameters(particleImgs[0][3]), SoundEffects.potBreak, i*16,j*16));
+                    addInanimateEntity(new Destructible(imgs[0], ParticleTypes.getDestructibleParameters(particleImgs[0][3]), POT_BREAK_SOUND_EFFECT, i*16,j*16));
                 } else {
                     continue;
                 }
@@ -115,6 +122,7 @@ public abstract class GameScreen extends ScreenAdapter {
 
     public abstract boolean[][] isCollidableGrid();
 
+
     @Override
     public void render(float delta) {
         if (!Application.getInstance().timestop && !Application.getInstance().paused) {
@@ -123,14 +131,31 @@ public abstract class GameScreen extends ScreenAdapter {
             Application.batch.setProjectionMatrix(Camera.orthographicCamera.combined);
             tiledMapRenderer.setView(Camera.orthographicCamera);
             drawAssets();
-            DebugRenderer.getInstance().update();
-            Camera.renderLighting(Application.batch);
             Camera.updateOrthographicCamera();
+            //TODO use a shader to do lighting
+
+            handleSongTransition(true);
             renderUI();
             Application.batch.end();
         } else {
             drawNoUpdate();
         }
+    }
+
+
+    public void drawNoUpdate() {
+        camera.update();
+        Application.batch.begin();
+        Application.batch.setProjectionMatrix(Camera.orthographicCamera.combined);
+        tiledMapRenderer.setView(Camera.orthographicCamera);
+        tiledMapRenderer.render();
+        inanimateEntities.draw(Application.batch);
+        entities.draw(Application.batch);
+        Camera.renderLighting(Application.batch);
+        Camera.updateOrthographicCamera();
+        handleSongTransition(true);
+        renderUI();
+        Application.batch.end();
     }
 
     public void renderUI() {
@@ -187,9 +212,9 @@ public abstract class GameScreen extends ScreenAdapter {
             if (musicIconBounds.contains(world)) {
                 Application.musicOn = !Application.musicOn;
                 if (Application.musicOn) {
-                    playSong();
+                    playSong(null);
                 } else {
-                    stopSong();
+                    stopSong(null);
                 }
             }
         }
@@ -245,41 +270,64 @@ public abstract class GameScreen extends ScreenAdapter {
     }
 
 
-    public void drawNoUpdate() {
-        camera.update();
-        Application.batch.begin();
-        Application.batch.setProjectionMatrix(Camera.orthographicCamera.combined);
-        tiledMapRenderer.setView(Camera.orthographicCamera);
-        tiledMapRenderer.render();
-        inanimateEntities.draw(Application.batch);
-        entities.draw(Application.batch);
-        Camera.renderLighting(Application.batch);
-        Camera.updateOrthographicCamera();
-        drawOther();
-        renderUI();
-        Application.batch.end();
-    }
 
     public void drawOther() {
 
     }
 
-    public void playSong() {
-        if (Application.musicOn && song != null) {
-            song.play();
+    private TransitionState transitioningSong;
+    private enum TransitionState {
+        NONE, TURNING_ON, TURNING_OFF
+    }
+    //goes from 0 to MAX_SONG_TRANSITION_TIME with 0 being fully off and MAX_SONG_TRANSITION_TIME being fully on
+    float songTransitionSlider = 0;
+    private final float MAX_SONG_TRANSITION_TIME = 1;
+    private GameScreen otherScreen;
+
+    protected void handleSongTransition(boolean enterOther) {
+        if (enterOther && otherScreen != null) {
+            otherScreen.handleSongTransition(false);
+        }
+        if (transitioningSong == TransitionState.NONE) {
+            return;
+        }
+
+        if (songTransitionSlider > MAX_SONG_TRANSITION_TIME) {
+            transitioningSong = TransitionState.NONE;
+            return;
+        }
+        float vol = songTransitionSlider / MAX_SONG_TRANSITION_TIME;
+        if (transitioningSong == TransitionState.TURNING_ON) {
+            songTransitionSlider += Gdx.graphics.getDeltaTime();
+            songTransitionSlider = MathUtils.clamp(songTransitionSlider, 0, 1);
+            if (Application.musicOn && song != null) {
+                song.setVolume(MASTER_SONG_MUL * SoundEffects.SFX_VOLUME * vol);
+            }
+        } else {
+            songTransitionSlider -= Gdx.graphics.getDeltaTime();
+            songTransitionSlider = MathUtils.clamp(songTransitionSlider, 0, 1);
+            if (song != null) {
+                song.setVolume(vol);
+            }
         }
     }
 
-    public void stopSong() {
-        if (song != null) {
-            song.stop();
-        }
+    public void playSong(GameScreen oldScreen) {
+        transitioningSong = TransitionState.TURNING_ON;
+        otherScreen = oldScreen;
+    }
+
+    public void stopSong(GameScreen newScreen) {
+        transitioningSong = TransitionState.TURNING_OFF;
+        otherScreen = newScreen;
     }
 
     void createMusic(Music song) {
         this.song = song;
-        song.setVolume(.75f);
+        song.setVolume(MASTER_SONG_MUL * SoundEffects.SFX_VOLUME);
         song.setLooping(true);
+        song.play();
+        song.setVolume(0);
     }
 
     public void onEnter() {
@@ -298,6 +346,17 @@ public abstract class GameScreen extends ScreenAdapter {
         }
     }
 
+    public void addPlayer() {
+        addEntity(Application.player);
+    }
+    public Entity addEntity(String entityName, int x, int y) {
+        Entity entity = EntityLoader.create(entityName);
+        entity.x = x;
+        entity.y = y;
+        addEntity(entity);
+        return entity;
+    }
+
     public void addEntity(Entity entity) {
         entities.add(entity);
         if (entity.hasShadow()) {
@@ -305,6 +364,14 @@ public abstract class GameScreen extends ScreenAdapter {
             entity.shadow = shadow;
             inanimateEntities.add(shadow);
         }
+    }
+
+
+    public void addEntityInstantly(String entityName, int x, int y) {
+        Entity entity = EntityLoader.create(entityName);
+        entity.x = x;
+        entity.y = y;
+        addEntityInstantly(entity);
     }
 
     public void addEntityInstantly(Entity entity) {
@@ -315,6 +382,7 @@ public abstract class GameScreen extends ScreenAdapter {
             inanimateEntities.addInstantly(shadow);
         }
     }
+
 
     public void addInanimateEntity(InanimateEntity entity) {
         inanimateEntities.add(entity);

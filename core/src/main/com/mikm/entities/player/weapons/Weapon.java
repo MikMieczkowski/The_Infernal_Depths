@@ -5,8 +5,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.mikm.entities.projectiles.DamageInformation;
-import com.mikm.entities.projectiles.Hurtbox;
+import com.mikm.entities.DamageInformation;
+import com.mikm.entities.inanimateEntities.projectiles.Hurtbox;
 import com.mikm.entities.player.Player;
 import com.mikm.input.GameInput;
 import com.mikm.rendering.screens.Application;
@@ -32,8 +32,6 @@ public abstract class Weapon {
     }
 
     public abstract void checkForHit();
-
-    public abstract void checkForStateTransition();
 
     public abstract void enterAttackState();
 
@@ -85,8 +83,8 @@ public abstract class Weapon {
             weaponAngle += angleOffset;
         }
 
-        x = player.getCenteredPosition().x + orbitDistance * MathUtils.cos(weaponAngle) - getFullBounds().width/2;
-        y = player.getCenteredPosition().y + orbitDistance * MathUtils.sin(weaponAngle) - getFullBounds().height/2 - 6;
+        x = player.getHitbox().x + orbitDistance * MathUtils.cos(weaponAngle) - getFullBounds().width/2;
+        y = player.getHitbox().y + orbitDistance * MathUtils.sin(weaponAngle) - getFullBounds().height/2 - 6;
         return new Vector2(x, y);
     }
 

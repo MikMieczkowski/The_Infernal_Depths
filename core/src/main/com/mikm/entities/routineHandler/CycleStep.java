@@ -1,7 +1,9 @@
-package com.mikm.entities.enemies.cyclestep;
+package com.mikm.entities.routineHandler;
 
-import com.mikm.entities.enemies.Behaviour;
+import com.mikm.entities.Entity;
+import com.mikm.entities.actions.Action;
 
 public interface CycleStep {
-    Behaviour getBehaviour();
+    CycleStep copy(Entity entity);
+    Action getAction();
 }

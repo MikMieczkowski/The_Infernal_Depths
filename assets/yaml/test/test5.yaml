@@ -1,3 +1,7 @@
 CONFIG:
   NAME: "test2"
 BEHAVIOURS:
+  Idle:
+    ACTION: Nonsense
+    SINGLE_FRAME:
+      IMAGE_NAME: "a" #

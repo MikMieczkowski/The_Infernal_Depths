@@ -60,10 +60,6 @@ public class PerlinNoise {
 
         rz = z - Math.floor(z);
 
-		/*
-		if (bx < 0 || bx >= B + B + 2)
-			System.out.println(bx);
-		*/
         b0 = p[bx];
 
         bx++;
