@@ -3,16 +3,11 @@ package com.mikm.entities.routineHandler;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
 import com.mikm.entities.DamageInformation;
-import com.mikm.entities.actions.Action;
 import com.mikm.entities.animation.SuperAnimation;
 import com.mikm.entities.Entity;
 import com.mikm.rendering.screens.Application;
-import com.mikm.serialization.Serializer;
 
-import javax.swing.*;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class RoutineHandler {
     public boolean CHECK_TRANSITIONS_EVERY_FRAME = false;
@@ -56,28 +51,27 @@ public class RoutineHandler {
         if (routines == null || routines.isEmpty() || routines.get(0) == null) {
             throw new RuntimeException("Routines is null");
         }
-        currentRoutine = routines.get(0);
-        currentRoutine.cycle.currentAction.enter();
+        enterRoutine(routines.get(0));
     }
 
 
     public void update() {
+        checkIfDamagedPlayer();
         //Calls checkForTransition
         currentRoutine.cycle.update();
     }
 
     //if DAMAGE != 0 && name != "player" then do this
-    private boolean checkIfDamagedPlayer() {
+    boolean checkIfDamagedPlayer() {
+        if (entity.DAMAGE == 0 || entity.NAME.equals("player")) {
+            return false;
+        }
         boolean hitboxesOverlap = Intersector.overlaps(entity.getHitbox(), Application.player.getHitbox());
         if (hitboxesOverlap) {
             float angleToPlayer = MathUtils.atan2(Application.player.getHitbox().y - entity.y, Application.player.getHitbox().x - entity.x);
             Routine routine = entity.routineHandler.currentRoutine.cycle.currentAction.ON_HITTING_PLAYER_INTERRUPT_AND_GO_TO;
             if (routine != null) {
-				// Fully switch to the interrupt routine: reset its cycle and enter the first action
-				currentRoutine = routine;
-				currentRoutine.cycle.i = 0;
-				currentRoutine.cycle.currentAction = currentRoutine.cycle.cycleSteps.get(0).getAction();
-				currentRoutine.cycle.currentAction.enter();
+                enterRoutine(routine);
             }
             Application.player.damagedAction.enter(new DamageInformation(angleToPlayer, entity.DAMAGE, entity.KNOCKBACK));
             return true;
@@ -88,7 +82,7 @@ public class RoutineHandler {
     //Gets called after any behaviour is complete
     public boolean checkForTransition() {
         //check Damaged first
-        if (entity.DAMAGE != 0 && !entity.NAME.equals("player") && checkIfDamagedPlayer()) {
+        if (checkIfDamagedPlayer()) {
             //checkIfDamagedPlayer calls enter
             return true;
         }
@@ -96,10 +90,7 @@ public class RoutineHandler {
         //check NoRepeatTransition
         if (currentRoutine.transitions.hasNoRepeatTransition) {
             if (currentRoutine.cycle.i >= currentRoutine.cycle.cycleSteps.size()) {
-                currentRoutine = currentRoutine.transitions.noRepeatGoTo;
-                currentRoutine.cycle.i = 0;
-                currentRoutine.cycle.currentAction = currentRoutine.cycle.cycleSteps.get(0).getAction();
-                currentRoutine.cycle.currentAction.enter();
+                enterRoutine(currentRoutine.transitions.noRepeatGoTo);
                 return true;
             }
         }
@@ -109,18 +100,21 @@ public class RoutineHandler {
         //check conditionTransitions
         for (ConditionTransition conditionTransition : currentRoutine.transitions.conditionTransitions) {
             if (conditionTransition.getCondition(entity)) {
-                currentRoutine = conditionTransition.getGoTo();
-                //reset routine to first in routine
-                currentRoutine.cycle.i = 0;
-                currentRoutine.cycle.currentAction = currentRoutine.cycle.cycleSteps.get(0).getAction();
-                currentRoutine.cycle.currentAction.enter();
+                enterRoutine(conditionTransition.getGoTo());
                 return true;
             }
         }
         return false;
     }
 
-    //should only be called by entity loader
+    public void enterRoutine(Routine routine) {
+        if (routine == null) return;
+        currentRoutine = routine;
+        currentRoutine.cycle.i = 0;
+        currentRoutine.cycle.currentAction = currentRoutine.cycle.cycleSteps.get(0).getAction();
+        currentRoutine.cycle.currentAction.enter();
+    }
+
     public boolean inAction(String name) {
         return currentRoutine.cycle.currentAction.name.equalsIgnoreCase(name);
     }
@@ -139,5 +133,22 @@ public class RoutineHandler {
             }
         }
         throw new RuntimeException("No routine " + name + " in entity. For copy constructor, must copy Routines in correct order.");
+    }
+
+    //null - do not enter a routine
+    //otherwise returns currentRoutine if POST_HIT_ROUTINE == null or a named routine
+    public Routine getPostHitRoutine() {
+        String POST_HIT_ROUTINE = currentRoutine.cycle.currentAction.POST_HIT_ROUTINE;
+        if (POST_HIT_ROUTINE == null) {
+            return currentRoutine;
+        } if (POST_HIT_ROUTINE.equals("NONE")) {
+            return null;
+        } else {
+            return getRoutine(POST_HIT_ROUTINE);
+        }
+    }
+
+    public Routine getOnHittingPlayerInterruptAndGoTo() {
+        return currentRoutine.cycle.currentAction.ON_HITTING_PLAYER_INTERRUPT_AND_GO_TO;
     }
 }

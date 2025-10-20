@@ -20,7 +20,7 @@ public class Door extends InanimateEntity {
     }
 
     @Override
-    public void draw(Batch batch) {
+    public void draw() {
 
     }
 

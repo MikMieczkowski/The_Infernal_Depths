@@ -41,13 +41,15 @@ public class NPC extends InanimateEntity {
         }
     }
 
+    @Override
+    public void draw() {
+
+    }
+
     private void sellPlayerOres() {
 
     }
 
-    @Override
-    public void draw(Batch batch) {
-    }
 
     @Override
     public Rectangle getShadowBounds() {

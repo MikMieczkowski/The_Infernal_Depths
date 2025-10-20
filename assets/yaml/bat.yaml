@@ -6,7 +6,6 @@ CONFIG:
   #ORIGIN_X: 0
   #ORIGIN_Y: 0
   HURT_SOUND_EFFECT: "batHit.ogg"
-  POST_HIT_ROUTINE: start
   #INVINCIBLE: false
   BOUNDS:
     IMAGE_WIDTH: 32

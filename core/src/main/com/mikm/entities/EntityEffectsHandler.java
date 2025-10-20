@@ -36,17 +36,17 @@ public class EntityEffectsHandler {
         handleSquish();
         handleInvincibility();
     }
-    public void handleFlash(Batch batch) {
+    public void handleFlash() {
         if (shouldFlash) {
-            Application.getInstance().setFillColorShader(batch, flashColor);
+            Application.getInstance().setFillColorShader(Application.batch, flashColor);
             flashTimerFrames += DeltaTime.deltaTime();
             if (flashTimerFrames >= MAX_FLASH_TIME) {
                 shouldFlash = false;
-                batch.setShader(null);
+                Application.batch.setShader(null);
                 flashTimerFrames = 0;
             }
         } else {
-            batch.setShader(null);
+            Application.batch.setShader(null);
         }
     }
     public void startInvincibilityFrames() {

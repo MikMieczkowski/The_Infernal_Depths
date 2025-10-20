@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mikm.RandomUtils;
 import com.mikm.entities.inanimateEntities.InanimateEntity;
+import com.mikm.rendering.screens.Application;
 import com.mikm.rendering.screens.CaveScreen;
 
 public class Rock extends InanimateEntity {
@@ -33,7 +34,7 @@ public class Rock extends InanimateEntity {
     }
 
     @Override
-    public void draw(Batch batch) {
-        batch.draw(image, x, y);
+    public void draw() {
+        Application.batch.draw(image, x, y);
     }
 }

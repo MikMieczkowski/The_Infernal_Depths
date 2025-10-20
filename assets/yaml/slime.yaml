@@ -8,7 +8,6 @@ CONFIG:
   #HURT_ANIMATION:
     #COPY_ANIMATION: Idle
   HURT_SOUND_EFFECT: "slimeHit.ogg"
-  POST_HIT_ROUTINE: start
   #INVINCIBLE: false
   #BOUNDS:
   #  IMAGE_WIDTH: 16

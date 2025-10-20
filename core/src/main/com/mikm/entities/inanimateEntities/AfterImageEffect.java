@@ -34,11 +34,11 @@ public class AfterImageEffect extends InanimateEntity {
     }
 
     @Override
-    public void draw(Batch batch) {
-        batch.setColor(new Color(1, 1, 1, alpha));
-        batch.draw(image, x, y+ height, 0,
+    public void draw() {
+        Application.batch.setColor(new Color(1, 1, 1, alpha));
+        Application.batch.draw(image, x, y+ height, 0,
                 0, 32, 32, xScale, yScale, 0);
-        batch.setColor(Color.WHITE);
+        Application.batch.setColor(Color.WHITE);
     }
 
 

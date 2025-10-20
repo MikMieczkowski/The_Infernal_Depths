@@ -23,6 +23,12 @@ public class SingleAnimation extends SuperAnimation {
         create(spritesheetName, width, height, fps, playMode, frames);
     }
 
+    public SingleAnimation(TextureRegion[] t, float fps, Animation.PlayMode playMode) {
+        animations = new ArrayList<>();
+        create(t, fps, playMode);
+    }
+
+
     private void create(String spritesheetName, int width, int height, float fps, Animation.PlayMode playMode, int frames) {
         this.frameDuration = 1/fps;
         animations = new ArrayList<>();
@@ -41,7 +47,11 @@ public class SingleAnimation extends SuperAnimation {
                 flattened[i * t[0].length + j] = t[i][j];
             }
         }
-        Animation<TextureRegion> animation = new Animation<>(1/fps, flattened);
+        create(flattened, fps, playMode);
+    }
+
+    private void create(TextureRegion[] t, float fps, Animation.PlayMode playMode) {
+        Animation<TextureRegion> animation = new Animation<>(1/fps, t);
         animation.setPlayMode(playMode);
         animations.add(animation);
         animations.add(animation);

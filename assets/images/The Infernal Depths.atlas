@@ -48,7 +48,7 @@ UIrect
   index: -1
 arrow
   rotate: false
-  xy: 360, 310
+  xy: 847, 836
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
@@ -74,9 +74,16 @@ batShock
   orig: 192, 32
   offset: 0, 0
   index: -1
-blacksmith
+black
   rotate: false
   xy: 2014, 1659
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+blacksmith
+  rotate: false
+  xy: 392, 328
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
@@ -100,6 +107,13 @@ bow
   xy: 1304, 1249
   size: 64, 16
   orig: 64, 16
+  offset: 0, 0
+  index: -1
+caveFloor
+  rotate: false
+  xy: 939, 962
+  size: 16, 16
+  orig: 16, 16
   offset: 0, 0
   index: -1
 caveTiles
@@ -146,21 +160,21 @@ destructibleShadow
   index: -1
 destructibles
   rotate: false
-  xy: 989, 1114
+  xy: 360, 310
   size: 48, 16
   orig: 48, 16
   offset: 0, 0
   index: -1
 grass
   rotate: false
-  xy: 847, 836
+  xy: 957, 1044
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 grave
   rotate: false
-  xy: 939, 962
+  xy: 436, 404
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
@@ -214,6 +228,13 @@ items
   orig: 128, 32
   offset: 0, 0
   index: -1
+lock
+  rotate: false
+  xy: 1468, 1382
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
 moti
   rotate: false
   xy: 1786, 1530
@@ -244,7 +265,7 @@ ores
   index: -1
 particles
   rotate: false
-  xy: 392, 336
+  xy: 989, 1106
   size: 40, 24
   orig: 40, 24
   offset: 0, 0
@@ -398,7 +419,7 @@ player/playerYawn
   index: -1
 ratIdle
   rotate: false
-  xy: 957, 1044
+  xy: 1935, 1641
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
@@ -419,28 +440,28 @@ rocks
   index: -1
 rope
   rotate: false
-  xy: 436, 404
+  xy: 1218, 1156
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 ropePointer
   rotate: false
-  xy: 1468, 1382
+  xy: 1268, 1206
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 sand
   rotate: false
-  xy: 1935, 1641
+  xy: 1304, 1231
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 shadow
   rotate: false
-  xy: 1218, 1156
+  xy: 653, 802
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
@@ -510,7 +531,7 @@ strings
   index: -1
 sword
   rotate: false
-  xy: 1268, 1206
+  xy: 166, 174
   size: 16, 16
   orig: 16, 16
   offset: 0, 0

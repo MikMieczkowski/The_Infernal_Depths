@@ -4,21 +4,22 @@ package com.mikm.rendering.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.mikm.Assets;
 // removed unused import
+import com.mikm.entities.animation.SingleAnimation;
+import com.mikm.entities.animation.SuperAnimation;
 import com.mikm.entityLoader.EntityLoader;
 import com.mikm.debug.DebugRenderer;
 import com.mikm.entities.*;
@@ -54,9 +55,12 @@ public abstract class GameScreen extends ScreenAdapter {
 
     private String GRASS_BREAK_SOUND_EFFECT = "grassBreak.ogg";
     private String POT_BREAK_SOUND_EFFECT = "potBreak.ogg";
+    private String BONES_BREAK_SOUND_EFFECT = "boneBreak.ogg";
+    private String WOOD_BREAK_SOUND_EFFECT = "woodBreak.ogg";
 
     private final float MASTER_SONG_MUL = .75f;
 
+    private boolean renderCamera = true, renderUI = true;
 
     GameScreen() {
         camera = new Camera();
@@ -93,69 +97,141 @@ public abstract class GameScreen extends ScreenAdapter {
         return output;
     }
 
-    void readAndCreateDestructiblesTiledmapLayer(int layer, int w, int h) {
-        int GRASS = 24;
-        int DOUBLEPOT = 20;
-        int POT = 18;
-        TextureRegion[] imgs = Assets.getInstance().getSplitTextureRegion("destructibles")[0];
-        TextureRegion grass = Assets.getInstance().getTextureRegion("grass");
+    void readAndCreateDestructiblesTiledmapLayer(int layer, TextureRegion floorUnder, boolean shadows) {
         TextureRegion[][] particleImgs = Assets.getInstance().getSplitTextureRegion("particles",8,8);
         TiledMapTileLayer l = (TiledMapTileLayer)tiledMap.getLayers().get(layer);
-        for (int i = 0; i < w; i++) {
-            for (int j = 0; j < h; j++) {
-                if (l.getCell(i,j) == null) {
+
+        for (int i = 0; i < getMapWidth(); i++) {
+            for (int j = 0; j < getMapHeight(); j++) {
+                TiledMapTileLayer.Cell cell = l.getCell(i,j);
+                if (cell == null) {
                     continue;
                 }
-                if (l.getCell(i, j).getTile().getId() == GRASS) {
-                    addInanimateEntity(new Destructible(imgs[2], ParticleTypes.getDestructibleParameters(particleImgs[2][0]), GRASS_BREAK_SOUND_EFFECT, i*16,j*16));
-                } else if (l.getCell(i, j).getTile().getId() == DOUBLEPOT) {
-                    addInanimateEntity(new Destructible(imgs[1], ParticleTypes.getDestructibleParameters(particleImgs[0][3]), POT_BREAK_SOUND_EFFECT, i*16,j*16));
-                } else if (l.getCell(i, j).getTile().getId() == POT) {
-                    addInanimateEntity(new Destructible(imgs[0], ParticleTypes.getDestructibleParameters(particleImgs[0][3]), POT_BREAK_SOUND_EFFECT, i*16,j*16));
+                MapProperties props = cell.getTile().getProperties();
+                if (!props.containsKey("destructible")) {
+                    continue;
+                }
+                if (!props.containsKey("particleType")) {
+                    throw new RuntimeException("Tile in Tiled should have property type if it has property destructible");
+                }
+                String s = (String)props.get("particleType");
+                String soundEffect;
+                ParticleTypes particleType;
+                if (s.equals("grass")) {
+                    soundEffect = GRASS_BREAK_SOUND_EFFECT;
+                    particleType = ParticleTypes.getDestructibleParameters(particleImgs[2][0]);
+                } else if (s.equals("pot")) {
+                    soundEffect = POT_BREAK_SOUND_EFFECT;
+                    particleType = ParticleTypes.getDestructibleParameters(particleImgs[0][3]);
+                } else if (s.equals("bone")) {
+                    soundEffect = POT_BREAK_SOUND_EFFECT;
+                    particleType = ParticleTypes.getDestructibleParameters(particleImgs[2][1]);
+                } else if (s.equals("wood")) {
+                    soundEffect = WOOD_BREAK_SOUND_EFFECT;
+                    particleType = ParticleTypes.getDestructibleParameters(particleImgs[0][3]);
                 } else {
-                    continue;
+                    throw new RuntimeException("unknown particleType property " + s + " in Tiled for screen " + this.getClass().getSimpleName());
                 }
-                l.getCell(i,j).setTile(new StaticTiledMapTile(grass));
+
+                boolean animated = false;
+                SuperAnimation animation = null;
+                if (cell.getTile() instanceof AnimatedTiledMapTile) {
+                    AnimatedTiledMapTile animTile = (AnimatedTiledMapTile)cell.getTile();
+                    TextureRegion[] t = new TextureRegion[animTile.getFrameTiles().length];
+                    int k = 0;
+                    for (StaticTiledMapTile tile : animTile.getFrameTiles()) {
+                        t[k++] = tile.getTextureRegion();
+                    }
+                    animated = true;
+                    animation = new SingleAnimation(t, 1/(animTile.getAnimationIntervals()[0]/1000f), Animation.PlayMode.LOOP);
+                }
+
+                Destructible d;
+                if (animated) {
+                    d = new Destructible(animation, particleType, soundEffect, i * 16, j * 16);
+                } else {
+                    d = new Destructible(cell.getTile().getTextureRegion(), particleType, soundEffect, i * 16, j * 16);
+                }
+                d.width = cell.getTile().getTextureRegion().getRegionWidth();
+                d.height = cell.getTile().getTextureRegion().getRegionHeight();
+                d.xScale = cell.getFlipHorizontally() ? -1 : 1;
+                d.yScale = cell.getFlipVertically() ? -1 : 1;
+                d.hasShadow = shadows;
+                addInanimateEntity(d);
+
+                cell.setRotation(TiledMapTileLayer.Cell.ROTATE_0);
+                cell.setFlipHorizontally(false);
+                cell.setFlipVertically(false);
+                cell.setTile(new StaticTiledMapTile(floorUnder));
             }
         }
     }
 
+
     public abstract boolean[][] isCollidableGrid();
 
 
-    @Override
-    public void render(float delta) {
-        if (!Application.getInstance().timestop && !Application.getInstance().paused) {
-            camera.update();
-            Application.batch.begin();
-            Application.batch.setProjectionMatrix(Camera.orthographicCamera.combined);
-            tiledMapRenderer.setView(Camera.orthographicCamera);
-            drawAssets();
-            Camera.updateOrthographicCamera();
-            //TODO use a shader to do lighting
+    // ---- Rendering
 
-            handleSongTransition(true);
-            renderUI();
-            Application.batch.end();
-        } else {
-            drawNoUpdate();
-        }
+    public void lockCameraAt(int x, int y) {
+        Camera.x = x;
+        Camera.y = y;
+        Camera.orthographicCamera.position.set(Camera.x, Camera.y, 0);
+        Camera.orthographicCamera.update();
     }
 
+    public void setRenderCamera(boolean b) {
+        renderCamera = b;
+    }
 
-    public void drawNoUpdate() {
-        camera.update();
+    public void setRenderUI(boolean b) {
+        renderUI = b;
+    }
+
+    @Override
+    public void render(float delta) {
+        preSetup();
+        if (!Application.getInstance().timestop && !Application.getInstance().paused) {
+            inanimateEntities.render();
+            entities.render();
+        } else {
+            inanimateEntities.draw(Application.batch);
+            entities.draw(Application.batch);
+        }
+        postSetup();
+    }
+
+    private void preSetup() {
         Application.batch.begin();
+        if (renderCamera) {
+            camera.update();
+        }
         Application.batch.setProjectionMatrix(Camera.orthographicCamera.combined);
         tiledMapRenderer.setView(Camera.orthographicCamera);
         tiledMapRenderer.render();
-        inanimateEntities.draw(Application.batch);
-        entities.draw(Application.batch);
-        Camera.renderLighting(Application.batch);
+        drawAssetsPreEntities();
+    }
+
+    private void postSetup() {
+        drawAssetsPostEntities();
+        DebugRenderer.getInstance().update();
         Camera.updateOrthographicCamera();
+        //TODO use a shader to do lighting
+
         handleSongTransition(true);
-        renderUI();
+        if (renderUI) {
+            renderUI();
+        }
         Application.batch.end();
+    }
+
+    protected void drawAssetsPreEntities() {
+
+    }
+
+
+    protected void drawAssetsPostEntities() {
+
     }
 
     public void renderUI() {
@@ -270,11 +346,6 @@ public abstract class GameScreen extends ScreenAdapter {
     }
 
 
-
-    public void drawOther() {
-
-    }
-
     private TransitionState transitioningSong;
     private enum TransitionState {
         NONE, TURNING_ON, TURNING_OFF
@@ -312,6 +383,8 @@ public abstract class GameScreen extends ScreenAdapter {
         }
     }
 
+    //--- END rendering
+
     public void playSong(GameScreen oldScreen) {
         transitioningSong = TransitionState.TURNING_ON;
         otherScreen = oldScreen;
@@ -338,13 +411,6 @@ public abstract class GameScreen extends ScreenAdapter {
 
     }
 
-    void drawAssets() {
-        tiledMapRenderer.render();
-        if (!Application.getInstance().paused) {
-            inanimateEntities.render(Application.batch);
-            entities.render(Application.batch);
-        }
-    }
 
     public void addPlayer() {
         addEntity(Application.player);

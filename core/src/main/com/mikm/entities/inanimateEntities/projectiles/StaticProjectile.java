@@ -34,9 +34,9 @@ public class StaticProjectile extends InanimateEntity {
     }
 
     @Override
-    public void draw(Batch batch) {
+    public void draw() {
         if (visible) {
-            batch.draw(image, x, y);
+            Application.batch.draw(image, x, y);
         }
     }
 }

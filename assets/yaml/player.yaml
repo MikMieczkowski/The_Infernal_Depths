@@ -6,7 +6,7 @@ CONFIG:
   SPEED: 2
   HURT_ANIMATION:
     SINGLE_FRAME:
-      IMAGE_NAME: "playerDiveDown"
+      IMAGE_NAME: "black"
   HURT_SOUND_EFFECT: "playerHit"
   #INVINCIBLE: false
   CHECK_TRANSITIONS_EVERY_FRAME: true
@@ -21,10 +21,8 @@ BEHAVIOURS:
   Walk:
     ACTION: AcceleratedMove
     ON_HITTING_PLAYER_INTERRUPT_AND_GO_TO: start
-    DIRECTIONAL_ANIMATION:
-      STARTS_WITH: "playerWalk"
-      FPS: 3
-      LOOP: true
+    SINGLE_FRAME:
+      IMAGE_NAME: "black"
     CONFIG:
       step_sound_effect: "step.ogg"
       acceleration_frames: 6
@@ -32,16 +30,15 @@ BEHAVIOURS:
       movement_direction_type: "InputAxis"
   Stand:
     ACTION: AcceleratedMove
-    FROM_FIRST_FRAME_OF_EACH_DIR: Walk
+    SINGLE_FRAME:
+      IMAGE_NAME: "black"
     COPY_CONFIG: Walk
   PlayerAttacking:
     COPY_ANIMATION: Walk
     COPY_CONFIG: Walk
   Dive:
-    DIRECTIONAL_ANIMATION:
-      STARTS_WITH: "playerDive"
-      FPS: 10
-      LOOP: false
+    SINGLE_FRAME:
+      IMAGE_NAME: "black"
     CONFIG:
       #sets IS_DONE instead of MAX_TIME
       speed: 6
@@ -51,10 +48,8 @@ BEHAVIOURS:
       start_sound_effect: "dash.ogg"
       start_sound_effect2: "playerDive"
   Roll:
-    DIRECTIONAL_ANIMATION:
-      STARTS_WITH: "playerRoll"
-      FPS: 18
-      LOOP: false
+    SINGLE_FRAME:
+      IMAGE_NAME: "black"
     CONFIG:
       DAMAGE: 1
       knockback_multiplier: 2
@@ -69,27 +64,21 @@ BEHAVIOURS:
       jump_height: 12
       end_sound_effect: "step.ogg"
   Fall:
-    SINGLE_ANIMATION:
-      IMAGE_NAME: "playerFall"
-      FPS: 18
-      LOOP: false
+    SINGLE_FRAME:
+      IMAGE_NAME: "black"
     CONFIG:
       MAX_TIME: 1
       start_sound_effect: "dash.ogg"
   IdleYawn:
     ACTION: Idle
-    SINGLE_ANIMATION:
-      IMAGE_NAME: "playerYawn"
-      FPS: 3
-      LOOP: false
+    SINGLE_FRAME:
+      IMAGE_NAME: "black"
     CONFIG:
       start_sound_effect: "playerYawn.ogg"
   IdleLoop:
     ACTION: Idle
-    SINGLE_ANIMATION:
-      IMAGE_NAME: "playerSit"
-      FPS: 3
-      LOOP: true
+    SINGLE_FRAME:
+      IMAGE_NAME: "black"
     CONFIG:
       start_sound_effect: "playerHum.ogg"
       time_min: 6

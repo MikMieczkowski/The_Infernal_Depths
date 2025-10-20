@@ -83,8 +83,22 @@ public class ExtraMathUtils {
         if (timer > maxTime) {
             return 0;
         }
-        final float timeStretch = (1f/maxTime) * MathUtils.PI;
+        final float timeStretch = (1f / maxTime) * MathUtils.PI;
         return peakValue * MathUtils.sin(timeStretch * timer);
+    }
+
+    //piecewise parabolic curve going up from 0 to accProp (0-1) * timer, peak at peakValue, decSpeed controlling speed of descent. accProp controls speed of ascent.
+    public static float skewedSinLerp(float timer, float maxTime, float peakValue, float accProp, float decSpeed) {
+        float accSpeed = peakValue / accProp*accProp;
+        float accTime = maxTime * accProp;
+        float f = 0;
+        if (timer < accTime) {
+            f= accSpeed * timer*timer;
+        } else {
+            float tMinusAccTime = (timer - accTime);
+            f= -decSpeed * tMinusAccTime*tMinusAccTime + peakValue;
+        }
+        return MathUtils.clamp(f, 0, peakValue);
     }
 
     /**

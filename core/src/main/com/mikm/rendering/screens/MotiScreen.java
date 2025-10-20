@@ -41,36 +41,37 @@ public class MotiScreen extends GameScreen {
 
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(CaveScreen.caveFillColorLevel6);
-        if (!gameCompleted) {
-            super.render(delta);
-            if (moti.damagedAction.dead) {
-                nextRoomTimer += Gdx.graphics.getDeltaTime();
-                if (nextRoomTimer > NEXT_ROOM_WAIT_TIME) {
-                    nextRoomTimer = 0;
-                    gameCompleted = true;
-                }
-            }
-        } else {
-            ScreenUtils.clear(Color.BLACK);
-            Camera.x = 79;
-            Camera.y = 66;
-            Camera.orthographicCamera.position.set(Camera.x, Camera.y, 0);
-            Camera.orthographicCamera.update();
-            float x = Camera.orthographicCamera.position.x;
-            float y = Camera.orthographicCamera.position.y;
-            float w = Camera.VIEWPORT_ZOOM* Gdx.graphics.getWidth();
-            float h = Camera.VIEWPORT_ZOOM* Gdx.graphics.getHeight();
-            float imgW = w-10;
-            float imgH = 0;
-            x-= imgW/2;
-            y-= imgH/2;
-            Application.batch.begin();
-            Application.batch.setProjectionMatrix(Camera.orthographicCamera.combined);
-            Assets.font.draw(Application.batch, "You win! Thank you for playing this silly game that I made.", x, y);
-            Camera.orthographicCamera.update();
-            Application.batch.end();
+        if (gameCompleted) {
+            renderWinScreen();
+            return;
         }
+        ScreenUtils.clear(CaveScreen.caveFillColorLevel6);
+        super.render(delta);
+        if (moti.damagedAction.dead) {
+            nextRoomTimer += Gdx.graphics.getDeltaTime();
+            if (nextRoomTimer > NEXT_ROOM_WAIT_TIME) {
+                nextRoomTimer = 0;
+                gameCompleted = true;
+            }
+        }
+    }
+
+    private void renderWinScreen() {
+        ScreenUtils.clear(Color.BLACK);
+        super.lockCameraAt(79, 66);
+        float x = Camera.orthographicCamera.position.x;
+        float y = Camera.orthographicCamera.position.y;
+        float w = Camera.VIEWPORT_ZOOM* Gdx.graphics.getWidth();
+        float h = Camera.VIEWPORT_ZOOM* Gdx.graphics.getHeight();
+        float imgW = w-10;
+        float imgH = 0;
+        x-= imgW/2;
+        y-= imgH/2;
+        Application.batch.begin();
+        Application.batch.setProjectionMatrix(Camera.orthographicCamera.combined);
+        Assets.font.draw(Application.batch, "You win! Thank you for playing this silly game that I made.", x, y);
+        Camera.orthographicCamera.update();
+        Application.batch.end();
     }
 
     @Override

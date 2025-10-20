@@ -14,6 +14,7 @@ public class ExplodeAction extends Action {
 
     @Override
     public void postConfigRead() {
+        super.postConfigRead();
         activateTime = (MULTIPLY_ACTIVATE_FRAME - 1) * animation.getFrameDuration();
     }
 

@@ -88,7 +88,7 @@ public class Particle extends InanimateEntity {
     }
 
     @Override
-    public void draw(Batch batch) {
+    public void draw() {
         if (!checkedOnce) {
             if (parameters.collidesWithWalls && collider.inWall()) {
                 die();
@@ -97,11 +97,11 @@ public class Particle extends InanimateEntity {
             checkedOnce = true;
         }
         if (parameters.usesColor) {
-            batch.setColor(color);
+            Application.batch.setColor(color);
         }
-        batch.draw(parameters.image, x, y+height, 4, 4, 8, 8, xScale, yScale, 0);
+        Application.batch.draw(parameters.image, x, y+height, 4, 4, 8, 8, xScale, yScale, 0);
         if (parameters.usesColor) {
-            batch.setColor(Color.WHITE);
+            Application.batch.setColor(Color.WHITE);
         }
     }
 

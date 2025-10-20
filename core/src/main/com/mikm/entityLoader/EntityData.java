@@ -21,8 +21,8 @@ public class EntityData {
         public boolean INVINCIBLE;
         public BehaviourData HURT_ANIMATION;
         public String HURT_SOUND_EFFECT;
-        public String POST_HIT_ROUTINE;
         public boolean CHECK_TRANSITIONS_EVERY_FRAME;
+        public String POST_HIT_ROUTINE;
 
         public BoundsData BOUNDS;
 
@@ -55,6 +55,8 @@ public class EntityData {
         public String FROM_FIRST_FRAME_OF_EACH_DIR;
         public String COPY_ANIMATION;
         public String ON_HITTING_PLAYER_INTERRUPT_AND_GO_TO;
+        // Per-behaviour post-hit routine, defined alongside ACTION/ANIMATION in YAML
+        public String POST_HIT_ROUTINE;
         public String COPY_CONFIG;
         public Map<String, Object> CONFIG;
 
@@ -73,7 +75,7 @@ public class EntityData {
 
         public static class TransitionData {
             public String ON_CONDITION;
-            public String GO_TO;
+            public Object GO_TO;
             public String NO_REPEAT;
         }
     }

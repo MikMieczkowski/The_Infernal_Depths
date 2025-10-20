@@ -101,9 +101,9 @@ public class Bow extends Weapon{
     }
 
     @Override
-    public void draw(Batch batch) {
-        super.draw(batch);
-        batch.draw(stringImages[powerLevel], x, y, 8, 8, getFullBounds().width, getFullBounds().height, 1, 1, weaponRotation * MathUtils.radDeg);
+    public void draw() {
+        super.draw();
+        Application.batch.draw(stringImages[powerLevel], x, y, 8, 8, getFullBounds().width, getFullBounds().height, 1, 1, weaponRotation * MathUtils.radDeg);
     }
 
     @Override

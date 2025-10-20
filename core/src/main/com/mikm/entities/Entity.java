@@ -41,7 +41,6 @@ public class Entity extends InanimateEntity {
     public int ORIGIN_Y;
     //rename to "invincible" - not constant
     public boolean isAttackable = true;
-    public Routine POST_HIT_ROUTINE;
     public String HURT_SOUND_EFFECT = null;
     public SpawnProbability spawnProbability;
     public boolean HAS_SHADOW;
@@ -87,9 +86,9 @@ public class Entity extends InanimateEntity {
     }
 
     @Override
-    public void draw(Batch batch) {
-        effectsHandler.handleFlash(batch);
-        animationHandler.draw(batch);
+    public void draw() {
+        effectsHandler.handleFlash();
+        animationHandler.draw();
     }
 
     public void die() {
@@ -134,6 +133,10 @@ public class Entity extends InanimateEntity {
     @Override
     public boolean hasShadow() {
         return HAS_SHADOW;
+    }
+
+    public float angleTo(Entity entity) {
+        return MathUtils.atan2(y - entity.y, x - entity.x);
     }
 }
 

@@ -3,21 +3,23 @@ package com.mikm.entities.actions;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.mikm.ExtraMathUtils;
+import com.mikm.debug.DebugRenderer;
 import com.mikm.entities.Entity;
 import com.mikm.entities.inanimateEntities.AfterImageEffect;
+import com.mikm.entityLoader.Blackboard;
 import com.mikm.rendering.sound.SoundEffects;
 import com.mikm.rendering.screens.Application;
 
-import java.util.Objects;
 import java.util.function.Supplier;
 
 public class ChargeAction extends Action {
-    private float SPEED;
+    private Float SPEED;
     private int JUMP_HEIGHT;
     private float BOUNCE_COEFFICIENT;
     private float BOUNCE_FREQUENCY;
     private boolean MULTIPLE_BOUNCES = false;
     private boolean ACCELERATE = false;
+    private boolean UPDATES_PLAYER_ANGLE_ON_ENTER = true;
 
     private boolean HAS_AFTERIMAGES = false;
     private float TIME_BETWEEN_DASH_EFFECT_IMAGES = .05f;
@@ -27,7 +29,9 @@ public class ChargeAction extends Action {
 
     private String START_SOUND_EFFECT;
     private String END_SOUND_EFFECT;
-    private Supplier<Float> getAngle;
+    private Supplier<Float> GET_ANGLE_OFFSET;
+
+    private Supplier<Float> getAngleToPlayer;
 
     public ChargeAction(Entity entity) {
         super(entity);
@@ -35,32 +39,31 @@ public class ChargeAction extends Action {
 
 
     private float timeSinceLastDashEffectImage;
-    private float angleToPlayer;
     private float bounceTimer;
     private float startHeight = 0;
 
     @Override
     public void postConfigRead() {
-        Supplier<Float> angleToPlayer;
+        super.postConfigRead();
         if (!entity.NAME.equals("player")) {
-            angleToPlayer = () -> MathUtils.atan2(Application.player.getHitbox().y - entity.getHitbox().y, Application.player.getHitbox().x - entity.getHitbox().x);
+            getAngleToPlayer = () -> MathUtils.atan2(Application.player.getHitbox().y - entity.getHitbox().y, Application.player.getHitbox().x - entity.getHitbox().x);
         } else {
-            angleToPlayer = null;
+            getAngleToPlayer = () -> 0f;
         }
 
         if (MOVEMENT_DIRECTION_TYPE == null || MOVEMENT_DIRECTION_TYPE.equals("Player")) {
-            getAngle = () -> angleToPlayer.get();
+            GET_ANGLE_OFFSET = () -> 0f; //directly towards player
         } else if (MOVEMENT_DIRECTION_TYPE.equals("LeftOfPlayer")) {
-            getAngle = () -> angleToPlayer.get() + MathUtils.PI/2f - ANGLE_OF_APPROACH_FROM_PERPENDICULAR * MathUtils.degRad;
+            GET_ANGLE_OFFSET = () -> MathUtils.PI/2f - ANGLE_OF_APPROACH_FROM_PERPENDICULAR * MathUtils.degRad;
         } else if (MOVEMENT_DIRECTION_TYPE.equals("RightOfPlayer")) {
-            getAngle = () -> angleToPlayer.get() - MathUtils.PI/2f + ANGLE_OF_APPROACH_FROM_PERPENDICULAR * MathUtils.degRad;
+            GET_ANGLE_OFFSET = () -> -MathUtils.PI/2f + ANGLE_OF_APPROACH_FROM_PERPENDICULAR * MathUtils.degRad;
         } else if (MOVEMENT_DIRECTION_TYPE.equals("CurrentDir")) {
-            getAngle = () -> MathUtils.atan2(entity.yVel, entity.xVel);
+            GET_ANGLE_OFFSET = () -> MathUtils.atan2(entity.yVel, entity.xVel);
         } else {
             throw new RuntimeException("Undefined AcceleratedMove MOVEMENT_DIRECTION_TYPE " + MOVEMENT_DIRECTION_TYPE);
         }
 
-        if (SPEED == 0) {
+        if (SPEED == null) {
             SPEED = entity.SPEED;
         }
     }
@@ -73,7 +76,9 @@ public class ChargeAction extends Action {
         entity.xVel = 0;
         entity.yVel = 0;
         SoundEffects.play(START_SOUND_EFFECT);
-        angleToPlayer = getAngle.get();
+        if (UPDATES_PLAYER_ANGLE_ON_ENTER) {
+            Blackboard.getInstance().bind("currentAngleToPlayer", entity, getAngleToPlayer.get());
+        }
     }
 
     @Override
@@ -87,12 +92,14 @@ public class ChargeAction extends Action {
         }
         entity.height = startHeight + bounce;
         bounceTimer += Gdx.graphics.getDeltaTime();
+        timeSinceLastDashEffectImage += Gdx.graphics.getDeltaTime();
         float accelerateVel = 1;
         if (ACCELERATE) {
             accelerateVel = timeElapsedInState/MAX_TIME;
         }
-        entity.xVel = MathUtils.cos(angleToPlayer) * SPEED * accelerateVel;
-        entity.yVel = MathUtils.sin(angleToPlayer) * SPEED * accelerateVel;
+        float angle = ((float)Blackboard.getInstance().getVar(entity, "currentAngleToPlayer")) + GET_ANGLE_OFFSET.get();
+        entity.xVel = MathUtils.cos(angle) * SPEED * accelerateVel;
+        entity.yVel = MathUtils.sin(angle) * SPEED * accelerateVel;
 
         if (HAS_AFTERIMAGES && timeSinceLastDashEffectImage > TIME_BETWEEN_DASH_EFFECT_IMAGES) {
             timeSinceLastDashEffectImage -= TIME_BETWEEN_DASH_EFFECT_IMAGES;

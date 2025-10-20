@@ -21,6 +21,11 @@ public class BlacksmithRoom extends InanimateEntity {
     }
 
     @Override
+    public void draw() {
+        animationHandler.draw();
+    }
+
+    @Override
     public void update() {
         animationHandler.update();
     }

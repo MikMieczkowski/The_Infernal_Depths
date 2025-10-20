@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.mikm.entities.actions.PlayerAttackingAction;
 import com.mikm.entities.inanimateEntities.projectiles.Hurtbox;
 import com.mikm.rendering.BatchUtils;
+import com.mikm.rendering.screens.Application;
 import com.mikm.rendering.sound.SequentialSound;
 import com.mikm.rendering.sound.SoundEffects;
 
@@ -17,7 +18,7 @@ public abstract class SwingableWeapon extends Weapon {
     private float sliceAnimationTimer;
     private boolean showSlice = false;
     private float attackTimer;
-    private final float SWORD_MOVEMENT_ANIMATION_SPEED = .75f;
+    private final float SWORD_MOVEMENT_ANIMATION_SPEED = .5f;
 
     private final float SLICE_ANIMATION_SPEED = .1f;
     //how fast one swing is
@@ -50,7 +51,6 @@ public abstract class SwingableWeapon extends Weapon {
     @Override
     public void exitAttackState() {
         shouldSwingRight = !shouldSwingRight;
-        SoundEffects.play(SWING_SOUND_EFFECT_STARTS_WITH);
         showSlice = false;
     }
 
@@ -59,6 +59,7 @@ public abstract class SwingableWeapon extends Weapon {
         showSlice = true;
         attackTimer = 0;
         sliceAnimationTimer = 0;
+        SoundEffects.play(SWING_SOUND_EFFECT_STARTS_WITH);
         checkForHit();
     }
 
@@ -84,21 +85,21 @@ public abstract class SwingableWeapon extends Weapon {
     }
 
     @Override
-    public void draw(Batch batch) {
-        super.draw(batch);
+    public void draw() {
+        super.draw();
         if (showSlice) {
-            drawSlice(batch);
+            drawSlice();
         }
     }
 
-    private void drawSlice(Batch batch) {
+    private void drawSlice() {
         sliceAnimationTimer += Gdx.graphics.getDeltaTime();
         Rectangle sliceRectangle = getSliceBounds();
         if (shouldSwingRight == mouseIsLeftOfPlayer) {
-            batch.draw(sliceAnimation.getKeyFrame(sliceAnimationTimer), sliceRectangle.x, sliceRectangle.y - sliceRectangle.height/2,
+            Application.batch.draw(sliceAnimation.getKeyFrame(sliceAnimationTimer), sliceRectangle.x, sliceRectangle.y - sliceRectangle.height/2,
                     0, sliceRectangle.height/2, sliceRectangle.width, sliceRectangle.height, 1, 1, angleToMouse * MathUtils.radDeg);
         } else {
-            BatchUtils.drawFlipped(batch, sliceAnimation.getKeyFrame(sliceAnimationTimer), sliceRectangle.x, sliceRectangle.y - sliceRectangle.height/2,
+            BatchUtils.drawFlipped(Application.batch, sliceAnimation.getKeyFrame(sliceAnimationTimer), sliceRectangle.x, sliceRectangle.y - sliceRectangle.height/2,
                     0, sliceRectangle.height/2, sliceRectangle.width, sliceRectangle.height, 1, 1, angleToMouse * MathUtils.radDeg, false);
         }
 

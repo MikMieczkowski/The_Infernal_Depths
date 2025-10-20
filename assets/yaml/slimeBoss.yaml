@@ -2,7 +2,6 @@ CONFIG:
   NAME: slimeBoss
   MAX_HP: 90
   HURT_SOUND_EFFECT: "slimeHit.ogg"
-  POST_HIT_ROUTINE: start
   #INVINCIBLE: false
   BOUNDS:
     IMAGE_WIDTH: 32
@@ -13,6 +12,7 @@ CONFIG:
 BEHAVIOURS:
   ShortJump:
     ACTION: Charge
+    POST_HIT_ROUTINE: NONE
     SINGLE_ANIMATION:
       IMAGE_NAME: "slimeBoss"
       FPS: 5
@@ -20,21 +20,23 @@ BEHAVIOURS:
     CONFIG:
       MAX_TIME: 1
       jump_height: 15
-      speed: 2.67
+      speed: 1.4
       start_sound_effect: "slimeJump.ogg"
       end_sound_effect: "slimeLand.ogg"
 
   LongJump:
     ACTION: Charge
+    POST_HIT_ROUTINE: phase1
     COPY_ANIMATION: ShortJump
     CONFIG:
       MAX_TIME: .75
       jump_height: 15
-      speed: 6.67
+      speed: 3
       start_sound_effect: "slimeJump.ogg"
       end_sound_effect: "slimeLand.ogg"
 
   SimmerTowardsPlayer:
+    POST_HIT_ROUTINE: NONE
     COPY_ANIMATION: ShortJump
     CONFIG:
       MAX_TIME: 4
@@ -44,6 +46,7 @@ BEHAVIOURS:
 
   SimmerTelegraph:
     ACTION: Squish
+    POST_HIT_ROUTINE: NONE
     COPY_ANIMATION: SimmerTowardsPlayer
     CONFIG:
       MAX_TIME: 2
@@ -51,6 +54,7 @@ BEHAVIOURS:
 
   ShortJumpTelegraph:
     ACTION: Squish
+    POST_HIT_ROUTINE: NONE
     COPY_ANIMATION: ShortJump
     CONFIG:
       MAX_TIME: 1
@@ -58,6 +62,7 @@ BEHAVIOURS:
 
   LongJumpTelegraph:
     ACTION: Squish
+    POST_HIT_ROUTINE: NONE
     COPY_ANIMATION: LongJump
     CONFIG:
       MAX_TIME: 1.5
@@ -66,23 +71,29 @@ BEHAVIOURS:
   #Zigzag Behaviours
   FirstDashLeft:
     ACTION: Charge
+    POST_HIT_ROUTINE: NONE
     COPY_ANIMATION: ShortJump
     CONFIG:
-      MAX_TIME: .3
-      speed: 7.22
+      MAX_TIME: .1
+      speed: 4
       jump_height: 5
+      accelerate: false
       has_afterimages: true
+      angle_of_approach_from_perpendicular: 30
       movement_direction_type: "LeftOfPlayer"
       start_sound_effect: "dash.ogg"
       end_sound_effect:
   DashLeft:
     ACTION: Charge
+    POST_HIT_ROUTINE: NONE
     COPY_ANIMATION: ShortJump
     COPY_CONFIG: FirstDashLeft
     CONFIG:
-      speed: 14.44
+      speed: 8
+      updates_player_angle_on_enter: false
   DashRight:
     ACTION: Charge
+    POST_HIT_ROUTINE: NONE
     COPY_ANIMATION: ShortJump
     COPY_CONFIG: DashLeft
     CONFIG:
@@ -90,6 +101,7 @@ BEHAVIOURS:
   ZigzagTelegraph:
     #Charge with 0 speed = Jump in place
     ACTION: Charge
+    POST_HIT_ROUTINE: NONE
     COPY_ANIMATION: ShortJump
     CONFIG:
       MAX_TIME: 1.5
@@ -97,6 +109,13 @@ BEHAVIOURS:
       jump_height: 30
       start_sound_effect: "slimeJump.ogg"
       end_sound_effect: "slimeLand.ogg"
+  DoNothing:
+    ACTION: Idle
+    POST_HIT_ROUTINE: NONE
+    COPY_ANIMATION: ShortJump
+    CONFIG:
+      TIME_MAX: 0.1
+      TIME_MIN: 0.1
 
 ROUTINES:
   start:
@@ -115,15 +134,6 @@ ROUTINES:
       - BEHAVIOUR: SimmerTowardsPlayer
     TRANSITIONS:
       - NO_REPEAT: phase1
-  phase1:
-    CYCLE:
-      - RANDOM:
-          SimmerTowardsPlayer: .25
-          LongJump: .5
-          ShortJump: else
-    TRANSITIONS:
-      - ON_CONDITION: "finished(LongJump) && random(.5)"
-        GO_TO: zigzag
   simmer:
     CYCLE:
       - BEHAVIOUR: SimmerTelegraph
@@ -142,9 +152,29 @@ ROUTINES:
       - BEHAVIOUR: ShortJump
     TRANSITIONS:
       - NO_REPEAT: phase1
+
+  phase1:
+    CYCLE:
+      - BEHAVIOUR: DoNothing
+    TRANSITIONS:
+      - ON_CONDITION: "finished(LongJump) && random(.5)"
+        GO_TO: zigzag
+      - ON_CONDITION: "true"
+        GO_TO:
+          simmer: .25
+          longJump: .5
+          shortJump: else
   zigzag:
     CYCLE:
       - BEHAVIOUR: FirstDashLeft
+      - BEHAVIOUR: DashRight
+      - BEHAVIOUR: DashLeft
+      - BEHAVIOUR: DashRight
+      - BEHAVIOUR: DashLeft
+      - BEHAVIOUR: DashRight
+      - BEHAVIOUR: DashLeft
+      - BEHAVIOUR: DashRight
+      - BEHAVIOUR: DashLeft
       - BEHAVIOUR: DashRight
       - BEHAVIOUR: DashLeft
       - BEHAVIOUR: DashRight

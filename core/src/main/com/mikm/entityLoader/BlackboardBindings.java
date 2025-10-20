@@ -40,7 +40,7 @@ public class BlackboardBindings {
 
 
         Blackboard.getInstance().bindFunction("finished", (e, args) ->
-                e.routineHandler.inAction(nameToBehaviour.get(args.get(0)).name));
+                e.routineHandler.inAction(args.get(0)));
         Blackboard.getInstance().bindFunction("random", (entity, args) -> {
             float arg = Float.parseFloat(args.get(0));
             return RandomUtils.getPercentage((int) (arg * 100));

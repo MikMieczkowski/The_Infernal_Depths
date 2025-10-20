@@ -71,7 +71,7 @@ public class Grave extends InanimateEntity {
     }
 
     @Override
-    public void draw(Batch batch) {
-        batch.draw(IMAGE, x, y);
+    public void draw() {
+        Application.batch.draw(IMAGE, x, y);
     }
 }

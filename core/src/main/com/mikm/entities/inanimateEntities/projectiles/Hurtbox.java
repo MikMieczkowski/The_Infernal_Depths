@@ -56,13 +56,13 @@ public class Hurtbox {
                 entity.damagedAction.enter(damageInformation);
             }
         }
-        if (Application.getInstance().currentScreen == Application.getInstance().townScreen) {
-            for (InanimateEntity inanimateEntity : Application.getInstance().townScreen.inanimateEntities) {
+        if (Application.getInstance().currentScreen == Application.getInstance().townScreen || Application.getInstance().currentScreen == Application.getInstance().slimeBossRoomScreen) {
+            for (InanimateEntity inanimateEntity : Application.getInstance().currentScreen.inanimateEntities) {
                 if (inanimateEntity.getClass() == Destructible.class&& Intersector.overlaps(inanimateEntity.getHitbox(), getHurtbox())) {
                     inanimateEntity.die();
                     Destructible d = (Destructible)inanimateEntity;
 
-                    Application.getInstance().townScreen.isCollidableGrid()[(int)inanimateEntity.y/ Application.TILE_HEIGHT][(int)inanimateEntity.x / Application.TILE_WIDTH] = false;
+                    Application.getInstance().currentScreen.isCollidableGrid()[(int)inanimateEntity.y/ Application.TILE_HEIGHT][(int)inanimateEntity.x / Application.TILE_WIDTH] = false;
                     SoundEffects.play(d.soundName);
                     new ParticleEffect(d.particleEffect, inanimateEntity.x, inanimateEntity.y);
                 }

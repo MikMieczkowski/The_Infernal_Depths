@@ -77,30 +77,21 @@ public class BlacksmithScreen extends GameScreen{
     public void render(float delta) {
         timeSinceGruntTimer+= Gdx.graphics.getDeltaTime();
         ScreenUtils.clear(BG_COLOR);
-        Camera.x = 79;
-        Camera.y = 66;
-        Camera.orthographicCamera.position.set(Camera.x, Camera.y, 0);
-        Camera.orthographicCamera.update();
-        Application.batch.begin();
-        Application.batch.setProjectionMatrix(Camera.orthographicCamera.combined);
-        tiledMapRenderer.setView(Camera.orthographicCamera);
-        drawAssets();
-        DebugRenderer.getInstance().update();
-        Camera.renderLighting(Application.batch);
-        Camera.orthographicCamera.update();
-        handleSongTransition(true);
+        super.lockCameraAt(79,66);
+
+        super.setRenderCamera(false);
+        super.setRenderUI(false);
+        super.render(delta);
+    }
+
+    @Override
+    protected void drawAssetsPostEntities() {
         Application.batch.draw(npcImage, 77, 67);
         if (npc.isPlayerInTalkingRange()) {
             Application.batch.draw(GameInput.getTalkButtonImage(), 77+8, 67+8+16);
         }
         renderUI();
         renderMenu();
-        Application.batch.end();
-    }
-
-    @Override
-    public void drawOther() {
-        Application.batch.draw(npcImage, 77, 67);
     }
 
     public void renderMenu() {

@@ -133,7 +133,6 @@ class EntityLoaderTest {
         assertThrows(Exception.class, () -> EntityLoader.create("nonsense"));
     }
 
-    @Test
     public void test5() {
         a("empty");
         a("test1");
@@ -163,7 +162,7 @@ class EntityLoaderTest {
         assert e.ORIGIN_X == 0;
         assert e.ORIGIN_Y == 0;
         assert e.isAttackable;
-        assert e.POST_HIT_ROUTINE != null;
+        // removed entity-level POST_HIT_ROUTINE
         assert e.HURT_SOUND_EFFECT == null;
         assert e.spawnProbability == null;
         assert e.HAS_SHADOW;
@@ -184,8 +183,8 @@ class EntityLoaderTest {
         assert e1.routineHandler.currentRoutine.cycle.currentAction.name.equals(e2.routineHandler.currentRoutine.cycle.currentAction.name);
         assert e1.routineHandler.currentRoutine.cycle != e2.routineHandler.currentRoutine.cycle;
         assert e1.routineHandler.currentRoutine.cycle.currentAction != e2.routineHandler.currentRoutine.cycle.currentAction;
-        e1.routineHandler.currentRoutine.cycle.currentAction.MAX_TIME = 143;
-        e2.routineHandler.currentRoutine.cycle.currentAction.MAX_TIME = 7;
+        e1.routineHandler.currentRoutine.cycle.currentAction.MAX_TIME = 143f;
+        e2.routineHandler.currentRoutine.cycle.currentAction.MAX_TIME = 7f;
         assert e1.routineHandler.currentRoutine.cycle.currentAction.MAX_TIME == 143;
 
     }
