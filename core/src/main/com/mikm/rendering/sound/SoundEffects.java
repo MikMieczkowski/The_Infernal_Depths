@@ -64,6 +64,9 @@ public class SoundEffects {
 
     public static void stopLoop(String name) {
         SoundInstance instance = loopNameToSound.get(name);
+        if (instance == null) {
+            return;
+        }
         instance.sound.stop(instance.id);
         nameToSound.remove(name);
     }

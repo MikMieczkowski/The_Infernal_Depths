@@ -35,6 +35,7 @@ public class AcceleratedMoveAction extends Action {
 
     @Override
     public void postConfigRead() {
+        super.postConfigRead();
         if (MOVEMENT_DIRECTION_TYPE.equals("InputAxis")) {
             movementDirection = () -> new Vector2(GameInput.getHorizontalAxis(), GameInput.getVerticalAxis());
         } else if (MOVEMENT_DIRECTION_TYPE.equals("Wander")) {

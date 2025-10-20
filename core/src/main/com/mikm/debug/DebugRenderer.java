@@ -1,12 +1,15 @@
 package com.mikm.debug;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.Assets;
 import com.mikm.Method;
+import com.mikm.entities.Entity;
 import com.mikm.rendering.Camera;
 import com.mikm.rendering.screens.Application;
 
@@ -57,9 +60,19 @@ public class DebugRenderer {
         shapeRenderer.setProjectionMatrix(Camera.orthographicCamera.combined);
         shapeRenderer.setColor(Color.BLUE);
         shapeRenderer.begin();
+        Gdx.gl.glLineWidth(10f);
         shapeRenderer.line(startPoint, endPoint);
         shapeRenderer.end();
         Application.batch.begin();
+    }
+
+    public void drawAngleVector(Entity entity, float angleRad) {
+        drawLine(new Vector2(entity.x, entity.y), new Vector2(entity.x + 5*MathUtils.cos(angleRad), entity.y + 5*MathUtils.sin(angleRad)));
+    }
+
+
+    public void drawVelVector(Entity entity) {
+        drawLine(new Vector2(entity.x, entity.y), new Vector2(entity.x + entity.xVel, entity.y + entity.yVel));
     }
 
     public void drawPoint(float x, float y) {

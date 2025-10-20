@@ -45,7 +45,7 @@ public class TownScreen extends GameScreen {
     private boolean[][] collidableGrid;
     private boolean[][] holePositions;
     private boolean hasSaveFile = false;
-    private boolean showMainMenu = true;
+    public boolean showMainMenu = true;
     private boolean showOverwritePrompt = false;
     private int overwritePromptSelection = 0; // 0 = Yes, 1 = No
     private float masterVolume = 1.0f;
@@ -80,7 +80,7 @@ public class TownScreen extends GameScreen {
         createMusic(Assets.getInstance().getAsset("sound/townTheme.mp3", Music.class));
         collidableGrid = readCollisionTiledmapLayer(2, getMapWidth(), getMapHeight());
         holePositions = readCollisionTiledmapLayer(3, getMapWidth(), getMapHeight());
-        readAndCreateDestructiblesTiledmapLayer(1, getMapWidth(), getMapHeight());
+        readAndCreateDestructiblesTiledmapLayer(1, Assets.getInstance().getTextureRegion("grass"), true);
 
         Vector2Int wizardDoorCoords = new Vector2Int(18*16, 28*16);
         addInanimateEntity(new Door(wizardDoorCoords.x, wizardDoorCoords.y, 4));
@@ -91,59 +91,43 @@ public class TownScreen extends GameScreen {
         hasSaveFile = Serializer.getInstance().saveFilesExist();
         showMainMenu = true;
         Application.getInstance().paused = true;
-        //Entity slime = addEntity("slime", 200, 200);
+        //addEntity("slime", 200, 200);
 
     }
 
     @Override
     public void render(float delta) {
-        if (showMainMenu) {
-            // Main menu is shown - pause is on but don't show pause screen
-            ScreenUtils.clear(Color.BLACK);
-            // Do NOT call camera.update() here
-            Application.batch.begin();
-            Application.batch.setProjectionMatrix(Camera.orthographicCamera.combined);
-            tiledMapRenderer.setView(Camera.orthographicCamera);
-            drawAssets();
-            smokeParticles.render(Application.batch);
-            DebugRenderer.getInstance().update();
-            Camera.renderLighting(Application.batch);
-            Camera.updateOrthographicCamera();
-            handleSongTransition(true);
-            Application.batch.end();
-            renderMainMenu();
-            /*
-            System.out.print("\033[2A"); // Move cursor up 2 lines
-            System.out.print("\rMouse: " + worldMouse.x + " " + worldMouse.y + "    ");
-            System.out.println();
-            System.out.print("\rRect: " + menuOptionRects[0].x + " " + menuOptionRects[0].y + " " + menuOptionRects[0].width + " " + menuOptionRects[0].height + "    ");
-            System.out.println();
-             */
-        } else if (Application.getInstance().paused) {
-            // Main menu is hidden but pause is on - show regular pause screen
-            super.render(delta);
-        } else {
-            // Normal game rendering
-            if (!Application.getInstance().timestop && !Application.getInstance().paused) {
-                camera.update();
-                Application.batch.begin();
-                Application.batch.setProjectionMatrix(Camera.orthographicCamera.combined);
-                tiledMapRenderer.setView(Camera.orthographicCamera);
-                drawAssets();
-                //This is the one change from super.render(delta)
-                smokeParticles.render(Application.batch);
-                DebugRenderer.getInstance().update();
-                Camera.renderLighting(Application.batch);
-                Camera.updateOrthographicCamera();
-                handleSongTransition(true);
-                handleFireCrackling();
-                renderUI();
-                Application.batch.end();
-            } else {
-                drawNoUpdate();
-            }
+        super.setRenderCamera(!showMainMenu);
+        super.setRenderUI(!showMainMenu);
+        super.render(delta);
+        if (!showMainMenu) {
+            handleFireCrackling();
         }
     }
+
+    /*
+    System.out.print("\033[2A"); // Move cursor up 2 lines
+    System.out.print("\rMouse: " + worldMouse.x + " " + worldMouse.y + "    ");
+    System.out.println();
+    System.out.print("\rRect: " + menuOptionRects[0].x + " " + menuOptionRects[0].y + " " + menuOptionRects[0].width + " " + menuOptionRects[0].height + "    ");
+    System.out.println();
+     */
+
+    @Override
+    protected void drawAssetsPreEntities() {
+        int offset = 15*16;
+        Application.batch.draw(jarBugFix, offset+6*16, offset+6*16);
+    }
+
+    @Override
+    protected void drawAssetsPostEntities() {
+        drawHighLayer();
+        smokeParticles.render();
+        if (showMainMenu) {
+            renderMainMenu();
+        }
+    }
+
 
     private void handleFireCrackling() {
         float distToDoor = ExtraMathUtils.distance(Application.player.getHitbox().x, Application.player.getHitbox().y, blacksmithDoorCoords.x, blacksmithDoorCoords.y);
@@ -159,7 +143,6 @@ public class TownScreen extends GameScreen {
     
     private void renderMainMenu() {
         Camera.orthographicCamera.update();
-        Application.batch.begin();
         Application.batch.setProjectionMatrix(Camera.orthographicCamera.combined);
         
         // Menu setup
@@ -204,8 +187,6 @@ public class TownScreen extends GameScreen {
         if (showOverwritePrompt) {
             renderOverwritePrompt();
         }
-        
-        Application.batch.end();
         
         // Handle input
         if (showOverwritePrompt) {
@@ -524,21 +505,6 @@ public class TownScreen extends GameScreen {
     public boolean[][] isCollidableGrid() {
         return collidableGrid;
     }
-
-    @Override
-    void drawAssets() {
-        int offset = 15*16;
-        Application.batch.draw(jarBugFix, offset+6*16, offset+6*16);
-        super.drawAssets();
-        drawHighLayer();
-    }
-
-    @Override
-    public void drawOther() {
-        drawHighLayer();
-    }
-
-
 
 
     private float smokeTimer;

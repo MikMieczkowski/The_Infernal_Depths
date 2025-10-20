@@ -35,7 +35,7 @@ public class Rope extends InanimateEntity {
     }
 
     @Override
-    public void draw(Batch batch) {
-        batch.draw(image, x, y);
+    public void draw() {
+        Application.batch.draw(image, x, y);
     }
 }

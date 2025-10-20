@@ -24,14 +24,19 @@ public class RemovableArray<T extends InanimateEntity> extends ArrayList<T> {
 
     public void draw(Batch batch) {
         for (T inanimateEntity : this) {
-            inanimateEntity.draw(batch);
+            inanimateEntity.draw();
         }
     }
 
-    public void render(Batch batch) {
+
+    public void render() {
         for (T t : this) {
-            t.render(batch);
+            t.render();
         }
+        handleStateUpdates();
+    }
+
+    private void handleStateUpdates() {
         if (!toAdd.isEmpty()) {
             super.addAll(toAdd);
         }

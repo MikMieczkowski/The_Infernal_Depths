@@ -36,6 +36,7 @@ public class CircleAction extends Action {
 
     @Override
     public void postConfigRead() {
+        super.postConfigRead();
         if (SPEED == 0) {
             SPEED = entity.SPEED;
         }

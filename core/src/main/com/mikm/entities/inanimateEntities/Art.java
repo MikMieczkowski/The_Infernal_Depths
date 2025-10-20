@@ -2,6 +2,7 @@ package com.mikm.entities.inanimateEntities;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.mikm.rendering.screens.Application;
 
 public class Art extends InanimateEntity {
     TextureRegion img;
@@ -16,8 +17,8 @@ public class Art extends InanimateEntity {
     }
 
     @Override
-    public void draw(Batch batch) {
-        batch.draw(img, x, y);
+    public void draw() {
+        Application.batch.draw(img, x, y);
     }
 
     @Override

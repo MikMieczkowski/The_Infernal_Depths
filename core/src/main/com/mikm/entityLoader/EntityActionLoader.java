@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class EntityBehaviourLoader {
+public class EntityActionLoader {
     //BEHAVIOUR: Action + Animation + Config
     //ACTION: The action class. Does something
 
@@ -27,14 +27,14 @@ public class EntityBehaviourLoader {
     private Map<String, Action> nameToAction = new HashMap<>();
     private Map<String, EntityData.BehaviourData> behaviourDataMap;
 
-    EntityBehaviourLoader(String fileName, Entity entity, Map<String, EntityData.BehaviourData> behaviourDataMap) {
+    EntityActionLoader(String fileName, Entity entity, Map<String, EntityData.BehaviourData> behaviourDataMap) {
         this.fileName = fileName;
         this.entity = entity;
         this.behaviourDataMap = behaviourDataMap;
     }
 
     //Creates nameToAction and fills it with loaded action instances based on behaviourDataMap.
-    Map<String, Action> loadActions(EntityData.BehaviourData damagedBehaviourAnimationData) {
+    Map<String, Action> loadActions(EntityData.BehaviourData damagedBehaviourAnimationData, String entityPostHitRoutineData) {
         if (behaviourDataMap == null) {
             throw new RuntimeException("Couldn't load behaviour data from yaml file");
         }
@@ -56,7 +56,7 @@ public class EntityBehaviourLoader {
                 throw new RuntimeException(fileName + ": No action class associated with " + behaviourData.ACTION + " in " + ACTION_CLASSES_PACKAGE);
             }
 
-            loadAction(behaviourName, behaviourData);
+            loadAction(behaviourName, behaviourData, entityPostHitRoutineData);
         }
 
         //load damaged action
@@ -68,53 +68,23 @@ public class EntityBehaviourLoader {
 
     //loads one Action into nameToAction
     //if there are duplicate behaviours it just loads and adds again
-    private void loadAction(String behaviourName, EntityData.BehaviourData behaviourData) {
+    private void loadAction(String behaviourName, EntityData.BehaviourData behaviourData, String entityPostHitRoutineData) {
         Action action = instantiateAction(behaviourData);
+        //loads animation
         loadActionAnimation(behaviourData, action);
         nameToAction.put(behaviourName, action);
 
-
-        Map<String, String> behaviourNameToInterruptRoutine = new HashMap<>();
-        if (behaviourData.ON_HITTING_PLAYER_INTERRUPT_AND_GO_TO != null) {
-            behaviourNameToInterruptRoutine.put(behaviourName, behaviourData.ON_HITTING_PLAYER_INTERRUPT_AND_GO_TO);
-        }
+        //loads config
         loadCopyConfig(behaviourName, behaviourData, action);
         loadConfig(behaviourData, action);
-        action.postConfigRead();
         action.name = behaviourData.ACTION;
         action.configVars = behaviourData.CONFIG;
+        if (behaviourData.POST_HIT_ROUTINE == null) {
+            behaviourData.POST_HIT_ROUTINE = entityPostHitRoutineData;
+        }
+        action.POST_HIT_ROUTINE = behaviourData.POST_HIT_ROUTINE;
         entity.usedActionClasses.add(behaviourData.ACTION);
-    }
-
-    private void loadCopyConfig(String behaviourName, EntityData.BehaviourData behaviourData, Action action) {
-        if (behaviourData.COPY_CONFIG != null) {
-            if (!behaviourDataMap.containsKey(behaviourData.COPY_CONFIG)) {
-                throw new RuntimeException("No behaviour named " + behaviourData.COPY_CONFIG + " to execute COPY_CONFIG in " + behaviourName + " in " + fileName);
-            }
-            // Recursively apply ancestor COPY_CONFIG chains before applying the direct parent
-            loadCopyConfigRecursive(behaviourData.COPY_CONFIG, new java.util.HashSet<String>(), action);
-        }
-    }
-
-    // Applies COPY_CONFIG recursively so that a behaviour inherits the entire chain of configs.
-    private void loadCopyConfigRecursive(String behaviourNameToCopy, java.util.Set<String> visited, Action action) {
-        if (visited.contains(behaviourNameToCopy)) {
-            throw new RuntimeException("Detected COPY_CONFIG cycle involving behaviour '" + behaviourNameToCopy + "' in " + fileName);
-        }
-        visited.add(behaviourNameToCopy);
-
-        EntityData.BehaviourData toCopy = behaviourDataMap.get(behaviourNameToCopy);
-        if (toCopy == null) {
-            throw new RuntimeException("No behaviour named " + behaviourNameToCopy + " to execute COPY_CONFIG in " + fileName);
-        }
-        if (toCopy.COPY_CONFIG != null) {
-            if (!behaviourDataMap.containsKey(toCopy.COPY_CONFIG)) {
-                throw new RuntimeException("No behaviour named " + toCopy.COPY_CONFIG + " to execute COPY_CONFIG in " + behaviourNameToCopy + " in " + fileName);
-            }
-            loadCopyConfigRecursive(toCopy.COPY_CONFIG, visited, action);
-        }
-        // Apply this behaviour's own CONFIG after its ancestors
-        loadConfig(toCopy, action);
+        action.postConfigRead();
     }
 
     private void loadActionAnimation(EntityData.BehaviourData behaviourData, Action action) {
@@ -172,11 +142,43 @@ public class EntityBehaviourLoader {
         }
     }
 
+    private void loadCopyConfig(String behaviourName, EntityData.BehaviourData behaviourData, Action action) {
+        if (behaviourData.COPY_CONFIG != null) {
+            if (!behaviourDataMap.containsKey(behaviourData.COPY_CONFIG)) {
+                throw new RuntimeException("No behaviour named " + behaviourData.COPY_CONFIG + " to execute COPY_CONFIG in " + behaviourName + " in " + fileName);
+            }
+            // Recursively apply ancestor COPY_CONFIG chains before applying the direct parent
+            loadCopyConfigRecursive(behaviourData.COPY_CONFIG, new java.util.HashSet<String>(), action);
+        }
+    }
+
+    // Applies COPY_CONFIG recursively so that a behaviour inherits the entire chain of configs.
+    private void loadCopyConfigRecursive(String behaviourNameToCopy, java.util.Set<String> visited, Action action) {
+        if (visited.contains(behaviourNameToCopy)) {
+            throw new RuntimeException("Detected COPY_CONFIG cycle involving behaviour '" + behaviourNameToCopy + "' in " + fileName);
+        }
+        visited.add(behaviourNameToCopy);
+
+        EntityData.BehaviourData toCopy = behaviourDataMap.get(behaviourNameToCopy);
+        if (toCopy == null) {
+            throw new RuntimeException("No behaviour named " + behaviourNameToCopy + " to execute COPY_CONFIG in " + fileName);
+        }
+        if (toCopy.COPY_CONFIG != null) {
+            if (!behaviourDataMap.containsKey(toCopy.COPY_CONFIG)) {
+                throw new RuntimeException("No behaviour named " + toCopy.COPY_CONFIG + " to execute COPY_CONFIG in " + behaviourNameToCopy + " in " + fileName);
+            }
+            loadCopyConfigRecursive(toCopy.COPY_CONFIG, visited, action);
+        }
+        // Apply this behaviour's own CONFIG after its ancestors
+        loadConfig(toCopy, action);
+    }
+
+
     private void loadConfig(EntityData.BehaviourData behaviourData, Action action) {
         if (nameToAction.isEmpty()) {
             throw new RuntimeException("Animations should be loaded before loading config");
         }
-        Class<? extends Action> behaviourClass = findClassFromFilePackages(behaviourData.ACTION);
+        Class<? extends Action> actionClass = findClassFromFilePackages(behaviourData.ACTION);
 
         if (behaviourData.CONFIG == null) {
             return;
@@ -187,10 +189,11 @@ public class EntityBehaviourLoader {
             varName = varName.toUpperCase();
 
             Object varValue = entry.getValue();
-            setVarInClass(behaviourClass, action, varName, varValue, fileName);
+            setVarInClass(actionClass, action, varName, varValue, fileName);
         }
     }
 
+    //helpers
     private int numberOfAnimationFields(EntityData.BehaviourData behaviourData) {
         int count = 0;
         if (behaviourData.DIRECTIONAL_ANIMATION != null) count++;

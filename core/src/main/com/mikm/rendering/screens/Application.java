@@ -84,7 +84,8 @@ public class Application extends Game {
 		screens= new GameScreen[]{caveScreen, townScreen, slimeBossRoomScreen, blacksmithScreen, wizardScreen, motiScreen};
 
 		Camera.setPositionDirectlyToPlayerPosition();
-		setGameScreen(townScreen);
+		TestScreen test = new TestScreen();
+		setGameScreen(test);
 		townScreen.playSong(null);
 	}
 

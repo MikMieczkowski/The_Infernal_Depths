@@ -6,9 +6,9 @@ import com.badlogic.gdx.math.Vector2;
 import com.mikm.ExtraMathUtils;
 import com.mikm.entities.DamageInformation;
 import com.mikm.entities.Entity;
-import com.mikm.entities.actions.Action;
 import com.mikm.entities.inanimateEntities.particles.ParticleEffect;
 import com.mikm.entities.inanimateEntities.particles.ParticleTypes;
+import com.mikm.entities.routineHandler.Routine;
 import com.mikm.rendering.sound.SoundEffects;
 import com.mikm.rendering.screens.Application;
 
@@ -33,13 +33,20 @@ public class DamagedAction extends Action {
         }
         // Always capture the incoming damage info and reset state for consistent knockback
         this.damageInformation = damageInformation;
-        dead = false;
-        active = true;
-        timeElapsedInState = 0;
-        if (entity.routineHandler.currentRoutine.cycle.currentAction.ON_HITTING_PLAYER_INTERRUPT_AND_GO_TO == null) {
+		// Immediately switch the entity's routine to POST_HIT_ROUTINE so once
+		// the damaged state ends, it continues from the configured post-hit behavior
+        Routine postHitRoutine = entity.routineHandler.getPostHitRoutine();
+        //null - do not super.enter
+        //otherwise enter it
+        active = false;
+
+        System.out.println("POSTHITROUTNINE " + postHitRoutine);
+		if (postHitRoutine != null) {
+            active = true;
             super.enter();
+			entity.routineHandler.enterRoutine(postHitRoutine);
             entity.startSquish(TOTAL_KNOCKBACK_TIME * .75f, 1.2f);
-        }
+		}
         if (damageInformation.damage == 0) {
             SoundEffects.playLoud(FAILED_HIT_SOUND_EFFECT);
             return;

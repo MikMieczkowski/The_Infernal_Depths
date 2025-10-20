@@ -37,9 +37,9 @@ public class Shadow extends InanimateEntity{
 
 
     @Override
-    public void draw(Batch batch) {
+    public void draw() {
         final float shadowHeightScale = Math.min(shadowScale / (entity.getShadowBounds().width/ Application.TILE_WIDTH) * entity.height/SHADOW_DISAPPEAR_HEIGHT_FOR_NORMAL_ENTITY, shadowScale);
-        batch.draw(Assets.shadowImage, entity.getShadowBounds().x, entity.getShadowBounds().y - 3,entity.getShadowBounds().width/2f, 4, entity.getShadowBounds().width, entity.getShadowBounds().height,
+        Application.batch.draw(Assets.shadowImage, entity.getShadowBounds().x, entity.getShadowBounds().y - 3,entity.getShadowBounds().width/2f, 4, entity.getShadowBounds().width, entity.getShadowBounds().height,
                 entity.xScale * (shadowScale - shadowHeightScale), entity.yScale * (shadowScale - shadowHeightScale), 0);
     }
 }

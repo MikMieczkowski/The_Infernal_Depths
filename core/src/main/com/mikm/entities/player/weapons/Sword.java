@@ -6,7 +6,6 @@ import com.mikm.entities.DamageInformation;
 public class Sword extends SwingableWeapon {
     private float knockbackForce;
     private int damage;
-    private int sliceWidth;
 
     public Sword(TextureRegion image, TextureRegion[] sliceSpritesheet, int damage, int knockbackForce, float timePerSwing, int sliceWidth) {
         super(image, sliceSpritesheet, timePerSwing, sliceWidth);

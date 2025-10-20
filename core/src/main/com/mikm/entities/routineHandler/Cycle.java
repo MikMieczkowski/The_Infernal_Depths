@@ -44,7 +44,7 @@ public class Cycle {
 
     public void update() {
         currentAction.update();
-        if ((currentAction.MAX_TIME != 0 && currentAction.timeElapsedInState > currentAction.MAX_TIME) || currentAction.IS_DONE) {
+        if ((currentAction.MAX_TIME != null && currentAction.timeElapsedInState > currentAction.MAX_TIME) || currentAction.IS_DONE) {
             endAction();
             i++;
             if (routineHandler.checkForTransition()) {

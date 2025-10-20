@@ -26,6 +26,7 @@ public class SimmerTowardsPlayerAction extends Action {
 
     @Override
     public void postConfigRead() {
+        super.postConfigRead();
         if (SLIME_TRAIL_KNOCKBACK == null) {
             SLIME_TRAIL_KNOCKBACK = 1F;
         }

@@ -92,7 +92,7 @@ public abstract class Weapon {
         return new Rectangle(x, y, Application.TILE_WIDTH, Application.TILE_HEIGHT);
     }
 
-    public void draw(Batch batch) {
-        batch.draw(image, x, y, 8, 8, getFullBounds().width, getFullBounds().height, 1, 1, weaponRotation * MathUtils.radDeg);
+    public void draw() {
+        Application.batch.draw(image, x, y, 8, 8, getFullBounds().width, getFullBounds().height, 1, 1, weaponRotation * MathUtils.radDeg);
     }
 }

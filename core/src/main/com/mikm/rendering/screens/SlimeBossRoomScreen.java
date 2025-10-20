@@ -41,7 +41,8 @@ public class SlimeBossRoomScreen extends GameScreen {
         collidableGrid = readCollisionTiledmapLayer(3, getMapWidth(),getMapHeight());
 
         createMusic(Assets.getInstance().getAsset("sound/hubba_bubba.mp3", Music.class));
-
+        readAndCreateDestructiblesTiledmapLayer(2, Assets.getInstance().getTextureRegion("caveFloor"), false);
+        addInanimateEntity(new Rope(112,48));
     }
 
     @Override
@@ -52,29 +53,7 @@ public class SlimeBossRoomScreen extends GameScreen {
     @Override
     public void render(float delta) {
         ScreenUtils.clear(CaveScreen.caveFillColorLevel6);
-        if (!Application.getInstance().timestop && !Application.getInstance().paused) {
-            camera.update();
-            Application.batch.begin();
-            Application.batch.setProjectionMatrix(Camera.orthographicCamera.combined);
-            tiledMapRenderer.setView(Camera.orthographicCamera);
-            drawAssets();
-            DebugRenderer.getInstance().update();
-            Camera.renderLighting(Application.batch);
-            Camera.updateOrthographicCamera();
-            handleSongTransition(true);
-            renderUI();
-            //difference 1 from super.render()
-            if (Application.getInstance().caveScreen.displayButtonIndicator) {
-                Application.batch.draw(GameInput.getTalkButtonImage(), Application.getInstance().caveScreen.buttonIndicatorPosition.x, Application.getInstance().caveScreen.buttonIndicatorPosition.y);
-            }
-            //difference 2 from super.render()
-            if (awarded) {
-                Application.batch.draw(holeImg,48,112);
-            }
-            Application.batch.end();
-        } else {
-            drawNoUpdate();
-        }
+        super.render(delta);
         if (slimeBoss.damagedAction.dead && !awarded) {
             slimeBossDefeated = true;
             entities.doAfterRender(()-> {
@@ -90,9 +69,20 @@ public class SlimeBossRoomScreen extends GameScreen {
     }
 
     @Override
+    protected void drawAssetsPostEntities() {
+        if (Application.getInstance().caveScreen.displayButtonIndicator) {
+            Application.batch.draw(GameInput.getTalkButtonImage(), Application.getInstance().caveScreen.buttonIndicatorPosition.x, Application.getInstance().caveScreen.buttonIndicatorPosition.y);
+        }
+        if (awarded) {
+            Application.batch.draw(holeImg,48,112);
+        }
+    }
+
+    @Override
     public void onEnter() {
         resetInanimateAndAnimateEntities();
         song.play();
+        System.out.println(entities);
     }
 
     public boolean[][] getHolePositions() {
@@ -100,13 +90,14 @@ public class SlimeBossRoomScreen extends GameScreen {
     }
 
     private void resetInanimateAndAnimateEntities() {
-        entities.removeInstantly(Application.player);
-        entities.clear();
-        inanimateEntities.clear();
-        addPlayer();
-        inanimateEntities.addAll(graves);
+        for (Entity entity : entities) {
+            if (entity != Application.player) {
+                removeEntity(entity);
+            }
+        }
+        //inanimateEntities.clear();
+        //inanimateEntities.addAll(graves);
         slimeBoss = addEntity("slimeBoss", 200, 200);
-        addInanimateEntity(new Rope(112,48));
     }
 
     @Override

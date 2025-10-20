@@ -10,6 +10,7 @@ import com.mikm.entities.DamageInformation;
 import com.mikm.entities.inanimateEntities.InanimateEntity;
 import com.mikm.entities.inanimateEntities.particles.ParticleTypes;
 import com.mikm.entities.inanimateEntities.particles.ParticleEffect;
+import com.mikm.rendering.screens.Application;
 import com.mikm.rendering.sound.SoundEffects;
 
 public class Projectile extends InanimateEntity {
@@ -78,8 +79,8 @@ public class Projectile extends InanimateEntity {
     }
 
     @Override
-    public void draw(Batch batch) {
-        batch.draw(image, x, y+height-STARTING_HEIGHT, getFullBounds().width/2f, getFullBounds().height/2f, getFullBounds().width, getFullBounds().height, xScale, yScale, rotation*MathUtils.radDeg);
+    public void draw() {
+        Application.batch.draw(image, x, y+height-STARTING_HEIGHT, getFullBounds().width/2f, getFullBounds().height/2f, getFullBounds().width, getFullBounds().height, xScale, yScale, rotation*MathUtils.radDeg);
     }
 
     @Override

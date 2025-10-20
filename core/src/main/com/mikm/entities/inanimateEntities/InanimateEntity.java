@@ -24,6 +24,7 @@ public abstract class InanimateEntity {
     public AnimationHandler animationHandler;
     //Not really used for inanimate entities but needed for support with AnimationHandler
     public Vector2Int direction = Directions.DOWN.vector2Int;
+    public float rotation;
 
     public InanimateEntity(float x, float y) {
         this.x = x;
@@ -31,9 +32,9 @@ public abstract class InanimateEntity {
         animationHandler = new AnimationHandler(this);
     }
 
-    public void render(Batch batch) {
+    public void render() {
         update();
-        draw(batch);
+        draw();
     }
 
     public void die() {
@@ -51,16 +52,17 @@ public abstract class InanimateEntity {
     }
 
     public void move() {
-        // Movement handled by collider.moveWithCollisions()
+        if (DeltaTime.deltaTime() < 3) {
+            x += xVel * DeltaTime.deltaTime();
+            y += yVel * DeltaTime.deltaTime();
+        }
     }
 
     public void onWallCollision() {
 
     }
 
-    public void draw(Batch batch) {
-        animationHandler.draw(batch);
-    }
+    public abstract void draw();
 
     public int getXInt() {
         return (int)x;

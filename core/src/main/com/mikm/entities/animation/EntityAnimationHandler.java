@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mikm.Vector2Int;
 import com.mikm.entities.Entity;
 import com.mikm.rendering.BatchUtils;
+import com.mikm.rendering.screens.Application;
 
 public class EntityAnimationHandler extends AnimationHandler {
     private boolean animationIsFlipped = false;
@@ -26,14 +27,14 @@ public class EntityAnimationHandler extends AnimationHandler {
     }
 
     @Override
-    public void draw(Batch batch) {
+    public void draw() {
         SuperAnimation anim = entity.routineHandler.getCurrentAnimation();
         animationTime += Gdx.graphics.getDeltaTime();
         if (animationIsFlipped) {
-            BatchUtils.drawFlipped(batch, anim.getKeyFrame(animationTime), entity.x, entity.y+ entity.height,
+            BatchUtils.drawFlipped(Application.batch, anim.getKeyFrame(animationTime), entity.x, entity.y+ entity.height,
                     entity.ORIGIN_X, entity.ORIGIN_Y, entity.getFullBounds().width, entity.getFullBounds().height, entity.xScale, entity.yScale, entity.rotation, true);
         } else {
-            batch.draw(anim.getKeyFrame(animationTime), entity.x, entity.y+ entity.height, entity.ORIGIN_X,
+            Application.batch.draw(anim.getKeyFrame(animationTime), entity.x, entity.y+ entity.height, entity.ORIGIN_X,
                     entity.ORIGIN_Y, entity.getFullBounds().width, entity.getFullBounds().height, entity.xScale, entity.yScale, entity.rotation);
         }
     }

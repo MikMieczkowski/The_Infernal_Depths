@@ -39,9 +39,9 @@ public class TestObject extends InanimateEntity {
     }
 
     @Override
-    public void draw(Batch batch) {
-        batch.setColor(color);
-        batch.draw(Assets.testTexture, x+16-width, y+16-width, width, width);
-        batch.setColor(Color.WHITE);
+    public void draw() {
+        Application.batch.setColor(color);
+        Application.batch.draw(Assets.testTexture, x+16-width, y+16-width, width, width);
+        Application.batch.setColor(Color.WHITE);
     }
 }

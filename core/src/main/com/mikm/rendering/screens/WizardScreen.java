@@ -30,19 +30,9 @@ public class WizardScreen extends GameScreen{
     @Override
     public void render(float delta) {
         ScreenUtils.clear(BG_COLOR);
-        Camera.x = 40;
-        Camera.y = 50;
-        Camera.orthographicCamera.position.set(Camera.x, Camera.y, 0);
-        Camera.orthographicCamera.update();
-        Application.batch.begin();
-        Application.batch.setProjectionMatrix(Camera.orthographicCamera.combined);
-        tiledMapRenderer.setView(Camera.orthographicCamera);
-        drawAssets();
-        DebugRenderer.getInstance().update();
-        Camera.renderLighting(Application.batch);
-        Camera.orthographicCamera.update();
-        renderUI();
-        Application.batch.end();
+        super.lockCameraAt(40, 50);
+        super.setRenderCamera(false);
+        super.render(delta);
         soundEffectTimer+= Gdx.graphics.getDeltaTime();
         //if (soundEffectTimer > TIME_UNTIL_SOUND_EFFECT) {
         //    if (Application.player.hp != Application.player.MAX_HP) {
