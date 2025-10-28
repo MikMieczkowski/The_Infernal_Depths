@@ -1,0 +1,34 @@
+IMAGE_X: 0
+IMAGE_Y: 0
+#USAGE TIME: time after release to be in attack state
+USAGE_TIME: .4
+#COOLDOWN_TIME: time after exiting attack state that you can reenter attack state
+COOLDOWN_TIME: 0
+#these get overridden on projectiles
+KNOCKBACK: 3
+DAMAGE: 1
+CAN_BREAK_ROCKS: false
+
+ORBIT_DISTANCE: 15
+
+ENTER_SOUND_EFFECT: "swing"
+END_SOUND_EFFECT:
+
+#ORBIT/ MOVEMENT PARAMETERS
+#SWAP or NORMAL
+ORBIT_TYPE: SWAP
+SWORD_MOVEMENT_ANIMATION_SPEED: .5
+#CHARGE: false
+
+ACTION:
+  #playerattackingaction with config
+
+PROJECTILES:
+  #PRESS, RELEASE, or HOLD
+  - CREATE_ON: PRESS
+    ANIMATION_NAME: "swordSlice"
+    FPS: .1
+    ORBITS: true
+    SPEED: 0
+    #should have CREATE_ON: RELEASE
+    CHARGE:
