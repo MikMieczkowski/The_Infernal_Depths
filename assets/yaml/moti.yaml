@@ -8,7 +8,8 @@ CONFIG:
     IMAGE_HEIGHT: 48
 BEHAVIOURS:
   Idle:
-    SINGLE_FRAME:
+    ANIMATION:
+      TYPE: SINGLE_FRAME
       IMAGE_NAME: "moti"
 
 #Entity starts in start routine

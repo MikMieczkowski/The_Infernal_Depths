@@ -3,5 +3,6 @@ CONFIG:
 BEHAVIOURS:
   Idle:
     ACTION: Nonsense
-    SINGLE_FRAME:
+    ANIMATION:
+      TYPE: SINGLE_FRAME
       IMAGE_NAME: "a" #

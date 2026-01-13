@@ -1,12 +1,16 @@
 package com.mikm.rendering.cave;
 
-import com.mikm.ExtraMathUtils;
+import com.mikm.utils.ExtraMathUtils;
 import com.mikm.rendering.screens.CaveScreen;
 
 public class SpawnProbability
 {
     float level1ProbabilityPercent, level2ProbabilityPercent, level3ProbabiltyPercent, level4ProbabilityPercent;
     float[] probabilitiesByFloor;
+
+    public SpawnProbability() {
+        
+    }
 
     public SpawnProbability(float level1ProbabilityPercent, float level2ProbabilityPercent, float level3ProbabiltyPercent, float level4ProbabilityPercent) {
         this.level1ProbabilityPercent = level1ProbabilityPercent;

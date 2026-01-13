@@ -2,4 +2,5 @@ CONFIG:
   NAME: "test2"
 BEHAVIOURS:
   Idle:
-    SINGLE_FRAME: #one of - already implemented
+    ANIMATION:
+      TYPE: SINGLE_FRAME #one of - already implemented

@@ -1,20 +1,23 @@
 package com.mikm.rendering.screens;
 
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.mikm.Assets;
-import com.mikm.RandomUtils;
-import com.mikm.debug.DebugRenderer;
-import com.mikm.entities.inanimateEntities.Door;
-import com.mikm.entities.inanimateEntities.NPC;
+import com.mikm._components.SpriteComponent;
+import com.mikm.entities.prefabLoader.PrefabInstantiator;
+import com.mikm.utils.Assets;
+import com.mikm.utils.RandomUtils;
+import com.mikm._components.PlayerCombatComponent;
+import com.mikm._components.ShadowComponent;
+import com.mikm._components.Transform;
 import com.mikm.input.GameInput;
 import com.mikm.input.InputRaw;
 import com.mikm.rendering.Camera;
@@ -31,7 +34,8 @@ public class BlacksmithScreen extends GameScreen{
     private TextureRegion selector = Assets.getInstance().getTextureRegion("UISelector", 29, 29);
     private TextureRegion[][] items = Assets.getInstance().getSplitTextureRegion("items");
     private TextureRegion npcImage = Assets.getInstance().getTextureRegion("blacksmith", 32, 32);
-    private NPC npc;
+    //TODO NPC
+    //private NPC npc;
     private final int WEAPON_PRICE_IN_ORES = 7;
     private int selected = 1;
     private float menuXOffset, menuYOffset, mouseXOffset, mouseYOffset;
@@ -52,25 +56,17 @@ public class BlacksmithScreen extends GameScreen{
 
     BlacksmithScreen() {
         super();
-        collidableGrid = new boolean[][]{
-                {true, true, true, true, true, true, true, true, true},
-                {true, true, true, true, true, true, true, true, true},
-                {true, true, true, true, true, false, false, true, true},
-                {true, true, false, false, false, false, false, true, true},
-                {true, true, true, true, false, true, true, true, true},
-                {true, true, true, true, false, false, false, true, true},
-                {true, true, true, true, true, false, true, true, true},
-                {true, true, true, true, true, true, true, true, true},
-                {true, true, true, true, true, true, true, true, true}
-        };
-        tiledMap = new TiledMap();
+        //TODO tidy assets/tiled: remove images, rename, and ensure internal directories
+        tiledMap = new TmxMapLoader().load("tiled/BlacksmithScreen.tmx");
+        collidableGrid = readCollisionTiledmapLayer(1, 9, 9);
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, 1);
-        addInanimateEntity(new BlacksmithRoom(0, -4));
-        addInanimateEntity(new Door(88, 24, 1));
-        npc = new NPC(77, 67);
+        PrefabInstantiator.addDoor(this, 88+16, 24, 1);
         createMusic(Assets.getInstance().getAsset("sound/caveThemeOld.mp3", Music.class));
-        addInanimateEntity(npc);
-        removeInanimateEntity(Application.player.shadow);
+
+        Entity e = PrefabInstantiator.addEntity("npc", this, 77+4, 67+4);
+        SpriteComponent.MAPPER.get(e).textureRegion = npcImage;
+
+        ShadowComponent.MAPPER.get(player).active = false;
     }
 
     @Override
@@ -86,10 +82,6 @@ public class BlacksmithScreen extends GameScreen{
 
     @Override
     protected void drawAssetsPostEntities() {
-        Application.batch.draw(npcImage, 77, 67);
-        if (npc.isPlayerInTalkingRange()) {
-            Application.batch.draw(GameInput.getTalkButtonImage(), 77+8, 67+8+16);
-        }
         renderUI();
         renderMenu();
     }
@@ -111,6 +103,10 @@ public class BlacksmithScreen extends GameScreen{
                 handleMouseBuying();
             }
             drawMenuComponents();
+
+            if (GameInput.isMenuCancelButtonJustPressed()) {
+                showMenu = false;
+            }
         }
     }
 
@@ -121,15 +117,18 @@ public class BlacksmithScreen extends GameScreen{
             selected = MathUtils.clamp(selected, 1, 3);
         }
         lastControllerX = GameInput.getHorizontalAxisInt();
+
+        PlayerCombatComponent playerCombatComponent = PlayerCombatComponent.MAPPER.get(Application.getInstance().getPlayer());
+        
         if (GameInput.isAttackButtonJustPressed() || GameInput.isDiveButtonJustPressed()) {
-            if (selected == 1 && Application.player.swordLevel < 4) {
-                if (RockType.get(Application.player.swordLevel + 1).getOreAmount() >= WEAPON_PRICE_IN_ORES) {
+            if (selected == 1 && playerCombatComponent.swordLevel < 4) {
+                if (RockType.get(playerCombatComponent.swordLevel + 1).getOreAmount() >= WEAPON_PRICE_IN_ORES) {
                     buy(true);
                 } else {
                     playDenySound();
                 }
-            } else if (selected == 2 && Application.player.bowLevel < 4) {
-                if (RockType.get(Application.player.bowLevel + 1).getOreAmount() >= WEAPON_PRICE_IN_ORES) {
+            } else if (selected == 2 && playerCombatComponent.bowLevel < 4) {
+                if (RockType.get(playerCombatComponent.bowLevel + 1).getOreAmount() >= WEAPON_PRICE_IN_ORES) {
                     buy(false);
                 } else {
                     playDenySound();
@@ -149,27 +148,30 @@ public class BlacksmithScreen extends GameScreen{
     }
 
     private void switchWeapon() {
-        if (Application.player.swordLevel == 0 || Application.player.bowLevel == 0) {
+        PlayerCombatComponent playerCombatComponent = PlayerCombatComponent.MAPPER.get(Application.getInstance().getPlayer());
+        if (playerCombatComponent.swordLevel == 0 || playerCombatComponent.bowLevel == 0) {
             return;
         }
-        if (Application.player.equippedWeapon != Application.player.weaponInstances.swords[Application.player.swordLevel-1]) {
-            Application.player.equippedWeapon = Application.player.weaponInstances.swords[Application.player.swordLevel - 1];
-        } else {
-            Application.player.equippedWeapon = Application.player.weaponInstances.bows[Application.player.bowLevel - 1];
-        }
-        Application.player.currentHeldItem = Application.player.equippedWeapon;
+        //TODO weapon
+//        if (playerCombatComponent.equippedWeapon != playerCombatComponent.weaponInstances.swords[playerCombatComponent.swordLevel-1]) {
+//            playerCombatComponent.equippedWeapon = playerCombatComponent.weaponInstances.swords[playerCombatComponent.swordLevel - 1];
+//        } else {
+//            playerCombatComponent.equippedWeapon = playerCombatComponent.weaponInstances.bows[playerCombatComponent.bowLevel - 1];
+//        }
+//        playerCombatComponent.currentHeldItem = playerCombatComponent.equippedWeapon;
     }
     private void handleMouseBuying() {
+        PlayerCombatComponent playerCombatComponent = PlayerCombatComponent.MAPPER.get(Application.getInstance().getPlayer());
         if (GameInput.isAttackButtonJustPressed()) {
-            if (r1.contains(mousePos) && Application.player.swordLevel < 4) {
-                if (RockType.get(Application.player.swordLevel + 1).getOreAmount() >= WEAPON_PRICE_IN_ORES) {
+            if (r1.contains(mousePos) && playerCombatComponent.swordLevel < 4) {
+                if (RockType.get(playerCombatComponent.swordLevel + 1).getOreAmount() >= WEAPON_PRICE_IN_ORES) {
                     buy(true);
                 } else {
                     playDenySound();
                 }
             }
-            if (r2.contains(mousePos) && Application.player.bowLevel < 4) {
-                if (RockType.get(Application.player.bowLevel + 1).getOreAmount() >= WEAPON_PRICE_IN_ORES) {
+            if (r2.contains(mousePos) && playerCombatComponent.bowLevel < 4) {
+                if (RockType.get(playerCombatComponent.bowLevel + 1).getOreAmount() >= WEAPON_PRICE_IN_ORES) {
                     buy(false);
                 } else {
                     playDenySound();
@@ -182,21 +184,23 @@ public class BlacksmithScreen extends GameScreen{
     }
 
     private void buy(boolean sword) {
+        PlayerCombatComponent playerCombatComponent = PlayerCombatComponent.MAPPER.get(Application.getInstance().getPlayer());
         SoundEffects.play(REWARD_SOUND_EFFECT);
         SoundEffects.play("hammerBuilt.ogg");
         if (sword) {
-            Application.player.equippedWeapon = Application.player.weaponInstances.swords[Application.player.swordLevel];
-            RockType.get(Application.player.swordLevel + 1).increaseOreAmount(-WEAPON_PRICE_IN_ORES);
+            //TODO weapon
+            //playerCombatComponent.equippedWeapon = playerCombatComponent.weaponInstances.swords[playerCombatComponent.swordLevel];
+            RockType.get(playerCombatComponent.swordLevel + 1).increaseOreAmount(-WEAPON_PRICE_IN_ORES);
             RockType.validateOres();
-            Application.player.swordLevel++;
+            playerCombatComponent.swordLevel++;
         } else {
-            Application.player.equippedWeapon = Application.player.weaponInstances.bows[Application.player.bowLevel];
-            RockType.get(Application.player.bowLevel + 1).increaseOreAmount(-WEAPON_PRICE_IN_ORES);
+            //playerCombatComponent.equippedWeapon = playerCombatComponent.weaponInstances.bows[playerCombatComponent.bowLevel];
+            RockType.get(playerCombatComponent.bowLevel + 1).increaseOreAmount(-WEAPON_PRICE_IN_ORES);
             RockType.validateOres();
-            Application.player.bowLevel++;
+            //playerCombatComponent.bowLevel++;
             tipNumber = 1;
         }
-        Application.player.currentHeldItem = Application.player.equippedWeapon;
+        //playerCombatComponent.currentHeldItem = playerCombatComponent.equippedWeapon;
     }
 
     private void updateScreenCoordinates() {
@@ -222,9 +226,10 @@ public class BlacksmithScreen extends GameScreen{
     }
 
     private void drawMenuComponents() {
-        if (Application.player.swordLevel < 4) {
-            Application.batch.draw(items[0][Application.player.swordLevel], menuXOffset+ 5, menuYOffset + 7);
-            if (RockType.get(Application.player.swordLevel+1).getOreAmount() >= WEAPON_PRICE_IN_ORES) {
+        PlayerCombatComponent playerCombatComponent = PlayerCombatComponent.MAPPER.get(Application.getInstance().getPlayer());
+        if (playerCombatComponent.swordLevel < 4) {
+            Application.batch.draw(items[0][playerCombatComponent.swordLevel], menuXOffset+ 5, menuYOffset + 7);
+            if (RockType.get(playerCombatComponent.swordLevel+1).getOreAmount() >= WEAPON_PRICE_IN_ORES) {
                 Application.batch.setColor(Color.LIME);
             } else {
                 Application.batch.setColor(Color.RED);
@@ -232,9 +237,9 @@ public class BlacksmithScreen extends GameScreen{
             Application.batch.draw(Assets.numbers[WEAPON_PRICE_IN_ORES], menuXOffset + 2, menuYOffset -4);
             Application.batch.setColor(Color.WHITE);
         }
-        if (Application.player.bowLevel < 4) {
-            Application.batch.draw(items[0][4+Application.player.bowLevel], menuXOffset + 5 + 29, menuYOffset + 7);
-            if (RockType.get(Application.player.bowLevel+1).getOreAmount() >= WEAPON_PRICE_IN_ORES) {
+        if (playerCombatComponent.bowLevel < 4) {
+            Application.batch.draw(items[0][4+playerCombatComponent.bowLevel], menuXOffset + 5 + 29, menuYOffset + 7);
+            if (RockType.get(playerCombatComponent.bowLevel+1).getOreAmount() >= WEAPON_PRICE_IN_ORES) {
                 Application.batch.setColor(Color.LIME);
             } else {
                 Application.batch.setColor(Color.RED);
@@ -242,12 +247,13 @@ public class BlacksmithScreen extends GameScreen{
             Application.batch.draw(Assets.numbers[WEAPON_PRICE_IN_ORES], menuXOffset + 2 + 29, menuYOffset -4);
             Application.batch.setColor(Color.WHITE);
         }
-        if (Application.player.swordLevel !=0 && Application.player.bowLevel != 0) {
-            if (Application.player.equippedWeapon == Application.player.weaponInstances.bows[Application.player.bowLevel-1]) {
-                Application.batch.draw(items[0][Application.player.swordLevel-1], menuXOffset+ 5+29*2, menuYOffset + 7);
-            } else {
-                Application.batch.draw(items[0][4+Application.player.bowLevel-1], menuXOffset+ 5+29*2, menuYOffset + 7);
-            }
+        if (playerCombatComponent.swordLevel !=0 && playerCombatComponent.bowLevel != 0) {
+            //TODO weapon
+//            if (playerCombatComponent.equippedWeapon == playerCombatComponent.weaponInstances.bows[playerCombatComponent.bowLevel-1]) {
+//                Application.batch.draw(items[0][playerCombatComponent.swordLevel-1], menuXOffset+ 5+29*2, menuYOffset + 7);
+//            } else {
+//                Application.batch.draw(items[0][4+playerCombatComponent.bowLevel-1], menuXOffset+ 5+29*2, menuYOffset + 7);
+//            }
         }
     }
 
@@ -276,8 +282,10 @@ public class BlacksmithScreen extends GameScreen{
     public void onExit() {
         Camera.VIEWPORT_ZOOM = Camera.DEFAULT_VIEWPORT_ZOOM;
         viewport.setUnitsPerPixel(Camera.VIEWPORT_ZOOM);
-        Application.player.x = 378;
-        Application.player.y = 338;
+
+        Transform playerTransform = Application.getInstance().getPlayerTransform();
+        playerTransform.x = 378;
+        playerTransform.y = 338;
         showMenu = false;
     }
 

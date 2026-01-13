@@ -1,0 +1,27 @@
+ORBIT:
+  #coords in the weapon spritesheet
+  IMAGE_X: 0
+  IMAGE_Y: 0
+  #SWAP or NORMAL
+  ORBIT_DISTANCE: 15
+  ORBIT_TYPE: SWAP
+  #Only will have an effect if ORBIT_TYPE = SWAP. Arbitrary choice
+  ORBIT_ITEM_ANIMATION_SPEED: .5
+  #Only swing implemented for now
+  ORBIT_ITEM_ANIMATION_TYPE: SWING
+
+COMBO_TREE:
+  #LENGTH_ATTACKNAME : lengths define the combo (e.g. light light medium), and then each move in the combo has an associated attack
+  light_swing1:
+    light_swing1:
+      light_swing1:
+
+AERIAL_COMBO_TREE:
+  light_swing1:
+    light_swing1:
+
+CONFIG:
+  light_swing1:
+    DAMAGE: 10
+    #A list of the damage corresponding to the swing's projectile list
+    PROJECTILE_DAMAGE:

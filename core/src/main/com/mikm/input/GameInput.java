@@ -4,11 +4,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.mikm.Assets;
+import com.mikm.utils.Assets;
 import com.mikm.Vector2Int;
-import com.mikm.ExtraMathUtils;
+import com.mikm.utils.ExtraMathUtils;
 import com.mikm.rendering.Camera;
 import com.mikm.rendering.screens.Application;
 import com.mikm.rendering.screens.BlacksmithScreen;
@@ -215,8 +214,8 @@ public class GameInput {
         return new Vector2(InputRaw.mouseXPosition(), InputRaw.mouseYPosition());
     }
     public static Vector2 mousePosRelativeToPlayer() {
-        return new Vector2(InputRaw.mouseXPosition() + Camera.x - Application.player.getHitbox().x - Gdx.graphics.getWidth()/2f*Camera.VIEWPORT_ZOOM,
-                InputRaw.mouseYPosition() + Camera.y - Application.player.getHitbox().y - Gdx.graphics.getHeight()/2f * Camera.VIEWPORT_ZOOM);
+        return new Vector2(InputRaw.mouseXPosition() + Camera.x - Application.getInstance().getPlayerTransform().getCenteredX() - Gdx.graphics.getWidth()/2f*Camera.VIEWPORT_ZOOM,
+                InputRaw.mouseYPosition() + Camera.y - Application.getInstance().getPlayerTransform().getCenteredY() - Gdx.graphics.getHeight()/2f * Camera.VIEWPORT_ZOOM);
     }
 
     public static float getAttackingAngle() {
@@ -274,7 +273,10 @@ public class GameInput {
 
     public static String[] inputActions = {"TALK", "ATTACK", "DPAD_UP", "DPAD_DOWN", "DPAD_LEFT", "DPAD_RIGHT", "DIVE", "SWITCH"};
     public static boolean isActionJustPressed(String action) {
-        switch (action) {
+        if (action == null) {
+            return false;
+        }
+        switch (action.toUpperCase()) {
             case "TALK": return isTalkButtonJustPressed();
             case "ATTACK": return isAttackButtonJustPressed();
             case "DPAD_UP": return isDpadUpJustPressed();

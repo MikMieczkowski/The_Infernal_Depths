@@ -2,5 +2,6 @@ CONFIG:
   NAME: "test2"
 BEHAVIOURS:
   Nonsense:
-    SINGLE_FRAME:
+    ANIMATION:
+      TYPE: SINGLE_FRAME
       IMAGE_NAME: "a" #

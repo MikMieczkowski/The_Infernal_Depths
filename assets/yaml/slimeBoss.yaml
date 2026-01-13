@@ -13,7 +13,8 @@ BEHAVIOURS:
   ShortJump:
     ACTION: Charge
     POST_HIT_ROUTINE: NONE
-    SINGLE_ANIMATION:
+    ANIMATION:
+      TYPE: SINGLE_ANIMATION
       IMAGE_NAME: "slimeBoss"
       FPS: 5
       LOOP: true

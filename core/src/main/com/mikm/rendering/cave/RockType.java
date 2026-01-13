@@ -1,15 +1,17 @@
 package com.mikm.rendering.cave;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.mikm.Assets;
-import com.mikm.RandomUtils;
+import com.mikm.utils.Assets;
+import com.mikm.utils.RandomUtils;
 import com.mikm.rendering.screens.CaveScreen;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+//refactor
 public enum RockType {
+    //refactor spritesheetPosition
     NORMAL(-1, 0),
     COPPER(0, 1),
     IRON(1, 5),
@@ -19,6 +21,7 @@ public enum RockType {
 
     private static final List<RockType> VALUES = Collections.unmodifiableList(Arrays.asList(values()));
     public static final int SIZE = VALUES.size();
+    //these all act as static fields
     public int spritesheetPosition;
     public int sellPrice;
     private int oreAmount;
@@ -61,6 +64,14 @@ public enum RockType {
             }
         }
         return Assets.particleImages[1][spritesheetPosition+1];
+    }
+
+    public TextureRegion getRockImage() {
+        if (this == NORMAL) {
+            return CaveScreen.rockImages[CaveScreen.getRecolorLevel()][RandomUtils.getInt(2)];
+        } else {
+            return CaveScreen.oreImages[spritesheetPosition];
+        }
     }
 
     public static boolean playerHasAnyOre() {

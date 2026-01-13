@@ -1,7 +1,5 @@
 package com.mikm.rendering.cave;
 
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.mikm.Assets;
 import com.mikm.Vector2Int;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

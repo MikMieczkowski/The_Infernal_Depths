@@ -1,5 +1,8 @@
 package com.mikm.rendering.screens;
 
+import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.Family;
+import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
@@ -9,12 +12,11 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.esotericsoftware.kryo.io.KryoBufferUnderflowException;
-import com.mikm.Assets;
-import com.mikm.ExtraMathUtils;
+import com.mikm._components.*;
+import com.mikm._components.routine.RoutineListComponent;
+import com.mikm.utils.Assets;
+import com.mikm.utils.ExtraMathUtils;
 import com.mikm.Vector2Int;
-import com.mikm.entities.inanimateEntities.InanimateEntity;
-import com.mikm.entities.inanimateEntities.Rope;
-import com.mikm.entityLoader.BlackboardBindings;
 import com.mikm.input.GameInput;
 import com.mikm.rendering.Camera;
 import com.mikm.rendering.cave.CaveEntitySpawner;
@@ -22,6 +24,7 @@ import com.mikm.rendering.cave.CaveFloorMemento;
 import com.mikm.rendering.cave.CaveTilemapCreator;
 import com.mikm.rendering.sound.SoundEffects;
 import com.mikm.serialization.Serializer;
+import com.mikm.utils.debug.DebugRenderer;
 
 import java.util.ArrayList;
 
@@ -57,15 +60,6 @@ public class CaveScreen extends GameScreen {
         createImages();
         createMusic(Assets.getInstance().getAsset("sound/caveTheme.mp3", Music.class));
         createTiledMapRenderer();
-        caveFloorMementos = new CaveFloorMemento[10];
-        for (int i = 0; i < 10; i++) {
-            try {
-                caveFloorMementos[i] = Serializer.getInstance().read(CaveFloorMemento.class, i);
-            } catch (KryoBufferUnderflowException e) {
-                caveFloorMementos[i] = null;
-            }
-        }
-        spawner= new CaveEntitySpawner(this);
     }
 
     public void init() {
@@ -78,56 +72,66 @@ public class CaveScreen extends GameScreen {
             }
         }
         spawner= new CaveEntitySpawner(this);
+
+        //Load all 9 floors and store into mementos
+        for (int i = 1; i <= CaveScreen.LAST_FLOOR - 5; i++) {
+            CaveScreen.floor = i;
+            caveTilemapCreator.generateNewMap();
+            //TODO memento refactor - move to CaveFloorMemento class
+            Vector2Int position = caveTilemapCreator.getSpawnablePosition();
+            Vector2Int ropePosition = caveTilemapCreator.getSpawnablePosition();
+            ropePosition = new Vector2Int(ropePosition.x + 8, ropePosition.y+8);
+            //currentRopePosition = ropePosition;
+
+            //create memento
+            CaveFloorMemento memento = CaveFloorMemento.create(position, ropePosition, caveTilemapCreator.ruleCellPositions, caveTilemapCreator.holePositions);
+            assert memento != null;
+            caveFloorMementos[floor - 1] = memento;
+
+            //move outside of loop?
+            spawner = new CaveEntitySpawner(this);
+            spawner.load(caveTilemapCreator);
+        }
+        CaveScreen.floor = 0;
     }
 
     public void decreaseFloor() {
-        entities.doAfterRender(() -> {
-            updateCurrentMemento();
-            floor--;
-            Application.player.startInvincibilityFrames();
-            handleScreenChange(-1);
-            if (floor % 5 == 0) {
-                return;
-            }
-            loadFloor(floor);
-        });
+        changeFloor(false);
     }
 
     public void increaseFloor() {
-        entities.doAfterRender(() -> {
-            updateCurrentMemento();
-            floor++;
-            Application.player.startInvincibilityFrames();
-            handleScreenChange(1);
-            if (floor % 5 == 0) {
-                return;
-            }
-            if (caveFloorMementos[floor - 1] == null) {
-                generateNewFloor();
-                Vector2Int position = putPlayerInOpenTile();
-                Vector2Int ropePosition = caveTilemapCreator.getSpawnablePosition();
-                ropePosition = new Vector2Int(ropePosition.x + 8, ropePosition.y+8);
-                currentRopePosition = ropePosition;
-                inanimateEntities.addInstantly(new Rope(ropePosition.x, ropePosition.y));
-                CaveFloorMemento memento = CaveFloorMemento.create(position, ropePosition, caveTilemapCreator.ruleCellPositions, caveTilemapCreator.holePositions, inanimateEntities, entities);
-                caveFloorMementos[floor - 1] = memento;
-            } else {
-                loadFloor(floor);
-            }
-        });
+        changeFloor(true);
     }
 
-    public void updateCurrentMemento() {
-        if (CaveScreen.floor % 5 != 0) {
-            caveFloorMementos[CaveScreen.floor - 1] = CaveFloorMemento.create(caveFloorMementos[CaveScreen.floor - 1].spawnPosition, caveFloorMementos[CaveScreen.floor - 1].ropePosition, caveFloorMementos[CaveScreen.floor - 1].ruleCellPositions, caveFloorMementos[CaveScreen.floor - 1].holePositions, inanimateEntities, caveFloorMementos[CaveScreen.floor - 1].enemies);
+    private void changeFloor(boolean up) {
+        int i = up ? 1 : -1;
+        if (!up && CaveScreen.floor <= 0) {
+            return;
+        }
+        //TODO test this
+        Application.getInstance().getPlayerCombatComponent().startInvincibilityFrames();
+        floor += i;
+        handleScreenChange(i);
+        if (floor % 5 == 0) {
+            return;
+        }
+        CaveFloorMemento currentMemento = caveFloorMementos[floor-1];
+        activate(currentMemento);
+    }
 
+
+    public void updateCurrentMemento() {
+        //only thing that needs to be updated is grave entities and rock entities
+        if (CaveScreen.floor % 5 != 0) {
+            caveFloorMementos[CaveScreen.floor - 1].updateRocks(engine.getEntitiesFor(Family.all(RockComponent.class).get()));
         }
     }
 
     public Vector2Int putPlayerInOpenTile() {
         Vector2Int playerPosition = caveTilemapCreator.getSpawnablePosition();
-        Application.player.x = playerPosition.x;
-        Application.player.y = playerPosition.y;
+        Transform transform = Application.getInstance().getPlayerTransform();
+        transform.x = playerPosition.x;
+        transform.y = playerPosition.y;
         Camera.setPositionDirectlyToPlayerPosition();
         return playerPosition;
     }
@@ -138,6 +142,7 @@ public class CaveScreen extends GameScreen {
         super.render(delta);
         //DebugRenderer.getInstance().drawCollidableGrid(caveTilemapCreator.collidablePositions, DebugRenderer.DEBUG_RED);
         //DebugRenderer.getInstance().drawCollidableGrid(caveTilemapCreator.rockCollidablePositions, DebugRenderer.DEBUG_BLUE);
+
     }
 
     @Override
@@ -151,12 +156,13 @@ public class CaveScreen extends GameScreen {
         }
         super.renderUI();
         drawPointer(currentRopePosition.x, currentRopePosition.y, false);
-        if (floor %5!= 0) {
-            for (int i = 0; i < caveFloorMementos[floor - 1].graves.size(); i++) {
-                InanimateEntity g = caveFloorMementos[floor - 1].graves.get(i);
-                drawPointer(g.x, g.y, true);
-            }
-        }
+        //TODO graves
+//        if (floor %5!= 0) {
+//            for (int i = 0; i < caveFloorMementos[floor - 1].graves.size(); i++) {
+//                InanimateEntity g = caveFloorMementos[floor - 1].graves.get(i);
+//                drawPointer(g.x, g.y, true);
+//            }
+//        }
     }
 
     private void drawPointer(float x, float y, boolean grave) {
@@ -193,22 +199,6 @@ public class CaveScreen extends GameScreen {
         return new Vector2(0,0);
     }
 
-    private void generateNewFloor() {
-        caveTilemapCreator.generateNewMap();
-        spawner= new CaveEntitySpawner(this);
-        spawner.spawn(caveTilemapCreator);
-    }
-
-    private void loadFloor(int floor) {
-        if (floor <= 0) {
-            Application.getInstance().setGameScreen(Application.getInstance().townScreen);
-            return;
-        }
-        CaveFloorMemento currentMemento = caveFloorMementos[floor-1];
-        activate(currentMemento);
-        Application.player.x = currentMemento.spawnPosition.x;
-        Application.player.y = currentMemento.spawnPosition.y;
-    }
 
     private void handleScreenChange(int i) {
         if (floor <= 0) {
@@ -228,8 +218,16 @@ public class CaveScreen extends GameScreen {
     }
 
     private void activate(CaveFloorMemento memento) {
+        System.out.println("floor: " + CaveScreen.floor);
+        System.out.println("enemies: " + memento.enemies.size());
+        System.out.println("rocks: " + memento.rocks.size());
         caveTilemapCreator.activate(memento);
         spawner.activate(memento);
+
+        CaveFloorMemento currentMemento = caveFloorMementos[floor-1];
+        Transform transform = Application.getInstance().getPlayerTransform();
+        transform.x = currentMemento.spawnPosition.x;
+        transform.y = currentMemento.spawnPosition.y;
     }
 
     private void createImages() {

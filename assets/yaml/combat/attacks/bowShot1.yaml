@@ -1,5 +1,4 @@
-IMAGE_X: 4
-IMAGE_Y: 0
+
 #it really does have 0 usage time: after the charge, a projectile is spawned and then the action is done.
 USAGE_TIME: 0
 COOLDOWN_TIME: .4
@@ -10,16 +9,10 @@ KNOCKBACK: 1
 DAMAGE: 1
 CAN_BREAK_ROCKS: false
 
-ORBIT_DISTANCE: 15
 
 ENTER_SOUND_EFFECT:
 END_SOUND_EFFECT: "bowShoot.ogg"
 
-#SWAP or NORMAL
-ORBIT_TYPE: NORMAL
-SLICE_ANIMATION_SPEED: .1
-SWORD_MOVEMENT_ANIMATION_SPEED: .5
-SLICE_WIDTH_MULTIPLIER: 1
 
 PROJECTILES:
   #PRESS, RELEASE, or HOLD

@@ -1,0 +1,27 @@
+TransformComponent:
+  NAME: rat
+CombatComponent:
+  MAX_HP: 0
+  DAMAGE: 0
+  INVINCIBLE: true
+SpawnComponent:
+  LEVEL_1_SPAWN_PERCENT: .5
+  LEVEL_2_SPAWN_PERCENT: .2
+RoutineListComponent:
+  BEHAVIOURS:
+    Idle:
+      ANIMATION:
+        TYPE: SINGLE_FRAME
+        IMAGE_NAME: "ratIdle"
+    Wander:
+      ANIMATION:
+        TYPE: SINGLE_ANIMATION
+        IMAGE_NAME: "ratWalk"
+        FPS: 4
+  ROUTINES:
+    start:
+      CYCLE:
+        - BEHAVIOUR: Idle
+        - BEHAVIOUR: Wander
+      TRANSITIONS:
+        - NO_REPEAT: start

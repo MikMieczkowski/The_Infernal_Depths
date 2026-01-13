@@ -1,0 +1,33 @@
+#### Each attack defines the following: player movement towards locked, orbit info, timing, player and sword animation, projectiles
+
+#ATTACK_MAX_TIME: time after release to be in attack state
+ATTACK_MAX_TIME: .5
+#COOLDOWN_TIME: time after exiting attack state that you can reenter attack state
+COOLDOWN_TIME: 0
+#COMBO_TIME: time after exiting attack state that if you attack it will continue the combo. Should be larger than COOLDOWN_TIME + time of hold for next attack in combo
+COMBO_TIME: .6
+CAN_BREAK_ROCKS: false
+#TODO research
+HIT_STUN: 10
+
+
+ENTER_SOUND_EFFECT: "swing"
+END_SOUND_EFFECT:
+
+
+#What the player will do while in the attack
+MOVEMENT_CONFIG:
+  SPEED: 0
+
+#References a behaviour, then grabs that behaviour's animation
+PLAYER_ANIMATION: PlayerAttacking
+
+PROJECTILES:
+  #PRESS, RELEASE, or HOLD
+  - CREATE_ON: PRESS
+    #create every 1 seconds
+    CREATE_ON_HOLD_TIME: 1
+    ANIMATION_NAME: "swordSlice"
+    FPS: .1
+    ORBITS: true
+    SPEED: 0

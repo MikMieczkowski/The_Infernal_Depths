@@ -1,94 +1,123 @@
 package com.mikm.entities.actions;
 
+import com.badlogic.ashley.core.Component;
+import com.badlogic.ashley.core.ComponentMapper;
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.mikm.DeltaTime;
-import com.mikm.RandomUtils;
+import com.mikm._components.*;
+import com.mikm._components.routine.RoutineListComponent;
+import com.mikm.utils.DeltaTime;
+import com.mikm.utils.RandomUtils;
 import com.mikm.entities.DamageInformation;
-import com.mikm.entities.Entity;
-import com.mikm.entities.inanimateEntities.particles.ParticleEffect;
-import com.mikm.entities.inanimateEntities.particles.ParticleTypes;
 import com.mikm.entities.inanimateEntities.projectiles.Hurtbox;
-import com.mikm.entityLoader.Blackboard;
 import com.mikm.input.GameInput;
 import com.mikm.rendering.sound.SoundEffects;
 
 public class RollAction extends Action {
-    private Vector2 rollVel = new Vector2();
-    private float rollSpeedSinCounter, heightSinCounter;
-    private boolean jumpDone = false;
-    private Hurtbox hurtbox;
+    @Copyable private int DAMAGE;
+    @Copyable private int KNOCKBACK_MULTIPLIER;
+    @Copyable private int HURTBOX_DIAMETER;
+    @Copyable private float END_EARLY;
+    @Copyable private float SPEED;
+    @Copyable private float STARTING_SIN_COUNT;
+    @Copyable private float FRICTION;
+    @Copyable private float FRICTION_SPEED;
+    @Copyable private float MAX_TIME;
+    @Copyable private float JUMP_SPEED;
+    @Copyable private float JUMP_HEIGHT;
+    @Copyable private String END_SOUND_EFFECT;
 
-    private int DAMAGE;
-    private int KNOCKBACK_MULTIPLIER;
-    private int HURTBOX_DIAMETER;
-    private float END_EARLY;
-    private float SPEED;
-    private float STARTING_SIN_COUNT;
-    private float FRICTION;
-    private float FRICTION_SPEED;
-    private float MAX_TIME;
-    private float JUMP_SPEED;
-    private float JUMP_HEIGHT;
-    private String END_SOUND_EFFECT;
+    private static final ComponentMapper<RollActionComponent> MAPPER = ComponentMapper.getFor(RollActionComponent.class);
+    class RollActionComponent implements Component {
+        Vector2 rollVel = new Vector2();
+        float rollSpeedSinCounter;
+        float heightSinCounter;
+        boolean jumpDone = false;
+        Hurtbox hurtbox;
+    }
 
-    public RollAction(Entity entity) {
-        super(entity);
-        hurtbox = new Hurtbox(HURTBOX_DIAMETER, false);
+    public RollAction(){}
+
+    @Override
+    public Component createActionComponent() {
+        return new RollActionComponent();
     }
 
     @Override
-    public void enter() {
-        super.enter();
-        entity.xVel = 0;
-        entity.yVel = 0;
-        heightSinCounter = 0;
-        jumpDone = false;
-        rollSpeedSinCounter = STARTING_SIN_COUNT;
+    public void postConfigRead(Entity entity) {
+        super.postConfigRead(entity);
+        RollActionComponent data = MAPPER.get(entity);
+        data.hurtbox = new Hurtbox(HURTBOX_DIAMETER, false);
     }
 
     @Override
-    public void onExit() {
-        super.onExit();
+    public void enter(Entity entity) {
+        super.enter(entity);
+        Transform transform = Transform.MAPPER.get(entity);
+        RollActionComponent data = MAPPER.get(entity);
+        
+        transform.xVel = 0;
+        transform.yVel = 0;
+        data.heightSinCounter = 0;
+        data.jumpDone = false;
+        data.rollSpeedSinCounter = STARTING_SIN_COUNT;
     }
 
     @Override
-    public void update() {
-        super.update();
-        setRollForce();
-        setJumpHeight();
-        entity.xVel = rollVel.x;
-        entity.yVel = rollVel.y;
-        if (rollSpeedSinCounter >= MathUtils.PI - END_EARLY) {
-            IS_DONE = true;
+    public void onExit(Entity entity) {
+        super.onExit(entity);
+    }
+
+    @Override
+    public void update(Entity entity) {
+        super.update(entity);
+        Transform transform = Transform.MAPPER.get(entity);
+        RollActionComponent data = MAPPER.get(entity);
+        RoutineListComponent routineListComponent = RoutineListComponent.MAPPER.get(entity);
+        
+        setRollForce(entity);
+        setJumpHeight(entity);
+        transform.xVel = data.rollVel.x;
+        transform.yVel = data.rollVel.y;
+        if (data.rollSpeedSinCounter >= MathUtils.PI - END_EARLY) {
+            routineListComponent.CURRENT_ACTION_IS_DONE = true;
         }
     }
 
-    private void setRollForce() {
-        if (rollSpeedSinCounter < MathUtils.PI - END_EARLY) {
-            rollSpeedSinCounter += (FRICTION - (FRICTION_SPEED * FRICTION * rollSpeedSinCounter)) * DeltaTime.deltaTime();
+    private void setRollForce(Entity entity) {
+        RollActionComponent data = MAPPER.get(entity);
+        if (data.rollSpeedSinCounter < MathUtils.PI - END_EARLY) {
+            data.rollSpeedSinCounter += (FRICTION - (FRICTION_SPEED * FRICTION * data.rollSpeedSinCounter)) * DeltaTime.deltaTime();
         }
 
-        rollVel = new Vector2(SPEED * MathUtils.sin(rollSpeedSinCounter) * GameInput.getHorizontalAxis(),
-                SPEED * MathUtils.sin(rollSpeedSinCounter) * GameInput.getVerticalAxis());
+        data.rollVel = new Vector2(SPEED * MathUtils.sin(data.rollSpeedSinCounter) * GameInput.getHorizontalAxis(),
+                SPEED * MathUtils.sin(data.rollSpeedSinCounter) * GameInput.getVerticalAxis());
     }
 
-    private void setJumpHeight() {
-        if (!jumpDone) {
-            if (heightSinCounter < MathUtils.PI) {
-                heightSinCounter += JUMP_SPEED * DeltaTime.deltaTime();
+    private void setJumpHeight(Entity entity) {
+        Transform transform = Transform.MAPPER.get(entity);
+        WorldColliderComponent collider = WorldColliderComponent.MAPPER.get(entity);
+        CombatComponent combatComponent = CombatComponent.MAPPER.get(entity);
+        RollActionComponent data = MAPPER.get(entity);
+        
+        if (!data.jumpDone) {
+            if (data.heightSinCounter < MathUtils.PI) {
+                data.heightSinCounter += JUMP_SPEED * DeltaTime.deltaTime();
             }
-            if (heightSinCounter >= MathUtils.PI) {
-                heightSinCounter = 0;
-                hurtbox.setPosition(entity.getHitbox().x, entity.getHitbox().y, 0, 0);
-                hurtbox.setDamageInformation(new DamageInformation(RandomUtils.getFloat(0, MathUtils.PI2), entity.KNOCKBACK, entity.DAMAGE));
-                hurtbox.checkIfHitEntities(true);
-                new ParticleEffect(ParticleTypes.getDiveDustParameters(), entity.getHitbox().x, entity.getBounds().y - 3);
+            if (data.heightSinCounter >= MathUtils.PI) {
+                data.heightSinCounter = 0;
+                com.badlogic.gdx.math.Circle hitbox = collider.getHitbox(transform);
+                data.hurtbox.setPosition(hitbox.x, hitbox.y, 0, 0);
+                data.hurtbox.setDamageInformation(new DamageInformation(RandomUtils.getFloat(0, MathUtils.PI2), combatComponent.KNOCKBACK, combatComponent.DAMAGE));
+                data.hurtbox.checkIfHitEntities(true);
+                //TODO particle
+                //new ParticleEffect(ParticleTypes.getDiveDustParameters(), hitbox.x, transform.getBounds().y - 3);
                 SoundEffects.playLoud(END_SOUND_EFFECT);
-                entity.startSquish(0.01f, 1.2f);
-                jumpDone = true;
+                EffectsComponent.MAPPER.get(entity).startSquish(0.01f, 1.2f);
+                data.jumpDone = true;
             }
-            entity.height = JUMP_HEIGHT * MathUtils.sin(heightSinCounter);
+            transform.height = JUMP_HEIGHT * MathUtils.sin(data.heightSinCounter);
         }
     }
 }

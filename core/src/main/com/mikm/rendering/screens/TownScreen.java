@@ -8,18 +8,13 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.ScreenUtils;
-import com.mikm.Assets;
+import com.mikm.entities.prefabLoader.PrefabInstantiator;
+import com.mikm.utils.Assets;
 // removed unused imports
-import com.mikm.ExtraMathUtils;
+import com.mikm.utils.ExtraMathUtils;
 import com.mikm.Vector2Int;
-import com.mikm.entities.Entity;
-import com.mikm.entities.inanimateEntities.Door;
-import com.mikm.entities.inanimateEntities.InanimateEntity;
-import com.mikm.entities.RemovableArray;
-import com.mikm.entities.inanimateEntities.Shadow;
+import com.mikm._components.Transform;
 // removed unused imports
-import com.mikm.entities.inanimateEntities.particles.ParticleEffect;
 import com.mikm.entities.inanimateEntities.particles.ParticleTypes;
 import com.mikm.rendering.Camera;
 import com.mikm.rendering.sound.SoundEffects;
@@ -31,7 +26,6 @@ import com.mikm.input.GameInput;
 import com.mikm.input.InputRaw;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
-import com.mikm.debug.DebugRenderer;
 // removed unused import
 
 public class TownScreen extends GameScreen {
@@ -66,15 +60,12 @@ public class TownScreen extends GameScreen {
     private int controllerPromptCooldownFrames = 0; // prevent double toggle in prompt
     private Vector2 worldMouse = new Vector2();
 
-    
-    public final RemovableArray<InanimateEntity> smokeParticles = new RemovableArray<>();
-
     private final String AMBIENCE_SOUND_EFFECT = "townAmbience.ogg";
     private final Vector2Int blacksmithDoorCoords = new Vector2Int(24*16, 23*16);
 
     TownScreen() {
         super();
-        tiledMap = new TmxMapLoader().load("Overworld.tmx");
+        tiledMap = new TmxMapLoader().load("tiled/Overworld.tmx");
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, 1);
         tiledMapRenderer.setView(Camera.orthographicCamera);
         createMusic(Assets.getInstance().getAsset("sound/townTheme.mp3", Music.class));
@@ -83,15 +74,22 @@ public class TownScreen extends GameScreen {
         readAndCreateDestructiblesTiledmapLayer(1, Assets.getInstance().getTextureRegion("grass"), true);
 
         Vector2Int wizardDoorCoords = new Vector2Int(18*16, 28*16);
-        addInanimateEntity(new Door(wizardDoorCoords.x, wizardDoorCoords.y, 4));
-        addInanimateEntity(new Door(blacksmithDoorCoords.x, blacksmithDoorCoords.y, 3));
-        //addInanimateEntity(new NPC(Assets.testTexture, 50, 50));
+
+        PrefabInstantiator.addDoor(this, wizardDoorCoords.x, wizardDoorCoords.y, 4);
+        PrefabInstantiator.addDoor(this, blacksmithDoorCoords.x, blacksmithDoorCoords.y, 3);
 
         // Check for save files
         hasSaveFile = Serializer.getInstance().saveFilesExist();
         showMainMenu = true;
         Application.getInstance().paused = true;
-        //addEntity("slime", 200, 200);
+
+        //PrefabInstantiator.addEntity("slime",this, 200, 200);
+
+        PrefabInstantiator.addParticles(this, 200, 150, 0, ParticleTypes.getRockParameters(RockType.NORMAL));
+
+        //PrefabInstantiator.addProjectile(this, 200, 250);
+        //PrefabInstantiator.addProjectile(this, 200, 200);
+        //PrefabInstantiator.addProjectile(this, 200, 250);
 
     }
 
@@ -122,7 +120,7 @@ public class TownScreen extends GameScreen {
     @Override
     protected void drawAssetsPostEntities() {
         drawHighLayer();
-        smokeParticles.render();
+        //TODO ensure smoke particles are rendering properly
         if (showMainMenu) {
             renderMainMenu();
         }
@@ -130,7 +128,8 @@ public class TownScreen extends GameScreen {
 
 
     private void handleFireCrackling() {
-        float distToDoor = ExtraMathUtils.distance(Application.player.getHitbox().x, Application.player.getHitbox().y, blacksmithDoorCoords.x, blacksmithDoorCoords.y);
+        Transform transform = Application.getInstance().getPlayerTransform();
+        float distToDoor = ExtraMathUtils.distance(transform.getCenteredX(), transform.getCenteredY(), blacksmithDoorCoords.x, blacksmithDoorCoords.y);
         float soundRadius = 64;
         float inverseClampedNumberOfSoundRadiusAwayFromDoor = 1 - MathUtils.clamp(distToDoor/soundRadius, 0, 1);
         //square law of sound
@@ -493,7 +492,7 @@ public class TownScreen extends GameScreen {
             SoundEffects.setLoopVolume(BlacksmithScreen.FIRE_AMBIENCE, 0);
         }
         RockType.validateOres();
-        Application.player.hp = Application.player.MAX_HP;
+        Application.getInstance().getPlayerCombatComponent().hp = Application.getInstance().getPlayerCombatComponent().MAX_HP;
     }
 
     @Override
@@ -527,9 +526,13 @@ public class TownScreen extends GameScreen {
         smokeTimer += Gdx.graphics.getDeltaTime();
         if (smokeTimer > SMOKE_TIMER_MAX) {
             smokeTimer -= SMOKE_TIMER_MAX;
-            new ParticleEffect(ParticleTypes.getSmokeParameters(), MathUtils.HALF_PI, offset+12*16+3,offset+ 13*16-6);
-            new ParticleEffect(ParticleTypes.getSmokeParameters(), MathUtils.HALF_PI, offset+16*16+3,offset+ 13*16-6);
-            new ParticleEffect(ParticleTypes.getSmokeParameters(), MathUtils.HALF_PI, offset+8*16+6,offset+ 13*16-6);
+            //TODO particles
+//            new ParticleEffect(ParticleTypes.getSmokeParameters(), MathUtils.HALF_PI, offset+12*16+3,offset+ 13*16-6);
+//            new ParticleEffect(ParticleTypes.getSmokeParameters(), MathUtils.HALF_PI, offset+16*16+3,offset+ 13*16-6);
+//            new ParticleEffect(ParticleTypes.getSmokeParameters(), MathUtils.HALF_PI, offset+8*16+6,offset+ 13*16-6);
+            PrefabInstantiator.addParticles(this, offset+12*16+3,offset+ 13*16-6, MathUtils.HALF_PI, ParticleTypes.getSmokeParameters());
+            PrefabInstantiator.addParticles(this, offset+16*16+3,offset+ 13*16-6, MathUtils.HALF_PI, ParticleTypes.getSmokeParameters());
+            PrefabInstantiator.addParticles(this, offset+8*16+6, offset+ 13*16-6, MathUtils.HALF_PI, ParticleTypes.getSmokeParameters());
         }
     
     }
@@ -555,19 +558,5 @@ public class TownScreen extends GameScreen {
     @Override
     public int getMapHeight() {
         return 50;
-    }
-
-    public void addSmokeParticle(InanimateEntity entity) {
-        smokeParticles.add(entity);
-        if (entity.hasShadow()) {
-            Shadow shadow = new Shadow(entity);
-            entity.shadow = shadow;
-            smokeParticles.add(shadow);
-        }
-    }
-
-    public void removeSmokeParticle(InanimateEntity entity) {
-        smokeParticles.remove(entity);
-        smokeParticles.remove(entity.shadow);
     }
 }

@@ -4,9 +4,6 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.mikm.Vector2Int;
-import com.mikm.entities.Entity;
-import com.mikm.entities.inanimateEntities.InanimateEntity;
-import com.mikm.entities.RemovableArray;
 import org.junit.jupiter.api.Test;
 
 import java.io.FileInputStream;

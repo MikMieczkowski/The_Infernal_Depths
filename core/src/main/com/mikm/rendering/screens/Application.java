@@ -1,25 +1,22 @@
 package com.mikm.rendering.screens;
 
 // removed unused import
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.badlogic.gdx.math.Interpolation;
+import com.badlogic.gdx.math.Circle;
 import com.esotericsoftware.kryo.io.KryoBufferUnderflowException;
-import com.mikm.Assets;
-import com.mikm.debug.DebugRenderer;
+import com.mikm.entities.prefabLoader.PrefabInstantiator;
+import com.mikm.utils.Assets;
+import com.mikm._components.*;
+import com.mikm._components.routine.RoutineListComponent;
+import com.mikm.utils.debug.DebugRenderer;
 import com.mikm.entities.DamageInformation;
-import com.mikm.entityLoader.BlackboardBindings;
-import com.mikm.entityLoader.EntityLoader;
-import com.mikm.entities.inanimateEntities.Grave;
-import com.mikm.entities.player.Player;
-import com.mikm.entities.player.weapons.WeaponInstances;
 import com.mikm.input.GameInput;
 import com.mikm.input.InputRaw;
 import com.mikm.rendering.Camera;
@@ -56,10 +53,9 @@ public class Application extends Game {
 	public BlacksmithScreen blacksmithScreen;
 	public WizardScreen wizardScreen;
 	public MotiScreen motiScreen;
+    public TestScreen testScreen;
 
 	public GameScreen[] screens;
-
-	public static Player player;
 
 	public boolean timestop;
 	public boolean paused = false;
@@ -75,7 +71,7 @@ public class Application extends Game {
 			throw new RuntimeException(fillColorShader.getLog());
 		}
 
-		createPlayerAndCaveScreen();
+        caveScreen = new CaveScreen();
 		townScreen = new TownScreen();
 		blacksmithScreen = new BlacksmithScreen();
 		slimeBossRoomScreen = new SlimeBossRoomScreen();
@@ -84,8 +80,8 @@ public class Application extends Game {
 		screens= new GameScreen[]{caveScreen, townScreen, slimeBossRoomScreen, blacksmithScreen, wizardScreen, motiScreen};
 
 		Camera.setPositionDirectlyToPlayerPosition();
-		TestScreen test = new TestScreen();
-		setGameScreen(test);
+        testScreen = new TestScreen();
+		setGameScreen(townScreen);
 		townScreen.playSong(null);
 	}
 
@@ -102,9 +98,9 @@ public class Application extends Game {
 
 	public void loadAllSaveData() {
 		try {
-
-			Application.player.swordLevel = readSaveData();
-			Application.player.bowLevel = readSaveData();
+            PlayerCombatComponent playerCombatComponent = PlayerCombatComponent.MAPPER.get(Application.getInstance().getPlayer());
+            playerCombatComponent.swordLevel = readSaveData();
+            playerCombatComponent.bowLevel = readSaveData();
 			for (int i = 0; i < RockType.SIZE; i++) {
 				RockType.get(i).increaseOreAmount(readSaveData());
 				RockType.get(i).tempOreAmount = 0;
@@ -112,29 +108,21 @@ public class Application extends Game {
 
 			boolean b = readSaveData() == 1;
 			if (b) {
-				if (Application.player.bowLevel != 0) {
-					Application.player.equippedWeapon = Application.player.weaponInstances.bows[Application.player.bowLevel - 1];
-					Application.player.currentHeldItem = Application.player.equippedWeapon;
+				if (playerCombatComponent.bowLevel != 0) {
+                    //TODO weapons
+//					playerCombatComponent.equippedWeapon = playerCombatComponent.weaponInstances.bows[playerCombatComponent.bowLevel - 1];
+//					playerCombatComponent.currentHeldItem = playerCombatComponent.equippedWeapon;
 				}
 			} else {
-				if (Application.player.swordLevel != 0) {
-					Application.player.equippedWeapon = Application.player.weaponInstances.swords[Application.player.swordLevel-1];
-					Application.player.currentHeldItem = Application.player.equippedWeapon;
+				if (playerCombatComponent.swordLevel != 0) {
+//					playerCombatComponent.equippedWeapon = playerCombatComponent.weaponInstances.swords[playerCombatComponent.swordLevel-1];
+//					playerCombatComponent.currentHeldItem = playerCombatComponent.equippedWeapon;
 				}
 			}
 			SlimeBossRoomScreen.slimeBossDefeated = readSaveData() == 1;
 		} catch (KryoBufferUnderflowException e) {
 			//file was empty, don't load anything
 		}
-	}
-
-	private void createPlayerAndCaveScreen() {
-		player = (Player) EntityLoader.create("player");
-		player.x = 448;
-		player.y = 448;
-		caveScreen = new CaveScreen();
-		player.setWeapons(new WeaponInstances());
-		Camera.setPositionDirectlyToPlayerPosition();
 	}
 
 	@Override
@@ -154,27 +142,68 @@ public class Application extends Game {
 		checkRespawn();
 	}
 
+    public Entity getPlayer() {
+        return currentScreen.player;
+    }
+
+    public Transform getPlayerTransform() {
+        return Transform.MAPPER.get(currentScreen.player);
+    }
+
+    public WorldColliderComponent getPlayerCollider() {
+        return WorldColliderComponent.MAPPER.get(currentScreen.player);
+    }
+
+    public RoutineListComponent getPlayerRoutineListComponent() {
+        return RoutineListComponent.MAPPER.get(currentScreen.player);
+    }
+
+    public SpriteComponent getPlayerSpriteComponent() {
+        return SpriteComponent.MAPPER.get(currentScreen.player);
+    }
+
+    public CombatComponent getPlayerCombatComponent() {
+        return CombatComponent.MAPPER.get(currentScreen.player);
+    }
+
+
+    public PlayerCombatComponent getPlayerPlayerCombatComponent() {
+        return PlayerCombatComponent.MAPPER.get(currentScreen.player);
+    }
+
+    public Circle getPlayerHitbox() {
+        return getPlayerCollider().getHitbox(getPlayerTransform());
+    }
+
+    public float getPlayerX() { return getPlayerTransform().x; }
+    public float getPlayerY() { return getPlayerTransform().y; }
+    public float getPlayerXCentered() { return getPlayerTransform().getCenteredX(); }
+    public float getPlayerYCentered() { return getPlayerTransform().getCenteredY(); }
+
 	private void checkRespawn() {
-		if (player.dead) {
-			player.deadTime += Gdx.graphics.getDeltaTime();
-			if (player.deadTime > player.RESPAWN_TIME) {
+        CombatComponent combatComponent = getPlayerCombatComponent();
+        PlayerCombatComponent playerCombatComponent = getPlayerPlayerCombatComponent();
+
+		if (combatComponent.dead) {
+            playerCombatComponent.respawnTimer += Gdx.graphics.getDeltaTime();
+			if (playerCombatComponent.respawnTimer > PlayerCombatComponent.RESPAWN_TIME) {
 				//respawn
 				Application.getInstance().caveScreen.updateCurrentMemento();
 				CaveScreen.floor = 0;
-				player.deadTime -= player.RESPAWN_TIME;
-				player.hp = player.MAX_HP;
-				player.damagedAction.dead = false;
-				Application.getInstance().currentScreen.entities.doAfterRender(()->{
-					Application.getInstance().setGameScreen(Application.getInstance().townScreen);
-					player.dead = false;
-				});
+				playerCombatComponent.respawnTimer -= PlayerCombatComponent.RESPAWN_TIME;
+                combatComponent.hp = combatComponent.MAX_HP;
+                combatComponent.dead = false;
+                getPlayerSpriteComponent().visible = true;
+                getPlayerRoutineListComponent().active = true;
+                getPlayerCollider().active = true;
+                setGameScreen(townScreen);
 			}
 		}
 	}
 
 	private void onApplicationExit() {
 		if (RockType.playerHasAnyTempOre()) {
-			Application.getInstance().currentScreen.addInanimateEntityInstantly(new Grave(Application.player.x, Application.player.y));
+            PrefabInstantiator.addGrave(Application.getInstance().currentScreen);
 			caveScreen.updateCurrentMemento();
 		}
 		writeSaveData();
@@ -185,15 +214,17 @@ public class Application extends Game {
 			caveScreen.updateCurrentMemento();
 		}
 		ArrayList<Integer> saveData = new ArrayList<>();
-		saveData.add(Application.player.swordLevel);
-		saveData.add(Application.player.bowLevel);
+        PlayerCombatComponent component = PlayerCombatComponent.MAPPER.get(getPlayer());
+		saveData.add(component.swordLevel);
+		saveData.add(component.bowLevel);
 		for (int i = 0; i < RockType.SIZE; i++) {
 			saveData.add(RockType.get(i).getOreAmount()- RockType.get(i).tempOreAmount);
 		}
 		int b = 0;
-		if (Application.player.bowLevel != 0 && Application.player.equippedWeapon == Application.player.weaponInstances.bows[Application.player.bowLevel-1]) {
-			b = 1;
-		}
+        //TODO weapons
+//		if (component.bowLevel != 0 && component.equippedWeapon == component.weaponInstances.bows[component.bowLevel-1]) {
+//			b = 1;
+//		}
 		saveData.add(b);
 		saveData.add(SlimeBossRoomScreen.slimeBossDefeated ? 1:0);
 		Serializer.getInstance().write(saveData, 10);
@@ -215,6 +246,10 @@ public class Application extends Game {
 
 	}
 
+    public boolean systemShouldTick() {
+        return !timestop && !paused;
+    }
+
 	public void freezeTime() {
 		timestop = true;
 	}
@@ -229,8 +264,9 @@ public class Application extends Game {
 		if (currentScreen == gameScreen) {
 			return;
 		}
-		Application.player.x = gameScreen.getInitialPlayerPosition().x;
-		Application.player.y = gameScreen.getInitialPlayerPosition().y;
+        Transform transform = Transform.MAPPER.get(gameScreen.player);
+		transform.x = gameScreen.getInitialPlayerPosition().x;
+        transform.y = gameScreen.getInitialPlayerPosition().y;
 		if (currentScreen != null) {
 			if (currentScreen != gameScreen) {
 				currentScreen.onExit();
@@ -265,10 +301,8 @@ public class Application extends Game {
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
 			if (currentScreen == caveScreen && !paused) {
-				Application.getInstance().caveScreen.entities.doAfterRender(()-> {
-					Camera.setPositionDirectlyToPlayerPosition();
-					setGameScreen(townScreen);
-				});
+                Camera.setPositionDirectlyToPlayerPosition();
+                setGameScreen(townScreen);
 			}
 		}
 
@@ -296,10 +330,9 @@ public class Application extends Game {
 		}
 		if (Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
 			if (!paused) {
-				Application.player.hp =1;
-				Application.player.damagedAction.enter(new DamageInformation(1, 0, 1));
+				getPlayerCombatComponent().hp = 1;
+                getPlayerRoutineListComponent().takeDamage(new DamageInformation(1, 0, 1), getPlayer());
 			}
 		}
-
 	}
 }

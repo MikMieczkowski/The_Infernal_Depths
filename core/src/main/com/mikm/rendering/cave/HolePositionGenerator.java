@@ -1,7 +1,7 @@
 package com.mikm.rendering.cave;
 
 import com.badlogic.gdx.math.MathUtils;
-import com.mikm.RandomUtils;
+import com.mikm.utils.RandomUtils;
 import com.mikm.Vector2Int;
 
 import java.util.*;

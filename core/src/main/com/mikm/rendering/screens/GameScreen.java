@@ -1,6 +1,8 @@
 package com.mikm.rendering.screens;
 
 
+import com.badlogic.ashley.core.Engine;
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.audio.Music;
@@ -8,7 +10,6 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
@@ -16,16 +17,16 @@ import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.mikm.Assets;
+import com.mikm._components.CombatComponent;
+import com.mikm._systems.*;
+import com.mikm.entities.prefabLoader.PrefabInstantiator;
+import com.mikm.utils.Assets;
 // removed unused import
+import com.mikm._components.WorldColliderComponent;
+import com.mikm._components.Transform;
 import com.mikm.entities.animation.SingleAnimation;
 import com.mikm.entities.animation.SuperAnimation;
-import com.mikm.entityLoader.EntityLoader;
-import com.mikm.debug.DebugRenderer;
-import com.mikm.entities.*;
-import com.mikm.entities.inanimateEntities.Destructible;
-import com.mikm.entities.inanimateEntities.InanimateEntity;
-import com.mikm.entities.inanimateEntities.Shadow;
+import com.mikm.utils.debug.DebugRenderer;
 import com.mikm.entities.inanimateEntities.particles.ParticleTypes;
 import com.mikm.rendering.Camera;
 import com.mikm.rendering.cave.RockType;
@@ -38,11 +39,14 @@ public abstract class GameScreen extends ScreenAdapter {
     Music song;
     public static Camera camera;
 
-    public RemovableArray<Entity> entities;
-    public final RemovableArray<InanimateEntity> inanimateEntities = new RemovableArray<>();
-
     public OrthogonalTiledMapRenderer tiledMapRenderer;
     public TiledMap tiledMap;
+    public Engine engine;
+
+
+    public Entity player;
+    public Transform playerTransform;
+    public WorldColliderComponent playerCollider;
 
 
     private final TextureRegion hpBar, hpBarBottom;
@@ -63,9 +67,6 @@ public abstract class GameScreen extends ScreenAdapter {
     private boolean renderCamera = true, renderUI = true;
 
     GameScreen() {
-        camera = new Camera();
-        viewport = new ScreenViewport(Camera.orthographicCamera);
-        viewport.setUnitsPerPixel(Camera.VIEWPORT_ZOOM);
         hpBar = Assets.getInstance().getTextureRegion("hpBar", 16, 80);
         hpBarBottom = Assets.getInstance().getTextureRegion("hpBarBottom", 16, 80);
         health = Assets.getInstance().getSplitTextureRegion("health", 16, 8);
@@ -73,15 +74,37 @@ public abstract class GameScreen extends ScreenAdapter {
         musicIconOn = Assets.getInstance().getSplitTextureRegion("musicIcons", 32, 32)[0][0]; // simple placeholder texture
         musicIconOff = Assets.getInstance().getSplitTextureRegion("musicIcons", 32, 32)[0][1]; // simple placeholder texture
 
-        entities = new RemovableArray<>();
-        entities.add(Application.player);
-        addPlayerShadow();
-    }
+        engine = new Engine();
+        engine.addSystem(new RoutineSystem());
+        engine.addSystem(new AnimationSystem());
+        engine.addSystem(new WorldCollisionMovementSystem());
+        engine.addSystem(new EffectsSystem());
+        engine.addSystem(new RenderingSystem());
+        engine.addSystem(new PlayerTriggerSystem());
+        engine.addSystem(new CombatSystem());
 
-    public void addPlayerShadow() {
-        Shadow playerShadow = new Shadow(Application.player);
-        Application.player.shadow = playerShadow;
-        inanimateEntities.add(playerShadow);
+
+        player = PrefabInstantiator.addEntity("player", this,
+                getInitialPlayerPosition().x, getInitialPlayerPosition().y);
+        PrefabInstantiator.addPlayerWeapon(this);
+        CombatComponent.MAPPER.get(player).hp = CombatComponent.MAPPER.get(player).MAX_HP;
+
+        camera = new Camera();
+        viewport = new ScreenViewport(Camera.orthographicCamera);
+        viewport.setUnitsPerPixel(Camera.VIEWPORT_ZOOM);
+        Camera.setPositionDirectlyToPlayerPosition();
+//        Set<Component> componentSet = new HashSet<>(Arrays.asList(
+//            new RoutineListComponent(),
+//            new Transform(80*16, 80*16),
+//            new SpriteComponent(Assets.testTexture),
+//            new ColliderComponent()
+//        ));
+
+//        for (Component c : componentSet) {
+//            player.add(c);
+//        }
+//        PrefabLoader.getInstance().addPrefab("player", componentSet);
+//        engine.addEntity(player);
     }
 
     boolean[][] readCollisionTiledmapLayer(int layer, int w, int h) {
@@ -146,18 +169,19 @@ public abstract class GameScreen extends ScreenAdapter {
                     animation = new SingleAnimation(t, 1/(animTile.getAnimationIntervals()[0]/1000f), Animation.PlayMode.LOOP);
                 }
 
-                Destructible d;
-                if (animated) {
-                    d = new Destructible(animation, particleType, soundEffect, i * 16, j * 16);
-                } else {
-                    d = new Destructible(cell.getTile().getTextureRegion(), particleType, soundEffect, i * 16, j * 16);
-                }
-                d.width = cell.getTile().getTextureRegion().getRegionWidth();
-                d.height = cell.getTile().getTextureRegion().getRegionHeight();
-                d.xScale = cell.getFlipHorizontally() ? -1 : 1;
-                d.yScale = cell.getFlipVertically() ? -1 : 1;
-                d.hasShadow = shadows;
-                addInanimateEntity(d);
+                //TODO add back
+//                Entity d = createEntity();
+//                if (animated) {
+//                    d = new Destructible(animation, particleType, soundEffect, i * 16, j * 16);
+//                } else {
+//                    d = new Destructible(cell.getTile().getTextureRegion(), particleType, soundEffect, i * 16, j * 16);
+//                }
+//                d.width = cell.getTile().getTextureRegion().getRegionWidth();
+//                d.height = cell.getTile().getTextureRegion().getRegionHeight();
+//                d.xScale = cell.getFlipHorizontally() ? -1 : 1;
+//                d.yScale = cell.getFlipVertically() ? -1 : 1;
+//                d.hasShadow = shadows;
+//                addInanimateEntity(d);
 
                 cell.setRotation(TiledMapTileLayer.Cell.ROTATE_0);
                 cell.setFlipHorizontally(false);
@@ -191,16 +215,11 @@ public abstract class GameScreen extends ScreenAdapter {
     @Override
     public void render(float delta) {
         preSetup();
-        if (!Application.getInstance().timestop && !Application.getInstance().paused) {
-            inanimateEntities.render();
-            entities.render();
-        } else {
-            inanimateEntities.draw(Application.batch);
-            entities.draw(Application.batch);
-        }
+        engine.update(delta);
         postSetup();
     }
 
+    @Deprecated
     private void preSetup() {
         Application.batch.begin();
         if (renderCamera) {
@@ -212,6 +231,7 @@ public abstract class GameScreen extends ScreenAdapter {
         drawAssetsPreEntities();
     }
 
+    @Deprecated
     private void postSetup() {
         drawAssetsPostEntities();
         DebugRenderer.getInstance().update();
@@ -258,8 +278,8 @@ public abstract class GameScreen extends ScreenAdapter {
             healthAnimationTimer = 0;
             f = 0;
         }
-        for (int i = 0; i < Application.player.hp + 1; i++) {
-            drawComponentOnEdge(health[(Application.player.hp - i) % 10][f], 6, 1, -4, 1 + i * 8);
+        for (int i = 0; i < Application.getInstance().getPlayerCombatComponent().hp + 1; i++) {
+            drawComponentOnEdge(health[(Application.getInstance().getPlayerCombatComponent().hp - i) % 10][f], 6, 1, -4, 1 + i * 8);
         }
         drawComponentOnEdge(hpBarBottom, 6, 1, -4, 1);
     }
@@ -411,71 +431,20 @@ public abstract class GameScreen extends ScreenAdapter {
 
     }
 
-
-    public void addPlayer() {
-        addEntity(Application.player);
-    }
-    public Entity addEntity(String entityName, int x, int y) {
-        Entity entity = EntityLoader.create(entityName);
-        entity.x = x;
-        entity.y = y;
-        addEntity(entity);
+    public com.badlogic.ashley.core.Entity createEntity() {
+        Entity entity = engine.createEntity();
+        entity.add(new Transform());
         return entity;
     }
 
-    public void addEntity(Entity entity) {
-        entities.add(entity);
-        if (entity.hasShadow()) {
-            Shadow shadow = new Shadow(entity);
-            entity.shadow = shadow;
-            inanimateEntities.add(shadow);
-        }
+    public com.badlogic.ashley.core.Entity createEntity(int x, int y) {
+        Entity entity = engine.createEntity();
+        entity.add(new Transform(x, y));
+        return entity;
     }
 
-
-    public void addEntityInstantly(String entityName, int x, int y) {
-        Entity entity = EntityLoader.create(entityName);
-        entity.x = x;
-        entity.y = y;
-        addEntityInstantly(entity);
-    }
-
-    public void addEntityInstantly(Entity entity) {
-        entities.addInstantly(entity);
-        if (entity.hasShadow()) {
-            Shadow shadow = new Shadow(entity);
-            entity.shadow = shadow;
-            inanimateEntities.addInstantly(shadow);
-        }
-    }
-
-
-    public void addInanimateEntity(InanimateEntity entity) {
-        inanimateEntities.add(entity);
-        if (entity.hasShadow()) {
-            Shadow shadow = new Shadow(entity);
-            entity.shadow = shadow;
-            inanimateEntities.add(shadow);
-        }
-    }
-
-    public void addInanimateEntityInstantly(InanimateEntity entity) {
-        inanimateEntities.addInstantly(entity);
-        if (entity.hasShadow()) {
-            Shadow shadow = new Shadow(entity);
-            entity.shadow = shadow;
-            inanimateEntities.addInstantly(shadow);
-        }
-    }
-
-    public void removeEntity(Entity entity) {
-        entities.remove(entity);
-        inanimateEntities.remove(entity.shadow);
-    }
-
-    public void removeInanimateEntity(InanimateEntity entity) {
-        inanimateEntities.remove(entity);
-        inanimateEntities.remove(entity.shadow);
+    public void removeEntity(com.badlogic.ashley.core.Entity entity) {
+        engine.removeEntity(entity);
     }
 
     @Override

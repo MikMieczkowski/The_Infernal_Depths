@@ -1,17 +1,23 @@
 package com.mikm.rendering.cave;
 
-import com.mikm.RandomUtils;
+import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.utils.ImmutableArray;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
+import com.mikm._components.*;
+import com.mikm.entities.prefabLoader.EntityData;
+import com.mikm.utils.ExtraMathUtils;
+import com.mikm.utils.RandomUtils;
 import com.mikm.Vector2Int;
-import com.mikm.entities.Entity;
-import com.mikm.entityLoader.EntityLoader;
-import com.mikm.entities.inanimateEntities.InanimateEntity;
-import com.mikm.entities.inanimateEntities.Rope;
+import com.mikm.entities.prefabLoader.EntityYAMLReader;
+import com.mikm.entities.prefabLoader.PrefabInstantiator;
 import com.mikm.rendering.screens.Application;
 import com.mikm.rendering.screens.CaveScreen;
+import com.mikm.utils.debug.DebugRenderer;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class CaveEntitySpawner {
@@ -25,73 +31,94 @@ public class CaveEntitySpawner {
         this.caveScreen = caveScreen;
     }
     
-    public void spawn(CaveTilemapCreator tilemap) {
+    public void load(CaveTilemapCreator tilemap) {
         this.ruleCellPositions = tilemap.ruleCellPositions;
         this.openTilePositions = tilemap.openTiles;
 
-        resetInanimateAndAnimateEntities();
-
-        spawnRocks();
-        spawnEnemies();
+        loadRocks();
+        loadEnemies();
     }
 
     public void activate(CaveFloorMemento memento) {
         resetInanimateAndAnimateEntities();
+        caveScreen.caveTilemapCreator.rockCollidablePositions = new boolean[caveScreen.caveTilemapCreator.MAP_HEIGHT][caveScreen.caveTilemapCreator.MAP_WIDTH];
+
         Vector2Int ropePosition = new Vector2Int(memento.ropePosition.x+8, memento.ropePosition.y+8);
-        caveScreen.inanimateEntities.addInstantly(new Rope(ropePosition.x, ropePosition.y));
+        PrefabInstantiator.addEntity("rope", caveScreen, ropePosition.x, ropePosition.y);
         caveScreen.currentRopePosition = ropePosition;
 
-        for (InanimateEntity i : memento.inanimateEntities) {
-            caveScreen.addInanimateEntity(i);
+        //Add all the entities in memento.entities to the cavescreen
+
+        for (EntityData entityData : memento.enemies) {
+            if (entityData.prefabName.equals("player") || entityData.prefabName.equals("rope")) {
+                continue;
+            }
+            PrefabInstantiator.addEntity(entityData.prefabName, caveScreen, entityData.pos);
+            //CombatComponent.MAPPER.get(entity).hp = CombatComponent.MAPPER.get(entity).MAX_HP;
         }
-        for (InanimateEntity i : memento.graves) {
-            caveScreen.addInanimateEntity(i);
+
+
+        for (EntityData entityData : memento.rocks) {
+            PrefabInstantiator.addRock(caveScreen, entityData.pos.x, entityData.pos.y, entityData.rockType);
+            Vector2Int tilePos = ExtraMathUtils.toTileCoordinates(entityData.pos);
+            caveScreen.caveTilemapCreator.rockCollidablePositions[tilePos.y][tilePos.x] = true;
+            caveScreen.caveTilemapCreator.collidablePositions[tilePos.y][tilePos.x] = true;
         }
-        for (Entity e : memento.enemies) {
-            e.hp = e.MAX_HP;
-            e.damagedAction.dead = false;
-            caveScreen.addEntity(e);
-        }
+
+        //TODO add graves
+//            if (entityData.ores != null) {
+//                GraveComponent.MAPPER.get(entity).ores = entityData.ores;
+//            }
     }
 
     private void resetInanimateAndAnimateEntities() {
-        caveScreen.entities.removeInstantly(Application.player);
-        caveScreen.entities.clear();
-        caveScreen.inanimateEntities.clear();
-        caveScreen.entities.addInstantly(Application.player);
-        caveScreen.addPlayerShadow();
+        ImmutableArray<Entity> entities = caveScreen.engine.getEntities();
+        for (int i = entities.size() - 1; i >= 0; i--) {
+            Entity e = entities.get(i);
+            String entityName = Transform.MAPPER.get(e).ENTITY_NAME;
+            if (!entityName.equals("player") && !entityName.equals("playerWeapon")) {
+                caveScreen.engine.removeEntity(e);
+            }
+        }
     }
 
-    private void spawnEnemies() {
+    private void loadEnemies() {
         if (openTilePositions.isEmpty()) {
             return;
         }
 
-        Map<String, SpawnProbability> entityData = new HashMap<>();
-        for (String name : EntityLoader.getEntitiesInYamlFolder()) {
+        Map<String, SpawnProbability> spawnProbabilities = new HashMap<>();
+        //find spawnProbabilities
+        for (String name : EntityYAMLReader.getEntitiesInYamlFolder()) {
             if (name.equals("player")) {
                 continue;
             }
-            Entity entity = EntityLoader.create(name);
-            if (entity.spawnProbability != null) {
-                entityData.put(entity.NAME, entity.spawnProbability);
+            Entity entity = PrefabInstantiator.addEntity(name, Application.getInstance().caveScreen);
+            SpawnComponent spawnComponent = SpawnComponent.MAPPER.get(entity);
+            Transform transform = Transform.MAPPER.get(entity);
+            if (spawnComponent != null) {
+                spawnProbabilities.put(transform.ENTITY_NAME, spawnComponent.spawnProbability);
             }
+            Application.getInstance().caveScreen.removeEntity(entity);
         }
 
-        for (Map.Entry<String, SpawnProbability> entry : entityData.entrySet()) {
+        //spawn entities
+        for (Map.Entry<String, SpawnProbability> entry : spawnProbabilities.entrySet()) {
             int times = (int)(entry.getValue().getProbabilityByFloor(CaveScreen.floor) * openTilePositions.size());
             for (int i = 0; i < times; i++) {
-                Entity entity = EntityLoader.create(entry.getKey());
-                //spawn entity
                 Vector2Int randomTilePosition = openTilePositions.get(RandomUtils.getInt(openTilePositions.size()-1));
-                entity.x = randomTilePosition.x * Application.TILE_WIDTH;
-                entity.y = randomTilePosition.y * Application.TILE_HEIGHT;
-                caveScreen.addEntityInstantly(entity);
+                //PrefabInstantiator.addEntity(entry.getKey(), Application.getInstance().caveScreen,
+                //        randomTilePosition.x * Application.TILE_WIDTH, randomTilePosition.y * Application.TILE_HEIGHT);
+
+                EntityData entityData = new EntityData(new Vector2( randomTilePosition.x * Application.TILE_WIDTH, randomTilePosition.y * Application.TILE_HEIGHT),
+                        entry.getKey());
+                caveScreen.caveFloorMementos[CaveScreen.floor - 1].enemies.add(entityData);
+
             }
         }
     }
 
-    public void spawnRocks() {
+    public void loadRocks() {
         if (openTilePositions.isEmpty()) {
             return;
         }
@@ -101,9 +128,10 @@ public class CaveEntitySpawner {
             SpawnProbability rockDistribution = SpawnProbabilityConstants.ROCK_FILL;
             if (RandomUtils.getFloatRoundedToTenths(100) < rockDistribution.getProbabilityByFloor(CaveScreen.floor) * 100f) {
                 RockType randomRockType = RockType.getRandomRockType(SpawnProbabilityConstants.getOreDistributionsByFloor(CaveScreen.floor));
-                caveScreen.inanimateEntities.addInstantly(new Rock(tilePosition.x * Application.TILE_WIDTH, tilePosition.y * Application.TILE_HEIGHT, randomRockType, CaveScreen.getRecolorLevel()));
-                caveScreen.caveTilemapCreator.rockCollidablePositions[tilePosition.y][tilePosition.x] = true;
-                caveScreen.caveTilemapCreator.collidablePositions[tilePosition.y][tilePosition.x] = true;
+
+                EntityData rockData = new EntityData(new Vector2(tilePosition.x * Application.TILE_WIDTH, tilePosition.y * Application.TILE_HEIGHT),
+                        "destructible", randomRockType);
+                caveScreen.caveFloorMementos[CaveScreen.floor - 1].rocks.add(rockData);
                 positionsToDelete.add(tilePosition);
             }
         }

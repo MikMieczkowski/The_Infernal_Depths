@@ -1,5 +1,6 @@
 package com.mikm.rendering.screens;
 
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
@@ -7,31 +8,31 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.mikm.Assets;
-import com.mikm.entities.Entity;
-import com.mikm.entities.inanimateEntities.Grave;
+import com.mikm._components.CombatComponent;
+import com.mikm.utils.Assets;
+import com.mikm.entities.actions.DamagedAction;
+import com.mikm.entities.prefabLoader.PrefabInstantiator;
 import com.mikm.rendering.Camera;
-
-import java.util.ArrayList;
 
 public class MotiScreen extends GameScreen {
     private boolean[][] collidableGrid;
     private float nextRoomTimer = 0;
     private float NEXT_ROOM_WAIT_TIME = 3;
     private boolean gameCompleted = false;
-    public ArrayList<Grave> graves = new ArrayList<>();
+    //TODO add back
+    //public ArrayList<Grave> graves = new ArrayList<>();
     private Entity moti;
 
     MotiScreen() {
         super();
 
-        tiledMap = new TmxMapLoader().load("Moti.tmx");
+        tiledMap = new TmxMapLoader().load("tiled/Moti.tmx");
 
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, 1);
         collidableGrid = readCollisionTiledmapLayer(2, getMapWidth(),getMapHeight());
 
         createMusic(Assets.getInstance().getAsset("sound/webbedSong.mp3", Music.class));
-        moti = addEntity("moti", 50, 50);
+        moti = PrefabInstantiator.addEntity("moti", this, 50, 50);
     }
 
     @Override
@@ -47,7 +48,7 @@ public class MotiScreen extends GameScreen {
         }
         ScreenUtils.clear(CaveScreen.caveFillColorLevel6);
         super.render(delta);
-        if (moti.damagedAction.dead) {
+        if (CombatComponent.MAPPER.get(moti).dead) {
             nextRoomTimer += Gdx.graphics.getDeltaTime();
             if (nextRoomTimer > NEXT_ROOM_WAIT_TIME) {
                 nextRoomTimer = 0;
@@ -76,16 +77,14 @@ public class MotiScreen extends GameScreen {
 
     @Override
     public void onEnter() {
-        resetInanimateAndAnimateEntities();
+        resetMoti();
     }
 
-    private void resetInanimateAndAnimateEntities() {
-        entities.removeInstantly(Application.player);
-        entities.clear();
-        inanimateEntities.clear();
-        addPlayer();
-        inanimateEntities.addAll(graves);
-        moti = addEntity("moti", getMapWidth() * Application.TILE_WIDTH /2 +48, getMapHeight() * Application.TILE_HEIGHT /2 + 48);
+    private void resetMoti() {
+        removeEntity(moti);
+        //TODO add moti prefab
+        moti = PrefabInstantiator.addEntity("moti", Application.getInstance().motiScreen,
+                getMapWidth() * Application.TILE_WIDTH /2 +48, getMapHeight() * Application.TILE_HEIGHT /2 + 48);
     }
 
     @Override

@@ -5,9 +5,10 @@ import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
-import com.mikm.RandomUtils;
+import com.mikm._components.Transform;
+import com.mikm.entities.prefabLoader.EntityData;
+import com.mikm.utils.RandomUtils;
 import com.mikm.Vector2Int;
-import com.mikm.entities.inanimateEntities.InanimateEntity;
 import com.mikm.rendering.cave.ruleCell.RuleCell;
 import com.mikm.rendering.cave.ruleCell.RuleCellMetadata;
 import com.mikm.rendering.cave.ruleCell.RuleCellMetadataReader;
@@ -75,21 +76,20 @@ public class CaveTilemapCreator {
     }
 
     public void generateNewMap() {
-        recolorImagesAndCells();
-        clearLayers();
+        //recolorImagesAndCells();
+        //clearLayers();
 
         ruleCellPositions = ruleCellPositionGenerator.createRuleCellPositions();
-        collidablePositions = Serializer.getInstance().copy(ruleCellPositions);
-        rockCollidablePositions = new boolean[MAP_HEIGHT][MAP_WIDTH];
+        //collidablePositions = Serializer.getInstance().copy(ruleCellPositions);
 
-        fillRuleCellLayerFromRuleCellPositions();
-        fillInWalls();
+        //fillRuleCellLayerFromRuleCellPositions();
+        //fillInWalls();
 
         openTiles = findOpenTilePositions();
 
         HolePositionGenerator holePositionGenerator = new HolePositionGenerator(this);
         holePositions = holePositionGenerator.createHolePositions();
-        fillHoleRuleCellLayerAndMakeHolesCollidable();
+        //fillHoleRuleCellLayer();
 
     }
 
@@ -97,17 +97,27 @@ public class CaveTilemapCreator {
         recolorImagesAndCells();
         clearLayers();
         ruleCellPositions = memento.ruleCellPositions;
-        collidablePositions = Serializer.getInstance().copy(ruleCellPositions);
+        collidablePositions = booleanCopy(ruleCellPositions);
         rockCollidablePositions = new boolean[MAP_HEIGHT][MAP_WIDTH];
         fillRuleCellLayerFromRuleCellPositions();
         fillInWalls();
         holePositions = memento.holePositions;
-        fillHoleRuleCellLayerAndMakeHolesCollidable();
-        for (InanimateEntity rock : memento.inanimateEntities) {
-            
-            collidablePositions[(int) rock.y/Application.TILE_HEIGHT][(int) rock.x / Application.TILE_WIDTH] = true;
-            rockCollidablePositions[(int) rock.y/Application.TILE_HEIGHT][(int) rock.x / Application.TILE_WIDTH] = true;
+        fillHoleRuleCellLayer();
+
+        System.out.println(memento.rocks.size());
+        for (EntityData entityData : memento.rocks) {
+            rockCollidablePositions[(int) entityData.pos.y/Application.TILE_HEIGHT][(int) entityData.pos.x / Application.TILE_WIDTH] = true;
         }
+    }
+
+    public boolean[][] booleanCopy(boolean[][] map) {
+        boolean[][] output = new boolean[map.length][map[0].length];
+        for (int i = 0; i < map.length; i++) {
+            for (int j = 0; j < map[0].length; j++) {
+                output[i][j] = map[i][j];
+            }
+        }
+        return output;
     }
 
     public Vector2Int getSpawnablePosition() {
@@ -116,8 +126,10 @@ public class CaveTilemapCreator {
             return Vector2Int.ZERO;
         }
         Vector2Int spawnLocationInTiles = openTiles.get(RandomUtils.getInt(openTiles.size()-1));
-        return new Vector2Int(spawnLocationInTiles.x * Application.TILE_WIDTH + (int)Application.player.getBoundsOffset().x,
-                spawnLocationInTiles.y * Application.TILE_HEIGHT + (int)Application.player.getBoundsOffset().y);
+        Transform transform = Application.getInstance().getPlayerTransform();
+
+        return new Vector2Int(spawnLocationInTiles.x * Application.TILE_WIDTH + (int)transform.getBoundsOffset().x,
+                spawnLocationInTiles.y * Application.TILE_HEIGHT + (int)transform.getBoundsOffset().y);
     }
 
     private void recolorImagesAndCells() {
@@ -178,7 +190,7 @@ public class CaveTilemapCreator {
         createMapFromLayers();
     }
 
-    private void fillHoleRuleCellLayerAndMakeHolesCollidable() {
+    private void fillHoleRuleCellLayer() {
         for (Vector2Int holePosition : holePositions) {
             if (holePosition.x < MAP_WIDTH) {
                 holePositionsToCheckGrid[holePosition.y][holePosition.x] = true;

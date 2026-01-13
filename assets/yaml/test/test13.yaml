@@ -3,7 +3,8 @@ CONFIG:
 BEHAVIOURS:
   behaviourName:
     ACTION: Idle
-    SINGLE_FRAME: #one of - already implemented
+    ANIMATION:
+      TYPE: SINGLE_FRAME #one of - already implemented
       IMAGE_NAME: "sand" #
 ROUTINES:
   start:

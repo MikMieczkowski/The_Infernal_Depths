@@ -1,6 +1,6 @@
 CONFIG:
   NAME: bat
-  MAX_HP: 3
+  MAX_HP: 30
   #DAMAGE: 1
   #SPEED: 1
   #ORIGIN_X: 0
@@ -25,7 +25,8 @@ SPAWN_CONFIG:
 BEHAVIOURS:
   Circle:
     #ACTION: "Circle"
-    SINGLE_ANIMATION:
+    ANIMATION:
+      TYPE: SINGLE_ANIMATION
       IMAGE_NAME: "batFly"
       FPS: 10
       LOOP: true
@@ -34,7 +35,8 @@ BEHAVIOURS:
       angular_speed: .1
       #DAMAGE: 1
   Explode:
-    SINGLE_ANIMATION:
+    ANIMATION:
+      TYPE: SINGLE_ANIMATION
       IMAGE_NAME: "batShock"
       FPS: 10
       LOOP: false

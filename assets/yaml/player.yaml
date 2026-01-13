@@ -1,27 +1,38 @@
 CONFIG:
+  #transform component
   NAME: player
-  MAX_HP: 9
-  DAMAGE: 1
-  KNOCKBACK: 2
+  #RoutineList component
   SPEED: 2
+  #damage component
+  MAX_HP: 50
+  DAMAGE: 10
+  KNOCKBACK: 2
+  #hp component
   HURT_ANIMATION:
-    SINGLE_FRAME:
+    ANIMATION:
+      TYPE: SINGLE_FRAME
       IMAGE_NAME: "black"
+      #hp component
   HURT_SOUND_EFFECT: "playerHit"
   #INVINCIBLE: false
+  #goes to behaviours component
   CHECK_TRANSITIONS_EVERY_FRAME: true
   BOUNDS:
+    #goes to sprite
     IMAGE_WIDTH: 32
     IMAGE_HEIGHT: 32
+    #goes to shadow component
     SHADOW_OFFSET_X: 8
     SHADOW_OFFSET_Y: 6
+    #goes to collider component
     HITBOX_RADIUS: 7
 
 BEHAVIOURS:
   Walk:
     ACTION: AcceleratedMove
     ON_HITTING_PLAYER_INTERRUPT_AND_GO_TO: start
-    SINGLE_FRAME:
+    ANIMATION:
+      TYPE: SINGLE_FRAME
       IMAGE_NAME: "black"
     CONFIG:
       step_sound_effect: "step.ogg"
@@ -30,14 +41,19 @@ BEHAVIOURS:
       movement_direction_type: "InputAxis"
   Stand:
     ACTION: AcceleratedMove
-    SINGLE_FRAME:
+    ANIMATION:
+      TYPE: SINGLE_FRAME
       IMAGE_NAME: "black"
+    COPY_CONFIG: Walk
+  ChargeAttack:
+    COPY_ANIMATION: Walk
     COPY_CONFIG: Walk
   PlayerAttacking:
     COPY_ANIMATION: Walk
     COPY_CONFIG: Walk
   Dive:
-    SINGLE_FRAME:
+    ANIMATION:
+      TYPE: SINGLE_FRAME
       IMAGE_NAME: "black"
     CONFIG:
       #sets IS_DONE instead of MAX_TIME
@@ -48,7 +64,8 @@ BEHAVIOURS:
       start_sound_effect: "dash.ogg"
       start_sound_effect2: "playerDive"
   Roll:
-    SINGLE_FRAME:
+    ANIMATION:
+      TYPE: SINGLE_FRAME
       IMAGE_NAME: "black"
     CONFIG:
       DAMAGE: 1
@@ -64,26 +81,31 @@ BEHAVIOURS:
       jump_height: 12
       end_sound_effect: "step.ogg"
   Fall:
-    SINGLE_FRAME:
+    ANIMATION:
+      TYPE: SINGLE_FRAME
       IMAGE_NAME: "black"
     CONFIG:
       MAX_TIME: 1
       start_sound_effect: "dash.ogg"
   IdleYawn:
     ACTION: Idle
-    SINGLE_FRAME:
+    ANIMATION:
+      TYPE: SINGLE_FRAME
       IMAGE_NAME: "black"
     CONFIG:
       start_sound_effect: "playerYawn.ogg"
   IdleLoop:
     ACTION: Idle
-    SINGLE_FRAME:
+    ANIMATION:
+      TYPE: SINGLE_FRAME
       IMAGE_NAME: "black"
     CONFIG:
       start_sound_effect: "playerHum.ogg"
       time_min: 6
       time_max: 6
-
+  PlayerCharging:
+    COPY_ANIMATION: Walk
+    COPY_CONFIG: Walk
 ROUTINES:
   start:
     CYCLE:
@@ -96,7 +118,7 @@ ROUTINES:
         GO_TO: idleYawn
 
       - ON_CONDITION: "pressedATTACK"
-        GO_TO: attack
+        GO_TO: charge
 
       - ON_CONDITION: "canFall && pressedTALK"
         GO_TO: fall
@@ -108,7 +130,7 @@ ROUTINES:
         GO_TO: start
 
       - ON_CONDITION: "pressedATTACK"
-        GO_TO: attack
+        GO_TO: charge
 
       - ON_CONDITION: "justPressedDIVE && !(currentScreen == 'BlacksmithScreen' && showMenu)"
         GO_TO: dive
@@ -122,7 +144,7 @@ ROUTINES:
       - ON_CONDITION: "isMoving"
         GO_TO: start
       - ON_CONDITION: "pressedATTACK"
-        GO_TO: attack
+        GO_TO: charge
       - ON_CONDITION: "canFall && pressedTALK"
         GO_TO: fall
       - ON_CONDITION: "idleTimer < 10"
@@ -135,15 +157,23 @@ ROUTINES:
       - ON_CONDITION: "isMoving"
         GO_TO: start
       - ON_CONDITION: "pressedATTACK"
-        GO_TO: attack
+        GO_TO: charge
       - ON_CONDITION: "canFall && pressedTALK"
         GO_TO: fall
       - ON_CONDITION: "idleTimer < 10"
         GO_TO: start
+  charge:
+    CYCLE:
+      - BEHAVIOUR: PlayerCharging
+    TRANSITIONS:
+      #attack is not pressed = attack released
+      - ON_CONDITION: "!pressedATTACK"
+        GO_TO: attack
   attack:
     CYCLE:
       - BEHAVIOUR: PlayerAttacking
     TRANSITIONS:
+      #if "bowReleased" (remove later?) or maxtime or isdone is set
       - ON_CONDITION: "bowReleased"
         GO_TO: start
       - NO_REPEAT: start
