@@ -3,12 +3,11 @@ package com.mikm.rendering;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.mikm.Assets;
-import com.mikm.DeltaTime;
+import com.mikm.utils.DeltaTime;
 import com.mikm.input.GameInput;
 import com.mikm.rendering.screens.Application;
 
@@ -26,9 +25,16 @@ public class Camera {
     private static float lookDirectionX, lookDirectionY;
     private final Vector2 ignoredBoxOffset = new Vector2();
 
+    private static Circle target;
 
     //why is this class not static
     public Camera() {
+        if (Application.getInstance().currentScreen == null) {
+            //magic numbers that set the townscreen start location. Do not change or else mouse coords get messed up
+            target = new Circle(464,464, 1);
+        } else {
+            target = Application.getInstance().getPlayerHitbox();
+        }
         orthographicCamera = new OrthographicCamera();
         orthographicCamera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         orthographicCamera.zoom = 1;
@@ -36,11 +42,13 @@ public class Camera {
         setPositionDirectlyToPlayerPosition();
     }
 
+
     public void update() {
+        target = Application.getInstance().getPlayerHitbox();
         lookDirectionX += (GameInput.getAttackingVector().x * LEAD_MULTIPLIER - lookDirectionX) * CAMERA_LEAD_SPEED;
         lookDirectionY += (GameInput.getAttackingVector().y * LEAD_MULTIPLIER - lookDirectionY) * CAMERA_LEAD_SPEED;
 
-        Vector2 targetPosition = new Vector2(Application.player.getHitbox().x - x, Application.player.getHitbox().y - y);
+        Vector2 targetPosition = new Vector2(target.x - x, target.y - y);
 
         setIgnoredBoxOffsetAndMoveCamera(targetPosition);
         updateOrthographicCamera();
@@ -73,14 +81,14 @@ public class Camera {
             if (Math.abs(xVel) < Math.abs(targetPosition.x)) {
                 x += xVel;
             } else {
-                x = Application.player.getHitbox().x;
+                x = target.x;
             }
         } else {
             float yVel = (targetPosition.y + ignoredBoxOffset.y) * CAMERA_SPEED * DeltaTime.deltaTime();
             if (Math.abs(yVel) < Math.abs(targetPosition.y)) {
                 y += yVel;
             } else {
-                y = Application.player.getHitbox().y;
+                y = target.y;
             }
         }
     }
@@ -99,8 +107,8 @@ public class Camera {
     }
 
     public static void setPositionDirectlyToPlayerPosition() {
-        x = Application.player.getHitbox().x;
-        y = Application.player.getHitbox().y;
+        x = target.x;
+        y = target.y;
         updateOrthographicCamera();
     }
 

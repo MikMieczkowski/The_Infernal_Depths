@@ -3,23 +3,24 @@ package com.mikm.entities.inanimateEntities.particles;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
-import com.mikm.Assets;
+import com.mikm.utils.Assets;
 import com.mikm.rendering.cave.RockType;
 
 public class ParticleTypes {
-    TextureRegion image;
-    boolean hasGravity, hasShadow, shouldDecelerate, collidesWithWalls;
+    public TextureRegion image;
+    public boolean hasGravity, hasShadow, shouldDecelerate, collidesWithWalls;
 
     public float peakHeight;
 
-    int positionOffsetRadius;
-    float angleMin, angleMax, speedMin, speedMax, sizeMin, sizeMax, maxLifeTime, proportionOfTimeSpentDecelerating;
-    int amountMin, amountMax;
+    public int positionOffsetRadius;
+    public float angleMin, angleMax, speedMin, speedMax, sizeMin, sizeMax, maxLifeTime, proportionOfTimeSpentDecelerating;
+    public int amountMin;
+    public int amountMax;
 
-    boolean usesColor;
-    Color startColorMin, endColorMin;
-    Color startColorMax, endColorMax;
-    float finalScale = 0;
+    public boolean usesColor;
+    public Color startColorMin, endColorMin;
+    public Color startColorMax, endColorMax;
+    public float finalScale = 0;
 
     public static ParticleTypes getRockParameters(RockType rockType) {
         ParticleTypes rockParameters = new ParticleTypes();

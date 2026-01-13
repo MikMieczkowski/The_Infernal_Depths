@@ -1,5 +1,7 @@
 package com.mikm;
 
+import java.util.*;
+
 public class AttackData {
     public int IMAGE_X = 0;
     public int IMAGE_Y = 0;
@@ -18,5 +20,13 @@ public class AttackData {
         public int SPEED = 0;
     }
     public String PLAYER_ANIMATION = "PlayerAttacking";
-    public String PROJECTILES = [{CREATE_ON=PRESS, CREATE_ON_HOLD_TIME=1, ANIMATION_NAME=swordSlice, FPS=0.1, ORBITS=true, SPEED=0}];
+    public List<PROJECTILESItem> PROJECTILES = new ArrayList<>();
+    public static class PROJECTILESItem {
+        public String CREATE_ON = "PRESS";
+        public int CREATE_ON_HOLD_TIME = 1;
+        public String ANIMATION_NAME = "swordSlice";
+        public double FPS = 0.1;
+        public boolean ORBITS = true;
+        public int SPEED = 0;
+    }
 }

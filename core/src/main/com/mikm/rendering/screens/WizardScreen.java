@@ -6,10 +6,10 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.mikm.debug.DebugRenderer;
-import com.mikm.entities.inanimateEntities.Door;
+import com.mikm._components.ShadowComponent;
+import com.mikm._components.Transform;
+import com.mikm.entities.prefabLoader.PrefabInstantiator;
 import com.mikm.rendering.Camera;
-import com.mikm.rendering.sound.SoundEffects;
 
 public class WizardScreen extends GameScreen{
     private Color BG_COLOR = CaveScreen.caveFillColorLevel6;
@@ -21,10 +21,11 @@ public class WizardScreen extends GameScreen{
     WizardScreen() {
         super();
         collidableGrid = new boolean[4][4];
-        tiledMap = new TmxMapLoader().load("wizardRoom.tmx");
+        tiledMap = new TmxMapLoader().load("tiled/wizardRoom.tmx");
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, 1);
-        addInanimateEntity(new Door(32, 16, 1));
-        removeInanimateEntity(Application.player.shadow);
+
+        PrefabInstantiator.addDoor(this, 32, 16, 1);
+        ShadowComponent.MAPPER.get(player).active = false;
     }
 
     @Override
@@ -64,8 +65,10 @@ public class WizardScreen extends GameScreen{
         //lastHealingEffect.die();
         Camera.VIEWPORT_ZOOM = Camera.DEFAULT_VIEWPORT_ZOOM;
         viewport.setUnitsPerPixel(Camera.VIEWPORT_ZOOM);
-        Application.player.x = 278;
-        Application.player.y = 420;
+
+        Transform playerTransform = Application.getInstance().getPlayerTransform();
+        playerTransform.x = 278;
+        playerTransform.y = 420;
         Camera.setPositionDirectlyToPlayerPosition();
     }
 

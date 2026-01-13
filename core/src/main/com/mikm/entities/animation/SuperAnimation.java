@@ -3,6 +3,8 @@ package com.mikm.entities.animation;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mikm.Vector2Int;
+import com.mikm._components.CopyReference;
+import com.mikm._components.Copyable;
 
 import java.util.ArrayList;
 
@@ -31,7 +33,7 @@ public abstract class SuperAnimation {
         return currentAnimation.isAnimationFinished(animationTime);
     }
 
-    void update(Vector2Int entityDirection) {
+    public void update(Vector2Int entityDirection) {
         if (animations.size() == 5) {
             currentAnimation = animations.get(Directions.getAnimationIndexOfDirection(entityDirection));
         } else if (animations.size() != 1) {
@@ -39,7 +41,7 @@ public abstract class SuperAnimation {
         }
     }
 
-    TextureRegion getKeyFrame(float animationTime) {
+    public TextureRegion getKeyFrame(float animationTime) {
         return currentAnimation.getKeyFrame(animationTime);
     }
 

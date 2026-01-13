@@ -26,6 +26,17 @@ public class Vector2Int {
 
     public static final Vector2Int ZERO = new Vector2Int(0, 0);
 
+
+    public void set(Vector2Int v) {
+        this.x = v.x;
+        this.y = v.y;
+    }
+
+    public void set(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

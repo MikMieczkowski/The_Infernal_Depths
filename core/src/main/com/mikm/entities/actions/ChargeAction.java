@@ -1,120 +1,166 @@
 package com.mikm.entities.actions;
 
+import com.badlogic.ashley.core.Component;
+import com.badlogic.ashley.core.ComponentMapper;
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
-import com.mikm.ExtraMathUtils;
-import com.mikm.debug.DebugRenderer;
-import com.mikm.entities.Entity;
-import com.mikm.entities.inanimateEntities.AfterImageEffect;
-import com.mikm.entityLoader.Blackboard;
+import com.mikm._components.routine.RoutineListComponent;
+import com.mikm._components.routine.Transition;
+import com.mikm.entities.prefabLoader.PrefabInstantiator;
+import com.mikm.utils.ExtraMathUtils;
+import com.mikm._components.Copyable;
+import com.mikm._components.SpriteComponent;
+import com.mikm._components.Transform;
+import com.mikm.entities.prefabLoader.Blackboard;
 import com.mikm.rendering.sound.SoundEffects;
 import com.mikm.rendering.screens.Application;
 
 import java.util.function.Supplier;
 
+
+
 public class ChargeAction extends Action {
-    private Float SPEED;
-    private int JUMP_HEIGHT;
-    private float BOUNCE_COEFFICIENT;
-    private float BOUNCE_FREQUENCY;
-    private boolean MULTIPLE_BOUNCES = false;
-    private boolean ACCELERATE = false;
-    private boolean UPDATES_PLAYER_ANGLE_ON_ENTER = true;
+    @Copyable private Float SPEED;
+    @Copyable private int JUMP_HEIGHT;
+    @Copyable private float BOUNCE_COEFFICIENT;
+    @Copyable private float BOUNCE_FREQUENCY;
+    @Copyable private boolean MULTIPLE_BOUNCES = false;
+    @Copyable private boolean ACCELERATE = false;
+    @Copyable private boolean UPDATES_PLAYER_ANGLE_ON_ENTER = true;
 
-    private boolean HAS_AFTERIMAGES = false;
-    private float TIME_BETWEEN_DASH_EFFECT_IMAGES = .05f;
+    @Copyable private boolean HAS_AFTERIMAGES = false;
+    @Copyable private float TIME_BETWEEN_DASH_EFFECT_IMAGES = .05f;
 
-    private String MOVEMENT_DIRECTION_TYPE;
-    private float ANGLE_OF_APPROACH_FROM_PERPENDICULAR;
+    @Copyable private String MOVEMENT_DIRECTION_TYPE;
+    @Copyable private float ANGLE_OF_APPROACH_FROM_PERPENDICULAR;
 
-    private String START_SOUND_EFFECT;
-    private String END_SOUND_EFFECT;
-    private Supplier<Float> GET_ANGLE_OFFSET;
+    @Copyable private String START_SOUND_EFFECT;
+    @Copyable private String END_SOUND_EFFECT;
 
-    private Supplier<Float> getAngleToPlayer;
+    private static final ComponentMapper<ChargeActionComponent> MAPPER = ComponentMapper.getFor(ChargeActionComponent.class);
+    class ChargeActionComponent implements Component {
+        public Supplier<Float> GET_ANGLE_OFFSET;
 
-    public ChargeAction(Entity entity) {
-        super(entity);
+        public Supplier<Float> getAngleToPlayer;
+
+        private float timeSinceLastDashEffectImage;
+        private float bounceTimer;
+        private float startHeight = 0;
     }
 
+    @Override
+    public Component createActionComponent() {
+        return new ChargeActionComponent();
+    }
 
-    private float timeSinceLastDashEffectImage;
-    private float bounceTimer;
-    private float startHeight = 0;
+    public ChargeAction(){}
 
     @Override
-    public void postConfigRead() {
-        super.postConfigRead();
-        if (!entity.NAME.equals("player")) {
-            getAngleToPlayer = () -> MathUtils.atan2(Application.player.getHitbox().y - entity.getHitbox().y, Application.player.getHitbox().x - entity.getHitbox().x);
+    public void postConfigRead(Entity entity) {
+        super.postConfigRead(entity);
+
+
+        Transform transform = Transform.MAPPER.get(entity);
+        ChargeActionComponent data = MAPPER.get(entity);
+        if (!transform.ENTITY_NAME.equals("player")) {
+            data.getAngleToPlayer = () -> {
+                Transform playerTransform = Application.getInstance().getPlayerTransform();
+                return MathUtils.atan2(playerTransform.getCenteredY() - transform.getCenteredY(), playerTransform.getCenteredX() - transform.getCenteredX());
+            };
         } else {
-            getAngleToPlayer = () -> 0f;
+            data.getAngleToPlayer = () -> 0f;
         }
 
         if (MOVEMENT_DIRECTION_TYPE == null || MOVEMENT_DIRECTION_TYPE.equals("Player")) {
-            GET_ANGLE_OFFSET = () -> 0f; //directly towards player
+            data.GET_ANGLE_OFFSET = () -> 0f; //directly towards player
         } else if (MOVEMENT_DIRECTION_TYPE.equals("LeftOfPlayer")) {
-            GET_ANGLE_OFFSET = () -> MathUtils.PI/2f - ANGLE_OF_APPROACH_FROM_PERPENDICULAR * MathUtils.degRad;
+            data.GET_ANGLE_OFFSET = () -> MathUtils.PI/2f - ANGLE_OF_APPROACH_FROM_PERPENDICULAR * MathUtils.degRad;
         } else if (MOVEMENT_DIRECTION_TYPE.equals("RightOfPlayer")) {
-            GET_ANGLE_OFFSET = () -> -MathUtils.PI/2f + ANGLE_OF_APPROACH_FROM_PERPENDICULAR * MathUtils.degRad;
+            data.GET_ANGLE_OFFSET = () -> -MathUtils.PI/2f + ANGLE_OF_APPROACH_FROM_PERPENDICULAR * MathUtils.degRad;
         } else if (MOVEMENT_DIRECTION_TYPE.equals("CurrentDir")) {
-            GET_ANGLE_OFFSET = () -> MathUtils.atan2(entity.yVel, entity.xVel);
+            data.GET_ANGLE_OFFSET = () -> MathUtils.atan2(transform.yVel, transform.xVel);
         } else {
             throw new RuntimeException("Undefined AcceleratedMove MOVEMENT_DIRECTION_TYPE " + MOVEMENT_DIRECTION_TYPE);
         }
 
         if (SPEED == null) {
-            SPEED = entity.SPEED;
+            SPEED = transform.SPEED;
         }
     }
 
     @Override
-    public void enter() {
-        super.enter();
-        startHeight = entity.height;
-        bounceTimer = 0;
-        entity.xVel = 0;
-        entity.yVel = 0;
+    public void enter(Entity entity) {
+        super.enter(entity);
+        Transform transform = Transform.MAPPER.get(entity);
+        ChargeActionComponent data = MAPPER.get(entity);
+        data.startHeight = transform.height;
+        data.bounceTimer = 0;
+        transform.xVel = 0;
+        transform.yVel = 0;
         SoundEffects.play(START_SOUND_EFFECT);
         if (UPDATES_PLAYER_ANGLE_ON_ENTER) {
-            Blackboard.getInstance().bind("currentAngleToPlayer", entity, getAngleToPlayer.get());
+            Blackboard.getInstance().bind("currentAngleToPlayer", entity, data.getAngleToPlayer.get());
         }
     }
 
+
     @Override
-    public void update() {
-        super.update();
+    public void update(Entity entity) {
+        super.update(entity);
+
+        Transform transform = Transform.MAPPER.get(entity);
+        ChargeActionComponent data = MAPPER.get(entity);
+        RoutineListComponent routineListComponent = RoutineListComponent.MAPPER.get(entity);
+
+        float maxTime = MAX_TIME == null ? 0 : MAX_TIME;
+
         float bounce;
         if (MULTIPLE_BOUNCES) {
-            bounce = ExtraMathUtils.bounceLerp(bounceTimer, MAX_TIME, JUMP_HEIGHT, BOUNCE_COEFFICIENT, BOUNCE_FREQUENCY);
+            bounce = ExtraMathUtils.bounceLerp(data.bounceTimer, maxTime, JUMP_HEIGHT, BOUNCE_COEFFICIENT, BOUNCE_FREQUENCY);
         } else {
-            bounce = ExtraMathUtils.sinLerp(bounceTimer, MAX_TIME, JUMP_HEIGHT);
+            bounce = ExtraMathUtils.sinLerp(data.bounceTimer, maxTime, JUMP_HEIGHT);
         }
-        entity.height = startHeight + bounce;
-        bounceTimer += Gdx.graphics.getDeltaTime();
-        timeSinceLastDashEffectImage += Gdx.graphics.getDeltaTime();
+        transform.height = data.startHeight + bounce;
+        data.bounceTimer += Gdx.graphics.getDeltaTime();
+        data.timeSinceLastDashEffectImage += Gdx.graphics.getDeltaTime();
         float accelerateVel = 1;
         if (ACCELERATE) {
-            accelerateVel = timeElapsedInState/MAX_TIME;
+            accelerateVel = routineListComponent.timeElapsedInCurrentAction/maxTime;
         }
-        float angle = ((float)Blackboard.getInstance().getVar(entity, "currentAngleToPlayer")) + GET_ANGLE_OFFSET.get();
-        entity.xVel = MathUtils.cos(angle) * SPEED * accelerateVel;
-        entity.yVel = MathUtils.sin(angle) * SPEED * accelerateVel;
+        float angle;
+        if (MOVEMENT_DIRECTION_TYPE != null && MOVEMENT_DIRECTION_TYPE.equals("CurrentDir")) {
+            angle = data.GET_ANGLE_OFFSET.get();
+        } else {
+            angle = ((float) Blackboard.getInstance().getVar(entity, "currentAngleToPlayer")) + data.GET_ANGLE_OFFSET.get();
+        }
+        transform.xVel = MathUtils.cos(angle) * SPEED * accelerateVel;
+        transform.yVel = MathUtils.sin(angle) * SPEED * accelerateVel;
 
-        if (HAS_AFTERIMAGES && timeSinceLastDashEffectImage > TIME_BETWEEN_DASH_EFFECT_IMAGES) {
-            timeSinceLastDashEffectImage -= TIME_BETWEEN_DASH_EFFECT_IMAGES;
-            Application.getInstance().currentScreen.addInanimateEntity(new AfterImageEffect(entity.animationHandler.getCurrentFrame(), entity.x, entity.y + entity.height, entity.xScale, entity.yScale));
+        if (HAS_AFTERIMAGES && data.timeSinceLastDashEffectImage > TIME_BETWEEN_DASH_EFFECT_IMAGES) {
+            data.timeSinceLastDashEffectImage -= TIME_BETWEEN_DASH_EFFECT_IMAGES;
+            PrefabInstantiator.addAfterImage(entity);
         }
     }
 
 
 
     @Override
-    public void onExit() {
+    public void onExit(Entity entity) {
+        super.onExit(entity);
+        ChargeActionComponent data = MAPPER.get(entity);
+        Transform transform = Transform.MAPPER.get(entity);
         SoundEffects.playLoud(END_SOUND_EFFECT);
-        entity.height = startHeight;
-        entity.xVel = 0;
-        entity.yVel = 0;
-        super.onExit();
+        transform.height = data.startHeight;
+        transform.xVel = 0;
+        transform.yVel = 0;
+    }
+
+    public static ChargeAction simpleMoveTowardsAngle(float speed) {
+        ChargeAction output = new ChargeAction();
+        output.MOVEMENT_DIRECTION_TYPE = "CurrentDir";
+        output.SPEED = speed;
+        output.UPDATES_PLAYER_ANGLE_ON_ENTER = false;
+        return output;
     }
 }

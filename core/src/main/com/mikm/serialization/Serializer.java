@@ -7,15 +7,8 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.mikm.Vector2Int;
-import com.mikm.entities.Entity;
-import com.mikm.entities.actions.Action;
-import com.mikm.entities.inanimateEntities.Grave;
-import com.mikm.entities.player.weapons.Weapon;
-import com.mikm.entities.routineHandler.Cycle;
-import com.mikm.entities.routineHandler.Routine;
-import com.mikm.entityLoader.EntityLoader;
+import com.mikm.entities.prefabLoader.EntityData;
 import com.mikm.rendering.cave.CaveFloorMemento;
-import com.mikm.rendering.cave.Rock;
 import com.mikm.rendering.cave.RockType;
 
 import java.util.ArrayList;
@@ -24,12 +17,15 @@ public class Serializer {
     private static Serializer instance;
     public static final String SAVEFILE_PATH = "InfernalDepthsSaveFiles/save";
 
-    private final Kryo kryo;
+    private final Kryo kryo, prefabKryo;
     private Input[] input = new Input[11];
     private Output[] output = new Output[11];
 
     private Serializer() {
         kryo = new Kryo();
+        prefabKryo = new Kryo();
+        prefabKryo.setRegistrationRequired(false);
+        prefabKryo.setReferences(false);
         registerKryo();
         try {
             FileHandle f = Gdx.files.local("InfernalDepthsSaveFiles");
@@ -48,9 +44,24 @@ public class Serializer {
         }
     }
 
+    private Serializer(boolean prefabCopyOnly) {
+        prefabKryo = new Kryo();
+        prefabKryo.setRegistrationRequired(false);
+        prefabKryo.setReferences(false);
+        kryo = null;
+    }
+
     public static Serializer getInstance() {
         if (instance == null) {
             instance = new Serializer();
+        }
+        return instance;
+    }
+
+
+    public static Serializer getInstance(boolean prefabCopyOnly) {
+        if (instance == null) {
+            instance = new Serializer(prefabCopyOnly);
         }
         return instance;
     }
@@ -66,7 +77,7 @@ public class Serializer {
         }
         return false;
     }
-    
+
     public void resetSaveFiles() {
         try {
             FileHandle f = Gdx.files.local("InfernalDepthsSaveFiles");
@@ -114,7 +125,7 @@ public class Serializer {
     }
 
     public <T> T copy(T o) {
-        return kryo.copy(o);
+        return prefabKryo.copy(o);
     }
 
     public void dispose() {
@@ -129,19 +140,28 @@ public class Serializer {
         }
     }
 
+
     private void registerKryo() {
         //Disallows multiple instances of an object
         kryo.setReferences(false);
-        kryo.register(Weapon.class);
-        kryo.register(Grave.class, new GraveSerializer());
-        kryo.register(Entity.class, new EntitySerializer());
-        kryo.register(ArrayList.class);
-        kryo.register(Rock.class, new RockSerializer());
-        kryo.register(RockType.class);
-        kryo.register(boolean[][].class);
-        kryo.register(boolean[].class);
-        kryo.register(Vector2.class);
+
+        //--caveFloorMementoSerializer--
+        //TODO change after memento refactor
         kryo.register(Vector2Int.class);
+        kryo.register(Vector2.class);
+        kryo.register(boolean[].class);
+        kryo.register(boolean[][].class);
+        kryo.register(ArrayList.class);
+        //entityData
+        kryo.register(EntityData.class);
+        kryo.register(int[].class);
+        kryo.register(RockType.class);
+
         kryo.register(CaveFloorMemento.class, new CaveFloorMementoSerializer());
+//        kryo.register(Weapon.class);
+//        kryo.register(Grave.class, new GraveSerializer());
+//        kryo.register(Entity.class, new EntitySerializer());
+//        kryo.register(Rock.class, new RockSerializer());
+//        kryo.register(CaveFloorMemento.class, new CaveFloorMementoSerializer());
     }
 }

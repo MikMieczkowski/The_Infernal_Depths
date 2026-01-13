@@ -1,58 +1,81 @@
 package com.mikm.entities.actions;
 
+import com.badlogic.ashley.core.Component;
+import com.badlogic.ashley.core.ComponentMapper;
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.MathUtils;
-import com.mikm.DeltaTime;
-import com.mikm.entities.Entity;
-import com.mikm.entities.inanimateEntities.particles.ParticleEffect;
-import com.mikm.entities.inanimateEntities.particles.ParticleTypes;
+import com.mikm._components.routine.RoutineListComponent;
+import com.mikm.utils.DeltaTime;
+import com.mikm._components.Copyable;
+import com.mikm._components.Transform;
+import com.mikm._components.WorldColliderComponent;
 import com.mikm.rendering.screens.Application;
 
 public class CircleAction extends Action {
-    private float ANGULAR_SPEED;
-    private float SPEED = 0;
-    private float angle;
-    private float distanceTraveledSinceLastProjectile = 0;
+    @Copyable private float ANGULAR_SPEED;
+    @Copyable private float SPEED = 0;
 
-    public CircleAction(Entity entity) {
-        super(entity);
+    private static final ComponentMapper<CircleActionComponent> MAPPER = ComponentMapper.getFor(CircleActionComponent.class);
+    class CircleActionComponent implements Component {
+        float angle;
+        float distanceTraveledSinceLastProjectile = 0;
     }
 
     @Override
-    public void enter() {
-        super.enter();
+    public Component createActionComponent() {
+        return new CircleActionComponent();
+    }
+
+    public CircleAction(){}
+
+    @Override
+    public void postConfigRead(Entity entity) {
+        super.postConfigRead(entity);
+        Transform transform = Transform.MAPPER.get(entity);
+        if (SPEED == 0) {
+            SPEED = transform.SPEED;
+        }
+    }
+
+    @Override
+    public void enter(Entity entity) {
+        super.enter(entity);
+        Transform transform = Transform.MAPPER.get(entity);
+        CircleActionComponent data = MAPPER.get(entity);
+        WorldColliderComponent collider = WorldColliderComponent.MAPPER.get(entity);
+        
         // Ensure a usable speed if not configured explicitly
         if (SPEED == 0) {
-            SPEED = entity.SPEED;
+            SPEED = transform.SPEED;
         }
         // Seed starting angle relative to player so initial frame is not visually idle
+        com.badlogic.gdx.math.Circle playerHitbox = Application.getInstance().getPlayerHitbox();
+        com.badlogic.gdx.math.Circle entityHitbox = collider.getHitbox(transform);
         float angleToPlayer = MathUtils.atan2(
-                Application.player.getHitbox().y - entity.getHitbox().y,
-                Application.player.getHitbox().x - entity.getHitbox().x);
+                playerHitbox.y - entityHitbox.y,
+                playerHitbox.x - entityHitbox.x);
         // Start perpendicular for a natural circular path around the player
-        angle = angleToPlayer + MathUtils.PI / 2f;
-        entity.xVel = SPEED * MathUtils.cos(angle);
-        entity.yVel = SPEED * MathUtils.sin(angle);
+        data.angle = angleToPlayer + MathUtils.PI / 2f;
+        transform.xVel = SPEED * MathUtils.cos(data.angle);
+        transform.yVel = SPEED * MathUtils.sin(data.angle);
     }
 
     @Override
-    public void postConfigRead() {
-        super.postConfigRead();
-        if (SPEED == 0) {
-            SPEED = entity.SPEED;
-        }
-    }
-
-    @Override
-    public void update() {
-        super.update();
-        angle += ANGULAR_SPEED * DeltaTime.deltaTime();
-        entity.height = 3 + MathUtils.sin(timeElapsedInState * 3) * 3;
-        entity.xVel = SPEED * MathUtils.cos(angle);
-        entity.yVel = SPEED * MathUtils.sin(angle);
-        distanceTraveledSinceLastProjectile += SPEED;
-        if (distanceTraveledSinceLastProjectile > 10) {
-            new ParticleEffect(ParticleTypes.getLightningParameters(), entity.x, entity.y);
-            distanceTraveledSinceLastProjectile = 0;
+    public void update(Entity entity) {
+        super.update(entity);
+        Transform transform = Transform.MAPPER.get(entity);
+        CircleActionComponent data = MAPPER.get(entity);
+        RoutineListComponent routineListComponent = RoutineListComponent.MAPPER.get(entity);
+        
+        data.angle += ANGULAR_SPEED * DeltaTime.deltaTime();
+        transform.height = 3 + MathUtils.sin(routineListComponent.timeElapsedInCurrentAction * 3) * 3;
+        transform.xVel = SPEED * MathUtils.cos(data.angle);
+        transform.yVel = SPEED * MathUtils.sin(data.angle);
+        data.distanceTraveledSinceLastProjectile += SPEED;
+        if (data.distanceTraveledSinceLastProjectile > 10) {
+            //TODO particle usage
+            //new ParticleEffect(ParticleTypes.getLightningParameters(), transform.x, transform.y);
+            data.distanceTraveledSinceLastProjectile = 0;
         }
     }
 }

@@ -1,109 +1,120 @@
 package com.mikm.entities.actions;
 
-import com.badlogic.gdx.graphics.Color;
+import com.badlogic.ashley.core.Component;
+import com.badlogic.ashley.core.ComponentMapper;
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.mikm.ExtraMathUtils;
+import com.mikm._components.*;
+import com.mikm.entities.prefabLoader.PrefabInstantiator;
+import com.mikm.rendering.cave.RockType;
+import com.mikm.utils.ExtraMathUtils;
+import com.mikm._components.routine.RoutineListComponent;
 import com.mikm.entities.DamageInformation;
-import com.mikm.entities.Entity;
-import com.mikm.entities.inanimateEntities.particles.ParticleEffect;
-import com.mikm.entities.inanimateEntities.particles.ParticleTypes;
-import com.mikm.entities.routineHandler.Routine;
-import com.mikm.rendering.sound.SoundEffects;
 import com.mikm.rendering.screens.Application;
 
+@RuntimeDataComponent
 public class DamagedAction extends Action {
-    private final String FAILED_HIT_SOUND_EFFECT = "bowImpact.ogg";
 
-    protected final float TOTAL_KNOCKBACK_TIME = .25f;
+    public static final float TOTAL_KNOCKBACK_TIME = .25f;
     private final float JUMP_HEIGHT = 8f;
     final float DEATH_KNOCKBACK_MULTIPLIER = 3f;
 
-    public boolean dead;
-    private DamageInformation damageInformation;
-    public boolean active;
-
-    public DamagedAction(Entity entity) {
-        super(entity);
+    public static final ComponentMapper<DamagedActionComponent> MAPPER = ComponentMapper.getFor(DamagedActionComponent.class);
+    public class DamagedActionComponent implements Component {
+        public DamageInformation damageInformation;
+        public boolean active;
     }
 
-    public void enter(DamageInformation damageInformation) {
-        if (entity.effectsHandler.inInvincibility || !entity.isAttackable) {
-            return;
-        }
-        // Always capture the incoming damage info and reset state for consistent knockback
-        this.damageInformation = damageInformation;
-		// Immediately switch the entity's routine to POST_HIT_ROUTINE so once
-		// the damaged state ends, it continues from the configured post-hit behavior
-        Routine postHitRoutine = entity.routineHandler.getPostHitRoutine();
-        //null - do not super.enter
-        //otherwise enter it
-        active = false;
+    public DamagedAction(){}
 
-        System.out.println("POSTHITROUTNINE " + postHitRoutine);
-		if (postHitRoutine != null) {
-            active = true;
-            super.enter();
-			entity.routineHandler.enterRoutine(postHitRoutine);
-            entity.startSquish(TOTAL_KNOCKBACK_TIME * .75f, 1.2f);
-		}
-        if (damageInformation.damage == 0) {
-            SoundEffects.playLoud(FAILED_HIT_SOUND_EFFECT);
-            return;
-        }
-        SoundEffects.play(entity.HURT_SOUND_EFFECT);
-        entity.hp -= damageInformation.damage;
-        if (entity.hp <= 0) {
-            entity.flash(Color.RED);
-            dead = true;
-        } else {
-            entity.flash(Color.WHITE);
-        }
-        if (entity == Application.player) {
-            Application.getInstance().freezeTime();
-            Application.player.equippedWeapon.exitAttackState();
-        }
-        entity.startInvincibilityFrames();
+    @Override
+    public Component createActionComponent() {
+        return new DamagedActionComponent();
     }
 
     @Override
-    public void update() {
-        super.update();
-        Vector2 knockbackForce = new Vector2(MathUtils.cos(damageInformation.knockbackAngle) * damageInformation.knockbackForceMagnitude,
-                MathUtils.sin(damageInformation.knockbackAngle) * damageInformation.knockbackForceMagnitude);
+    public void enter(Entity entity) {
+        throw new RuntimeException();
+    }
 
-        Vector2 sinLerpedKnockbackForce = ExtraMathUtils.sinLerpVector2(timeElapsedInState,TOTAL_KNOCKBACK_TIME,.1f, 1f, knockbackForce);
-        float jumpOffset = ExtraMathUtils.sinLerp(timeElapsedInState, TOTAL_KNOCKBACK_TIME * (dead ? 1 : .75f), .1f, 1f, JUMP_HEIGHT);
-        if (dead) {
+    public void enter(Entity entity, DamageInformation damageInformation) {
+        super.enter(entity);
+
+        DamagedAction.DamagedActionComponent damagedActionComponent = DamagedAction.MAPPER.get(entity);
+        damagedActionComponent.active = true;
+        damagedActionComponent.damageInformation = damageInformation;
+        CombatComponent combatComponent = CombatComponent.MAPPER.get(entity);
+        if (combatComponent.isInvincible()) {
+            throw new RuntimeException("Should not call damagedAction.enter() if invincible");
+        }
+    }
+
+    @Override
+    public void update(Entity entity) {
+        super.update(entity);
+        DamagedActionComponent data = MAPPER.get(entity);
+        Transform transform = Transform.MAPPER.get(entity);
+        CombatComponent combatComponent = CombatComponent.MAPPER.get(entity);
+        
+        Vector2 knockbackForce = new Vector2(MathUtils.cos(data.damageInformation.knockbackAngle) * data.damageInformation.knockbackForceMagnitude,
+                MathUtils.sin(data.damageInformation.knockbackAngle) * data.damageInformation.knockbackForceMagnitude);
+
+        RoutineListComponent routineListComponent = RoutineListComponent.MAPPER.get(entity);
+        Vector2 sinLerpedKnockbackForce = ExtraMathUtils.sinLerpVector2(routineListComponent.timeElapsedInCurrentAction,TOTAL_KNOCKBACK_TIME,.1f, 1f, knockbackForce);
+        float jumpOffset = ExtraMathUtils.sinLerp(routineListComponent.timeElapsedInCurrentAction, TOTAL_KNOCKBACK_TIME * (combatComponent.dead ? 1 : .75f), .1f, 1f, JUMP_HEIGHT);
+        if (combatComponent.dead) {
             sinLerpedKnockbackForce = sinLerpedKnockbackForce.scl(DEATH_KNOCKBACK_MULTIPLIER);
             jumpOffset *= 1.5f;
         }
-        entity.height = jumpOffset;
-        entity.xVel = sinLerpedKnockbackForce.x;
-        entity.yVel = sinLerpedKnockbackForce.y;
+        transform.height = jumpOffset;
+        transform.xVel = sinLerpedKnockbackForce.x;
+        transform.yVel = sinLerpedKnockbackForce.y;
 
-        float totalTime = TOTAL_KNOCKBACK_TIME * (dead ? 1f : .75f);
-        if (timeElapsedInState >= totalTime && active) {
+        float totalTime = TOTAL_KNOCKBACK_TIME * (combatComponent.dead ? 1f : .75f);
+        if (routineListComponent.timeElapsedInCurrentAction >= totalTime && data.active) {
             // finish damaged state and trigger death if applicable
-            onExit();
-            active = false;
-            if (!dead) {
-                entity.xVel = 0;
-                entity.yVel = 0;
+            onExit(entity);
+            data.active = false;
+            if (!combatComponent.dead) {
+                transform.xVel = 0;
+                transform.yVel = 0;
             }
         }
     }
 
     @Override
-    public void onExit() {
-        if (dead) {
-            new ParticleEffect(ParticleTypes.getKnockbackDustParameters(), damageInformation.knockbackAngle, entity.x, entity.y);
-            if (entity.NAME.equals("slime")) {
+    public void onExit(Entity entity) {
+        DamagedActionComponent data = MAPPER.get(entity);
+        Transform transform = Transform.MAPPER.get(entity);
+        CombatComponent combatComponent = CombatComponent.MAPPER.get(entity);
+
+        if (combatComponent.dead) {
+            //TODO particle usage
+//            new ParticleEffect(ParticleTypes.getKnockbackDustParameters(), data.damageInformation.knockbackAngle, transform.x, transform.y);
+            if (transform.ENTITY_NAME.equals("slime")) {
                 com.mikm.rendering.sound.SoundEffects.play("slimeDeath.ogg");
             }
-            entity.die();
+            if (transform.ENTITY_NAME.equals("player")) {
+                //onDeath
+                //Bad code - maybe make an "active" attribute on transform? Although that has problems too
+                SpriteComponent.MAPPER.get(entity).visible = false;
+                RoutineListComponent.MAPPER.get(entity).active = false;
+                WorldColliderComponent.MAPPER.get(entity).active = false;
+                CombatComponent.MAPPER.get(entity).setInvincibility(false);
+                if (RockType.playerHasAnyTempOre()) {
+                    //TODO particles
+                    PrefabInstantiator.addGrave(Application.getInstance().currentScreen);
+                }
+            } else {
+                Application.getInstance().currentScreen.removeEntity(entity);
+            }
+
         }
-        active = false;
-        super.onExit();
+        data.active = false;
+
+        RoutineListComponent routineListComponent = RoutineListComponent.MAPPER.get(entity);
+        routineListComponent.enterPostHitRoutine(entity);
+        super.onExit(entity);
     }
 }

@@ -2,7 +2,7 @@ package com.mikm.entities.animation;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.mikm.Assets;
+import com.mikm.utils.Assets;
 
 import java.util.ArrayList;
 

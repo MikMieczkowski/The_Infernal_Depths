@@ -1,26 +1,41 @@
 package com.mikm.entities.actions;
 
-import com.mikm.entities.Entity;
+import com.badlogic.ashley.core.Component;
+import com.badlogic.ashley.core.ComponentMapper;
+import com.badlogic.ashley.core.Entity;
+import com.mikm._components.Copyable;
+import com.mikm._components.EffectsComponent;
+import com.mikm._components.Transform;
 
 public class SquishAction extends Action {
-    private float AMOUNT;
+    @Copyable private float AMOUNT;
 
-    public SquishAction(Entity entity) {
-        super(entity);
+    private static final ComponentMapper<SquishActionComponent> MAPPER = ComponentMapper.getFor(SquishActionComponent.class);
+    class SquishActionComponent implements Component {
+        // No state needed
+    }
+
+    public SquishAction(){}
+
+    @Override
+    public Component createActionComponent() {
+        return new SquishActionComponent();
     }
 
     @Override
-    public void enter() {
-        super.enter();
-        entity.xVel = 0;
-        entity.yVel = 0;
-        entity.startSquish(0, AMOUNT, MAX_TIME, true);
+    public void enter(Entity entity) {
+        super.enter(entity);
+        Transform transform = Transform.MAPPER.get(entity);
+        transform.xVel = 0;
+        transform.yVel = 0;
+        EffectsComponent.MAPPER.get(entity).startSquish(0, AMOUNT, MAX_TIME, true);
     }
 
     @Override
-    public void update() {
-        super.update();
-        entity.xVel = 0;
-        entity.yVel = 0;
+    public void update(Entity entity) {
+        super.update(entity);
+        Transform transform = Transform.MAPPER.get(entity);
+        transform.xVel = 0;
+        transform.yVel = 0;
     }
 }

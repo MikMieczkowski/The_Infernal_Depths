@@ -1,44 +1,29 @@
 package com.mikm.serialization;
 
+import com.badlogic.ashley.core.Entity;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.mikm.Vector2Int;
 import com.mikm.entities.*;
-import com.mikm.entities.inanimateEntities.Grave;
-import com.mikm.entities.inanimateEntities.InanimateEntity;
+import com.mikm.entities.prefabLoader.EntityData;
 import com.mikm.rendering.cave.CaveFloorMemento;
-import com.mikm.rendering.cave.Rock;
 import com.mikm.rendering.screens.Application;
 
 import java.util.ArrayList;
 
 public class CaveFloorMementoSerializer extends Serializer<CaveFloorMemento> {
-
     @Override
     public void write(Kryo kryo, Output output, CaveFloorMemento object) {
+        //Vector2Int spawnPosition, Vector2Int ropePosition, boolean[][] ruleCellPositions, ArrayList<Vector2Int> holePositions, ArrayList< EntityData > entities
+
         kryo.writeObject(output, object.spawnPosition);
         kryo.writeObject(output, object.ropePosition);
-        kryo.writeObject(output, object.holePositions);
-
-        ArrayList<InanimateEntity> rocks = new ArrayList<>();
-        ArrayList<InanimateEntity> otherInanimateEntities = new ArrayList<>();
-        for (InanimateEntity inanimateEntity : object.inanimateEntities) {
-            if (inanimateEntity.getClass().equals(Rock.class)) {
-                rocks.add(inanimateEntity);
-            } else if (inanimateEntity.getClass() == Grave.class) {
-                otherInanimateEntities.add(inanimateEntity);
-            }
-        }
-        kryo.writeObject(output, rocks);
-        kryo.writeObject(output, otherInanimateEntities);
-
-        ArrayList<Entity> enemiesArrayList = new ArrayList<>(object.enemies);
-        enemiesArrayList.remove(Application.player);
-        kryo.writeObject(output, enemiesArrayList);
-
         kryo.writeObject(output, object.ruleCellPositions);
+        kryo.writeObject(output, object.holePositions);
+        kryo.writeObject(output, object.enemies);
+        kryo.writeObject(output, object.rocks);
     }
 
     @SuppressWarnings("unchecked")
@@ -46,25 +31,12 @@ public class CaveFloorMementoSerializer extends Serializer<CaveFloorMemento> {
     public CaveFloorMemento read(Kryo kryo, Input input, Class<? extends CaveFloorMemento> type) {
         Vector2Int spawnPosition = kryo.readObject(input, Vector2Int.class);
         Vector2Int ropePosition = kryo.readObject(input, Vector2Int.class);
-
-        ArrayList<Vector2Int> holePositions = kryo.readObject(input, ArrayList.class);
-
-        ArrayList<InanimateEntity> rocks = kryo.readObject(input, ArrayList.class);
-        ArrayList<InanimateEntity> otherInanimateEntities = kryo.readObject(input, ArrayList.class);
-        ArrayList<Entity> enemiesRaw = kryo.readObject(input, ArrayList.class);
-        RemovableArray<InanimateEntity> inanimateEntities = new RemovableArray<>(rocks);
-        RemovableArray<Entity> enemies = new RemovableArray<>(enemiesRaw);
-
-
         boolean[][] ruleCellPositions = kryo.readObject(input, boolean[][].class);
-        for (Vector2Int holePosition : holePositions) {
-            ruleCellPositions[holePosition.y][holePosition.x] = false;
-        }
-        for (InanimateEntity rock : inanimateEntities) {
-            ruleCellPositions[(int) rock.y/Application.TILE_HEIGHT][(int) rock.x / Application.TILE_WIDTH] = false;
-        }
-        CaveFloorMemento memento = new CaveFloorMemento(spawnPosition, ropePosition, ruleCellPositions, holePositions, inanimateEntities, enemies);
-        memento.graves = otherInanimateEntities;
+        ArrayList<Vector2Int> holePositions = (ArrayList<Vector2Int>)kryo.readObject(input, ArrayList.class);
+        ArrayList<EntityData> enemies = (ArrayList<EntityData>)kryo.readObject(input, ArrayList.class);
+        ArrayList<EntityData> rocks = (ArrayList<EntityData>)kryo.readObject(input, ArrayList.class);
+
+        CaveFloorMemento memento = new CaveFloorMemento(spawnPosition, ropePosition, ruleCellPositions, holePositions, enemies, rocks);
         return memento;
 
     }

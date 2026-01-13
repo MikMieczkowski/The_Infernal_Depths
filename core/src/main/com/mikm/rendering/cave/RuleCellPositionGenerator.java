@@ -1,6 +1,6 @@
 package com.mikm.rendering.cave;
 
-import com.mikm.RandomUtils;
+import com.mikm.utils.RandomUtils;
 import com.mikm.Vector2Int;
 
 import java.util.*;
