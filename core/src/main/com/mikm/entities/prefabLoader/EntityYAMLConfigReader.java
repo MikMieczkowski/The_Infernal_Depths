@@ -50,7 +50,7 @@ public class EntityYAMLConfigReader {
         combatComponent.hp = combatComponent.MAX_HP;
         combatComponent.DAMAGE = varOrDef(config.DAMAGE, 10);
         combatComponent.KNOCKBACK = varOrDef(config.KNOCKBACK, 1);
-        transform.SPEED = varOrDef(config.SPEED, 1);
+        transform.SPEED = config.SPEED != null ? config.SPEED : 1;
         combatComponent.setAttackable(!config.INVINCIBLE);
 
         combatComponent.HURT_SOUND_EFFECT = config.HURT_SOUND_EFFECT;

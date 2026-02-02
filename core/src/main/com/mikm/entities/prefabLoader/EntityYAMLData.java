@@ -15,7 +15,7 @@ public class EntityYAMLData {
         public int KNOCKBACK;
         public int MAX_HP;
         public int DAMAGE;
-        public float SPEED;
+        public Float SPEED;
         public int ORIGIN_X;
         public int ORIGIN_Y;
         public boolean INVINCIBLE;

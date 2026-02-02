@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew desktop:run:*)",
+      "Bash(find:*)",
+      "Bash(printf:*)",
+      "Bash(ls:*)",
+      "Bash(gradlew core:test:*)",
+      "Bash(gradlew.bat core:test:*)",
+      "Bash(.gradlew core:test:*)",
+      "Bash(./gradlew test:*)",
+      "Bash(./gradlew compileJava:*)",
+      "Bash(gradlew.bat compileJava:*)",
+      "Bash(D:)",
+      "Bash(gradlew compileJava:*)",
+      "Bash(cmd /c:*)",
+      "Bash(powershell:*)",
+      "Bash(del \"D:\\\\IntelliJprojects\\\\The_Infernal_Depths-master\\(1\\)\\\\The_Infernal_Depths-master\\\\core\\\\src\\\\main\\\\com\\\\mikm\\\\entities\\\\actions\\\\SliceAction.java\")",
+      "Bash(curl -H \"Title: Claude\" -d \"Claude task completed\" https://ntfy.sh/claude-done-123)"
+    ]
+  }
+}

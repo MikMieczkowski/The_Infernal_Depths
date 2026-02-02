@@ -6,6 +6,7 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm._components.*;
+import com.mikm.entities.inanimateEntities.particles.ParticleTypes;
 import com.mikm.entities.prefabLoader.PrefabInstantiator;
 import com.mikm.rendering.cave.RockType;
 import com.mikm.utils.ExtraMathUtils;
@@ -44,10 +45,6 @@ public class DamagedAction extends Action {
         DamagedAction.DamagedActionComponent damagedActionComponent = DamagedAction.MAPPER.get(entity);
         damagedActionComponent.active = true;
         damagedActionComponent.damageInformation = damageInformation;
-        CombatComponent combatComponent = CombatComponent.MAPPER.get(entity);
-        if (combatComponent.isInvincible()) {
-            throw new RuntimeException("Should not call damagedAction.enter() if invincible");
-        }
     }
 
     @Override
@@ -90,8 +87,7 @@ public class DamagedAction extends Action {
         CombatComponent combatComponent = CombatComponent.MAPPER.get(entity);
 
         if (combatComponent.dead) {
-            //TODO particle usage
-//            new ParticleEffect(ParticleTypes.getKnockbackDustParameters(), data.damageInformation.knockbackAngle, transform.x, transform.y);
+            PrefabInstantiator.addParticles(transform.x, transform.y, data.damageInformation.knockbackAngle, ParticleTypes.getKnockbackDustParameters());
             if (transform.ENTITY_NAME.equals("slime")) {
                 com.mikm.rendering.sound.SoundEffects.play("slimeDeath.ogg");
             }
@@ -103,7 +99,6 @@ public class DamagedAction extends Action {
                 WorldColliderComponent.MAPPER.get(entity).active = false;
                 CombatComponent.MAPPER.get(entity).setInvincibility(false);
                 if (RockType.playerHasAnyTempOre()) {
-                    //TODO particles
                     PrefabInstantiator.addGrave(Application.getInstance().currentScreen);
                 }
             } else {

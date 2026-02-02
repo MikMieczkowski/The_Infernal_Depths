@@ -49,9 +49,17 @@ public class ProjectileConfigComponent implements Component {
     @Copyable
     public boolean isPlayer;
 
-    /** Duration hitbox is active (0 = always active, >0 = only active for this duration after spawn) */
+    /** Delay before hitbox becomes active after spawn */
+    @Copyable
+    public float hitboxStartDelay;
+
+    /** Duration hitbox is active after the start delay (0 = always active once started) */
     @Copyable
     public float hitboxActiveDuration;
+
+    /** Radius of the projectile's hitbox circle */
+    @Copyable
+    public float hitboxRadius;
 
     /**
      * Checks if the projectile has expired.
@@ -70,7 +78,13 @@ public class ProjectileConfigComponent implements Component {
      * @return true if the hitbox can deal damage
      */
     public boolean isHitboxActive() {
-        return hitboxActiveDuration <= 0 || lifetimeTimer < hitboxActiveDuration;
+        if (lifetimeTimer < hitboxStartDelay) {
+            return false;
+        }
+        if (hitboxActiveDuration <= 0) {
+            return true;
+        }
+        return lifetimeTimer < hitboxStartDelay + hitboxActiveDuration;
     }
 
     /**

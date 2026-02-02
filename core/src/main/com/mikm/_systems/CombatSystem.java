@@ -46,7 +46,7 @@ public class CombatSystem extends IteratingSystem {
             float angleToPlayer = MathUtils.atan2(playerHitbox.y - transform.y, playerHitbox.x - transform.x);
             routineListComponent.enterCurrentOnHittingPlayerRoutine(entity);
             RoutineListComponent playerRoutineListComponent = Application.getInstance().getPlayerRoutineListComponent();
-            DamageInformation damageInformation = new DamageInformation(angleToPlayer, combatComponent.DAMAGE, combatComponent.KNOCKBACK);
+            DamageInformation damageInformation = new DamageInformation(angleToPlayer, combatComponent.KNOCKBACK, combatComponent.DAMAGE);
 
             if (!Application.getInstance().getPlayerCombatComponent().isInvincible()) {
                 playerRoutineListComponent.takeDamage(damageInformation, Application.getInstance().getPlayer());

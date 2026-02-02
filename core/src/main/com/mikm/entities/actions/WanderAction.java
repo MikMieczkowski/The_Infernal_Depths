@@ -27,7 +27,7 @@ public class WanderAction extends Action {
     public void enter(Entity entity) {
         super.enter(entity);
         Transform transform = Transform.MAPPER.get(entity);
-        transform.xVel = ExtraMathUtils.getRandomWanderVel(SPEED_MIN, SPEED_MAX);
-        transform.yVel = ExtraMathUtils.getRandomWanderVel(SPEED_MIN, SPEED_MAX);
+        transform.xVel = ExtraMathUtils.getRandomWanderVel(SPEED_MIN, SPEED_MAX) * transform.SPEED;
+        transform.yVel = ExtraMathUtils.getRandomWanderVel(SPEED_MIN, SPEED_MAX)* transform.SPEED;
     }
 }

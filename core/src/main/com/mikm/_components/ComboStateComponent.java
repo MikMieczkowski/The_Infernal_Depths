@@ -4,8 +4,10 @@ import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.ComponentMapper;
 import com.mikm.entities.prefabLoader.attack.AttackFormattedData;
 import com.mikm.entities.prefabLoader.weapon.AttackNode;
+import com.mikm.entities.prefabLoader.weapon.WeaponFormattedData;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Component for tracking combo state.
@@ -38,6 +40,10 @@ public class ComboStateComponent implements Component {
     /** Data for the current attack */
     @CopyReference
     public AttackFormattedData currentAttackData;
+
+    /** Weapon CONFIG map (attack name -> per-attack config with PROJECTILE_DAMAGE) */
+    @CopyReference
+    public Map<String, WeaponFormattedData.AttackConfigData> weaponConfig;
 
     /** Whether currently in an attack animation */
     public boolean isAttacking;

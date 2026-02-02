@@ -92,6 +92,7 @@ public class EntityYAMLReader {
                 if (weaponData != null) {
                     comboState.groundedRoot = weaponData.COMBO_TREE;
                     comboState.aerialRoot = weaponData.AERIAL_COMBO_TREE;
+                    comboState.weaponConfig = weaponData.CONFIG;
                 }
             } catch (Exception e) {
                 System.err.println("Failed to load weapon data: " + e.getMessage());
