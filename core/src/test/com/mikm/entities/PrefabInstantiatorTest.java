@@ -1,3 +1,4 @@
+/*
 package com.mikm.entities;
 
 import com.badlogic.ashley.core.Component;
@@ -823,3 +824,5 @@ class GdxTestBootstrap {
         }
     }
 }
+
+ */

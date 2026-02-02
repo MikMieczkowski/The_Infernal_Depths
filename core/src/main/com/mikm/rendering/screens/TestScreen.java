@@ -31,7 +31,7 @@ public class TestScreen extends GameScreen {
     @Override
     protected void drawAssetsPostEntities() {
         super.drawAssetsPostEntities();
-        rotation += DeltaTime.deltaTime();
+        rotation += DeltaTime.deltaTimeMultiplier();
         //Application.batch.draw(lock, Application.playerOLD.lockedIn.getHitbox().x-lock.getRegionWidth()/2f, Application.playerOLD.lockedIn.getHitbox().y-lock.getRegionHeight()/2f,
         //        lock.getRegionWidth()/2, lock.getRegionHeight()/2, lock.getRegionWidth(), lock.getRegionHeight(), 1, 1, rotation);
     }

@@ -7,8 +7,16 @@ import com.badlogic.gdx.files.FileHandle;
 import com.mikm.YamlCopyResolver;
 import com.mikm._components.*;
 import com.mikm._components.routine.Routine;
+import com.mikm._components.AerialStateComponent;
+import com.mikm._components.AttackInputComponent;
+import com.mikm._components.ComboStateComponent;
+import com.mikm._components.LockOnComponent;
 import com.mikm._components.routine.RoutineListComponent;
 import com.mikm.entities.actions.Action;
+import com.mikm.entities.prefabLoader.weapon.WeaponFormattedData;
+import com.mikm.entities.prefabLoader.weapon.WeaponRawData;
+import com.mikm.entities.prefabLoader.weapon.WeaponTransformers;
+import com.mikm.rendering.screens.Application;
 
 import java.util.*;
 
@@ -66,6 +74,32 @@ public class EntityYAMLReader {
             //load playerCombatComponent
             PlayerCombatComponent playerCombatComponent = new PlayerCombatComponent();
             components.put(PlayerCombatComponent.class, playerCombatComponent);
+
+            // Add combat system components for player
+            components.put(LockOnComponent.class, new LockOnComponent());
+            components.put(AttackInputComponent.class, new AttackInputComponent());
+
+            // Load weapon data and populate combo trees
+            ComboStateComponent comboState = new ComboStateComponent();
+            try {
+                WeaponTransformers.register();
+                WeaponFormattedData weaponData = YAMLLoader.load(
+                    "combat/copperSword.yaml",
+                    "combat/weapon.yaml",
+                    WeaponRawData.class,
+                    WeaponFormattedData.class
+                );
+                if (weaponData != null) {
+                    comboState.groundedRoot = weaponData.COMBO_TREE;
+                    comboState.aerialRoot = weaponData.AERIAL_COMBO_TREE;
+                }
+            } catch (Exception e) {
+                System.err.println("Failed to load weapon data: " + e.getMessage());
+            }
+            components.put(ComboStateComponent.class, comboState);
+        } else {
+            // Add AerialStateComponent to enemies for launcher attacks
+            components.put(AerialStateComponent.class, new AerialStateComponent());
         }
 
 
@@ -99,6 +133,26 @@ public class EntityYAMLReader {
             }
             RoutineListComponent routineListComponent = RoutineListComponent.MAPPER.get(e);
             e.add(routineListComponent.damagedAction.createActionComponent());
+            
+            // Add trigger component to enemies (non-player entities with CombatComponent)
+            if (!data.CONFIG.NAME.equals("player")) {
+                CombatComponent combatComponent = CombatComponent.MAPPER.get(e);
+                if (combatComponent != null) {
+                    Transform transform = Transform.MAPPER.get(e);
+                    WorldColliderComponent collider = WorldColliderComponent.MAPPER.get(e);
+                    // Use entity width as trigger diameter, or default to TILE_WIDTH
+                    int triggerDiameter = transform.FULL_BOUNDS_DIMENSIONS != null ? 
+                        transform.FULL_BOUNDS_DIMENSIONS.x : Application.TILE_WIDTH;
+                    TriggerComponent triggerComponent = new TriggerComponent(
+                        triggerDiameter, 
+                        TriggerEntityType.ENEMY,
+                        Event.ON_STAY, TriggerAction.playerHit(),
+                        Event.ON_PLAYER_PROJECTILE_STAY, TriggerAction.enemyHit(),
+                        Event.ON_PLAYER_MINING_PROJECTILE_STAY, TriggerAction.bump()
+                    );
+                    e.add(triggerComponent);
+                }
+            }
         });
 
         configLoader.loadConfigPostRead(nameToRoutine);

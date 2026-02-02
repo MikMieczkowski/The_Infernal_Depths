@@ -77,14 +77,14 @@ public class Camera {
 
     private void moveCamera(Vector2 targetPosition, boolean xMovement) {
         if (xMovement) {
-            float xVel = (targetPosition.x + ignoredBoxOffset.x) * CAMERA_SPEED * DeltaTime.deltaTime();
+            float xVel = (targetPosition.x + ignoredBoxOffset.x) * CAMERA_SPEED * DeltaTime.deltaTimeMultiplier();
             if (Math.abs(xVel) < Math.abs(targetPosition.x)) {
                 x += xVel;
             } else {
                 x = target.x;
             }
         } else {
-            float yVel = (targetPosition.y + ignoredBoxOffset.y) * CAMERA_SPEED * DeltaTime.deltaTime();
+            float yVel = (targetPosition.y + ignoredBoxOffset.y) * CAMERA_SPEED * DeltaTime.deltaTimeMultiplier();
             if (Math.abs(yVel) < Math.abs(targetPosition.y)) {
                 y += yVel;
             } else {

@@ -91,6 +91,19 @@ public class TownScreen extends GameScreen {
         //PrefabInstantiator.addProjectile(this, 200, 200);
         //PrefabInstantiator.addProjectile(this, 200, 250);
 
+        // Add foreground decorations as entities (Z_ORDER = 1 renders in front)
+        int offset = 15*16;
+        PrefabInstantiator.addDecoration(this, offset+6*16, offset+8*16, blacksmithroof);
+        PrefabInstantiator.addDecoration(this, offset+5*16, offset+14*16, tree);
+        PrefabInstantiator.addDecoration(this, offset+-1*16, offset+11*16, tree);
+        PrefabInstantiator.addDecoration(this, offset+1*16, offset+3*16, tree);
+        PrefabInstantiator.addDecoration(this, offset+0*16, offset+7*16, tree);
+        PrefabInstantiator.addDecoration(this, offset+23*16, offset+7*16, tree);
+        PrefabInstantiator.addDecoration(this, offset+21*16, offset+16*16, tree);
+        PrefabInstantiator.addDecoration(this, offset+12*16, offset+9*16, roof);
+        PrefabInstantiator.addDecoration(this, offset+16*16, offset+9*16, roof);
+        PrefabInstantiator.addDecoration(this, -8, 224, townShadows, 648, 24*16);
+
     }
 
     @Override
@@ -509,20 +522,14 @@ public class TownScreen extends GameScreen {
     private float smokeTimer;
     private final float SMOKE_TIMER_MAX = 0.11f;
 
+    // Test particle emitter timers
+    private float testParticleTimer;
+    private final float TEST_PARTICLE_TIMER_MAX = 0.15f;
+
     private void drawHighLayer() {
         int offset = 15*16;
-        //TODO make these entities
-        
-        Application.batch.draw(blacksmithroof, offset+6*16, offset+8*16);
-        Application.batch.draw(tree, offset+5*16, offset+14*16);
-        Application.batch.draw(tree, offset+-1*16,offset+ 11*16);
-        Application.batch.draw(tree, offset+1*16, offset+3*16);
-        Application.batch.draw(tree, offset+0*16, offset+7*16);
-        Application.batch.draw(tree, offset+23*16,offset+ 7*16);
-        Application.batch.draw(tree, offset+21*16,offset+ 16*16);
-        Application.batch.draw(roof, offset+12*16,offset+ 9*16);
-        Application.batch.draw(townShadows, -8,224, 648, 24*16);
-        Application.batch.draw(roof, offset+16*16,offset+ 9*16);
+        // Decorations are now entities created in constructor
+
         smokeTimer += Gdx.graphics.getDeltaTime();
         if (smokeTimer > SMOKE_TIMER_MAX) {
             smokeTimer -= SMOKE_TIMER_MAX;
@@ -534,7 +541,31 @@ public class TownScreen extends GameScreen {
             PrefabInstantiator.addParticles(this, offset+16*16+3,offset+ 13*16-6, MathUtils.HALF_PI, ParticleTypes.getSmokeParameters());
             PrefabInstantiator.addParticles(this, offset+8*16+6, offset+ 13*16-6, MathUtils.HALF_PI, ParticleTypes.getSmokeParameters());
         }
-    
+
+        // Test particle emitters - each tests a different particle aspect
+        testParticleTimer += Gdx.graphics.getDeltaTime();
+        if (testParticleTimer > TEST_PARTICLE_TIMER_MAX) {
+            testParticleTimer -= TEST_PARTICLE_TIMER_MAX;
+
+            // Test 1: Color transition (red to blue) - bottom left area
+            PrefabInstantiator.addParticles(this, 150, 100, 0, ParticleTypes.getTestColorTransitionParameters());
+
+            // Test 2: High gravity bouncing - bottom center
+            PrefabInstantiator.addParticles(this, 120, 100, 0, ParticleTypes.getTestBouncingParameters());
+
+            // Test 3: Burst (many particles) - bottom right
+            PrefabInstantiator.addParticles(this, 90, 100, 0, ParticleTypes.getTestBurstParameters());
+
+            // Test 4: Directional (narrow upward) - left side
+            PrefabInstantiator.addParticles(this, 60, 100, 0, ParticleTypes.getTestDirectionalParameters());
+
+            // Test 5: Large slow floating - center
+            PrefabInstantiator.addParticles(this, 30, 100, 0, ParticleTypes.getTestLargeSlowParameters());
+
+            // Test 6: Fast decaying sparkles - right side
+            PrefabInstantiator.addParticles(this, 0, 100, 0, ParticleTypes.getTestSparkleParameters());
+        }
+
     }
 
     public boolean isMainMenuActive() {

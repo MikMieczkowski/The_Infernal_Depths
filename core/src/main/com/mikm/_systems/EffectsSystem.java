@@ -19,7 +19,8 @@ public class EffectsSystem extends IteratingSystem {
 
     @Override
     protected void processEntity(Entity entity, float deltaTime) {
-        if (!Application.getInstance().systemShouldTick()) {
+        boolean isParticle = com.mikm._components.ParticleComponent.MAPPER.get(entity) != null;
+        if (!Application.getInstance().systemShouldTick() && !isParticle) {
             return;
         }
         EffectsComponent effectsComponent = EffectsComponent.MAPPER.get(entity);
@@ -32,7 +33,7 @@ public class EffectsSystem extends IteratingSystem {
     private void handleFlash(EffectsComponent effectsComponent) {
         if (effectsComponent.shouldFlash) {
             Application.getInstance().setFillColorShader(Application.batch, effectsComponent.flashColor);
-            effectsComponent.flashTimer += DeltaTime.deltaTime();
+            effectsComponent.flashTimer += DeltaTime.deltaTimeMultiplier();
             if (effectsComponent.flashTimer >= effectsComponent.MAX_FLASH_TIME) {
                 effectsComponent.shouldFlash = false;
                 Application.batch.setShader(null);
@@ -74,9 +75,9 @@ public class EffectsSystem extends IteratingSystem {
         EffectsComponent effectsComponent = EffectsComponent.MAPPER.get(entity);
         Transform transform = Transform.MAPPER.get(entity);
         if (effectsComponent.shouldBounce) {
-            effectsComponent.bounceTimer++;
+            effectsComponent.bounceTimer += Gdx.graphics.getDeltaTime();
             if (effectsComponent.bounceTimer > effectsComponent.maxBounceTime) {
-                effectsComponent.bounceTimer -= effectsComponent.maxBounceTime;
+                effectsComponent.bounceTimer = effectsComponent.maxBounceTime;
                 effectsComponent.shouldBounce = false;
             }
 
@@ -86,12 +87,12 @@ public class EffectsSystem extends IteratingSystem {
 
     private void handleColorChange(Entity entity) {
         EffectsComponent effectsComponent = EffectsComponent.MAPPER.get(entity);
-        SpriteComponent spriteComponent = new SpriteComponent();
+        SpriteComponent spriteComponent = SpriteComponent.MAPPER.get(entity);
 
-        if (effectsComponent.shouldChangeColor) {
-            effectsComponent.colorTimer++;
+        if (effectsComponent.shouldChangeColor && spriteComponent != null) {
+            effectsComponent.colorTimer += Gdx.graphics.getDeltaTime();
             if (effectsComponent.colorTimer > effectsComponent.maxColorTime) {
-                effectsComponent.colorTimer -= effectsComponent.maxColorTime;
+                effectsComponent.colorTimer = effectsComponent.maxColorTime;
                 effectsComponent.shouldChangeColor = false;
             }
 
@@ -104,13 +105,17 @@ public class EffectsSystem extends IteratingSystem {
         Transform transform = Transform.MAPPER.get(entity);
 
         if (effectsComponent.shouldChangeSize) {
-            effectsComponent.sizeTimer++;
+            effectsComponent.sizeTimer += Gdx.graphics.getDeltaTime();
             if (effectsComponent.sizeTimer > effectsComponent.maxSizeTime) {
-                effectsComponent.sizeTimer -= effectsComponent.maxSizeTime;
+                effectsComponent.sizeTimer = effectsComponent.maxSizeTime;
                 effectsComponent.shouldChangeSize = false;
+                // Particle has reached end of life, remove it
+                Application.getInstance().currentScreen.removeEntity(entity);
+                return;
             }
 
-            transform.xScale = MathUtils.lerp(effectsComponent.startSize, effectsComponent.endSize, effectsComponent.sizeTimer);
+            float t = effectsComponent.sizeTimer / effectsComponent.maxSizeTime;
+            transform.xScale = MathUtils.lerp(effectsComponent.startSize, effectsComponent.endSize, t);
             transform.yScale = transform.xScale;
 
             if (transform.xScale <= 0) {

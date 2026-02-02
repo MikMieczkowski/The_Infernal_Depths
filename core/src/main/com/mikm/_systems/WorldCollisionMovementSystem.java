@@ -31,8 +31,8 @@ public class WorldCollisionMovementSystem extends IteratingSystem {
         }
         if (NO_CLIP) {
             Transform transform = Transform.MAPPER.get(entity);
-            transform.x += transform.xVel * DeltaTime.deltaTime();
-            transform.y += transform.yVel * DeltaTime.deltaTime();
+            transform.x += transform.xVel * DeltaTime.deltaTimeMultiplier();
+            transform.y += transform.yVel * DeltaTime.deltaTimeMultiplier();
             updateDirection(Transform.MAPPER.get(entity));
             return;
         }
@@ -54,7 +54,7 @@ public class WorldCollisionMovementSystem extends IteratingSystem {
         WorldColliderComponent collider = WorldColliderComponent.MAPPER.get(entity);
         Transform transform = Transform.MAPPER.get(entity);
         //float dt = Math.min(Gdx.graphics.getDeltaTime(), 1f / 15f); // clamp to max 1/15 second
-        float dt = DeltaTime.deltaTime();
+        float dt = DeltaTime.deltaTimeMultiplier();
         float speed = (float)Math.sqrt(transform.xVel * transform.xVel + transform.yVel * transform.yVel);
 
         //Determine number of steps to use (never allow one step to move more than MAX_DIST, unless steps > 8)

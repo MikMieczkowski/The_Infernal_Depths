@@ -26,7 +26,7 @@ class PrefabBinding {
         t.ENTITY_NAME = "rope";
         components.add(t);
 
-        TriggerComponent triggerComponent = new TriggerComponent(Application.TILE_WIDTH, "TALK",
+        TriggerComponent triggerComponent = new TriggerComponent(Application.TILE_WIDTH, TriggerEntityType.OTHER, "TALK",
                 Event.ON_ENTER, TriggerAction.displayIndicator(),
                 Event.ON_STAY_AND_INPUT_JUST_PRESSED, TriggerAction.decreaseCaveFloor()
         );
@@ -46,7 +46,7 @@ class PrefabBinding {
         t = new Transform();
         t.ENTITY_NAME = "door";
         components.add(t);
-        components.add(new TriggerComponent(Application.TILE_WIDTH, "TALK", Event.ON_ENTER, TriggerAction.goToScreen()));
+        components.add(new TriggerComponent(Application.TILE_WIDTH, TriggerEntityType.OTHER, "TALK", Event.ON_ENTER, TriggerAction.goToScreen()));
         PrefabInstantiator.addPrefab("door", components);
 
         //NPC
@@ -55,7 +55,7 @@ class PrefabBinding {
         t = new Transform();
         t.ENTITY_NAME = "npc";
         components.add(t);
-        components.add(new TriggerComponent(NPC_TALKING_DIAMETER,"TALK",
+        components.add(new TriggerComponent(NPC_TALKING_DIAMETER, TriggerEntityType.OTHER, "TALK",
                 Event.ON_STAY, TriggerAction.displayIndicator(),
                 Event.ON_STAY_AND_INPUT_JUST_PRESSED, TriggerAction.npcTalk()));
         components.add(new SpriteComponent());
@@ -68,31 +68,42 @@ class PrefabBinding {
         t = new Transform();
         t.ENTITY_NAME = "grave";
         components.add(t);
-        components.add(new TriggerComponent(GRAVE_COLLECT_DIAMETER, "TALK",
+        components.add(new TriggerComponent(GRAVE_COLLECT_DIAMETER, TriggerEntityType.OTHER, "TALK",
                 Event.ON_ENTER, TriggerAction.graveCollect()));
         final TextureRegion grave = Assets.getInstance().getTextureRegion("grave");
         components.add(new SpriteComponent(grave));
         components.add(new GraveComponent());
         PrefabInstantiator.addPrefab("grave", components);
 
-        //Rock/destructible
+        //Rock - only breakable by mining projectiles
+        components = new HashSet<>();
+        t = new Transform();
+        t.ENTITY_NAME = "rock";
+        components.add(t);
+        components.add(new TriggerComponent(Application.TILE_WIDTH, TriggerEntityType.ROCK,
+                Event.ON_PLAYER_MINING_PROJECTILE_STAY, TriggerAction.breakRock()
+        ));
+        components.add(new SpriteComponent());
+        components.add(new RockComponent());
+        PrefabInstantiator.addPrefab("rock", components);
+
+        //Destructible - breakable by any player projectile (grass, pots, etc)
         components = new HashSet<>();
         t = new Transform();
         t.ENTITY_NAME = "destructible";
         components.add(t);
-        //components.add(new TriggerComponent(Application.TILE_WIDTH, TriggerAction.graveCollect(),
-        //        null, null, "TALK"));
-        components.add(new TriggerComponent(Application.TILE_WIDTH,
-                   Event.ON_PLAYER_MINING_PROJECTILE_STAY, TriggerAction.breakRock()
-                ));
+        components.add(new TriggerComponent(Application.TILE_WIDTH, TriggerEntityType.DESTRUCTIBLE,
+                Event.ON_PLAYER_PROJECTILE_STAY, TriggerAction.breakDestructible(),
+                Event.ON_PLAYER_MINING_PROJECTILE_STAY, TriggerAction.breakDestructible()
+        ));
         components.add(new SpriteComponent());
-        components.add(new RockComponent());
-        //components.add(new WorldColliderComponent());
+        components.add(new DestructibleComponent());
         PrefabInstantiator.addPrefab("destructible", components);
 
         //Particle
         components = new HashSet<>();
         t = new Transform();
+        t.Z_ORDER = 3;
         t.ENTITY_NAME = "particle";
         components.add(t);
         components.add(new SpriteComponent());
@@ -109,11 +120,7 @@ class PrefabBinding {
         t.ENTITY_NAME = "projectile";
         components.add(t);
         components.add(new SpriteComponent());
-        c = new WorldColliderComponent();
-        c.HITBOX_OFFSETS = new Vector2Int();
-        components.add(c);
         components.add(new RoutineListComponent());
-
         PrefabInstantiator.addPrefab("projectile", components);
 
         //PlayerWeapon
@@ -133,6 +140,14 @@ class PrefabBinding {
         components.add(new SpriteComponent(Assets.testTexture));
         PrefabInstantiator.addPrefab("testObject", components);
 
+        //Decoration - static sprites rendered in front of entities
+        components = new HashSet<>();
+        t = new Transform();
+        t.ENTITY_NAME = "decoration";
+        t.Z_ORDER = 1;
+        components.add(t);
+        components.add(new SpriteComponent());
+        PrefabInstantiator.addPrefab("decoration", components);
 
     }
 }

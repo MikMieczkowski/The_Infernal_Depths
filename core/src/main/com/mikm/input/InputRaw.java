@@ -43,11 +43,15 @@ public class InputRaw {
     
     }
 
+    private static boolean[] buttonCodeJustReleased;
+
     private static void setUpController() {
         usedButtonCodes = new int[]{controllerMapping.buttonA, controllerMapping.buttonB, controllerMapping.buttonX, controllerMapping.buttonY,
-        controllerMapping.buttonR2, controllerMapping.buttonStart, controllerMapping.buttonDpadUp, controllerMapping.buttonDpadDown, controllerMapping.buttonDpadLeft, controllerMapping.buttonDpadRight};
+        controllerMapping.buttonR2, controllerMapping.buttonStart, controllerMapping.buttonDpadUp, controllerMapping.buttonDpadDown, controllerMapping.buttonDpadLeft, controllerMapping.buttonDpadRight,
+        controllerMapping.buttonL1, controllerMapping.buttonL2, controllerMapping.buttonR1};
         buttonCodePressedLastFrame = new boolean[usedButtonCodes.length];
         buttonCodeJustPressed = new boolean[usedButtonCodes.length];
+        buttonCodeJustReleased = new boolean[usedButtonCodes.length];
     }
 
     private static void useController(boolean connected) {
@@ -76,8 +80,12 @@ public class InputRaw {
     public static void handleLastFrameInput() {
         if (usingController) {
             for (int i = 0; i < usedButtonCodes.length; i++) {
-                if (!buttonCodePressedLastFrame[i] && isControllerButtonPressed(usedButtonCodes[i])) {
+                boolean currentlyPressed = isControllerButtonPressed(usedButtonCodes[i]);
+                if (!buttonCodePressedLastFrame[i] && currentlyPressed) {
                     buttonCodeJustPressed[i] = true;
+                }
+                if (buttonCodePressedLastFrame[i] && !currentlyPressed) {
+                    buttonCodeJustReleased[i] = true;
                 }
             }
         }
@@ -87,6 +95,7 @@ public class InputRaw {
         if (usingController) {
             for (int i = 0; i < usedButtonCodes.length; i++) {
                 buttonCodeJustPressed[i] = false;
+                buttonCodeJustReleased[i] = false;
                 buttonCodePressedLastFrame[i] = isControllerButtonPressed(usedButtonCodes[i]);
             }
         }
@@ -113,7 +122,16 @@ public class InputRaw {
                 return buttonCodeJustPressed[i];
             }
         }
-        throw new RuntimeException("unimplemented button release");
+        throw new RuntimeException("unimplemented button: " + buttonCode);
+    }
+
+    static boolean isControllerButtonJustReleased(int buttonCode) {
+        for (int i = 0; i < usedButtonCodes.length; i++) {
+            if (buttonCode == usedButtonCodes[i]) {
+                return buttonCodeJustReleased[i];
+            }
+        }
+        throw new RuntimeException("unimplemented button: " + buttonCode);
     }
 
     public static float mouseXPosition() {

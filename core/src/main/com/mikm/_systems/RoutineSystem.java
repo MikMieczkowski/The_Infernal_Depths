@@ -20,7 +20,8 @@ public class RoutineSystem extends IteratingSystem {
 
     @Override
     protected void processEntity(Entity entity, float v) {
-        if (!Application.getInstance().systemShouldTick()) {
+        boolean isParticle = com.mikm._components.ParticleComponent.MAPPER.get(entity) != null;
+        if (!Application.getInstance().systemShouldTick() && !isParticle) {
             return;
         }
         RoutineListComponent r = RoutineListComponent.MAPPER.get(entity);

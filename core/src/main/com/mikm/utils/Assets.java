@@ -71,7 +71,18 @@ public class Assets {
     }
 
     public TextureRegion getTextureRegion(String name) {
-        return getSplitTextureRegion(name)[0][0];
+        try {
+            return getSplitTextureRegion(name)[0][0];
+        } catch (RuntimeException e) {
+            // Try loading from external file for special NPCs
+            String externalPath = "images/source/" + name + ".png";
+            try {
+                Texture texture = new Texture(Gdx.files.internal(externalPath));
+                return new TextureRegion(texture);
+            } catch (Exception ex) {
+                throw e; // Throw original error if external file doesn't exist
+            }
+        }
     }
 
     public TextureRegion getTextureRegion(String name, int width, int height) {

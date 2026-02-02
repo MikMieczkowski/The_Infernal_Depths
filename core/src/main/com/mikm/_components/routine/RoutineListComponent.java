@@ -6,10 +6,12 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mikm._components.CombatComponent;
 import com.mikm._components.Copyable;
+import com.mikm._components.SpriteComponent;
 import com.mikm._components.Transform;
 import com.mikm.entities.DamageInformation;
 import com.mikm.entities.actions.Action;
 import com.mikm.entities.actions.DamagedAction;
+import com.mikm.entities.animation.Directions;
 import com.mikm.entities.animation.SingleAnimation;
 import com.mikm.entities.animation.SingleFrame;
 import com.mikm.entities.animation.SuperAnimation;
@@ -43,11 +45,13 @@ public class RoutineListComponent implements Component {
     //For an entity which only does one action
     public void initRoutines(Action action, Entity entity, SuperAnimation animation) {
         NoRepeatTransition noRepeatTransition = new NoRepeatTransition("this");
-        Routine routine = new Routine(
-                new ArrayList<>(List.of(new BehaviourCycleStep(action))),
-                new ArrayList<>(List.of(noRepeatTransition))
-        );
-        routines = new ArrayList<>(List.of(routine));
+        ArrayList<CycleStep> steps = new ArrayList<>();
+        steps.add(new BehaviourCycleStep(action));
+        ArrayList<Transition> transitions = new ArrayList<>();
+        transitions.add(noRepeatTransition);
+        Routine routine = new Routine(steps, transitions);
+        routines = new ArrayList<>();
+        routines.add(routine);
         Map<String, Routine> fakeNameToString = new HashMap<>();
         fakeNameToString.put("this", routine);
         noRepeatTransition.init(fakeNameToString);
@@ -67,6 +71,15 @@ public class RoutineListComponent implements Component {
             throw new RuntimeException("Routines is null");
         }
         enterRoutine(routines.get(0), entity);
+
+        // Set initial sprite texture so entities render correctly even when paused (e.g., main menu)
+        SpriteComponent spriteComponent = SpriteComponent.MAPPER.get(entity);
+        if (spriteComponent != null && currentRoutine != null && currentRoutine.currentAction != null
+                && currentRoutine.currentAction.animation != null) {
+            Transform transform = Transform.MAPPER.get(entity);
+            currentRoutine.currentAction.animation.update(transform != null ? transform.direction : Directions.DOWN.vector2Int);
+            spriteComponent.textureRegion = currentRoutine.currentAction.animation.getKeyFrame(0);
+        }
     }
 
     public void enterCurrentOnHittingPlayerRoutine(Entity entity) {

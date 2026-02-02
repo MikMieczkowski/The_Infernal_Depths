@@ -87,12 +87,14 @@ public class RollAction extends Action {
 
     private void setRollForce(Entity entity) {
         RollActionComponent data = MAPPER.get(entity);
+        Transform transform = Transform.MAPPER.get(entity);
         if (data.rollSpeedSinCounter < MathUtils.PI - END_EARLY) {
-            data.rollSpeedSinCounter += (FRICTION - (FRICTION_SPEED * FRICTION * data.rollSpeedSinCounter)) * DeltaTime.deltaTime();
+            data.rollSpeedSinCounter += (FRICTION - (FRICTION_SPEED * FRICTION * data.rollSpeedSinCounter)) * DeltaTime.deltaTimeMultiplier();
         }
 
-        data.rollVel = new Vector2(SPEED * MathUtils.sin(data.rollSpeedSinCounter) * GameInput.getHorizontalAxis(),
-                SPEED * MathUtils.sin(data.rollSpeedSinCounter) * GameInput.getVerticalAxis());
+        float globalSpeed = transform.SPEED;
+        data.rollVel = new Vector2(SPEED * globalSpeed * MathUtils.sin(data.rollSpeedSinCounter) * GameInput.getHorizontalAxis(),
+                SPEED * globalSpeed * MathUtils.sin(data.rollSpeedSinCounter) * GameInput.getVerticalAxis());
     }
 
     private void setJumpHeight(Entity entity) {
@@ -103,7 +105,7 @@ public class RollAction extends Action {
         
         if (!data.jumpDone) {
             if (data.heightSinCounter < MathUtils.PI) {
-                data.heightSinCounter += JUMP_SPEED * DeltaTime.deltaTime();
+                data.heightSinCounter += JUMP_SPEED * DeltaTime.deltaTimeMultiplier();
             }
             if (data.heightSinCounter >= MathUtils.PI) {
                 data.heightSinCounter = 0;

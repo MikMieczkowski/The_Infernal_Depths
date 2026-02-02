@@ -3,10 +3,12 @@ package com.mikm.entities.prefabLoader;
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm.Vector2Int;
 import com.mikm._components.*;
+import com.mikm._components.MiningProjectileComponent;
 import com.mikm._components.routine.RoutineListComponent;
 import com.mikm.entities.actions.ChargeAction;
 import com.mikm.entities.actions.OrbitPlayerAction;
@@ -169,9 +171,33 @@ public class PrefabInstantiator {
     }
 
     public static void addRock(GameScreen screen, float x, float y, RockType rockType) {
-        Entity e = addEntity("destructible", screen, x, y);
+        Entity e = addEntity("rock", screen, x, y);
         RockComponent.MAPPER.get(e).rockType = rockType;
         SpriteComponent.MAPPER.get(e).textureRegion = rockType.getRockImage();
+    }
+
+    public static Entity addDestructible(GameScreen screen, float x, float y, TextureRegion texture,
+                                         ParticleTypes particleType, String soundEffect) {
+        Entity e = addEntity("destructible", screen, x, y);
+        SpriteComponent sprite = SpriteComponent.MAPPER.get(e);
+        sprite.textureRegion = texture;
+        Transform transform = Transform.MAPPER.get(e);
+        transform.FULL_BOUNDS_DIMENSIONS = new Vector2Int(texture.getRegionWidth(), texture.getRegionHeight());
+        DestructibleComponent destructible = DestructibleComponent.MAPPER.get(e);
+        destructible.particleType = particleType;
+        destructible.soundEffect = soundEffect;
+        return e;
+    }
+
+    public static Entity addDecoration(GameScreen screen, float x, float y, TextureRegion texture) {
+        return addDecoration(screen, x, y, texture, texture.getRegionWidth(), texture.getRegionHeight());
+    }
+
+    public static Entity addDecoration(GameScreen screen, float x, float y, TextureRegion texture, int width, int height) {
+        Entity e = addEntity("decoration", screen, x, y);
+        SpriteComponent.MAPPER.get(e).textureRegion = texture;
+        Transform.MAPPER.get(e).FULL_BOUNDS_DIMENSIONS = new Vector2Int(width, height);
+        return e;
     }
 
     public static void addParticles(float x, float y, ParticleTypes particleTypes) {
@@ -195,7 +221,11 @@ public class PrefabInstantiator {
 
             Entity particle = instantiatePrefab("particle", screen, x + xOffset, y + yOffset);
             EffectsComponent effectsComponent = EffectsComponent.MAPPER.get(particle);
-            effectsComponent.startSizeChange(parameters.maxLifeTime, parameters.sizeMin, parameters.sizeMax);
+
+            // Randomize size - particles start at random size and shrink to finalScale (usually 0)
+            float startSize = RandomUtils.getFloat(parameters.sizeMin, parameters.sizeMax);
+            effectsComponent.startSizeChange(parameters.maxLifeTime, startSize, parameters.finalScale);
+
             if (parameters.usesColor) {
                 effectsComponent.startColorChange(parameters.maxLifeTime, RandomUtils.getColor(parameters.startColorMin, parameters.startColorMax),
                         RandomUtils.getColor(parameters.endColorMin, parameters.endColorMax));
@@ -204,21 +234,55 @@ public class PrefabInstantiator {
                 effectsComponent.startBouncing(parameters.maxLifeTime, .1f, parameters.peakHeight);
             }
 
-            //action stuff - speed and angle
+            // For particles that don't collide with walls, remove WorldColliderComponent
+            // and add ParticleComponent for simple velocity-based movement
+            if (!parameters.collidesWithWalls) {
+                particle.remove(WorldColliderComponent.class);
+                particle.add(new ParticleComponent());
+            }
+
+            // Randomize angle and speed
+            float angle = RandomUtils.getFloat(parameters.angleMin, parameters.angleMax) + angleOffset;
+            float speed = RandomUtils.getFloat(parameters.speedMin, parameters.speedMax);
+
+            // Set initial velocity direction for ChargeAction to capture
+            Transform transform = Transform.MAPPER.get(particle);
+            transform.xVel = MathUtils.cos(angle);
+            transform.yVel = MathUtils.sin(angle);
+
+            // Create action with randomized speed and deceleration support
             RoutineListComponent routineListComponent = RoutineListComponent.MAPPER.get(particle);
-            Transform.MAPPER.get(particle).yVel = 1;
-            ChargeAction action = ChargeAction.simpleMoveTowardsAngle(.5f);
+            ChargeAction action = ChargeAction.forParticle(speed, parameters.maxLifeTime,
+                    parameters.shouldDecelerate, parameters.proportionOfTimeSpentDecelerating);
             routineListComponent.initRoutines(action, particle, new SingleFrame(parameters.image));
+
+            // Set initial sprite texture directly so particles render correctly even when paused
+            SpriteComponent.MAPPER.get(particle).textureRegion = parameters.image;
 
             screen.engine.addEntity(particle);
         }
     }
 
+    private static boolean useMiningProjectile = false;
+
+    public static void toggleProjectileType() {
+        useMiningProjectile = !useMiningProjectile;
+    }
+
+    public static boolean isMiningProjectile() {
+        return useMiningProjectile;
+    }
+
     //probably a ProjectileParameters class
     public static void addProjectile(float x, float y) {
-        addProjectile(Application.getInstance().currentScreen, x, y);
+        addProjectile(Application.getInstance().currentScreen, x, y, useMiningProjectile);
     }
-    public static void addProjectile(GameScreen screen, float x, float y) {
+
+    public static void addProjectile(float x, float y, boolean mining) {
+        addProjectile(Application.getInstance().currentScreen, x, y, mining);
+    }
+
+    public static void addProjectile(GameScreen screen, float x, float y, boolean mining) {
         Entity projectile = instantiatePrefab("projectile", screen, x, y);
 
         Transform transform = Transform.MAPPER.get(projectile);
@@ -228,11 +292,17 @@ public class PrefabInstantiator {
         RoutineListComponent routineListComponent = RoutineListComponent.MAPPER.get(projectile);
         //temp speed
         ChargeAction action = ChargeAction.simpleMoveTowardsAngle(.5f);
-        routineListComponent.initRoutines(action, projectile, new SingleFrame("sand"));
 
-        ProjectileComponent p = new ProjectileComponent();
-        p.isPlayer = true;
-        projectile.add(p);
+        if (mining) {
+            projectile.add(new MiningProjectileComponent());
+            routineListComponent.initRoutines(action, projectile, new SingleFrame("grass"));
+        } else {
+            ProjectileComponent p = new ProjectileComponent();
+            p.isPlayer = true;
+            projectile.add(p);
+            routineListComponent.initRoutines(action, projectile, new SingleFrame("sand"));
+        }
+
         screen.engine.addEntity(projectile);
     }
 
@@ -280,7 +350,8 @@ public class PrefabInstantiator {
                 object instanceof String ||
                 object instanceof Number ||
                 object instanceof Boolean ||
-                object instanceof Character) {
+                object instanceof Character ||
+                clazz.isEnum()) {
             if (LOG) System.out.println("→ Primitive/immutable type: returning same instance");
             return object;
         }

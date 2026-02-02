@@ -87,14 +87,48 @@ public class GameInput {
         if (InputRaw.usingController) {
             return InputRaw.isControllerButtonPressed(controllerMapping.buttonR2);
         }
-        return Gdx.input.isTouched();
+        return Gdx.input.isButtonPressed(0);
     }
 
     public static boolean isAttackButtonJustPressed() {
         if (InputRaw.usingController) {
             return InputRaw.isControllerButtonJustPressed(controllerMapping.buttonR2);
         }
-        return Gdx.input.isButtonJustPressed(0)||Gdx.input.isButtonJustPressed(1);
+        return Gdx.input.isButtonJustPressed(0);
+    }
+
+    public static boolean isAttackButtonJustReleased() {
+        if (InputRaw.usingController) {
+            return InputRaw.isControllerButtonJustReleased(controllerMapping.buttonR2);
+        }
+        return Gdx.input.isButtonJustPressed(0) == false && !Gdx.input.isButtonPressed(0) && wasAttackButtonPressed;
+    }
+
+    private static boolean wasAttackButtonPressed = false;
+
+    public static void updateAttackButtonState() {
+        wasAttackButtonPressed = isAttackButtonPressed();
+    }
+
+    public static boolean isLockButtonJustPressed() {
+        if (InputRaw.usingController) {
+            return InputRaw.isControllerButtonJustPressed(controllerMapping.buttonL2);
+        }
+        return Gdx.input.isButtonJustPressed(1); // Right mouse button
+    }
+
+    public static boolean isLockCycleNextJustPressed() {
+        if (InputRaw.usingController) {
+            return InputRaw.isControllerButtonJustPressed(controllerMapping.buttonR1);
+        }
+        return false; // No keyboard equivalent
+    }
+
+    public static boolean isLockCyclePrevJustPressed() {
+        if (InputRaw.usingController) {
+            return InputRaw.isControllerButtonJustPressed(controllerMapping.buttonL1);
+        }
+        return false; // No keyboard equivalent
     }
 
     public static boolean isSwitchButtonJustPressed() {
