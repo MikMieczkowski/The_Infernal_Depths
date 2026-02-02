@@ -51,8 +51,9 @@ public class DiveAction extends Action {
         transform.yVel = 0;
         data.sinCounter = STARTING_SIN_COUNT;
 
-        data.diveVel = new Vector2(SPEED * MathUtils.sin(data.sinCounter) * GameInput.getHorizontalAxis(),
-                SPEED * MathUtils.sin(data.sinCounter) * GameInput.getVerticalAxis());
+        float globalSpeed = transform.SPEED;
+        data.diveVel = new Vector2(SPEED * globalSpeed * MathUtils.sin(data.sinCounter) * GameInput.getHorizontalAxis(),
+                SPEED * globalSpeed * MathUtils.sin(data.sinCounter) * GameInput.getVerticalAxis());
         data.diveDirection = new Vector2Int(transform.direction.x, transform.direction.y);
         Blackboard.getInstance().bind("diveSinCounter", entity, data.sinCounter);
         super.update(entity);
@@ -76,12 +77,14 @@ public class DiveAction extends Action {
 
     private void setDiveForce(Entity entity) {
         DiveActionComponent data = MAPPER.get(entity);
+        Transform transform = Transform.MAPPER.get(entity);
         if (data.sinCounter < MathUtils.PI) {
-            data.sinCounter += (FRICTION - (FRICTION_SPEED * FRICTION * data.sinCounter)) * DeltaTime.deltaTime();
+            data.sinCounter += (FRICTION - (FRICTION_SPEED * FRICTION * data.sinCounter)) * DeltaTime.deltaTimeMultiplier();
         }
 
+        float globalSpeed = transform.SPEED;
         Vector2 normalizedDiveDirection = ExtraMathUtils.normalizeAndScale(data.diveDirection);
-        data.diveVel = new Vector2(SPEED * MathUtils.sin(data.sinCounter) * normalizedDiveDirection.x,
-                SPEED * MathUtils.sin(data.sinCounter) * normalizedDiveDirection.y);
+        data.diveVel = new Vector2(SPEED * globalSpeed * MathUtils.sin(data.sinCounter) * normalizedDiveDirection.x,
+                SPEED * globalSpeed * MathUtils.sin(data.sinCounter) * normalizedDiveDirection.y);
     }
 }

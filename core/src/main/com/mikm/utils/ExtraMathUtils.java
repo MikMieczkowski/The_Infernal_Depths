@@ -89,7 +89,7 @@ public class ExtraMathUtils {
     }
 
     //piecewise parabolic curve going up from 0 to accProp (0-1) * timer, peak at peakValue, decSpeed controlling speed of descent. accProp controls speed of ascent.
-    public static float skewedSinLerp(float timer, float maxTime, float peakValue, float accProp, float decSpeed) {
+    public static float accDecLerp(float timer, float maxTime, float peakValue, float accProp, float decSpeed) {
         float accSpeed = peakValue / accProp*accProp;
         float accTime = maxTime * accProp;
         float f = 0;

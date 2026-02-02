@@ -87,8 +87,8 @@ public class AcceleratedMoveAction extends Action {
         }
         //System.out.println(data.framesMouseHeld);
 
-        data.acc = transform.SPEED * DeltaTime.deltaTime() / ACCELERATION_FRAMES;
-        data.dec = transform.SPEED * DeltaTime.deltaTime() / DECELERATION_FRAMES;
+        data.acc = transform.SPEED * DeltaTime.deltaTimeMultiplier() / ACCELERATION_FRAMES;
+        data.dec = transform.SPEED * DeltaTime.deltaTimeMultiplier() / DECELERATION_FRAMES;
         data.stepTimer += Gdx.graphics.getDeltaTime();
         if (data.stepTimer > STEP_MAX && (transform.xVel != 0 || transform.yVel != 0)) {
             data.stepTimer -= STEP_MAX;

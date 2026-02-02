@@ -1,21 +1,30 @@
-#USAGE TIME: time after release to be in attack state
-USAGE_TIME: .4
-#COOLDOWN_TIME: time after exiting attack state that you can reenter attack state
+ATTACK_MAX_TIME: .4
 COOLDOWN_TIME: 0
-#these get overridden on projectiles
-KNOCKBACK: 3
-DAMAGE: 1
+COMBO_TIME: .6
 CAN_BREAK_ROCKS: false
+HIT_STUN: 10
+IS_LAUNCHER: false
+DAMAGE_MULTIPLIER: 1.0
 
 ENTER_SOUND_EFFECT: "swing"
 END_SOUND_EFFECT:
 
+MOVEMENT_CONFIG:
+  PEAK_SPEED: 3
+  ACCELERATION_PROPORTION: .2
+  DECELERATION_SPEED: 100
+
+PLAYER_ANIMATION: PlayerAttacking
+
 PROJECTILES:
-  #PRESS, RELEASE, or HOLD
   - CREATE_ON: PRESS
     ANIMATION_NAME: "swordSlice"
-    FPS: .1
+    FPS: .08
     ORBITS: true
     SPEED: 0
-    #should have CREATE_ON: RELEASE
-    CHARGE:
+    DAMAGE: 10
+    # Lifetime matches animation duration (stays until animation ends)
+    LIFETIME: 0.32
+    MOVEMENT_PATTERN: STRAIGHT
+    # Hitbox is only active on spawn frame
+    HITBOX_ACTIVE_DURATION: 0.08

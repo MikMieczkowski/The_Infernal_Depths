@@ -4,11 +4,15 @@
 ATTACK_MAX_TIME: .5
 #COOLDOWN_TIME: time after exiting attack state that you can reenter attack state
 COOLDOWN_TIME: 0
-#COMBO_TIME: time after exiting attack state that if you attack it will continue the combo. Should be larger than COOLDOWN_TIME + time of hold for next attack in combo
+#COMBO_TIME: time after exiting attack state that if you attack it will continue the combo. Should be larger than COOLDOWN_TIME + time of hold for next attack in combo (usually .3 because thats how long light takes)
 COMBO_TIME: .6
 CAN_BREAK_ROCKS: false
 #TODO research
 HIT_STUN: 10
+# Triggers aerial state on hit
+IS_LAUNCHER: false
+# Damage multiplier for this attack
+DAMAGE_MULTIPLIER: 1.0
 
 
 ENTER_SOUND_EFFECT: "swing"
@@ -17,17 +21,29 @@ END_SOUND_EFFECT:
 
 #What the player will do while in the attack
 MOVEMENT_CONFIG:
-  SPEED: 0
+  # Positive = toward locked enemy, negative = away
+  PEAK_SPEED: 0
+  # Proportion of attack time spent accelerating (0-1)
+  ACCELERATION_PROPORTION: 0
+  # Speed of deceleration after peak
+  DECELERATION_SPEED: 0
 
 #References a behaviour, then grabs that behaviour's animation
 PLAYER_ANIMATION: PlayerAttacking
 
 PROJECTILES:
-  #PRESS, RELEASE, or HOLD
+  # PRESS, RELEASE, or HOLD
   - CREATE_ON: PRESS
-    #create every 1 seconds
-    CREATE_ON_HOLD_TIME: 1
+    # For HOLD: spawn every X seconds
+    CREATE_ON_HOLD_INTERVAL: 1
     ANIMATION_NAME: "swordSlice"
     FPS: .1
     ORBITS: true
     SPEED: 0
+    DAMAGE: 10
+    # Lifetime in seconds before despawn
+    LIFETIME: 1.0
+    # Movement pattern (STRAIGHT, extensible later)
+    MOVEMENT_PATTERN: STRAIGHT
+    # Duration hitbox is active (0 = always active, >0 = only active for this duration after spawn)
+    HITBOX_ACTIVE_DURATION: 0

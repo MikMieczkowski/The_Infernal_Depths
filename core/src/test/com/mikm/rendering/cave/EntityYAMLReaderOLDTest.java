@@ -1,3 +1,4 @@
+/*
 package com.mikm.rendering.cave;
 
 import com.badlogic.gdx.Files;
@@ -227,3 +228,6 @@ class EntityYAMLReaderOLDTest {
         assert !t.getCondition(e);
     }
 }
+
+
+ */

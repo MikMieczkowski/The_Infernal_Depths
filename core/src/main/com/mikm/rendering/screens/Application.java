@@ -334,5 +334,10 @@ public class Application extends Game {
                 getPlayerRoutineListComponent().takeDamage(new DamageInformation(1, 0, 1), getPlayer());
 			}
 		}
+
+        // Toggle projectile type when Q is pressed
+        if (GameInput.isSwitchButtonJustPressed()) {
+            PrefabInstantiator.toggleProjectileType();
+        }
 	}
 }

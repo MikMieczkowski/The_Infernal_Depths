@@ -18,21 +18,26 @@ public class TriggerComponent implements Component {
     //for onEnter
     public boolean playerInsideLastFrame;
     //for onStayAndInputJustPressed. From GameInput.inputActions
-    public String inputAction;
+    @Copyable public String inputAction;
     //for a single event (door enter)
-    public int goToScreenTriggerActionScreen;
+    @Copyable public int goToScreenTriggerActionScreen;
+    
+    //The row type of this entity in the trigger table
+    @Copyable public TriggerEntityType triggerEntityType;
 
     public TriggerComponent() {
 
     }
-    public TriggerComponent(int diameter, Object... pairs) {
+    public TriggerComponent(int diameter, TriggerEntityType triggerEntityType, Object... pairs) {
         this.diameter = diameter;
+        this.triggerEntityType = triggerEntityType;
         this.eventToAction = mapOf(pairs);
     }
 
 
-    public TriggerComponent(int diameter, String inputAction, Object... pairs) {
+    public TriggerComponent(int diameter, TriggerEntityType triggerEntityType, String inputAction, Object... pairs) {
         this.diameter = diameter;
+        this.triggerEntityType = triggerEntityType;
         this.inputAction = inputAction;
         this.eventToAction = mapOf(pairs);
     }

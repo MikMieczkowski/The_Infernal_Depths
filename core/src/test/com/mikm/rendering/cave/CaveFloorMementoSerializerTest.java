@@ -108,10 +108,10 @@ class CaveFloorMementoSerializerTest {
     private void initializeKryo() {
         kryo = new Kryo();
         kryo.register(Class.class);
-        kryo.register(Entity.class);
-        kryo.register(InanimateEntity.class);
+        //kryo.register(Entity.class);
+        //kryo.register(InanimateEntity.class);
         kryo.register(ArrayList.class);
-        kryo.register(RemovableArray.class);
+        //kryo.register(RemovableArray.class);
         kryo.register(boolean[][].class);
         kryo.register(boolean[].class);
         kryo.register(Vector2Int.class);

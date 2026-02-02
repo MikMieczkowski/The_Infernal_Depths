@@ -31,9 +31,8 @@ public class CircleAction extends Action {
     @Override
     public void postConfigRead(Entity entity) {
         super.postConfigRead(entity);
-        Transform transform = Transform.MAPPER.get(entity);
         if (SPEED == 0) {
-            SPEED = transform.SPEED;
+            SPEED = 1f;
         }
     }
 
@@ -44,10 +43,6 @@ public class CircleAction extends Action {
         CircleActionComponent data = MAPPER.get(entity);
         WorldColliderComponent collider = WorldColliderComponent.MAPPER.get(entity);
         
-        // Ensure a usable speed if not configured explicitly
-        if (SPEED == 0) {
-            SPEED = transform.SPEED;
-        }
         // Seed starting angle relative to player so initial frame is not visually idle
         com.badlogic.gdx.math.Circle playerHitbox = Application.getInstance().getPlayerHitbox();
         com.badlogic.gdx.math.Circle entityHitbox = collider.getHitbox(transform);
@@ -56,8 +51,9 @@ public class CircleAction extends Action {
                 playerHitbox.x - entityHitbox.x);
         // Start perpendicular for a natural circular path around the player
         data.angle = angleToPlayer + MathUtils.PI / 2f;
-        transform.xVel = SPEED * MathUtils.cos(data.angle);
-        transform.yVel = SPEED * MathUtils.sin(data.angle);
+        float globalSpeed = transform.SPEED;
+        transform.xVel = SPEED * globalSpeed * MathUtils.cos(data.angle);
+        transform.yVel = SPEED * globalSpeed * MathUtils.sin(data.angle);
     }
 
     @Override
@@ -67,11 +63,12 @@ public class CircleAction extends Action {
         CircleActionComponent data = MAPPER.get(entity);
         RoutineListComponent routineListComponent = RoutineListComponent.MAPPER.get(entity);
         
-        data.angle += ANGULAR_SPEED * DeltaTime.deltaTime();
+        data.angle += ANGULAR_SPEED * DeltaTime.deltaTimeMultiplier();
         transform.height = 3 + MathUtils.sin(routineListComponent.timeElapsedInCurrentAction * 3) * 3;
-        transform.xVel = SPEED * MathUtils.cos(data.angle);
-        transform.yVel = SPEED * MathUtils.sin(data.angle);
-        data.distanceTraveledSinceLastProjectile += SPEED;
+        float globalSpeed = transform.SPEED;
+        transform.xVel = SPEED * globalSpeed * MathUtils.cos(data.angle);
+        transform.yVel = SPEED * globalSpeed * MathUtils.sin(data.angle);
+        data.distanceTraveledSinceLastProjectile += SPEED * globalSpeed;
         if (data.distanceTraveledSinceLastProjectile > 10) {
             //TODO particle usage
             //new ParticleEffect(ParticleTypes.getLightningParameters(), transform.x, transform.y);

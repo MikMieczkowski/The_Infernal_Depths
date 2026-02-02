@@ -45,9 +45,6 @@ BEHAVIOURS:
       TYPE: SINGLE_FRAME
       IMAGE_NAME: "black"
     COPY_CONFIG: Walk
-  ChargeAttack:
-    COPY_ANIMATION: Walk
-    COPY_CONFIG: Walk
   PlayerAttacking:
     COPY_ANIMATION: Walk
     COPY_CONFIG: Walk

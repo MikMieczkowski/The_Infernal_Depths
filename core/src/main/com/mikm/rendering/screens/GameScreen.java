@@ -18,6 +18,7 @@ import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.mikm._components.CombatComponent;
+import com.mikm._components.LockOnComponent;
 import com.mikm._systems.*;
 import com.mikm.entities.prefabLoader.PrefabInstantiator;
 import com.mikm.utils.Assets;
@@ -54,6 +55,7 @@ public abstract class GameScreen extends ScreenAdapter {
     private final TextureRegion pauseMenu;
     private final TextureRegion musicIconOn;
     private final TextureRegion musicIconOff;
+    private final TextureRegion lockIndicator;
     private Rectangle musicIconBounds = new Rectangle();
     private float healthAnimationTimer, healthAnimationFrameDuration = .1f;
 
@@ -73,15 +75,22 @@ public abstract class GameScreen extends ScreenAdapter {
         pauseMenu = Assets.getInstance().getTextureRegion("controls", 350, 300);
         musicIconOn = Assets.getInstance().getSplitTextureRegion("musicIcons", 32, 32)[0][0]; // simple placeholder texture
         musicIconOff = Assets.getInstance().getSplitTextureRegion("musicIcons", 32, 32)[0][1]; // simple placeholder texture
+        lockIndicator = Assets.getInstance().getTextureRegion("lock");
 
         engine = new Engine();
         engine.addSystem(new RoutineSystem());
         engine.addSystem(new AnimationSystem());
         engine.addSystem(new WorldCollisionMovementSystem());
+        engine.addSystem(new ProjectileMovementSystem());
         engine.addSystem(new EffectsSystem());
         engine.addSystem(new RenderingSystem());
         engine.addSystem(new PlayerTriggerSystem());
-        engine.addSystem(new CombatSystem());
+        // Combat systems
+        engine.addSystem(new LockOnSystem());
+        engine.addSystem(new AttackInputSystem());
+        engine.addSystem(new ComboSystem());
+        engine.addSystem(new AttackMovementSystem());
+        engine.addSystem(new ProjectileSpawnSystem());
 
 
         player = PrefabInstantiator.addEntity("player", this,
@@ -156,32 +165,16 @@ public abstract class GameScreen extends ScreenAdapter {
                     throw new RuntimeException("unknown particleType property " + s + " in Tiled for screen " + this.getClass().getSimpleName());
                 }
 
-                boolean animated = false;
-                SuperAnimation animation = null;
-                if (cell.getTile() instanceof AnimatedTiledMapTile) {
-                    AnimatedTiledMapTile animTile = (AnimatedTiledMapTile)cell.getTile();
-                    TextureRegion[] t = new TextureRegion[animTile.getFrameTiles().length];
-                    int k = 0;
-                    for (StaticTiledMapTile tile : animTile.getFrameTiles()) {
-                        t[k++] = tile.getTextureRegion();
-                    }
-                    animated = true;
-                    animation = new SingleAnimation(t, 1/(animTile.getAnimationIntervals()[0]/1000f), Animation.PlayMode.LOOP);
-                }
+                // Get texture - handle animated tiles
+                TextureRegion texture = cell.getTile().getTextureRegion();
 
-                //TODO add back
-//                Entity d = createEntity();
-//                if (animated) {
-//                    d = new Destructible(animation, particleType, soundEffect, i * 16, j * 16);
-//                } else {
-//                    d = new Destructible(cell.getTile().getTextureRegion(), particleType, soundEffect, i * 16, j * 16);
-//                }
-//                d.width = cell.getTile().getTextureRegion().getRegionWidth();
-//                d.height = cell.getTile().getTextureRegion().getRegionHeight();
-//                d.xScale = cell.getFlipHorizontally() ? -1 : 1;
-//                d.yScale = cell.getFlipVertically() ? -1 : 1;
-//                d.hasShadow = shadows;
-//                addInanimateEntity(d);
+                // Create destructible entity
+                Entity d = PrefabInstantiator.addDestructible(this, i * 16, j * 16, texture, particleType, soundEffect);
+
+                // Handle flipping
+                Transform transform = Transform.MAPPER.get(d);
+                transform.xScale = cell.getFlipHorizontally() ? -1 : 1;
+                transform.yScale = cell.getFlipVertically() ? -1 : 1;
 
                 cell.setRotation(TiledMapTileLayer.Cell.ROTATE_0);
                 cell.setFlipHorizontally(false);
@@ -251,7 +244,41 @@ public abstract class GameScreen extends ScreenAdapter {
 
 
     protected void drawAssetsPostEntities() {
+        drawLockIndicator();
+    }
 
+    /**
+     * Draws the lock-on indicator around the locked enemy.
+     */
+    private void drawLockIndicator() {
+        if (player == null) return;
+
+        LockOnComponent lockOn = LockOnComponent.MAPPER.get(player);
+        if (lockOn == null || !lockOn.hasLock()) return;
+
+        Transform enemyTransform = Transform.MAPPER.get(lockOn.lockedEnemy);
+        if (enemyTransform == null) return;
+
+        float x = enemyTransform.getCenteredX();
+        float y = enemyTransform.getCenteredY();
+
+        // Apply scale and rotation from lock component
+        float scale = lockOn.lockPulseScale;
+        float rotation = lockOn.lockRotation;
+
+        float width = lockIndicator.getRegionWidth() * scale;
+        float height = lockIndicator.getRegionHeight() * scale;
+
+        // Draw centered on enemy with rotation and pulse effect
+        Application.batch.draw(
+                lockIndicator,
+                x - width / 2,
+                y - height / 2,
+                width / 2, height / 2,  // origin for rotation
+                width, height,
+                1f, 1f,  // scale (already applied to width/height)
+                rotation
+        );
     }
 
     public void renderUI() {

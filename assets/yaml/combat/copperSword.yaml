@@ -3,19 +3,47 @@ ORBIT:
   IMAGE_Y: 0
   ORBIT_TYPE: SWAP
   ORBIT_DISTANCE: 15
-  SWORD_MOVEMENT_ANIMATION_SPEED: .5
+  ORBIT_ITEM_ANIMATION_SPEED: .5
+  ORBIT_ITEM_ANIMATION_TYPE: SWING
+
 COMBO_TREE:
-  medium_swing2:
-    light_swing4:
-      light_swing4:
-        light_swing4:
-          heavy_swing1:
-        medium_swing2:
+  LIGHT:
+    ATTACK: swing1
+    IF: ANY
+    THEN_NEXT:
+      LIGHT:
+        ATTACK: swing1
+        IF: ANY
+        THEN_NEXT:
+          LIGHT:
+            ATTACK: swing1
+            IF: ANY
+      MEDIUM:
+        ATTACK: swing1
+        IF: ANY
+      HEAVY:
+        ATTACK: swing1
+        IF: ANY
+  MEDIUM:
+    ATTACK: swing1
+    IF: ANY
+    THEN_NEXT:
+      LIGHT:
+        ATTACK: swing1
+        IF: ANY
+      MEDIUM:
+        ATTACK: swing1
+        IF: ANY
+  HEAVY:
+    ATTACK: swing1
+    IF: ANY
+
+AERIAL_COMBO_TREE:
+  LIGHT:
+    ATTACK: swing1
+    IF: ANY
+
 CONFIG:
-  light:
+  swing1:
     DAMAGE: 10
-    #PROJECTILE_DAMAGE: [10, 10, 15]
-  medium:
-    DAMAGE: 15
-  heavy:
-    DAMAGE: 20
+    PROJECTILE_DAMAGE:

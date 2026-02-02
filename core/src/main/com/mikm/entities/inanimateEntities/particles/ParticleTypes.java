@@ -187,4 +187,133 @@ public class ParticleTypes {
         output.image = particleImage;
         return output;
     }
+
+    // ========== TEST PARTICLE TYPES ==========
+
+    // Test 1: Color transition (red to blue)
+    public static ParticleTypes getTestColorTransitionParameters() {
+        ParticleTypes p = new ParticleTypes();
+        p.usesColor = true;
+        p.startColorMin = new Color(1f, 0.2f, 0.2f, 1f); // Red
+        p.startColorMax = new Color(1f, 0.4f, 0.2f, 1f);
+        p.endColorMin = new Color(0.2f, 0.2f, 1f, 1f);   // Blue
+        p.endColorMax = new Color(0.2f, 0.4f, 1f, 1f);
+        p.image = Assets.particleImages[0][0];
+        p.amountMin = 1;
+        p.amountMax = 1;
+        p.positionOffsetRadius = 3;
+        p.sizeMin = 1f;
+        p.sizeMax = 2f;
+        p.speedMin = 0.3f;
+        p.speedMax = 0.5f;
+        p.maxLifeTime = 2f;
+        p.hasGravity = false;
+        p.hasShadow = false;
+        p.angleMin = MathUtils.HALF_PI - MathUtils.PI/6f;
+        p.angleMax = MathUtils.HALF_PI + MathUtils.PI/6f;
+        return p;
+    }
+
+    // Test 2: High gravity bouncing
+    public static ParticleTypes getTestBouncingParameters() {
+        ParticleTypes p = new ParticleTypes();
+        p.image = Assets.particleImages[0][0];
+        p.amountMin = 1;
+        p.amountMax = 1;
+        p.positionOffsetRadius = 2;
+        p.sizeMin = 0.8f;
+        p.sizeMax = 1.2f;
+        p.speedMin = 0.5f;
+        p.speedMax = 1f;
+        p.maxLifeTime = 1.5f;
+        p.hasGravity = true;
+        p.hasShadow = true;
+        p.peakHeight = 20;
+        p.angleMin = 0;
+        p.angleMax = MathUtils.PI2;
+        p.collidesWithWalls = false;
+        return p;
+    }
+
+    // Test 3: Burst (many particles at once)
+    public static ParticleTypes getTestBurstParameters() {
+        ParticleTypes p = new ParticleTypes();
+        p.image = Assets.particleImages[0][1]; // Lightning particle
+        p.amountMin = 5;
+        p.amountMax = 8;
+        p.positionOffsetRadius = 4;
+        p.sizeMin = 0.3f;
+        p.sizeMax = 0.6f;
+        p.speedMin = 1f;
+        p.speedMax = 2f;
+        p.maxLifeTime = 0.5f;
+        p.hasGravity = false;
+        p.hasShadow = false;
+        p.angleMin = 0;
+        p.angleMax = MathUtils.PI2;
+        return p;
+    }
+
+    // Test 4: Directional (narrow upward spread)
+    public static ParticleTypes getTestDirectionalParameters() {
+        ParticleTypes p = new ParticleTypes();
+        p.image = Assets.particleImages[0][2]; // Arrow particle
+        p.amountMin = 1;
+        p.amountMax = 1;
+        p.positionOffsetRadius = 1;
+        p.sizeMin = 0.5f;
+        p.sizeMax = 0.8f;
+        p.speedMin = 1.5f;
+        p.speedMax = 2.5f;
+        p.maxLifeTime = 1f;
+        p.hasGravity = false;
+        p.hasShadow = false;
+        p.angleMin = MathUtils.HALF_PI - 0.1f; // Very narrow spread upward
+        p.angleMax = MathUtils.HALF_PI + 0.1f;
+        return p;
+    }
+
+    // Test 5: Large slow floating
+    public static ParticleTypes getTestLargeSlowParameters() {
+        ParticleTypes p = new ParticleTypes();
+        p.image = Assets.particleImages[0][0];
+        p.amountMin = 1;
+        p.amountMax = 1;
+        p.positionOffsetRadius = 6;
+        p.sizeMin = 2f;
+        p.sizeMax = 3f;
+        p.speedMin = 0.1f;
+        p.speedMax = 0.2f;
+        p.maxLifeTime = 4f;
+        p.hasGravity = false;
+        p.hasShadow = false;
+        p.angleMin = MathUtils.HALF_PI - MathUtils.PI/4f;
+        p.angleMax = MathUtils.HALF_PI + MathUtils.PI/4f;
+        return p;
+    }
+
+    // Test 6: Fast decaying sparkles
+    public static ParticleTypes getTestSparkleParameters() {
+        ParticleTypes p = new ParticleTypes();
+        p.usesColor = true;
+        p.startColorMin = new Color(1f, 1f, 0.5f, 1f); // Yellow
+        p.startColorMax = new Color(1f, 1f, 0.8f, 1f);
+        p.endColorMin = new Color(1f, 0.5f, 0f, 0f);   // Orange, fading
+        p.endColorMax = new Color(1f, 0.6f, 0.2f, 0f);
+        p.image = Assets.particleImages[0][1];
+        p.amountMin = 2;
+        p.amountMax = 3;
+        p.positionOffsetRadius = 3;
+        p.sizeMin = 0.2f;
+        p.sizeMax = 0.5f;
+        p.speedMin = 2f;
+        p.speedMax = 3f;
+        p.maxLifeTime = 0.3f;
+        p.hasGravity = true;
+        p.hasShadow = false;
+        p.peakHeight = 8;
+        p.angleMin = 0;
+        p.angleMax = MathUtils.PI2;
+        return p;
+    }
 }
