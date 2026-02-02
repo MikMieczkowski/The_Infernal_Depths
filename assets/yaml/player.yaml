@@ -54,7 +54,7 @@ BEHAVIOURS:
       IMAGE_NAME: "black"
     CONFIG:
       #sets IS_DONE instead of MAX_TIME
-      speed: 6
+      speed: 3
       friction: .3
       friction_speed: .317
       starting_sin_count: 1
@@ -70,7 +70,7 @@ BEHAVIOURS:
       hurtbox_diameter: 20
       #sets IS_DONE instead of MAX_TIME
       end_early: .35
-      speed: 4
+      speed: 2
       starting_sin_count: 0
       friction: .3
       friction_speed: .317

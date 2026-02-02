@@ -93,6 +93,10 @@ public class PrefabInstantiator {
             action.execute(e);
         }
 
+        CombatComponent combat = CombatComponent.MAPPER.get(e);
+        if (combat != null) {
+            combat.hp = combat.MAX_HP;
+        }
 
         Transform t = Transform.MAPPER.get(e);
         t.x = x;
@@ -156,11 +160,12 @@ public class PrefabInstantiator {
     }
 
     public static void addGrave(GameScreen screen) {
-        //TODO particles
-//        new ParticleEffect(ParticleTypes.getRockParameters(RockType.NORMAL), x, y);
-//        new ParticleEffect(ParticleTypes.getRockParameters(RockType.NORMAL), x, y);
-//        new ParticleEffect(ParticleTypes.getRockParameters(RockType.NORMAL), x, y);
         Entity e = addEntity("grave", screen, Application.getInstance().getPlayerX(), Application.getInstance().getPlayerY());
+        Transform transform = Transform.MAPPER.get(e);
+        PrefabInstantiator.addParticles(transform.x,transform.y, ParticleTypes.getRockParameters(RockType.NORMAL));
+        PrefabInstantiator.addParticles(transform.x,transform.y, ParticleTypes.getRockParameters(RockType.NORMAL));
+        PrefabInstantiator.addParticles(transform.x,transform.y, ParticleTypes.getRockParameters(RockType.NORMAL));
+
         GraveComponent graveComponent = GraveComponent.MAPPER.get(e);
         for (int i = 0; i < RockType.SIZE; i++) {
             graveComponent.ores[i] = RockType.get(i).tempOreAmount;
@@ -202,6 +207,9 @@ public class PrefabInstantiator {
 
     public static void addParticles(float x, float y, ParticleTypes particleTypes) {
         addParticles(Application.getInstance().currentScreen, x, y, 0, particleTypes);
+    }
+    public static void addParticles(float x, float y, float angleOffset, ParticleTypes particleTypes) {
+        addParticles(Application.getInstance().currentScreen, x, y, angleOffset, particleTypes);
     }
 
     public static void addParticles(GameScreen screen, float x, float y, ParticleTypes particleTypes) {

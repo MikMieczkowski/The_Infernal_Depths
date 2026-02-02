@@ -76,7 +76,7 @@ public class YAMLLoaderTest {
         // Verify config exists
         assert rawWeapon.CONFIG != null : "CONFIG should not be null";
         assert rawWeapon.CONFIG.containsKey("swing1") : "Config should have swing1";
-        assert rawWeapon.CONFIG.get("swing1").DAMAGE == 10 : "swing1 damage should be 10 from schema";
+        assert rawWeapon.CONFIG.get("swing1").PROJECTILE_DAMAGE == null : "swing1 PROJECTILE_DAMAGE should be null from schema (no default list)";
 
         System.out.println("✓ Raw loading with schema defaults passed");
     }
@@ -133,13 +133,13 @@ public class YAMLLoaderTest {
         assert formattedWeapon.ORBIT.ORBIT_DISTANCE == 15f : "ORBIT.ORBIT_DISTANCE should match";
         assert formattedWeapon.ORBIT.ORBIT_TYPE.equals("SWAP") : "ORBIT.ORBIT_TYPE should match";
 
-        // Verify CONFIG was auto-copied
+        // Verify CONFIG was auto-copied (swing1 from schema, light_swing1 from instance)
         assert formattedWeapon.CONFIG != null : "CONFIG should be auto-copied";
-        assert formattedWeapon.CONFIG.containsKey("swing1") : "CONFIG should have swing1";
+        assert formattedWeapon.CONFIG.containsKey("light_swing1") : "CONFIG should have light_swing1";
 
-        WeaponFormattedData.AttackConfigData configData = formattedWeapon.CONFIG.get("swing1");
-        assert configData != null : "swing1 config should not be null";
-        assert configData.DAMAGE == 10 : "swing1 damage should be auto-copied correctly";
+        WeaponFormattedData.AttackConfigData configData = formattedWeapon.CONFIG.get("light_swing1");
+        assert configData != null : "light_swing1 config should not be null";
+        assert configData.PROJECTILE_DAMAGE != null && configData.PROJECTILE_DAMAGE.get(0) == 10 : "light_swing1 PROJECTILE_DAMAGE should be auto-copied correctly";
 
         System.out.println("✓ Nested object auto-copy passed");
     }

@@ -19,12 +19,13 @@ PLAYER_ANIMATION: PlayerAttacking
 PROJECTILES:
   - CREATE_ON: PRESS
     ANIMATION_NAME: "swordSlice"
-    FPS: .08
+    FPS: 12.5
     ORBITS: true
     SPEED: 0
     DAMAGE: 10
     # Lifetime matches animation duration (stays until animation ends)
     LIFETIME: 0.32
     MOVEMENT_PATTERN: STRAIGHT
-    # Hitbox is only active on spawn frame
+    HITBOX_START_DELAY: 0.16
     HITBOX_ACTIVE_DURATION: 0.08
+    HITBOX_RADIUS: 16

@@ -33,6 +33,5 @@ AERIAL_COMBO_TREE:
 
 CONFIG:
   swing1:
-    DAMAGE: 10
     #A list of the damage corresponding to the swing's projectile list
     PROJECTILE_DAMAGE:

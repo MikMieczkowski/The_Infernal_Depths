@@ -1,8 +1,8 @@
 CONFIG:
   NAME: slime
-  MAX_HP: 3
+  MAX_HP: 30
   #DAMAGE: 1
-  #SPEED: 1
+  SPEED: 1
   #ORIGIN_X: 0
   #ORIGIN_Y: 0
   #HURT_ANIMATION:

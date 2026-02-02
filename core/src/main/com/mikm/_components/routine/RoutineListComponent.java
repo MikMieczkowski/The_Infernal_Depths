@@ -106,11 +106,17 @@ public class RoutineListComponent implements Component {
         if (entersDamagedActionOnHit(entity)) {
             damagedAction.enter(entity, damageInformation);
         }
+        combatComponent.startInvincibilityFrames();
     }
 
     private boolean entersDamagedActionOnHit(Entity entity) {
+        CombatComponent combatComponent = CombatComponent.MAPPER.get(entity);
+        if (combatComponent != null && combatComponent.dead) {
+            return true;
+        }
         String POST_HIT_ROUTINE = currentRoutine.currentAction.POST_HIT_ROUTINE;
-        return POST_HIT_ROUTINE != null && !POST_HIT_ROUTINE.equals("NONE");
+        // NONE explicitly opts out of knockback; null or any routine name enters damaged action
+        return POST_HIT_ROUTINE == null || !POST_HIT_ROUTINE.equals("NONE");
     }
 
     public void enterPostHitRoutine(Entity entity) {

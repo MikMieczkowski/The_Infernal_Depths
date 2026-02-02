@@ -8,4 +8,5 @@ COMBO_TREE:
 
 CONFIG:
   light_swing1:
-    DAMAGE: 10
+    PROJECTILE_DAMAGE:
+      - 10

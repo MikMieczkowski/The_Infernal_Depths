@@ -37,7 +37,7 @@ PROJECTILES:
     # For HOLD: spawn every X seconds
     CREATE_ON_HOLD_INTERVAL: 1
     ANIMATION_NAME: "swordSlice"
-    FPS: .1
+    FPS: 10
     ORBITS: true
     SPEED: 0
     DAMAGE: 10
@@ -45,5 +45,9 @@ PROJECTILES:
     LIFETIME: 1.0
     # Movement pattern (STRAIGHT, extensible later)
     MOVEMENT_PATTERN: STRAIGHT
-    # Duration hitbox is active (0 = always active, >0 = only active for this duration after spawn)
+    # Delay before hitbox becomes active after spawn
+    HITBOX_START_DELAY: 0
+    # Duration hitbox is active (0 = always active, >0 = only active for this duration after start)
     HITBOX_ACTIVE_DURATION: 0
+    # Radius of the projectile's hitbox circle
+    HITBOX_RADIUS: 16

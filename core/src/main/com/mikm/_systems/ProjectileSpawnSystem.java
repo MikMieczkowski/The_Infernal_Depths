@@ -3,6 +3,7 @@ package com.mikm._systems;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.gdx.math.MathUtils;
+import com.mikm._components.ComboStateComponent;
 import com.mikm._components.LockOnComponent;
 import com.mikm._components.MiningProjectileComponent;
 import com.mikm._components.ProjectileComponent;
@@ -10,6 +11,7 @@ import com.mikm._components.ProjectileConfigComponent;
 import com.mikm._components.SpriteComponent;
 import com.mikm._components.Transform;
 import com.mikm._components.routine.RoutineListComponent;
+import com.mikm.entities.prefabLoader.weapon.WeaponFormattedData;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.mikm.entities.actions.ChargeAction;
 import com.mikm.entities.actions.OrbitPlayerAction;
@@ -28,17 +30,41 @@ public class ProjectileSpawnSystem extends EntitySystem {
 
     /**
      * Spawns projectiles from attack data that match the given timing.
+     * Applies PROJECTILE_DAMAGE overrides from weapon CONFIG if available.
      */
     public void spawnProjectiles(Entity entity, AttackFormattedData attackData, String createOn) {
         if (attackData == null || attackData.PROJECTILES == null) {
             return;
         }
 
-        for (AttackFormattedData.ProjectileData projData : attackData.PROJECTILES) {
+        // Look up PROJECTILE_DAMAGE from weapon CONFIG
+        java.util.List<Integer> projectileDamages = getProjectileDamages(entity);
+
+        for (int i = 0; i < attackData.PROJECTILES.size(); i++) {
+            AttackFormattedData.ProjectileData projData = attackData.PROJECTILES.get(i);
             if (createOn.equals(projData.CREATE_ON)) {
-                spawnSingleProjectile(entity, projData);
+                if (projectileDamages != null && i < projectileDamages.size()) {
+                    spawnProjectileWithDamage(entity, projData, projectileDamages.get(i));
+                } else {
+                    spawnSingleProjectile(entity, projData);
+                }
             }
         }
+    }
+
+    /**
+     * Gets the PROJECTILE_DAMAGE list from the weapon CONFIG for the current attack.
+     */
+    private java.util.List<Integer> getProjectileDamages(Entity entity) {
+        ComboStateComponent combo = ComboStateComponent.MAPPER.get(entity);
+        if (combo == null || combo.weaponConfig == null || combo.currentAttackName == null) {
+            return null;
+        }
+        WeaponFormattedData.AttackConfigData configData = combo.weaponConfig.get(combo.currentAttackName);
+        if (configData == null) {
+            return null;
+        }
+        return configData.PROJECTILE_DAMAGE;
     }
 
     /**
@@ -88,9 +114,11 @@ public class ProjectileSpawnSystem extends EntitySystem {
         config.movementPattern = projData.MOVEMENT_PATTERN != null ? projData.MOVEMENT_PATTERN : "STRAIGHT";
         config.speed = projData.SPEED != null ? projData.SPEED : 0f;
         config.orbits = true;
-        config.fps = projData.FPS != null ? projData.FPS : 0.1f;
+        config.fps = projData.FPS != null ? projData.FPS : 10f;
         config.isPlayer = true;
+        config.hitboxStartDelay = projData.HITBOX_START_DELAY != null ? projData.HITBOX_START_DELAY : 0f;
         config.hitboxActiveDuration = projData.HITBOX_ACTIVE_DURATION != null ? projData.HITBOX_ACTIVE_DURATION : 0f;
+        config.hitboxRadius = projData.HITBOX_RADIUS != null ? projData.HITBOX_RADIUS : 16f;
         projectile.add(config);
 
         RoutineListComponent routineListComponent = RoutineListComponent.MAPPER.get(projectile);
@@ -106,9 +134,8 @@ public class ProjectileSpawnSystem extends EntitySystem {
             }
 
             String animName = projData.ANIMATION_NAME != null ? projData.ANIMATION_NAME : "swordSlice";
-            float fps = config.fps > 0 ? 1f / config.fps : 10f;
 
-            SuperAnimation anim = new SingleAnimation(animName, 32, 32, fps, Animation.PlayMode.NORMAL);
+            SuperAnimation anim = new SingleAnimation(animName, 32, 32, config.fps, Animation.PlayMode.NORMAL);
             routineListComponent.initRoutines(action, projectile, anim);
 
             // Update transform dimensions to match the animation frame size
@@ -166,9 +193,11 @@ public class ProjectileSpawnSystem extends EntitySystem {
         config.movementPattern = projData.MOVEMENT_PATTERN != null ? projData.MOVEMENT_PATTERN : "STRAIGHT";
         config.speed = speed;
         config.orbits = false;
-        config.fps = projData.FPS != null ? projData.FPS : 0.1f;
+        config.fps = projData.FPS != null ? projData.FPS : 10f;
         config.isPlayer = true;
+        config.hitboxStartDelay = projData.HITBOX_START_DELAY != null ? projData.HITBOX_START_DELAY : 0f;
         config.hitboxActiveDuration = projData.HITBOX_ACTIVE_DURATION != null ? projData.HITBOX_ACTIVE_DURATION : 0f;
+        config.hitboxRadius = projData.HITBOX_RADIUS != null ? projData.HITBOX_RADIUS : 16f;
         projectile.add(config);
 
         RoutineListComponent routineListComponent = RoutineListComponent.MAPPER.get(projectile);
@@ -213,7 +242,9 @@ public class ProjectileSpawnSystem extends EntitySystem {
         modifiedData.DAMAGE = overrideDamage;
         modifiedData.LIFETIME = projData.LIFETIME;
         modifiedData.MOVEMENT_PATTERN = projData.MOVEMENT_PATTERN;
+        modifiedData.HITBOX_START_DELAY = projData.HITBOX_START_DELAY;
         modifiedData.HITBOX_ACTIVE_DURATION = projData.HITBOX_ACTIVE_DURATION;
+        modifiedData.HITBOX_RADIUS = projData.HITBOX_RADIUS;
 
         spawnSingleProjectile(entity, modifiedData);
     }

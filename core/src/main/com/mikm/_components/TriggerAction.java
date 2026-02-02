@@ -17,6 +17,7 @@ import com.mikm.rendering.screens.GameScreen;
 import com.mikm.rendering.sound.SoundEffects;
 import com.mikm.utils.RandomUtils;
 import com.mikm._systems.ComboSystem;
+import com.mikm.utils.debug.DebugRenderer;
 
 public interface TriggerAction {
     void run(Entity entity);
@@ -170,8 +171,6 @@ public interface TriggerAction {
         }
     }
 
-    float PROJECTILE_RADIUS = 4f;
-
     class DisplayIndicator implements TriggerAction {
         @Override
         public void run(Entity entity) {
@@ -212,7 +211,7 @@ public interface TriggerAction {
             }
 
             float angleToEnemy = (float) Math.atan2(enemyTransform.y - playerTransform.y, enemyTransform.x - playerTransform.x);
-            DamageInformation damageInformation = new DamageInformation(angleToEnemy, playerCombatComponent.DAMAGE, playerCombatComponent.KNOCKBACK);
+            DamageInformation damageInformation = new DamageInformation(angleToEnemy, playerCombatComponent.KNOCKBACK, playerCombatComponent.DAMAGE);
             enemyRoutineListComponent.takeDamage(damageInformation, entity);
         }
     }
@@ -244,7 +243,8 @@ public interface TriggerAction {
                     }
 
                     Transform projectileTransform = Transform.MAPPER.get(projectile);
-                    Circle projectileHitbox = new Circle(projectileTransform.getCenteredX(), projectileTransform.getCenteredY(), PROJECTILE_RADIUS);
+                    float radius = (config != null) ? config.hitboxRadius : 16f;
+                    Circle projectileHitbox = new Circle(projectileTransform.getCenteredX(), projectileTransform.getCenteredY(), radius);
                     if (Intersector.overlaps(projectileHitbox, triggerHitbox)) {
                         float angleToEnemy = (float) Math.atan2(transform.y - projectileHitbox.y, transform.x - projectileHitbox.x);
 
@@ -252,7 +252,7 @@ public interface TriggerAction {
                         int damage = (config != null) ? config.damage : 1;
                         int knockback = 5;
 
-                        DamageInformation damageInformation = new DamageInformation(angleToEnemy, damage, knockback);
+                        DamageInformation damageInformation = new DamageInformation(angleToEnemy, knockback, damage);
                         enemyRoutineListComponent.takeDamage(damageInformation, entity);
                         Application.getInstance().currentScreen.removeEntity(projectile);
 
@@ -292,7 +292,9 @@ public interface TriggerAction {
 
             for (Entity projectile : Application.getInstance().currentScreen.engine.getEntitiesFor(Family.all(MiningProjectileComponent.class).get())) {
                 Transform projectileTransform = Transform.MAPPER.get(projectile);
-                Circle projectileHitbox = new Circle(projectileTransform.getCenteredX(), projectileTransform.getCenteredY(), PROJECTILE_RADIUS);
+                ProjectileConfigComponent config = ProjectileConfigComponent.MAPPER.get(projectile);
+                float radius = (config != null) ? config.hitboxRadius : 16f;
+                Circle projectileHitbox = new Circle(projectileTransform.getCenteredX(), projectileTransform.getCenteredY(), radius);
                 if (Intersector.overlaps(projectileHitbox, triggerHitbox)) {
                     float angleToEnemy = (float) Math.atan2(transform.y - projectileHitbox.y, transform.x - projectileHitbox.x);
                     Transform enemyTransform = Transform.MAPPER.get(entity);

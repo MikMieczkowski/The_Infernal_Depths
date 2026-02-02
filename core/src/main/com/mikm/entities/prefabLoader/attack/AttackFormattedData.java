@@ -38,8 +38,9 @@ public class AttackFormattedData {
         public Integer DAMAGE;
         public Float LIFETIME;
         public String MOVEMENT_PATTERN;
-        /** Duration hitbox is active (0 = always active, >0 = only active for this duration after spawn) */
+        public Float HITBOX_START_DELAY;
         public Float HITBOX_ACTIVE_DURATION;
+        public Float HITBOX_RADIUS;
     }
 
     /**

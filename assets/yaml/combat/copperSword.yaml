@@ -45,5 +45,5 @@ AERIAL_COMBO_TREE:
 
 CONFIG:
   swing1:
-    DAMAGE: 10
     PROJECTILE_DAMAGE:
+      - 10

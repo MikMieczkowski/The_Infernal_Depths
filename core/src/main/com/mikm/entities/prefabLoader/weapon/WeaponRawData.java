@@ -24,7 +24,6 @@ public class WeaponRawData {
     }
 
     public static class AttackConfigData {
-        public Integer DAMAGE;
         public List<Integer> PROJECTILE_DAMAGE;
     }
 }

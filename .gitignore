@@ -105,6 +105,13 @@ gradle-app.setting
 .DS_Store
 Thumbs.db
 
+## Claude Code
+.claude/
+tmpclaude-*
+
+## Misc
+*.stackdump
+
 ## iOS
 /ios/xcode/*.xcodeproj/*
 !/ios/xcode/*.xcodeproj/xcshareddata

@@ -81,6 +81,7 @@ public class CombatComponent implements Component {
 
         //take damage
         combatComponent.hp -= damageInformation.damage;
+        System.out.println("HP: " + combatComponent.hp);
         if (combatComponent.hp <= 0) {
             combatComponent.dead = true;
         }
@@ -92,11 +93,8 @@ public class CombatComponent implements Component {
         } else {
             effectsComponent.flash(Color.WHITE);
         }
-        combatComponent.startInvincibilityFrames();
         if (transform.ENTITY_NAME.equals("player")) {
             Application.getInstance().freezeTime();
-            //TODO weapons
-            //Application.playerOLD.equippedWeapon.exitAttackState();
         }
     }
 
