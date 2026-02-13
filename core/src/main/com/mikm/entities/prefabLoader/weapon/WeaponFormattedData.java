@@ -21,6 +21,8 @@ public class WeaponFormattedData {
         public Float ORBIT_DISTANCE;
         public Float ORBIT_ITEM_ANIMATION_SPEED;
         public String ORBIT_ITEM_ANIMATION_TYPE;
+        public String ANIMATION_PREFIX;
+        public Boolean POINTS_TOWARDS_LOCKED;
     }
 
     public static class AttackConfigData {

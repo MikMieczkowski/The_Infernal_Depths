@@ -11,7 +11,7 @@ import java.util.Map;
 public class TriggerComponent implements Component {
     public static final ComponentMapper<TriggerComponent> MAPPER = ComponentMapper.getFor(TriggerComponent.class);
 
-    public int diameter = Application.TILE_WIDTH;
+    @Copyable public int diameter = Application.TILE_WIDTH;
 
     @CopyReference public Map<Event, TriggerAction> eventToAction = new HashMap<>();
 

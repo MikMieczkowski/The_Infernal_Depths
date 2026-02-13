@@ -1,15 +1,15 @@
 #### Each attack defines the following: player movement towards locked, orbit info, timing, player and sword animation, projectiles
 
-#ATTACK_MAX_TIME: time after release to be in attack state
-ATTACK_MAX_TIME: .5
-#COOLDOWN_TIME: time after exiting attack state that you can reenter attack state
-COOLDOWN_TIME: 0
-#COMBO_TIME: time after exiting attack state that if you attack it will continue the combo. Should be larger than COOLDOWN_TIME + time of hold for next attack in combo (MED_TIME for med, HEAVY_TIME for heavy)
+#ATTACK_FRAMES: frames (at 60fps) after release to be in attack state
+ATTACK_FRAMES: 30
+#COMBO_TIME: time after exiting attack state that if you attack it will continue the combo. Should be larger than time of hold for next attack in combo (MED_TIME for med, HEAVY_TIME for heavy)
 COMBO_TIME: .6
-#TODO research
-HIT_STUN: 10
+# How many frames (at 60fps) the enemy stays in hitstun after being hit
+HITSTUN_FRAMES: 10
 # Triggers aerial state on hit
 IS_LAUNCHER: false
+# Whether this attack can break rocks
+CAN_BREAK_ROCKS: false
 # Damage multiplier for this attack
 DAMAGE_MULTIPLIER: 1.0
 
@@ -26,28 +26,54 @@ MOVEMENT_CONFIG:
   ACCELERATION_PROPORTION: 0
   # Speed of deceleration after peak
   DECELERATION_SPEED: 0
+  # Distance scaling: adjusts movement based on distance to the locked enemy.
+  # Defines three zones measured from the enemy:
+  #
+  #   [0, NEAR)       NEAR zone — movement scales DOWN so the player doesn't overshoot.
+  #                   Uses a power curve (slightly more aggressive than linear near the enemy).
+  #   [NEAR, FAR]     Unaffected zone — full PEAK_SPEED, no scaling applied.
+  #   (FAR, infinity) FAR zone — movement scales UP so the player closes the gap.
+  #
+  # Set NEAR to 0 to disable close-range scaling (unaffected extends to distance 0).
+  # Set FAR to 0 to disable far-range scaling (unaffected extends to infinity).
+  #
+  # MULTIPLIER controls how much the player moves in scaled zones relative to the enemy distance:
+  #   0.5 = player ends up roughly halfway to the enemy
+  #   1.0 = player reaches the enemy
+  #   2.0 = player overshoots by about the starting distance
+  # Only affects NEAR and FAR zones; the unaffected zone always uses full PEAK_SPEED.
+  DISTANCE_SCALE_NEAR: 10
+  DISTANCE_SCALE_FAR: 0
+  DISTANCE_SCALE_MULTIPLIER: 1
 
 #References a behaviour, then grabs that behaviour's animation
 PLAYER_ANIMATION: PlayerAttacking
+
+#Animation name for the weapon sprite during this attack (e.g. Swing, Jab, NonAttack)
+WEAPON_ANIMATION: Swing
+#FPS for the weapon animation spritesheet
+WEAPON_ANIMATION_FPS: 10
+#If true, weapon animation loops instead of playing once (NORMAL)
+WEAPON_ANIMATION_LOOP: false
 
 PROJECTILES:
   # PRESS, RELEASE, or HOLD
   - CREATE_ON: PRESS
     # For HOLD: spawn every X seconds
     CREATE_ON_HOLD_INTERVAL: 1
-    ANIMATION_NAME: "swordSlice"
+    ANIMATION_NAME:
     FPS: 10
     ORBITS: true
     SPEED: 0
     DAMAGE: 10
-    # Lifetime in seconds before despawn
-    LIFETIME: 1.0
+    # Lifetime in frames (at 60fps) before despawn (0 = do not despawn)
+    LIFETIME_FRAMES: 0
     # Movement pattern (STRAIGHT, extensible later)
     MOVEMENT_PATTERN: STRAIGHT
-    # Delay before hitbox becomes active after spawn
-    HITBOX_START_DELAY: 0
-    # Duration hitbox is active (0 = always active, >0 = only active for this duration after start)
-    HITBOX_ACTIVE_DURATION: 0
+    # Frames before hitbox becomes active after spawn (at 60fps)
+    STARTUP_FRAMES: 0
+    # Frames hitbox is active (0 or -1 = infinite, active until projectile expires)
+    ACTIVE_FRAMES: 0
     # Radius of the projectile's hitbox circle
     HITBOX_RADIUS: 16
     # Multiplier for the projectile's width (affects both visual xScale and hitbox radius)
@@ -56,3 +82,5 @@ PROJECTILES:
     SPAWN_POSITION: TOWARDS_LOCKED
     # Distance from player center to spawn at (only used with TOWARDS_LOCKED)
     SPAWN_DISTANCE: 15
+    # If true, projectiles at index 1+ inherit DAMAGE from the index 0 projectile. No-op for index 0.
+    INHERITS_DAMAGE_FROM_ZERO: true

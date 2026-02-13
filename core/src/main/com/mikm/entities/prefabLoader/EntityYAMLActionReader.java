@@ -90,7 +90,9 @@ public class EntityYAMLActionReader {
     }
 
     private void loadActionAnimation(EntityYAMLData.BehaviourData behaviourData, Action action) {
-
+        if (behaviourData.ANIMATION.LOOP == null) {
+            behaviourData.ANIMATION.LOOP = true;
+        }
         // Check for new nested ANIMATION structure first
         if (behaviourData.ANIMATION != null) {
             String animationType = behaviourData.ANIMATION.TYPE;

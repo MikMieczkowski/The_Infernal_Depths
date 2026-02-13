@@ -11,10 +11,14 @@ ORBIT:
   ORBIT_ITEM_ANIMATION_SPEED: .5
   #Only will have an effect if ORBIT_TYPE = SWAP. Only swing implemented for now.
   ORBIT_ITEM_ANIMATION_TYPE: SWING
+  #Prefix for weapon-specific animation variants (e.g. CopperSword -> CopperSwordSwing). Null = use generic animations.
+  ANIMATION_PREFIX:
+  #If true, weapon points towards locked enemy when locked on. If false, always points towards mouse/stick.
+  POINTS_TOWARDS_LOCKED: true
 
 # Combo tree format:
 #   Leaf node:          ATTACK: name
-#   Unconditional next: ATTACK: name + THEN_NEXT: { LIGHT: ..., MEDIUM: ..., HEAVY: ... }
+#   Unconditional next: ATTACK: name + THEN_NEXT: { LIGHT: ..., HEAVY: ... }
 #   Conditional next:   ATTACK: name + IF_DISTANCE_IS: GREATER/LESS + THAN: dist + THEN_NEXT: ... + optionally ELSE_NEXT: ...
 COMBO_TREE:
   LIGHT:

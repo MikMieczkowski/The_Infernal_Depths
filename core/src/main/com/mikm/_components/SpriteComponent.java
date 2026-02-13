@@ -12,10 +12,11 @@ public class SpriteComponent implements Component {
     public static final ComponentMapper<SpriteComponent> MAPPER = ComponentMapper.getFor(SpriteComponent.class);
     @CopyReference public Color color = Color.WHITE;
 
-    public boolean flipped = false;
-    public TextureRegion textureRegion = Assets.testTexture;
-    public float animationTime;
-    public boolean visible = true;
+    @Copyable public boolean flipped = false;
+    @CopyReference public TextureRegion textureRegion = Assets.testTexture;
+    @Copyable public float animationTime;
+    @Copyable public boolean visible = true;
+    @Copyable public boolean useDirectionFlip = true;
 
     public SpriteComponent() {
 

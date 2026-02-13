@@ -53,29 +53,53 @@ public class DamagedAction extends Action {
         DamagedActionComponent data = MAPPER.get(entity);
         Transform transform = Transform.MAPPER.get(entity);
         CombatComponent combatComponent = CombatComponent.MAPPER.get(entity);
-        
-        Vector2 knockbackForce = new Vector2(MathUtils.cos(data.damageInformation.knockbackAngle) * data.damageInformation.knockbackForceMagnitude,
-                MathUtils.sin(data.damageInformation.knockbackAngle) * data.damageInformation.knockbackForceMagnitude);
-
         RoutineListComponent routineListComponent = RoutineListComponent.MAPPER.get(entity);
-        Vector2 sinLerpedKnockbackForce = ExtraMathUtils.sinLerpVector2(routineListComponent.timeElapsedInCurrentAction,TOTAL_KNOCKBACK_TIME,.1f, 1f, knockbackForce);
-        float jumpOffset = ExtraMathUtils.sinLerp(routineListComponent.timeElapsedInCurrentAction, TOTAL_KNOCKBACK_TIME * (combatComponent.dead ? 1 : .75f), .1f, 1f, JUMP_HEIGHT);
-        if (combatComponent.dead) {
-            sinLerpedKnockbackForce = sinLerpedKnockbackForce.scl(DEATH_KNOCKBACK_MULTIPLIER);
-            jumpOffset *= 1.5f;
-        }
-        transform.height = jumpOffset;
-        transform.xVel = sinLerpedKnockbackForce.x;
-        transform.yVel = sinLerpedKnockbackForce.y;
 
-        float totalTime = TOTAL_KNOCKBACK_TIME * (combatComponent.dead ? 1f : .75f);
-        if (routineListComponent.timeElapsedInCurrentAction >= totalTime && data.active) {
-            // finish damaged state and trigger death if applicable
+        // Compute hitstun duration: if hitstunFrames > 0, use it; otherwise fall back to TOTAL_KNOCKBACK_TIME
+        float hitstunSeconds = data.damageInformation.hitstunFrames > 0
+                ? data.damageInformation.hitstunFrames / 60.0f
+                : TOTAL_KNOCKBACK_TIME;
+
+        float knockbackMultiplier = combatComponent.KNOCKBACK_MULTIPLIER;
+        float knockbackTime = TOTAL_KNOCKBACK_TIME * (combatComponent.dead ? 1f : .75f);
+        float elapsed = routineListComponent.timeElapsedInCurrentAction;
+
+        // Apply knockback while within knockback time
+        if (elapsed < knockbackTime) {
+            Vector2 knockbackForce = new Vector2(
+                    MathUtils.cos(data.damageInformation.knockbackAngle) * data.damageInformation.knockbackForceMagnitude * knockbackMultiplier,
+                    MathUtils.sin(data.damageInformation.knockbackAngle) * data.damageInformation.knockbackForceMagnitude * knockbackMultiplier);
+
+            Vector2 sinLerpedKnockbackForce = ExtraMathUtils.sinLerpVector2(elapsed, TOTAL_KNOCKBACK_TIME, .1f, 1f, knockbackForce);
+            float jumpOffset = ExtraMathUtils.sinLerp(elapsed, knockbackTime, .1f, 1f, JUMP_HEIGHT) * knockbackMultiplier;
+            if (combatComponent.dead) {
+                sinLerpedKnockbackForce = sinLerpedKnockbackForce.scl(DEATH_KNOCKBACK_MULTIPLIER);
+                jumpOffset *= 1.5f;
+            }
+            transform.height = jumpOffset;
+            transform.xVel = sinLerpedKnockbackForce.x;
+            transform.yVel = sinLerpedKnockbackForce.y;
+        } else {
+            // Knockback finished but still in hitstun — hold position
+            transform.xVel = 0;
+            transform.yVel = 0;
+            transform.height = 0;
+        }
+
+        // Exit when hitstun expires (or knockback for dead entities)
+        float exitTime = combatComponent.dead ? knockbackTime : hitstunSeconds;
+        if (elapsed >= exitTime && data.active) {
+            boolean knockbackStillActive = elapsed < knockbackTime;
             onExit(entity);
             data.active = false;
             if (!combatComponent.dead) {
-                transform.xVel = 0;
-                transform.yVel = 0;
+                if (knockbackStillActive) {
+                    // Hitstun ended before knockback — carry residual velocity into idle
+                    combatComponent.inResidualKnockback = true;
+                } else {
+                    transform.xVel = 0;
+                    transform.yVel = 0;
+                }
             }
         }
     }

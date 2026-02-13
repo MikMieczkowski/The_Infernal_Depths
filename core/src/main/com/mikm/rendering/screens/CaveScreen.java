@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.esotericsoftware.kryo.io.KryoBufferUnderflowException;
 import com.mikm._components.*;
+import com.mikm._components.GraveComponent;
 import com.mikm._components.routine.RoutineListComponent;
 import com.mikm.utils.Assets;
 import com.mikm.utils.ExtraMathUtils;
@@ -47,8 +48,6 @@ public class CaveScreen extends GameScreen {
     //5,10,15 are always null.
     public CaveFloorMemento[] caveFloorMementos;
 
-    public boolean displayButtonIndicator = false;
-    public Vector2 buttonIndicatorPosition;
     public Vector2Int currentRopePosition = Vector2Int.ZERO;
     private TextureRegion pointer = Assets.getInstance().getTextureRegion("ropePointer");
     private TextureRegion ropeImg = Assets.getInstance().getTextureRegion("rope");
@@ -124,6 +123,7 @@ public class CaveScreen extends GameScreen {
         //only thing that needs to be updated is grave entities and rock entities
         if (CaveScreen.floor % 5 != 0) {
             caveFloorMementos[CaveScreen.floor - 1].updateRocks(engine.getEntitiesFor(Family.all(RockComponent.class).get()));
+            caveFloorMementos[CaveScreen.floor - 1].updateGraves(engine.getEntitiesFor(Family.all(GraveComponent.class).get()));
         }
     }
 
@@ -140,9 +140,6 @@ public class CaveScreen extends GameScreen {
     public void render(float delta) {
         ScreenUtils.clear(caveFillColors[CaveScreen.getRecolorLevel()]);
         super.render(delta);
-        //DebugRenderer.getInstance().drawCollidableGrid(caveTilemapCreator.collidablePositions, DebugRenderer.DEBUG_RED);
-        //DebugRenderer.getInstance().drawCollidableGrid(caveTilemapCreator.rockCollidablePositions, DebugRenderer.DEBUG_BLUE);
-
     }
 
     @Override
@@ -151,18 +148,13 @@ public class CaveScreen extends GameScreen {
             super.renderUI();
             return;
         }
-        if (displayButtonIndicator) {
-            Application.batch.draw(GameInput.getTalkButtonImage(), buttonIndicatorPosition.x, buttonIndicatorPosition.y);
-        }
         super.renderUI();
         drawPointer(currentRopePosition.x, currentRopePosition.y, false);
-        //TODO graves
-//        if (floor %5!= 0) {
-//            for (int i = 0; i < caveFloorMementos[floor - 1].graves.size(); i++) {
-//                InanimateEntity g = caveFloorMementos[floor - 1].graves.get(i);
-//                drawPointer(g.x, g.y, true);
-//            }
-//        }
+        if (floor % 5 != 0 && caveFloorMementos[floor - 1] != null) {
+            for (com.mikm.entities.prefabLoader.EntityData g : caveFloorMementos[floor - 1].graves) {
+                drawPointer(g.pos.x, g.pos.y, true);
+            }
+        }
     }
 
     private void drawPointer(float x, float y, boolean grave) {
@@ -253,6 +245,11 @@ public class CaveScreen extends GameScreen {
 
     public boolean[][] getHolePositionsToCheck() {
         return caveTilemapCreator.holePositionsToCheckGrid;
+    }
+
+    @Override
+    public boolean[][] getHolePositions() {
+        return getHolePositionsToCheck();
     }
 
     public static int getRecolorLevel() {

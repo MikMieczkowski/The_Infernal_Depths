@@ -1,5 +1,8 @@
 package com.mikm.entities.animation;
 
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.TextureData;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mikm.utils.Assets;
@@ -28,6 +31,23 @@ public class SingleAnimation extends SuperAnimation {
         create(t, fps, playMode);
     }
 
+    /**
+     * Loads a spritesheet, flattens it, and trims trailing fully-transparent frames.
+     * Useful for spritesheets with a fixed column count where the last row may not be full.
+     */
+    public static TextureRegion[] loadFrames(String spritesheetName, int width, int height) {
+        TextureRegion[][] t = Assets.getInstance().getSplitTextureRegion(spritesheetName, width, height);
+        int totalCells = t.length * t[0].length;
+
+        TextureRegion[] flattened = new TextureRegion[totalCells];
+        for (int i = 0; i < t.length; i++) {
+            for (int j = 0; j < t[0].length; j++) {
+                flattened[i * t[0].length + j] = t[i][j];
+            }
+        }
+
+        return trimTrailingEmptyFrames(flattened);
+    }
 
     private void create(String spritesheetName, int width, int height, float fps, Animation.PlayMode playMode, int frames) {
         this.frameDuration = 1/fps;
@@ -59,5 +79,58 @@ public class SingleAnimation extends SuperAnimation {
         animations.add(animation);
         animations.add(animation);
         currentAnimation = animation;
+    }
+
+    private static TextureRegion[] trimTrailingEmptyFrames(TextureRegion[] frames) {
+        if (frames.length <= 1) return frames;
+
+        Pixmap pixmap = null;
+        try {
+            Texture texture = frames[0].getTexture();
+            TextureData textureData = texture.getTextureData();
+            if (!textureData.isPrepared()) {
+                textureData.prepare();
+            }
+            pixmap = textureData.consumePixmap();
+            if (pixmap == null) return frames;
+
+            int lastNonEmpty = frames.length - 1;
+            while (lastNonEmpty > 0 && isFrameEmpty(pixmap, frames[lastNonEmpty])) {
+                lastNonEmpty--;
+            }
+
+            if (lastNonEmpty == frames.length - 1) {
+                return frames;
+            }
+
+            TextureRegion[] trimmed = new TextureRegion[lastNonEmpty + 1];
+            System.arraycopy(frames, 0, trimmed, 0, lastNonEmpty + 1);
+            return trimmed;
+        } catch (Exception e) {
+            // If pixel reading fails, return untrimmed
+            return frames;
+        } finally {
+            if (pixmap != null) {
+                pixmap.dispose();
+            }
+        }
+    }
+
+    private static boolean isFrameEmpty(Pixmap pixmap, TextureRegion region) {
+        int rx = region.getRegionX();
+        int ry = region.getRegionY();
+        int rw = region.getRegionWidth();
+        int rh = region.getRegionHeight();
+
+        // Sample every 4th pixel for performance
+        for (int y = ry; y < ry + rh; y += 4) {
+            for (int x = rx; x < rx + rw; x += 4) {
+                int pixel = pixmap.getPixel(x, y);
+                if ((pixel & 0xFF) != 0) { // Alpha channel is non-zero
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

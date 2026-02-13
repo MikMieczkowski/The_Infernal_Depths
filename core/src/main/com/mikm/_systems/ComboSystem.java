@@ -5,6 +5,7 @@ import com.badlogic.ashley.core.EntitySystem;
 import com.mikm._components.AerialStateComponent;
 import com.mikm._components.ComboStateComponent;
 import com.mikm._components.Transform;
+import com.mikm._components.routine.RoutineListComponent;
 import com.mikm.entities.prefabLoader.attack.AttackFormattedData;
 import com.mikm.entities.prefabLoader.weapon.AttackDuration;
 import com.mikm.entities.prefabLoader.weapon.AttackNode;
@@ -20,7 +21,7 @@ import java.util.List;
  */
 public class ComboSystem extends EntitySystem {
 
-    private static final String ATTACK_SCHEMA = "combat/attacks/attack.yaml";
+    private static final String ATTACK_SCHEMA = "weapons/attacks/attack.yaml";
 
     @Override
     public void update(float deltaTime) {
@@ -32,7 +33,7 @@ public class ComboSystem extends EntitySystem {
      * Executes an attack based on the current combo state and input.
      *
      * @param entity The attacking entity
-     * @param duration The attack duration (LIGHT/MEDIUM/HEAVY)
+     * @param duration The attack duration (LIGHT/HEAVY)
      * @param distanceToEnemy The distance to the locked enemy
      */
     public void executeAttack(Entity entity, AttackDuration duration, float distanceToEnemy) {
@@ -59,8 +60,10 @@ public class ComboSystem extends EntitySystem {
 
         if (attackData == null) {
             attackData = loadDefaultAttackData();
+            attackData.NAME = nextNode.attackName;
         }
 
+        System.out.println(duration.name());
         // Start the attack
         combo.startAttack(nextNode, attackData);
 
@@ -81,14 +84,11 @@ public class ComboSystem extends EntitySystem {
             return null;
         }
 
-        // If at root (currentNode == null), search root level
+        // If at root (currentNode == null), select by duration only
         if (combo.currentNode == null) {
             for (AttackNode node : root) {
                 if (node.duration == duration) {
-                    // Evaluate condition
-                    if (node.evaluateCondition(distance)) {
-                        return node;
-                    }
+                    return node;
                 }
             }
             return null;
@@ -102,39 +102,31 @@ public class ComboSystem extends EntitySystem {
      * Loads attack data from YAML.
      */
     private AttackFormattedData loadAttackData(String attackName) {
-        try {
-            // Register transformers if not already done
-            AttackTransformers.register();
+        AttackTransformers.register();
 
-            String attackFile = "combat/attacks/" + attackName + ".yaml";
-            return YAMLLoader.load(attackFile, ATTACK_SCHEMA,
-                    AttackFormattedData.class);
-        } catch (Exception e) {
-            // Attack file doesn't exist, use schema defaults
-            return null;
+        String attackFile = "weapons/attacks/" + attackName + ".yaml";
+        AttackFormattedData data = YAMLLoader.load(attackFile, ATTACK_SCHEMA,
+                AttackFormattedData.class);
+        if (data != null) {
+            data.NAME = attackName;
         }
+        return data;
     }
 
     /**
      * Loads the default attack data from schema.
      */
     private AttackFormattedData loadDefaultAttackData() {
-        try {
-            AttackTransformers.register();
-            return YAMLLoader.load(ATTACK_SCHEMA, ATTACK_SCHEMA,
-                    AttackFormattedData.class);
-        } catch (Exception e) {
-            // Create minimal default
-            AttackFormattedData defaultData = new AttackFormattedData();
-            defaultData.ATTACK_MAX_TIME = 0.5f;
-            defaultData.COMBO_TIME = 0.6f;
-            defaultData.DAMAGE_MULTIPLIER = 1.0f;
-            return defaultData;
-        }
+        AttackTransformers.register();
+        return YAMLLoader.load(ATTACK_SCHEMA, ATTACK_SCHEMA,
+                AttackFormattedData.class);
     }
 
     /**
-     * Triggers the attack action on the entity.
+     * Triggers the attack action on the entity by directly entering the attack routine.
+     * This ensures PlayerAttackingAction.enter() always runs with the correct currentAttackData,
+     * even for combo follow-ups where the attack button isn't held (so pressedATTACK is false
+     * and the normal charge→attack routine transition wouldn't fire).
      */
     private void triggerAttackAction(Entity entity, ComboStateComponent combo, AttackFormattedData attackData) {
         Transform transform = Transform.MAPPER.get(entity);
@@ -145,18 +137,20 @@ public class ComboSystem extends EntitySystem {
             transform.direction = com.mikm.utils.ExtraMathUtils.angleToVector2Int(angle);
         }
 
-        // The actual state transition to attacking is handled by the existing routine system
-        // through transitions based on attack input. This method just configures the attack data.
-        // The routine system will detect the attack input and transition to the attacking state.
+        // Directly enter the attack routine so PlayerAttackingAction reads the just-set currentAttackData
+        RoutineListComponent routineList = RoutineListComponent.MAPPER.get(entity);
+        if (routineList != null) {
+            routineList.enterRoutine(routineList.getRoutine("attack"), entity);
+        }
     }
 
     /**
      * Checks if the attack is a launcher and handles aerial state transition.
      */
     private void checkLauncher(Entity entity, AttackFormattedData attackData) {
-        if (attackData.isLauncher()) {
+        if (attackData.IS_LAUNCHER) {
             // This will be used when the attack hits an enemy
-            // The hit detection will check currentAttackData.isLauncher()
+            // The hit detection will check currentAttackData.IS_LAUNCHER
             // and call enterAerialCombo() on the player's combo state
 
             // For now, just mark the attack as a launcher for hit detection

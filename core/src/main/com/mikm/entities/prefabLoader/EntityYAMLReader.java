@@ -36,7 +36,25 @@ public class EntityYAMLReader {
         java.util.List<String> names = new java.util.ArrayList<>();
 
         FileHandle dir = Gdx.files.internal("yaml"); // relative to assets/
-        for (FileHandle file : dir.list()) {
+        FileHandle[] files = dir.list();
+
+        // dir.list() returns empty from JAR classpath; fall back to manifest
+        if (files == null || files.length == 0) {
+            FileHandle manifest = Gdx.files.internal("yaml/entities.txt");
+            if (manifest.exists()) {
+                for (String line : manifest.readString().split("\r?\n")) {
+                    line = line.trim();
+                    if (!line.isEmpty() && !line.startsWith("#")) {
+                        names.add(line);
+                    }
+                }
+                return names;
+            }
+            // No manifest either — return empty
+            return names;
+        }
+
+        for (FileHandle file : files) {
             if (!file.extension().equals("yaml") && !file.extension().equals("yml")) continue;
 
             boolean inConfig = false;
@@ -84,8 +102,8 @@ public class EntityYAMLReader {
             try {
                 WeaponTransformers.register();
                 WeaponFormattedData weaponData = YAMLLoader.load(
-                    "combat/copperSword.yaml",
-                    "combat/weapon.yaml",
+                    "weapons/copperSword.yaml",
+                    "weapons/weapon.yaml",
                     WeaponRawData.class,
                     WeaponFormattedData.class
                 );
@@ -93,9 +111,12 @@ public class EntityYAMLReader {
                     comboState.groundedRoot = weaponData.COMBO_TREE;
                     comboState.aerialRoot = weaponData.AERIAL_COMBO_TREE;
                     comboState.weaponConfig = weaponData.CONFIG;
+                    if (weaponData.ORBIT != null && weaponData.ORBIT.POINTS_TOWARDS_LOCKED != null) {
+                        comboState.pointsTowardsLocked = weaponData.ORBIT.POINTS_TOWARDS_LOCKED;
+                    }
                 }
             } catch (Exception e) {
-                System.err.println("Failed to load weapon data: " + e.getMessage());
+                throw new RuntimeException("Failed to load weapon data: " + e.getMessage());
             }
             components.put(ComboStateComponent.class, comboState);
         } else {
@@ -140,18 +161,27 @@ public class EntityYAMLReader {
                 CombatComponent combatComponent = CombatComponent.MAPPER.get(e);
                 if (combatComponent != null) {
                     Transform transform = Transform.MAPPER.get(e);
-                    WorldColliderComponent collider = WorldColliderComponent.MAPPER.get(e);
                     // Use entity width as trigger diameter, or default to TILE_WIDTH
-                    int triggerDiameter = transform.FULL_BOUNDS_DIMENSIONS != null ? 
+                    int triggerDiameter = transform.FULL_BOUNDS_DIMENSIONS != null ?
                         transform.FULL_BOUNDS_DIMENSIONS.x : Application.TILE_WIDTH;
-                    TriggerComponent triggerComponent = new TriggerComponent(
-                        triggerDiameter, 
-                        TriggerEntityType.ENEMY,
-                        Event.ON_STAY, TriggerAction.playerHit(),
-                        Event.ON_PLAYER_PROJECTILE_STAY, TriggerAction.enemyHit(),
-                        Event.ON_PLAYER_MINING_PROJECTILE_STAY, TriggerAction.bump()
-                    );
-                    e.add(triggerComponent);
+                    if (combatComponent.DAMAGE > 0) {
+                        // Entity deals contact damage and receives projectile/mining damage
+                        e.add(new TriggerComponent(
+                            triggerDiameter,
+                            TriggerEntityType.ENEMY,
+                            Event.ON_STAY, TriggerAction.playerHit(),
+                            Event.ON_PLAYER_PROJECTILE_STAY, TriggerAction.enemyHit(),
+                            Event.ON_PLAYER_MINING_PROJECTILE_STAY, TriggerAction.bump()
+                        ));
+                    } else {
+                        // Entity only receives projectile/mining damage (no contact damage)
+                        e.add(new TriggerComponent(
+                            triggerDiameter,
+                            TriggerEntityType.ENEMY,
+                            Event.ON_PLAYER_PROJECTILE_STAY, TriggerAction.enemyHit(),
+                            Event.ON_PLAYER_MINING_PROJECTILE_STAY, TriggerAction.bump()
+                        ));
+                    }
                 }
             }
         });

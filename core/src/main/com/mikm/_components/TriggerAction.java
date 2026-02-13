@@ -96,14 +96,14 @@ public interface TriggerAction {
         @Override
         public void run(Entity entity) {
             GraveComponent graveComponent = GraveComponent.MAPPER.get(entity);
+            Transform transform = Transform.MAPPER.get(entity);
             for (int i = 0; i < RockType.SIZE; i++) {
                 RockType.get(i).increaseOreAmount(graveComponent.ores[i]);
-                //TODO particles
-                //new ParticleEffect(ParticleTypes.getLightningParameters(), x, y);
-                SoundEffects.playQuiet(REWARD_SOUND_EFFECT);
-                Application.getInstance().currentScreen.removeEntity(entity);
-                Application.getInstance().caveScreen.updateCurrentMemento();
             }
+            PrefabInstantiator.addParticles(transform.x, transform.y, ParticleTypes.getLightningParameters());
+            SoundEffects.playQuiet(REWARD_SOUND_EFFECT);
+            Application.getInstance().currentScreen.removeEntity(entity);
+            Application.getInstance().caveScreen.updateCurrentMemento();
         }
     }
 
@@ -211,7 +211,10 @@ public interface TriggerAction {
             }
 
             float angleToEnemy = (float) Math.atan2(enemyTransform.y - playerTransform.y, enemyTransform.x - playerTransform.x);
-            DamageInformation damageInformation = new DamageInformation(angleToEnemy, playerCombatComponent.KNOCKBACK, playerCombatComponent.DAMAGE);
+
+            int hitstunFrames = combo.currentAttackData.HITSTUN_FRAMES;
+
+            DamageInformation damageInformation = new DamageInformation(angleToEnemy, playerCombatComponent.KNOCKBACK, playerCombatComponent.DAMAGE, hitstunFrames);
             enemyRoutineListComponent.takeDamage(damageInformation, entity);
         }
     }
@@ -252,14 +255,17 @@ public interface TriggerAction {
                         int damage = (config != null) ? config.damage : 1;
                         int knockback = 5;
 
-                        DamageInformation damageInformation = new DamageInformation(angleToEnemy, knockback, damage);
+                        // Get hitstun from player's current attack data
+                        Entity player = Application.getInstance().getPlayer();
+                        ComboStateComponent playerCombo = ComboStateComponent.MAPPER.get(player);
+                        int hitstunFrames = playerCombo.currentAttackData.HITSTUN_FRAMES;
+
+                        DamageInformation damageInformation = new DamageInformation(angleToEnemy, knockback, damage, hitstunFrames);
                         enemyRoutineListComponent.takeDamage(damageInformation, entity);
                         Application.getInstance().currentScreen.removeEntity(projectile);
 
                         // Check if this was a launcher attack
-                        Entity player = Application.getInstance().getPlayer();
-                        ComboStateComponent playerCombo = ComboStateComponent.MAPPER.get(player);
-                        if (playerCombo != null && playerCombo.currentAttackData != null && playerCombo.currentAttackData.isLauncher()) {
+                        if (playerCombo.currentAttackData.IS_LAUNCHER) {
                             // Trigger aerial state transition
                             ComboSystem comboSystem = Application.getInstance().currentScreen.engine.getSystem(ComboSystem.class);
                             if (comboSystem != null) {

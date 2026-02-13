@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tileset version="1.10" tiledversion="1.11.0" name="torch" tilewidth="13" tileheight="32" tilecount="8" columns="8">
- <image source="torch.png" width="104" height="32"/>
+ <image source="../images/tiled/torch.png" width="104" height="32"/>
  <tile id="0">
   <properties>
    <property name="destructible" type="bool" value="true"/>

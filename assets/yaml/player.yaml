@@ -1,3 +1,4 @@
+#DEFINE MAX_IDLE_TIME 30
 CONFIG:
   #transform component
   NAME: player
@@ -8,11 +9,6 @@ CONFIG:
   DAMAGE: 10
   KNOCKBACK: 2
   #hp component
-  HURT_ANIMATION:
-    ANIMATION:
-      TYPE: SINGLE_FRAME
-      IMAGE_NAME: "black"
-      #hp component
   HURT_SOUND_EFFECT: "playerHit"
   #INVINCIBLE: false
   #goes to behaviours component
@@ -32,8 +28,10 @@ BEHAVIOURS:
     ACTION: AcceleratedMove
     ON_HITTING_PLAYER_INTERRUPT_AND_GO_TO: start
     ANIMATION:
-      TYPE: SINGLE_FRAME
-      IMAGE_NAME: "black"
+      TYPE: DIRECTIONAL_ANIMATION
+      STARTS_WITH: "playerWalk"
+      FPS: 3
+      LOOP: true
     CONFIG:
       step_sound_effect: "step.ogg"
       acceleration_frames: 6
@@ -42,16 +40,17 @@ BEHAVIOURS:
   Stand:
     ACTION: AcceleratedMove
     ANIMATION:
-      TYPE: SINGLE_FRAME
-      IMAGE_NAME: "black"
+      FROM_FIRST_FRAME_OF_EACH_DIR: Walk
     COPY_CONFIG: Walk
   PlayerAttacking:
     COPY_ANIMATION: Walk
     COPY_CONFIG: Walk
   Dive:
     ANIMATION:
-      TYPE: SINGLE_FRAME
-      IMAGE_NAME: "black"
+      TYPE: DIRECTIONAL_ANIMATION
+      STARTS_WITH: "playerDive"
+      FPS: 10
+      LOOP: false
     CONFIG:
       #sets IS_DONE instead of MAX_TIME
       speed: 3
@@ -62,8 +61,10 @@ BEHAVIOURS:
       start_sound_effect2: "playerDive"
   Roll:
     ANIMATION:
-      TYPE: SINGLE_FRAME
-      IMAGE_NAME: "black"
+      TYPE: DIRECTIONAL_ANIMATION
+      STARTS_WITH: "playerRoll"
+      FPS: 18
+      LOOP: false
     CONFIG:
       DAMAGE: 1
       knockback_multiplier: 2
@@ -79,23 +80,29 @@ BEHAVIOURS:
       end_sound_effect: "step.ogg"
   Fall:
     ANIMATION:
-      TYPE: SINGLE_FRAME
-      IMAGE_NAME: "black"
+      TYPE: SINGLE_ANIMATION
+      IMAGE_NAME: "playerFall"
+      FPS: 18
+      LOOP: false
     CONFIG:
       MAX_TIME: 1
       start_sound_effect: "dash.ogg"
   IdleYawn:
     ACTION: Idle
     ANIMATION:
-      TYPE: SINGLE_FRAME
-      IMAGE_NAME: "black"
+      TYPE: SINGLE_ANIMATION
+      IMAGE_NAME: "playerYawn"
+      FPS: 3
+      LOOP: false
     CONFIG:
       start_sound_effect: "playerYawn.ogg"
   IdleLoop:
     ACTION: Idle
     ANIMATION:
-      TYPE: SINGLE_FRAME
-      IMAGE_NAME: "black"
+      TYPE: SINGLE_ANIMATION
+      IMAGE_NAME: "playerSit"
+      FPS: 3
+      LOOP: true
     CONFIG:
       start_sound_effect: "playerHum.ogg"
       time_min: 6
@@ -111,10 +118,10 @@ ROUTINES:
       - ON_CONDITION: "isMoving"
         GO_TO: walk
 
-      - ON_CONDITION: "idleTimer > 10"
+      - ON_CONDITION: "idleTimer > MAX_IDLE_TIME"
         GO_TO: idleYawn
 
-      - ON_CONDITION: "pressedATTACK"
+      - ON_CONDITION: "pressedATTACK && !(currentScreen == 'BlacksmithScreen' && showMenu)"
         GO_TO: charge
 
       - ON_CONDITION: "canFall && pressedTALK"
@@ -126,7 +133,7 @@ ROUTINES:
       - ON_CONDITION: "!isMoving"
         GO_TO: start
 
-      - ON_CONDITION: "pressedATTACK"
+      - ON_CONDITION: "pressedATTACK && !(currentScreen == 'BlacksmithScreen' && showMenu)"
         GO_TO: charge
 
       - ON_CONDITION: "justPressedDIVE && !(currentScreen == 'BlacksmithScreen' && showMenu)"
@@ -144,7 +151,7 @@ ROUTINES:
         GO_TO: charge
       - ON_CONDITION: "canFall && pressedTALK"
         GO_TO: fall
-      - ON_CONDITION: "idleTimer < 10"
+      - ON_CONDITION: "idleTimer < MAX_IDLE_TIME"
         GO_TO: start
       - NO_REPEAT: idleLoop
   idleLoop:
@@ -157,7 +164,7 @@ ROUTINES:
         GO_TO: charge
       - ON_CONDITION: "canFall && pressedTALK"
         GO_TO: fall
-      - ON_CONDITION: "idleTimer < 10"
+      - ON_CONDITION: "idleTimer < MAX_IDLE_TIME"
         GO_TO: start
   charge:
     CYCLE:

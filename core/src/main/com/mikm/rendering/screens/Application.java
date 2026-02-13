@@ -130,7 +130,8 @@ public class Application extends Game {
 		InputRaw.checkForControllers();
 		InputRaw.handleLastFrameInput();
 		renderScreens();
-		if (timestop) {
+
+        if (timestop) {
 			timeStopFrames++;
 			if (timeStopFrames > MAX_TIMESTOP_FRAMES) {
 				timeStopFrames = 0;
@@ -254,6 +255,38 @@ public class Application extends Game {
 		timestop = true;
 	}
 
+	private void switchWeapon(String weaponFile, boolean mining) {
+		com.mikm._components.ComboStateComponent combo = com.mikm._components.ComboStateComponent.MAPPER.get(getPlayer());
+		if (combo == null) return;
+
+		// Set mining projectile mode
+		if (mining != PrefabInstantiator.isMiningProjectile()) {
+			PrefabInstantiator.toggleProjectileType();
+		}
+
+		// Load new weapon data
+		com.mikm.entities.prefabLoader.weapon.WeaponTransformers.register();
+		com.mikm.entities.prefabLoader.YAMLLoader.clearCache();
+		com.mikm.entities.prefabLoader.weapon.WeaponFormattedData weaponData = com.mikm.entities.prefabLoader.YAMLLoader.load(
+			weaponFile,
+			"weapons/weapon.yaml",
+			com.mikm.entities.prefabLoader.weapon.WeaponRawData.class,
+			com.mikm.entities.prefabLoader.weapon.WeaponFormattedData.class
+		);
+
+		if (weaponData != null) {
+			combo.groundedRoot = weaponData.COMBO_TREE;
+			combo.aerialRoot = weaponData.AERIAL_COMBO_TREE;
+			combo.weaponConfig = weaponData.CONFIG;
+			if (weaponData.ORBIT != null && weaponData.ORBIT.POINTS_TOWARDS_LOCKED != null) {
+				combo.pointsTowardsLocked = weaponData.ORBIT.POINTS_TOWARDS_LOCKED;
+			} else {
+				combo.pointsTowardsLocked = true;
+			}
+			combo.resetCombo();
+		}
+	}
+
 	public void setFillColorShader(Batch batch, Color color) {
 		batch.setShader(fillColorShader);
 		fillColorShader.bind();
@@ -321,7 +354,6 @@ public class Application extends Game {
 				RockType.get(4).increaseOreAmount(7);
 			}
 		}
-
 		if (Gdx.input.isKeyJustPressed(Input.Keys.V)) {
 			if (CaveScreen.floor > 0 && !paused) {
 				setGameScreen(caveScreen);
@@ -335,9 +367,21 @@ public class Application extends Game {
 			}
 		}
 
-        // Toggle projectile type when Q is pressed
+        // Weapon switching
+        if (GameInput.isPickaxeButtonJustPressed()) {
+            switchWeapon("weapons/pickaxe.yaml", true);
+        }
+        if (GameInput.isWeaponButtonJustPressed()) {
+            switchWeapon("weapons/copperSword.yaml", false);
+        }
         if (GameInput.isSwitchButtonJustPressed()) {
-            PrefabInstantiator.toggleProjectileType();
+            // Q toggles between pickaxe and weapon
+            boolean isCurrentlyMining = PrefabInstantiator.isMiningProjectile();
+            if (isCurrentlyMining) {
+                switchWeapon("weapons/copperSword.yaml", false);
+            } else {
+                switchWeapon("weapons/pickaxe.yaml", true);
+            }
         }
 	}
 }

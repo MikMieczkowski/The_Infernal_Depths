@@ -30,6 +30,7 @@ import com.mikm.entities.animation.SuperAnimation;
 import com.mikm.utils.debug.DebugRenderer;
 import com.mikm.entities.inanimateEntities.particles.ParticleTypes;
 import com.mikm.rendering.Camera;
+import com.mikm.input.GameInput;
 import com.mikm.rendering.cave.RockType;
 import com.mikm.rendering.sound.SoundEffects;
 
@@ -84,6 +85,7 @@ public abstract class GameScreen extends ScreenAdapter {
         engine.addSystem(new ProjectileMovementSystem());
         engine.addSystem(new EffectsSystem());
         engine.addSystem(new RenderingSystem());
+        engine.addSystem(new ProjectileHitboxDebugSystem());
         engine.addSystem(new PlayerTriggerSystem());
         // Combat systems
         engine.addSystem(new LockOnSystem());
@@ -91,6 +93,7 @@ public abstract class GameScreen extends ScreenAdapter {
         engine.addSystem(new ComboSystem());
         engine.addSystem(new AttackMovementSystem());
         engine.addSystem(new ProjectileSpawnSystem());
+        engine.addSystem(new ChargeEffectSystem());
 
 
         player = PrefabInstantiator.addEntity("player", this,
@@ -186,6 +189,33 @@ public abstract class GameScreen extends ScreenAdapter {
 
 
     public abstract boolean[][] isCollidableGrid();
+
+    public boolean[][] getHolePositions() {
+        return null;
+    }
+
+    private boolean displayButtonIndicator = false;
+    private Vector2 buttonIndicatorPosition;
+
+    private void updateHoleIndicator() {
+        Transform pt = Application.getInstance().getPlayerTransform();
+        boolean[][] holes = getHolePositions();
+        if (pt == null || holes == null) {
+            displayButtonIndicator = false;
+            return;
+        }
+        int tileX = (int) (pt.getCenteredX() / Application.TILE_WIDTH);
+        int tileY = (int) (pt.getCenteredY() / Application.TILE_HEIGHT);
+        if (tileY >= 0 && tileY < holes.length && tileX >= 0 && tileX < holes[0].length && holes[tileY][tileX]) {
+            displayButtonIndicator = true;
+            if (buttonIndicatorPosition == null) {
+                buttonIndicatorPosition = new Vector2();
+            }
+            buttonIndicatorPosition.set(pt.getCenteredX() - 8, pt.getCenteredY() + 20);
+        } else {
+            displayButtonIndicator = false;
+        }
+    }
 
 
     // ---- Rendering
@@ -283,6 +313,12 @@ public abstract class GameScreen extends ScreenAdapter {
 
     public void renderUI() {
         Application.batch.setShader(null);
+        if (!Application.getInstance().paused) {
+            updateHoleIndicator();
+            if (displayButtonIndicator) {
+                Application.batch.draw(GameInput.getTalkButtonImage(), buttonIndicatorPosition.x, buttonIndicatorPosition.y);
+            }
+        }
         if (Application.getInstance().paused) {
             renderPauseMenu();
         }
@@ -305,8 +341,9 @@ public abstract class GameScreen extends ScreenAdapter {
             healthAnimationTimer = 0;
             f = 0;
         }
-        for (int i = 0; i < Application.getInstance().getPlayerCombatComponent().hp + 1; i++) {
-            drawComponentOnEdge(health[(Application.getInstance().getPlayerCombatComponent().hp - i) % 10][f], 6, 1, -4, 1 + i * 8);
+        int numSegments = Application.getInstance().getPlayerCombatComponent().hp /10;
+        for (int i = 0; i < numSegments + 1; i++) {
+            drawComponentOnEdge(health[(numSegments - i) % 10][f], 6, 1, -4, 1 + i * 8);
         }
         drawComponentOnEdge(hpBarBottom, 6, 1, -4, 1);
     }

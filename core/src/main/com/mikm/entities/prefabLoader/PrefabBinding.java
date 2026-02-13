@@ -27,15 +27,10 @@ class PrefabBinding {
         components.add(t);
 
         TriggerComponent triggerComponent = new TriggerComponent(Application.TILE_WIDTH, TriggerEntityType.OTHER, "TALK",
-                Event.ON_ENTER, TriggerAction.displayIndicator(),
+                Event.ON_STAY, TriggerAction.displayIndicator(),
                 Event.ON_STAY_AND_INPUT_JUST_PRESSED, TriggerAction.decreaseCaveFloor()
         );
-        /*TODO I think here you were refactoring the trigger component to have a map from Event to triggerAction instead of the three actions
-          because you were going to add the onProjectile methods in order to implement mining again and collision. Then you were also going to merge
-          trigger and combat system since theyre both kinda relying on this collision table thing and then you should add back rocks and destructibles next
-          and then you can finish the particles system and then youl be done with the ECS integration and you can optionally refactor memento. 
 
-         */
         components.add(triggerComponent);
 
         components.add(new SpriteComponent(Assets.getInstance().getTextureRegion("rope")));
@@ -140,7 +135,8 @@ class PrefabBinding {
         components.add(new SpriteComponent(Assets.testTexture));
         PrefabInstantiator.addPrefab("testObject", components);
 
-        //Decoration - static sprites rendered in front of entities
+        //Decoration - static or animated sprites rendered in front of entities
+        //RoutineListComponent and EffectsComponent are added dynamically for animated decorations
         components = new HashSet<>();
         t = new Transform();
         t.ENTITY_NAME = "decoration";

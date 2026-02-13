@@ -4,577 +4,660 @@ size: 2048, 2048
 format: RGBA8888
 filter: Nearest, Nearest
 repeat: none
+Dummy
+  rotate: false
+  xy: 618, 71
+  size: 48, 16
+  orig: 48, 16
+  offset: 0, 0
+  index: -1
 E
   rotate: false
-  xy: 911, 904
+  xy: 1876, 480
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 SQUARE
   rotate: false
-  xy: 879, 870
+  xy: 1992, 700
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 UI
   rotate: false
-  xy: 989, 1145
+  xy: 1788, 1541
   size: 97, 77
   orig: 97, 77
   offset: 0, 0
   index: -1
 UISelector
   rotate: false
-  xy: 1370, 1334
+  xy: 1860, 252
   size: 29, 29
   orig: 29, 29
   offset: 0, 0
   index: -1
 UIbg
   rotate: false
-  xy: 1402, 1400
+  xy: 1788, 1462
   size: 97, 77
   orig: 97, 77
   offset: 0, 0
   index: -1
 UIrect
   rotate: false
-  xy: 1786, 1580
+  xy: 1894, 607
   size: 97, 77
   orig: 97, 77
   offset: 0, 0
   index: -1
 arrow
   rotate: false
-  xy: 847, 836
+  xy: 2006, 371
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 bat
   rotate: false
-  xy: 534, 728
+  xy: 1788, 1394
   size: 32, 16
   orig: 32, 16
   offset: 0, 0
   index: -1
 batFly
   rotate: false
-  xy: 781, 888
+  xy: 164, 21
   size: 128, 32
   orig: 128, 32
   offset: 0, 0
   index: -1
 batShock
   rotate: false
-  xy: 587, 888
+  xy: 2, 55
   size: 192, 32
   orig: 192, 32
   offset: 0, 0
   index: -1
 black
   rotate: false
-  xy: 2014, 1659
+  xy: 554, 21
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 blacksmith
   rotate: false
-  xy: 392, 328
+  xy: 1987, 1964
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 blacksmithRoof
   rotate: false
-  xy: 2, 70
+  xy: 1794, 400
   size: 80, 96
   orig: 80, 96
   offset: 0, 0
   index: -1
 blacksmithRoom
   rotate: false
-  xy: 2, 362
+  xy: 1304, 1186
   size: 432, 432
   orig: 432, 432
   offset: 0, 0
   index: -1
 bow
   rotate: false
-  xy: 1304, 1249
+  xy: 2, 3
   size: 64, 16
   orig: 64, 16
   offset: 0, 0
   index: -1
 caveFloor
   rotate: false
-  xy: 939, 962
+  xy: 744, 92
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 caveTiles
   rotate: false
-  xy: 2, 168
+  xy: 1736, 2
   size: 96, 192
   orig: 96, 192
   offset: 0, 0
   index: -1
 caveTilesLevel5
   rotate: false
-  xy: 436, 602
+  xy: 1889, 1854
   size: 96, 192
   orig: 96, 192
   offset: 0, 0
   index: -1
 circularHole
   rotate: false
-  xy: 454, 486
+  xy: 68, 3
   size: 32, 16
   orig: 32, 16
   offset: 0, 0
   index: -1
 controls
   rotate: false
-  xy: 587, 922
+  xy: 1542, 498
   size: 350, 300
   orig: 350, 300
   offset: 0, 0
   index: -1
 dark
   rotate: false
-  xy: 2, 796
+  xy: 1304, 1620
   size: 583, 426
   orig: 583, 426
   offset: 0, 0
   index: -1
 destructibleShadow
   rotate: false
-  xy: 534, 746
+  xy: 1254, 1227
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 destructibles
   rotate: false
-  xy: 360, 310
+  xy: 1738, 1390
   size: 48, 16
   orig: 48, 16
   offset: 0, 0
   index: -1
 grass
   rotate: false
-  xy: 957, 1044
+  xy: 588, 37
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 grave
   rotate: false
-  xy: 436, 404
+  xy: 1987, 1946
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 healingEffect
   rotate: false
-  xy: 1304, 1513
+  xy: 772, 795
   size: 480, 480
   orig: 480, 480
   offset: 0, 0
   index: -1
 health
   rotate: false
-  xy: 939, 1062
+  xy: 1738, 1458
   size: 48, 160
   orig: 48, 160
   offset: 0, 0
   index: -1
+heavyEffect
+  rotate: false
+  xy: 1889, 1672
+  size: 96, 32
+  orig: 96, 32
+  offset: 0, 0
+  index: -1
 holes
   rotate: false
-  xy: 1304, 1365
+  xy: 1894, 686
   size: 96, 112
   orig: 96, 112
   offset: 0, 0
   index: -1
 houseRoof
   rotate: false
-  xy: 1304, 1267
+  xy: 1794, 302
   size: 64, 96
   orig: 64, 96
   offset: 0, 0
   index: -1
 hpBar
   rotate: false
-  xy: 939, 980
+  xy: 1992, 718
   size: 16, 80
   orig: 16, 80
   offset: 0, 0
   index: -1
 hpBarBottom
   rotate: false
-  xy: 436, 422
+  xy: 2006, 389
   size: 16, 80
   orig: 16, 80
   offset: 0, 0
   index: -1
 items
   rotate: false
-  xy: 100, 294
+  xy: 358, 55
   size: 128, 32
   orig: 128, 32
   offset: 0, 0
   index: -1
+lightEffect
+  rotate: false
+  xy: 1889, 1638
+  size: 96, 32
+  orig: 96, 32
+  offset: 0, 0
+  index: -1
 lock
   rotate: false
-  xy: 1468, 1382
+  xy: 1738, 1372
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
+mediumEffect
+  rotate: false
+  xy: 1889, 1604
+  size: 96, 32
+  orig: 96, 32
+  offset: 0, 0
+  index: -1
 moti
   rotate: false
-  xy: 1786, 1530
+  xy: 1987, 1998
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 musicIcons
   rotate: false
-  xy: 1948, 1659
+  xy: 1794, 268
   size: 64, 32
   orig: 64, 32
   offset: 0, 0
   index: -1
 numbers
   rotate: false
-  xy: 989, 1132
+  xy: 678, 110
   size: 90, 11
   orig: 90, 11
   offset: 0, 0
   index: -1
 ores
   rotate: false
-  xy: 587, 802
+  xy: 678, 92
   size: 64, 16
   orig: 64, 16
   offset: 0, 0
   index: -1
 particles
   rotate: false
-  xy: 989, 1106
+  xy: 1838, 1436
   size: 40, 24
   orig: 40, 24
   offset: 0, 0
   index: -1
 pickaxes
   rotate: false
-  xy: 100, 174
+  xy: 1860, 283
   size: 64, 16
   orig: 64, 16
   offset: 0, 0
   index: -1
+player/attacks/Circular
+  rotate: false
+  xy: 2, 123
+  size: 768, 1152
+  orig: 768, 1152
+  offset: 0, 0
+  index: -1
+player/attacks/Jab
+  rotate: false
+  xy: 772, 409
+  size: 768, 384
+  orig: 768, 384
+  offset: 0, 0
+  index: -1
+player/attacks/JabLight
+  rotate: false
+  xy: 772, 23
+  size: 768, 384
+  orig: 768, 384
+  offset: 0, 0
+  index: -1
+player/attacks/NonAttack
+  rotate: false
+  xy: 1542, 2
+  size: 192, 192
+  orig: 192, 192
+  offset: 0, 0
+  index: -1
+player/attacks/PickaxeSwing
+  rotate: false
+  xy: 1254, 800
+  size: 768, 384
+  orig: 768, 384
+  offset: 0, 0
+  index: -1
 player/playerDiveDown
   rotate: false
-  xy: 262, 328
+  xy: 294, 21
   size: 128, 32
   orig: 128, 32
   offset: 0, 0
   index: -1
 player/playerDiveDownRight
   rotate: false
-  xy: 587, 820
+  xy: 488, 55
   size: 128, 32
   orig: 128, 32
   offset: 0, 0
   index: -1
 player/playerDiveRight
   rotate: false
-  xy: 749, 854
+  xy: 424, 21
   size: 128, 32
   orig: 128, 32
   offset: 0, 0
   index: -1
 player/playerDiveUp
   rotate: false
-  xy: 1088, 1190
+  xy: 1894, 573
   size: 128, 32
   orig: 128, 32
   offset: 0, 0
   index: -1
 player/playerDiveUpRight
   rotate: false
-  xy: 1501, 1445
+  xy: 1894, 539
   size: 128, 32
   orig: 128, 32
   offset: 0, 0
   index: -1
 player/playerFall
   rotate: false
-  xy: 100, 260
+  xy: 1894, 505
   size: 128, 32
   orig: 128, 32
   offset: 0, 0
   index: -1
 player/playerRollDown
   rotate: false
-  xy: 230, 294
+  xy: 1894, 471
   size: 128, 32
   orig: 128, 32
   offset: 0, 0
   index: -1
 player/playerRollDownRight
   rotate: false
-  xy: 717, 820
+  xy: 1876, 437
   size: 128, 32
   orig: 128, 32
   offset: 0, 0
   index: -1
 player/playerRollRight
   rotate: false
-  xy: 1088, 1156
+  xy: 1876, 403
   size: 128, 32
   orig: 128, 32
   offset: 0, 0
   index: -1
 player/playerRollUp
   rotate: false
-  xy: 1501, 1411
+  xy: 1876, 369
   size: 128, 32
   orig: 128, 32
   offset: 0, 0
   index: -1
 player/playerRollUpRight
   rotate: false
-  xy: 1631, 1445
+  xy: 1860, 335
   size: 128, 32
   orig: 128, 32
   offset: 0, 0
   index: -1
 player/playerSit
   rotate: false
-  xy: 1304, 1479
+  xy: 2, 89
   size: 512, 32
   orig: 512, 32
   offset: 0, 0
   index: -1
 player/playerSlashDownRight
   rotate: false
-  xy: 1786, 1659
+  xy: 516, 89
   size: 160, 32
   orig: 160, 32
   offset: 0, 0
   index: -1
 player/playerSlashUpRight
   rotate: false
-  xy: 100, 328
+  xy: 2, 21
   size: 160, 32
   orig: 160, 32
   offset: 0, 0
   index: -1
 player/playerWalkDown
   rotate: false
-  xy: 100, 226
+  xy: 1860, 301
   size: 128, 32
   orig: 128, 32
   offset: 0, 0
   index: -1
 player/playerWalkDownRight
   rotate: false
-  xy: 230, 260
+  xy: 1887, 1570
   size: 128, 32
   orig: 128, 32
   offset: 0, 0
   index: -1
 player/playerWalkRight
   rotate: false
-  xy: 1631, 1411
+  xy: 1887, 1536
   size: 128, 32
   orig: 128, 32
   offset: 0, 0
   index: -1
 player/playerWalkUp
   rotate: false
-  xy: 100, 192
+  xy: 1887, 1502
   size: 128, 32
   orig: 128, 32
   offset: 0, 0
   index: -1
 player/playerWalkUpRight
   rotate: false
-  xy: 230, 226
+  xy: 1887, 1468
   size: 128, 32
   orig: 128, 32
   offset: 0, 0
   index: -1
 player/playerYawn
   rotate: false
-  xy: 587, 854
+  xy: 196, 55
   size: 160, 32
   orig: 160, 32
   offset: 0, 0
   index: -1
 ratIdle
   rotate: false
-  xy: 1935, 1641
+  xy: 1838, 1418
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 ratWalk
   rotate: false
-  xy: 1836, 1562
+  xy: 1926, 283
   size: 32, 16
   orig: 32, 16
   offset: 0, 0
   index: -1
 rocks
   rotate: false
-  xy: 1761, 1445
+  xy: 1254, 1193
   size: 48, 32
   orig: 48, 32
   offset: 0, 0
   index: -1
 rope
   rotate: false
-  xy: 1218, 1156
+  xy: 1860, 234
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 ropePointer
   rotate: false
-  xy: 1268, 1206
+  xy: 1891, 265
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 sand
   rotate: false
-  xy: 1304, 1231
+  xy: 102, 3
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 shadow
   rotate: false
-  xy: 653, 802
+  xy: 1960, 283
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 shapeDrawerTexture
   rotate: false
-  xy: 84, 162
+  xy: 1990, 363
   size: 4, 4
   orig: 4, 4
   offset: 0, 0
   index: -1
 slime/slimeWalkDown
   rotate: false
-  xy: 1885, 1591
+  xy: 1794, 198
   size: 32, 16
   orig: 32, 16
   offset: 0, 0
   index: -1
 slime/slimeWalkDownRight
   rotate: false
-  xy: 1885, 1591
+  xy: 1794, 198
   size: 32, 16
   orig: 32, 16
   offset: 0, 0
   index: -1
 slime/slimeWalkRight
   rotate: false
-  xy: 1885, 1591
+  xy: 1794, 198
   size: 32, 16
   orig: 32, 16
   offset: 0, 0
   index: -1
 slime/slimeWalkUp
   rotate: false
-  xy: 1885, 1591
+  xy: 1794, 198
   size: 32, 16
   orig: 32, 16
   offset: 0, 0
   index: -1
 slime/slimeWalkUpRight
   rotate: false
-  xy: 1885, 1591
+  xy: 1794, 198
   size: 32, 16
   orig: 32, 16
   offset: 0, 0
   index: -1
 slimeBoss
   rotate: false
-  xy: 1402, 1366
+  xy: 1794, 234
   size: 64, 32
   orig: 64, 32
   offset: 0, 0
   index: -1
 stallroof
   rotate: false
-  xy: 2, 20
+  xy: 1889, 1706
   size: 80, 48
   orig: 80, 48
   offset: 0, 0
   index: -1
 strings
   rotate: false
-  xy: 2, 2
+  xy: 1794, 216
   size: 64, 16
   orig: 64, 16
   offset: 0, 0
   index: -1
 sword
   rotate: false
-  xy: 166, 174
+  xy: 1828, 198
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 swordSlice
   rotate: false
-  xy: 230, 192
+  xy: 1887, 1434
   size: 128, 32
   orig: 128, 32
   offset: 0, 0
   index: -1
 tipsText
   rotate: false
-  xy: 1786, 1693
+  xy: 1542, 196
   size: 250, 300
   orig: 250, 300
   offset: 0, 0
   index: -1
 townShadows
   rotate: false
-  xy: 2, 1224
+  xy: 2, 1277
   size: 1300, 769
   orig: 1300, 769
   offset: 0, 0
   index: -1
 tp
   rotate: false
-  xy: 1885, 1609
+  xy: 1738, 1408
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 treetop
   rotate: false
-  xy: 1218, 1174
+  xy: 1788, 1412
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 weirdJarBug
   rotate: false
-  xy: 436, 504
+  xy: 1889, 1756
   size: 80, 96
   orig: 80, 96
+  offset: 0, 0
+  index: -1
+
+The Infernal Depths2.png
+size: 2048, 512
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+player/attacks/Swing
+  rotate: false
+  xy: 2, 2
+  size: 768, 384
+  orig: 768, 384
+  offset: 0, 0
+  index: -1
+player/attacks/SwingReverse
+  rotate: false
+  xy: 772, 2
+  size: 768, 384
+  orig: 768, 384
   offset: 0, 0
   index: -1

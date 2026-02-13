@@ -6,3 +6,4 @@ slime
 bat
 slimeBoss
 moti
+dummy

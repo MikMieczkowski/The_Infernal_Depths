@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.mikm._components.*;
 import com.mikm._components.routine.RoutineListComponent;
 import com.mikm.entities.DamageInformation;
+import com.mikm.entities.actions.DamagedAction;
 import com.mikm.rendering.screens.Application;
 
 public class PlayerTriggerSystem extends IteratingSystem {
@@ -66,6 +67,12 @@ public class PlayerTriggerSystem extends IteratingSystem {
 
         Circle playerHitbox = Application.getInstance().getPlayerHitbox();
         if (combatComponent.DAMAGE == 0 || transform.ENTITY_NAME.equals("player")) {
+            return false;
+        }
+
+        // Don't deal contact damage while in hitstun (DamagedAction active)
+        DamagedAction.DamagedActionComponent damagedData = DamagedAction.MAPPER.get(entity);
+        if (damagedData != null && damagedData.active) {
             return false;
         }
         boolean hitboxesOverlap = Intersector.overlaps(collider.getHitbox(transform), playerHitbox);

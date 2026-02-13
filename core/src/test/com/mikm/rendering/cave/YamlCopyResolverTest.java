@@ -17,7 +17,7 @@ public class YamlCopyResolverTest {
         public float IMAGE_X;
         public float IMAGE_Y;
         public float USAGE_TIME;
-        public float COOLDOWN_TIME;
+        public float COMBO_TIME;
         public int DAMAGE;
         public boolean CAN_BREAK_ROCKS;
         public List<Projectile> PROJECTILES;
@@ -39,7 +39,7 @@ public class YamlCopyResolverTest {
                 "IMAGE_X: 0\n" +
                         "IMAGE_Y: 0\n" +
                         "USAGE_TIME: 0.4\n" +
-                        "COOLDOWN_TIME: 0\n" +
+                        "COMBO_TIME: 0\n" +
                         "DAMAGE: 1\n" +
                         "CAN_BREAK_ROCKS: false\n" +
                         "PROJECTILES:\n" +
@@ -49,7 +49,7 @@ public class YamlCopyResolverTest {
 
         writeFile("copperSword2.yaml",
                 "COPY: copperSword1.yaml\n" +
-                        "COOLDOWN_TIME: 1\n");
+                        "COMBO_TIME: 1\n");
 
         writeFile("weaponList.yaml",
                 "IMAGE_X: 0\n" +
@@ -83,8 +83,9 @@ public class YamlCopyResolverTest {
         testOverride();
         testListCopy();
         testMapSubfieldCopy();
+        testDefinePreprocessor();
 
-        System.out.println("✅ All tests passed.");
+        System.out.println("All tests passed.");
     }
 
     private static void writeFile(String name, String content) throws IOException {
@@ -97,14 +98,14 @@ public class YamlCopyResolverTest {
     private static void testSimpleCopy() {
         WeaponConfig config = YamlCopyResolver.loadAndResolve("copperSword2.yaml", WeaponConfig.class);
         assert config.DAMAGE == 1;
-        assert config.COOLDOWN_TIME == 1.0f;
+        assert config.COMBO_TIME == 1.0f;
         assert config.PROJECTILES.size() == 1;
         System.out.println("✓ testSimpleCopy passed");
     }
 
     private static void testOverride() {
         WeaponConfig config = YamlCopyResolver.loadAndResolve("copperSword2.yaml", WeaponConfig.class);
-        assert config.COOLDOWN_TIME == 1.0f;
+        assert config.COMBO_TIME == 1.0f;
         System.out.println("✓ testOverride passed");
     }
 
@@ -122,6 +123,46 @@ public class YamlCopyResolverTest {
         Map config = (Map) elem2.get("CONFIG");
         assert config.get("data2").equals(7);
         assert config.get("data3").equals(3);
-        System.out.println("✓ testMapSubfieldCopy passed");
+        System.out.println("testMapSubfieldCopy passed");
+    }
+
+    private static void testDefinePreprocessor() throws IOException {
+        // Test basic #DEFINE substitution
+        writeFile("defineTest.yaml",
+                "#DEFINE SPEED_VAL 5.5\n" +
+                        "#DEFINE DMG 10\n" +
+                        "IMAGE_X: 0\n" +
+                        "IMAGE_Y: 0\n" +
+                        "USAGE_TIME: SPEED_VAL\n" +
+                        "COMBO_TIME: SPEED_VAL\n" +
+                        "DAMAGE: DMG\n" +
+                        "CAN_BREAK_ROCKS: false\n");
+
+        WeaponConfig config = YamlCopyResolver.loadAndResolve("defineTest.yaml", WeaponConfig.class);
+        assert config.USAGE_TIME == 5.5f : "Expected USAGE_TIME=5.5, got " + config.USAGE_TIME;
+        assert config.COMBO_TIME == 5.5f : "Expected COMBO_TIME=5.5, got " + config.COMBO_TIME;
+        assert config.DAMAGE == 10 : "Expected DAMAGE=10, got " + config.DAMAGE;
+
+        // Test that partial word matches are NOT replaced
+        writeFile("definePartialTest.yaml",
+                "#DEFINE X 99\n" +
+                        "IMAGE_X: X\n" +
+                        "IMAGE_Y: 0\n" +
+                        "USAGE_TIME: 0.4\n" +
+                        "COMBO_TIME: 0\n" +
+                        "DAMAGE: 1\n" +
+                        "CAN_BREAK_ROCKS: false\n");
+
+        WeaponConfig config2 = YamlCopyResolver.loadAndResolve("definePartialTest.yaml", WeaponConfig.class);
+        // IMAGE_X should NOT become IMAGE_99 because X is part of IMAGE_X
+        assert config2.IMAGE_X == 99 : "Expected IMAGE_X=99 (X replaced in value), got " + config2.IMAGE_X;
+
+        // Test preprocess directly for word boundary behavior
+        String input = "#DEFINE VAR 123\nVAR VARIABLE VARX XVAR VAR_THING";
+        String result = YamlCopyResolver.preprocess(input);
+        // VAR should be replaced, but VARIABLE, VARX, XVAR, VAR_THING should NOT (underscore is part of word)
+        assert result.equals("123 VARIABLE VARX XVAR VAR_THING") : "Unexpected result: " + result;
+
+        System.out.println("testDefinePreprocessor passed");
     }
 }

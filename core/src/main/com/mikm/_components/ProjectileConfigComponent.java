@@ -49,13 +49,13 @@ public class ProjectileConfigComponent implements Component {
     @Copyable
     public boolean isPlayer;
 
-    /** Delay before hitbox becomes active after spawn */
+    /** Time in seconds before hitbox becomes active after spawn (converted from STARTUP_FRAMES) */
     @Copyable
-    public float hitboxStartDelay;
+    public float startupTime;
 
-    /** Duration hitbox is active after the start delay (0 = always active once started) */
+    /** Duration in seconds hitbox is active after startup (0 or negative = always active once started, converted from ACTIVE_FRAMES) */
     @Copyable
-    public float hitboxActiveDuration;
+    public float activeTime;
 
     /** Radius of the projectile's hitbox circle */
     @Copyable
@@ -67,24 +67,25 @@ public class ProjectileConfigComponent implements Component {
      * @return true if lifetime has been exceeded
      */
     public boolean isExpired() {
-        return lifetimeTimer >= lifetime;
+        return lifetime > 0 && lifetimeTimer >= lifetime;
     }
 
     /**
-     * Checks if the hitbox is currently active.
-     * If hitboxActiveDuration is 0, the hitbox is always active.
-     * Otherwise, hitbox is only active for the first hitboxActiveDuration seconds.
+     * Checks if the hitbox is currently active based on {@link #startupTime},
+     * {@link #activeTime}, and {@link #lifetimeTimer}.
+     * Also used by {@link com.mikm._systems.ProjectileHitboxDebugSystem} for debug visualization,
+     * so changes here are automatically reflected in the debug drawing.
      *
      * @return true if the hitbox can deal damage
      */
     public boolean isHitboxActive() {
-        if (lifetimeTimer < hitboxStartDelay) {
+        if (lifetimeTimer < startupTime) {
             return false;
         }
-        if (hitboxActiveDuration <= 0) {
-            return true;
+        if (activeTime <= 0) {
+            return true; // 0 or negative = infinite (active until projectile expires)
         }
-        return lifetimeTimer < hitboxStartDelay + hitboxActiveDuration;
+        return lifetimeTimer < startupTime + activeTime;
     }
 
     /**

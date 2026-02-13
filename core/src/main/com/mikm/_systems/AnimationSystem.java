@@ -29,5 +29,10 @@ public class AnimationSystem extends IteratingSystem {
         SuperAnimation animation = routineListComponent.getCurrentActionsAnimation();
         animation.update(transform.direction);
         spriteComponent.textureRegion = animation.getKeyFrame(spriteComponent.animationTime);
+
+        // Flip sprite when facing left (direction.x < 0), unless disabled for this entity
+        if (spriteComponent.useDirectionFlip) {
+            spriteComponent.flipped = transform.direction.x < 0;
+        }
     }
 }

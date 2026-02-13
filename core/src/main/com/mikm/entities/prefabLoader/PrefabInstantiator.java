@@ -11,14 +11,20 @@ import com.mikm._components.*;
 import com.mikm._components.MiningProjectileComponent;
 import com.mikm._components.routine.RoutineListComponent;
 import com.mikm.entities.actions.ChargeAction;
+import com.mikm.entities.actions.IdleAction;
 import com.mikm.entities.actions.OrbitPlayerAction;
+import com.mikm.entities.animation.SingleAnimation;
 import com.mikm.entities.animation.SingleFrame;
 import com.mikm.entities.inanimateEntities.particles.ParticleTypes;
+import com.mikm.entities.prefabLoader.weapon.WeaponFormattedData;
+import com.mikm.entities.prefabLoader.weapon.WeaponRawData;
+import com.mikm.entities.prefabLoader.weapon.WeaponTransformers;
 import com.mikm.input.GameInput;
 import com.mikm.rendering.cave.RockType;
 import com.mikm.rendering.screens.Application;
 import com.mikm.rendering.screens.GameScreen;
 import com.mikm.serialization.Serializer;
+import com.mikm.utils.Assets;
 import com.mikm.utils.RandomUtils;
 
 import java.lang.reflect.Array;
@@ -205,6 +211,50 @@ public class PrefabInstantiator {
         return e;
     }
 
+    /**
+     * Creates an animated decoration that plays once and removes itself.
+     * @param screen The game screen
+     * @param x X position
+     * @param y Y position
+     * @param frames The animation frames (e.g. from a spritesheet)
+     * @param fps Frames per second for the animation
+     * @return The created entity
+     */
+    public static Entity addAnimatedDecoration(GameScreen screen, float x, float y, TextureRegion[] frames, float fps) {
+        Entity e = instantiatePrefab("decoration", screen, x, y);
+
+        // Calculate animation duration to auto-remove when finished
+        float animationDuration = frames.length / fps;
+
+        // Add components needed for animation (not in base decoration prefab)
+        RoutineListComponent routineListComponent = new RoutineListComponent();
+        e.add(routineListComponent);
+
+        EffectsComponent effects = new EffectsComponent();
+        e.add(effects);
+
+        IdleAction action = new IdleAction();
+        action.MAX_TIME = animationDuration;
+
+        SingleAnimation animation = new SingleAnimation(frames, fps, com.badlogic.gdx.graphics.g2d.Animation.PlayMode.NORMAL);
+        routineListComponent.initRoutines(action, e, animation);
+
+        // Set initial sprite texture
+        SpriteComponent.MAPPER.get(e).textureRegion = frames[0];
+
+        // Set bounds based on frame size
+        Transform transform = Transform.MAPPER.get(e);
+        transform.FULL_BOUNDS_DIMENSIONS = new Vector2Int(frames[0].getRegionWidth(), frames[0].getRegionHeight());
+        transform.Z_ORDER = -1;
+
+        // Use EffectsComponent size change to trigger auto-removal when animation finishes
+        // Size stays at 1 the whole time, but when the timer expires, EffectsSystem removes the entity
+        effects.startSizeChange(animationDuration, 1f, 1f);
+
+        screen.engine.addEntity(e);
+        return e;
+    }
+
     public static void addParticles(float x, float y, ParticleTypes particleTypes) {
         addParticles(Application.getInstance().currentScreen, x, y, 0, particleTypes);
     }
@@ -319,8 +369,41 @@ public class PrefabInstantiator {
 
         RoutineListComponent routineListComponent = RoutineListComponent.MAPPER.get(weapon);
 
-        OrbitPlayerAction action = new OrbitPlayerAction();
-        routineListComponent.initRoutines(action, weapon, new SingleFrame("sand"));
+        // Load weapon data to get orbit configuration
+        String orbitType = "SWAP";
+        String animationPrefix = null;
+        try {
+            WeaponTransformers.register();
+            WeaponFormattedData weaponData = YAMLLoader.load(
+                "weapons/copperSword.yaml",
+                "weapons/weapon.yaml",
+                WeaponRawData.class,
+                WeaponFormattedData.class
+            );
+            if (weaponData != null && weaponData.ORBIT != null) {
+                orbitType = weaponData.ORBIT.ORBIT_TYPE != null ? weaponData.ORBIT.ORBIT_TYPE : "SWAP";
+                animationPrefix = weaponData.ORBIT.ANIMATION_PREFIX;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load weapon data: " + e.getMessage());
+        }
+
+        // Set up 192x192 transform for spritesheet animations
+        Transform transform = Transform.MAPPER.get(weapon);
+        transform.FULL_BOUNDS_DIMENSIONS = new Vector2Int(192, 192);
+        transform.ORIGIN_X = 96;
+        transform.ORIGIN_Y = 96;
+
+        // Disable direction-based flipping for weapon (rotation handles facing)
+        SpriteComponent spriteComponent = SpriteComponent.MAPPER.get(weapon);
+        spriteComponent.useDirectionFlip = false;
+
+        // Initial animation: NonAttack (idle weapon)
+        SingleAnimation nonAttackAnim = new SingleAnimation("NonAttack", 192, 192, 10f,
+                com.badlogic.gdx.graphics.g2d.Animation.PlayMode.LOOP);
+
+        OrbitPlayerAction action = new OrbitPlayerAction(orbitType, animationPrefix);
+        routineListComponent.initRoutines(action, weapon, nonAttackAnim);
 
         screen.engine.addEntity(weapon);
     }

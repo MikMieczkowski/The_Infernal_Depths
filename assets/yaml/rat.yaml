@@ -16,6 +16,10 @@ BEHAVIOURS:
       TYPE: SINGLE_ANIMATION
       IMAGE_NAME: "ratWalk"
       FPS: 4
+    CONFIG:
+      MAX_TIME: 1
+      speed_min: .2
+      speed_max: 1
 ROUTINES:
   start:
     CYCLE:

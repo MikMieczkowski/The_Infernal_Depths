@@ -26,6 +26,11 @@ The Infernal Depths is a pixel art cave exploration game built with **libGDX** (
 
 Entry point: `DesktopLauncher` → `Application.getInstance()` (singleton). The game starts on `TownScreen`.
 
+## Software Engineering tips
+In normal cases, don't handle null and make default behaviour if the null isn't supposed to be there. Either throw an error or allow NPE's to occur naturally.
+
+Be wary of data duplication. If something is defined somewhere, have that be the only place, if possible. This is kind of a data centered application (with it's use of yaml), so that yaml data should only be stored in one place (the YAML files).
+
 ## Architecture
 
 ### ECS (Ashley Entity Component System)
@@ -46,6 +51,7 @@ Entities and weapons are defined in YAML files under `assets/yaml/`. The loading
 4. `PrefabInstantiator` creates Ashley entities from the formatted data
 
 Fields annotated `@Copyable` are deep-copied per entity instance. Fields annotated `@CopyReference` share the same object.
+Whenever possible, use existing code/systems instead of writing new ones. Especially new prefabs. Its better to merge AnimatedDecoration and Decoration into just Decoration.
 
 ### Weapon & Combo System
 
@@ -74,9 +80,3 @@ Use `Gdx.graphics.deltaTime` for delta time, or `DeltaTime.deltaTimeMultiplier` 
 - **Reflections** (0.10.2): Runtime reflection for component/transformer discovery
 - **ShapeDrawer** (2.5.0): Debug shape rendering
 
-## Post-Task Hook
-
-After completing any task, run:
-```bash
-curl -H "Title: Claude" -d "Claude task completed" https://ntfy.sh/claude-done-123
-```

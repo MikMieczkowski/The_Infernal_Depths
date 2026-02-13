@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
+import com.mikm._components.AttackInputComponent;
 import com.mikm._components.ComboStateComponent;
 import com.mikm._components.LockOnComponent;
 import com.mikm._components.Transform;
@@ -16,13 +17,10 @@ import com.mikm.rendering.screens.Application;
 
 /**
  * Action for player charging/attacking.
- * Tracks charge time to determine attack type (light/medium/heavy).
+ * Tracks charge time to determine attack type (light/heavy).
  * Spawns projectiles through ProjectileSpawnSystem on exit.
  */
 public class PlayerChargingAction extends AcceleratedMoveAction {
-
-    public static final float LIGHT_THRESHOLD = 0.3f;
-    public static final float MEDIUM_THRESHOLD = 0.6f;
 
     private static final ComponentMapper<PlayerChargingActionComponent> MAPPER =
             ComponentMapper.getFor(PlayerChargingActionComponent.class);
@@ -89,10 +87,8 @@ public class PlayerChargingAction extends AcceleratedMoveAction {
     }
 
     private AttackDuration getAttackDuration(float chargeTime) {
-        if (chargeTime >= MEDIUM_THRESHOLD) {
+        if (chargeTime >= AttackInputComponent.HEAVY_THRESHOLD) {
             return AttackDuration.HEAVY;
-        } else if (chargeTime >= LIGHT_THRESHOLD) {
-            return AttackDuration.MEDIUM;
         } else {
             return AttackDuration.LIGHT;
         }

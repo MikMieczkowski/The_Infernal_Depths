@@ -2,11 +2,16 @@ ORBIT:
   IMAGE_X: 0
 
 COMBO_TREE:
-  light_swing1:
-    light_swing1:
-      light_swing1:
+  LIGHT:
+    ATTACK: swingRegular
+    THEN_NEXT:
+      LIGHT:
+        ATTACK: swingRegular
+        THEN_NEXT:
+          LIGHT:
+            ATTACK: swingRegular
 
 CONFIG:
-  light_swing1:
+  swingRegular:
     PROJECTILE_DAMAGE:
       - 10

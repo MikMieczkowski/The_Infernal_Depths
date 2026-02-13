@@ -37,11 +37,7 @@ public class CaveFloorMemento {
 
     public ArrayList<EntityData> enemies = new ArrayList<>();
     public ArrayList<EntityData> rocks = new ArrayList<>();
-
-    //helper field to find graves
-    //will be in entities
-    //TODO add back graves
-//    public ArrayList<InanimateEntity> graves;
+    public ArrayList<EntityData> graves = new ArrayList<>();
 
     //turns Entity objects into EntityData objects and adds them to enemies or rocks
     private void loadEntityData(ImmutableArray<Entity> entities) {
@@ -99,6 +95,18 @@ public class CaveFloorMemento {
     public void updateRocks(ImmutableArray<Entity> rocks) {
         //this.rocks.clear();
         //loadEntityData(rocks);
+    }
+
+    public void updateGraves(ImmutableArray<Entity> graveEntities) {
+        this.graves.clear();
+        for (Entity entity : graveEntities) {
+            Transform transform = Transform.MAPPER.get(entity);
+            GraveComponent graveComponent = GraveComponent.MAPPER.get(entity);
+            if (graveComponent != null) {
+                EntityData data = new EntityData(new com.badlogic.gdx.math.Vector2(transform.x, transform.y), "grave", graveComponent.ores);
+                graves.add(data);
+            }
+        }
     }
 
     public static CaveFloorMemento create(Vector2Int spawnPosition, Vector2Int ropePosition, boolean[][] ruleCellPositions, ArrayList<Vector2Int> holePositions) {

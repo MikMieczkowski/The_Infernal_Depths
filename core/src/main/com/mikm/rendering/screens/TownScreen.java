@@ -84,6 +84,7 @@ public class TownScreen extends GameScreen {
         Application.getInstance().paused = true;
 
         //PrefabInstantiator.addEntity("slime",this, 200, 200);
+        PrefabInstantiator.addEntity("dummy", this, 340, 290);
 
         PrefabInstantiator.addParticles(this, 200, 150, 0, ParticleTypes.getRockParameters(RockType.NORMAL));
 
@@ -572,6 +573,7 @@ public class TownScreen extends GameScreen {
         return showMainMenu;
     }
 
+    @Override
     public boolean[][] getHolePositions() {
         return holePositions;
     }

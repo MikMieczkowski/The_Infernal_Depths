@@ -8,6 +8,7 @@ import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.mikm._components.CombatComponent;
+import com.mikm._components.ComboStateComponent;
 import com.mikm._components.LockOnComponent;
 import com.mikm._components.Transform;
 import com.mikm.input.GameInput;
@@ -109,7 +110,7 @@ public class LockOnSystem extends EntitySystem {
             CombatComponent combat = CombatComponent.MAPPER.get(enemy);
 
             // Skip dead or non-attackable enemies
-            if (combat.dead) continue;
+            if (combat.dead || !combat.isAttackable()) continue;
 
             float dist = distance(playerTransform, enemyTransform);
             if (dist < nearestDist) {
@@ -140,7 +141,7 @@ public class LockOnSystem extends EntitySystem {
             Transform enemyTransform = Transform.MAPPER.get(enemy);
             CombatComponent combat = CombatComponent.MAPPER.get(enemy);
 
-            if (combat.dead) continue;
+            if (combat.dead || !combat.isAttackable()) continue;
 
             float dist = Vector2.dst(mouseWorldX, mouseWorldY, enemyTransform.getCenteredX(), enemyTransform.getCenteredY());
             if (dist < closestDist) {
@@ -182,7 +183,7 @@ public class LockOnSystem extends EntitySystem {
             Transform enemyTransform = Transform.MAPPER.get(enemy);
             CombatComponent combat = CombatComponent.MAPPER.get(enemy);
 
-            if (combat.dead) continue;
+            if (combat.dead || !combat.isAttackable()) continue;
 
             float dist = distance(playerTransform, enemyTransform);
             if (dist > LockOnComponent.AUTO_LOCK_RANGE) continue;
@@ -216,8 +217,21 @@ public class LockOnSystem extends EntitySystem {
     private void validateCurrentLock(LockOnComponent lockOn, Transform playerTransform) {
         if (!lockOn.hasLock()) return;
 
+        // Check if entity is still in the engine's enemy family (handles screen transitions)
+        boolean entityStillExists = false;
+        for (Entity enemy : getEnemies()) {
+            if (enemy == lockOn.lockedEnemy) {
+                entityStillExists = true;
+                break;
+            }
+        }
+        if (!entityStillExists) {
+            lockOn.clearLock();
+            return;
+        }
+
         CombatComponent combat = CombatComponent.MAPPER.get(lockOn.lockedEnemy);
-        if (combat == null || combat.dead) {
+        if (combat == null || combat.dead || !combat.isAttackable()) {
             lockOn.clearLock();
             return;
         }
@@ -276,6 +290,12 @@ public class LockOnSystem extends EntitySystem {
      * Gets the angle from player to locked enemy.
      */
     public static float getAngleToLockedEnemy(Entity player) {
+        // If weapon doesn't point towards locked enemy, always use mouse/stick
+        ComboStateComponent comboState = ComboStateComponent.MAPPER.get(player);
+        if (comboState != null && !comboState.pointsTowardsLocked) {
+            return GameInput.getAttackingAngle();
+        }
+
         LockOnComponent lockOn = LockOnComponent.MAPPER.get(player);
         if (lockOn == null || !lockOn.hasLock()) {
             return GameInput.getAttackingAngle(); // Fallback to mouse/stick direction

@@ -3,17 +3,28 @@ package com.mikm.entities.actions;
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Vector2;
+import com.mikm._components.ComboStateComponent;
+import com.mikm._components.SpriteComponent;
 import com.mikm._components.Transform;
+import com.mikm._components.routine.RoutineListComponent;
+import com.mikm.entities.animation.SingleAnimation;
+import com.mikm.entities.prefabLoader.attack.AttackFormattedData;
+import com.mikm._systems.LockOnSystem;
 import com.mikm.input.GameInput;
 import com.mikm.rendering.screens.Application;
 import com.badlogic.gdx.Gdx;
+import com.mikm.utils.debug.DebugRenderer;
+
+import java.util.HashMap;
 
 /**
  * Action for entities that orbit around the player.
  * Supports two modes:
- * 1. Weapon mode (default): Continuously tracks mouse angle, used for held weapons
+ * 1. Weapon mode (default): Centers on player, rotates toward mouse, switches animations on attack
  * 2. Projectile mode: Fixed angle at spawn, optional linear speed, has lifetime
  */
 public class OrbitPlayerAction extends Action {
@@ -27,11 +38,24 @@ public class OrbitPlayerAction extends Action {
     private float lifetime = 0;
     private float orbitDistance = 15;
 
+    // Orbit configuration for weapons
+    private String orbitType = "SWAP";
+    private String animationPrefix = null;
+
     /**
      * Default constructor for weapon orbit (tracks mouse continuously).
      */
     public OrbitPlayerAction() {
         this.isProjectile = false;
+    }
+
+    /**
+     * Constructor for weapon orbit with orbit configuration.
+     */
+    public OrbitPlayerAction(String orbitType, String animationPrefix) {
+        this.isProjectile = false;
+        this.orbitType = orbitType != null ? orbitType : "SWAP";
+        this.animationPrefix = animationPrefix;
     }
 
     /**
@@ -66,12 +90,17 @@ public class OrbitPlayerAction extends Action {
 
     public static class OrbitActionComponent implements Component {
         // Weapon mode fields
-        float weaponRotation;
-        float angleOffset;
-        boolean mouseIsLeftOfPlayer = false;
-        boolean shouldSwingRight = true;
         float angleToMouse;
-        float weaponAngle;
+        float lockedAttackAngle;
+
+        // Orbit configuration for weapons
+        String orbitType = "SWAP";
+        String animationPrefix;
+        boolean wasAttacking = false;
+        int lastAttackSequenceId = -1;
+        String currentWeaponAnimationName;
+        // Cache trimmed TextureRegion[] by resolved animation name (atlas lookup + trim is expensive)
+        HashMap<String, TextureRegion[]> frameCache = new HashMap<>();
 
         // Shared/Projectile mode fields
         float orbitDistance = 15;
@@ -80,7 +109,7 @@ public class OrbitPlayerAction extends Action {
         float linearSpeed = 0;
         float lifetime = 0;
         float timer = 0;
-        float currentDistance = 0; // For linear movement
+        float currentDistance = 0;
         boolean shouldRemove = false;
     }
 
@@ -95,6 +124,9 @@ public class OrbitPlayerAction extends Action {
         comp.lifetime = this.lifetime;
         comp.timer = 0;
         comp.shouldRemove = false;
+        comp.orbitType = this.orbitType;
+        comp.animationPrefix = this.animationPrefix;
+        comp.wasAttacking = false;
         return comp;
     }
 
@@ -113,16 +145,103 @@ public class OrbitPlayerAction extends Action {
     }
 
     /**
-     * Update for weapon mode - tracks mouse angle.
+     * Update for weapon mode - centers on player, rotates toward mouse, switches animations.
      */
     private void updateWeapon(Entity entity, OrbitActionComponent data) {
-        Transform transform = Transform.MAPPER.get(entity);
-        Vector2 position = getPlayerPositionOrbitedAroundMouse(entity, data);
-        transform.x = position.x;
-        transform.y = position.y;
+        Entity player = Application.getInstance().getPlayer();
+        ComboStateComponent comboState = player != null ? ComboStateComponent.MAPPER.get(player) : null;
+        boolean isAttacking = comboState != null && comboState.isAttacking;
 
-        setZOrder(entity, data.weaponAngle);
-        transform.rotation = data.weaponRotation * MathUtils.radDeg;
+        // Handle animation switching
+        boolean newAttack = isAttacking && comboState.attackSequenceId != data.lastAttackSequenceId;
+        if (newAttack) {
+            // Attack just started (or new attack in combo) - lock rotation and switch animation
+            data.lastAttackSequenceId = comboState.attackSequenceId;
+            data.lockedAttackAngle = LockOnSystem.getAngleToLockedEnemy(player);
+            AttackFormattedData attackData = comboState.currentAttackData;
+            String animType = attackData.WEAPON_ANIMATION;
+            float fps = attackData.WEAPON_ANIMATION_FPS;
+            boolean loop = attackData.WEAPON_ANIMATION_LOOP;
+            Animation.PlayMode playMode = loop ? Animation.PlayMode.LOOP : Animation.PlayMode.NORMAL;
+            switchWeaponAnimation(entity, data, animType, fps, playMode);
+        } else if (!isAttacking && data.wasAttacking) {
+            // Attack just ended - switch back to NonAttack (always loops)
+            switchWeaponAnimation(entity, data, "NonAttack", 10f, Animation.PlayMode.LOOP);
+        }
+        data.wasAttacking = isAttacking;
+
+        // Position: center weapon on player (offset for 192x192 centering)
+        Transform transform = Transform.MAPPER.get(entity);
+        Transform playerTransform = Application.getInstance().getPlayerTransform();
+        if (transform == null || playerTransform == null) return;
+
+        transform.x = playerTransform.getCenteredX() - transform.FULL_BOUNDS_DIMENSIONS.x / 2f;
+        transform.y = playerTransform.getCenteredY() - transform.FULL_BOUNDS_DIMENSIONS.y / 2f;
+
+        // Rotation: during attack, lock to the direction at attack start; otherwise track enemy/mouse
+        if (isAttacking) {
+            data.angleToMouse = data.lockedAttackAngle;
+        } else {
+            data.angleToMouse = LockOnSystem.getAngleToLockedEnemy(player);
+        }
+        transform.rotation = data.angleToMouse * MathUtils.radDeg;
+
+        // Z-order based on facing angle
+        setZOrder(entity, data.angleToMouse);
+    }
+
+    /**
+     * Switches the weapon's animation, using prefix fallback and frame caching.
+     * Frames are cached; Animation objects are created fresh with the given fps/playMode.
+     */
+    private void switchWeaponAnimation(Entity entity, OrbitActionComponent data, String animType, float fps, Animation.PlayMode playMode) {
+        // Resolve animation name with prefix fallback
+        String animName = resolveAnimationName(data, animType);
+
+        // Get or load trimmed frames (cached by resolved name)
+        TextureRegion[] frames = data.frameCache.get(animName);
+        if (frames == null) {
+            frames = SingleAnimation.loadFrames(animName, 192, 192);
+            data.frameCache.put(animName, frames);
+        }
+
+        data.currentWeaponAnimationName = animName;
+
+        // Create animation with the attack-specific fps and play mode
+        SingleAnimation anim = new SingleAnimation(frames, fps, playMode);
+
+        // Set the animation on the entity's routine
+        RoutineListComponent routineList = RoutineListComponent.MAPPER.get(entity);
+        if (routineList != null) {
+            routineList.setCurrentActionAnimation(anim);
+        }
+
+        // Reset animation time
+        SpriteComponent spriteComponent = SpriteComponent.MAPPER.get(entity);
+        if (spriteComponent != null) {
+            spriteComponent.animationTime = 0;
+        }
+    }
+
+    /**
+     * Resolves animation name with prefix fallback.
+     * Tries "{prefix}{animType}" first, falls back to "{animType}".
+     */
+    private String resolveAnimationName(OrbitActionComponent data, String animType) {
+        if (data.animationPrefix != null) {
+            String prefixedName = data.animationPrefix + animType;
+            // Check if the prefixed version exists in the frame cache or atlas
+            if (data.frameCache.containsKey(prefixedName)) {
+                return prefixedName;
+            }
+            try {
+                com.mikm.utils.Assets.getInstance().getSplitTextureRegion(prefixedName, 192, 192);
+                return prefixedName;
+            } catch (Exception e) {
+                // Prefix variant not found, fall back to generic
+            }
+        }
+        return animType;
     }
 
     /**
@@ -177,34 +296,6 @@ public class OrbitPlayerAction extends Action {
         } else {
             transform.Z_ORDER = -1; // Behind
         }
-    }
-
-    private Vector2 getPlayerPositionOrbitedAroundMouse(Entity entity, OrbitActionComponent data) {
-        float x, y;
-
-        data.angleToMouse = GameInput.getAttackingAngle();
-        data.mouseIsLeftOfPlayer = -MathUtils.HALF_PI < data.angleToMouse && data.angleToMouse < MathUtils.HALF_PI;
-
-        data.weaponAngle = data.angleToMouse - MathUtils.HALF_PI;
-        data.weaponRotation = data.angleToMouse + MathUtils.PI/2;
-        final float weaponArcRotationProportion = (3+MathUtils.PI/2)/3;
-        if (data.mouseIsLeftOfPlayer) {
-            data.weaponAngle += MathUtils.PI;
-            data.weaponRotation -= MathUtils.PI/2;
-        }
-        if (data.mouseIsLeftOfPlayer) {
-            data.weaponRotation -= data.angleOffset*weaponArcRotationProportion;
-            data.weaponAngle -= data.angleOffset;
-        } else {
-            data.weaponRotation += data.angleOffset*weaponArcRotationProportion;
-            data.weaponAngle += data.angleOffset;
-        }
-
-        Transform playerTransform = Application.getInstance().getPlayerTransform();
-
-        x = playerTransform.getCenteredX() + data.orbitDistance * MathUtils.cos(data.weaponAngle) - playerTransform.getFullBounds().width/2;
-        y = playerTransform.getCenteredY() + data.orbitDistance * MathUtils.sin(data.weaponAngle) - playerTransform.getFullBounds().height/2 - 6;
-        return new Vector2(x, y);
     }
 
     /**

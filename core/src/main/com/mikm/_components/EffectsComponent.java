@@ -20,7 +20,7 @@ public class EffectsComponent implements Component {
     //flash
     public boolean shouldFlash;
     public float flashTimer;
-    public static final int MAX_FLASH_TIME = 2;
+    public static final float MAX_FLASH_TIME = .2f;
     public Color flashColor;
 
     //bouncing
@@ -64,7 +64,7 @@ public class EffectsComponent implements Component {
         triggerSquish = false;
         squishing = false;
     }
-    public void flash(Color color) {
+    public void startFlash(Color color) {
         shouldFlash = true;
         flashColor = color;
     }

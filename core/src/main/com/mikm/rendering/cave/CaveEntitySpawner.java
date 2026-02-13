@@ -65,10 +65,14 @@ public class CaveEntitySpawner {
             caveScreen.caveTilemapCreator.collidablePositions[tilePos.y][tilePos.x] = true;
         }
 
-        //TODO add graves
-//            if (entityData.ores != null) {
-//                GraveComponent.MAPPER.get(entity).ores = entityData.ores;
-//            }
+        // Restore graves
+        for (EntityData entityData : memento.graves) {
+            Entity grave = PrefabInstantiator.addEntity("grave", caveScreen, entityData.pos);
+            GraveComponent graveComponent = GraveComponent.MAPPER.get(grave);
+            if (graveComponent != null && entityData.ores != null) {
+                graveComponent.ores = entityData.ores;
+            }
+        }
     }
 
     private void resetInanimateAndAnimateEntities() {

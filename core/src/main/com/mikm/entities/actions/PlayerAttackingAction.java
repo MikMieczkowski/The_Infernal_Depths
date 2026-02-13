@@ -17,7 +17,7 @@ import com.mikm.utils.ExtraMathUtils;
 
 @RuntimeDataComponent
 public class PlayerAttackingAction extends AcceleratedMoveAction {
-    float sliceWidthMultiplier = 1;
+    float sliceWidthMulAdtiplier = 1;
     final float SPEED = 1;
 
     private static final ComponentMapper<PlayerAttackingActionComponent> MAPPER = ComponentMapper.getFor(PlayerAttackingActionComponent.class);
@@ -28,6 +28,7 @@ public class PlayerAttackingAction extends AcceleratedMoveAction {
         float decelerationSpeed;
         float currentSpeed;
         float angleToEnemy;
+        float distanceScale;
     }
 
     public PlayerAttackingAction() {
@@ -55,17 +56,54 @@ public class PlayerAttackingAction extends AcceleratedMoveAction {
 
         // Load movement config from current attack data
         if (comboState != null && comboState.currentAttackData != null) {
+            System.out.println("WM " + comboState.currentAttackData.NAME);
+
             AttackFormattedData attackData = comboState.currentAttackData;
             MAX_TIME = attackData.getAttackMaxTime();
-            actionComp.peakSpeed = attackData.getPeakSpeed();
-            actionComp.accelerationProportion = attackData.getAccelerationProportion();
-            actionComp.decelerationSpeed = attackData.getDecelerationSpeed();
+            actionComp.peakSpeed = attackData.MOVEMENT_CONFIG.PEAK_SPEED;
+            actionComp.accelerationProportion = attackData.MOVEMENT_CONFIG.ACCELERATION_PROPORTION;
+            actionComp.decelerationSpeed = attackData.MOVEMENT_CONFIG.DECELERATION_SPEED;
+
+            // Distance scaling: three zones based on distance to locked enemy.
+            //   [0, NEAR)     — scale down (power curve), player doesn't overshoot
+            //   [NEAR, FAR]   — unaffected, full PEAK_SPEED
+            //   (FAR, inf)    — scale up, player closes the gap
+            // MULTIPLIER controls fraction of distance covered in scaled zones.
+            float NEAR = attackData.MOVEMENT_CONFIG.DISTANCE_SCALE_NEAR;
+            float FAR = attackData.MOVEMENT_CONFIG.DISTANCE_SCALE_FAR;
+            float MULT = attackData.MOVEMENT_CONFIG.DISTANCE_SCALE_MULTIPLIER;
+
+            LockOnComponent lockOn = LockOnComponent.MAPPER.get(entity);
+            float distance = -1;
+            if (lockOn != null && lockOn.hasLock()) {
+                Transform enemyTransform = Transform.MAPPER.get(lockOn.lockedEnemy);
+                if (enemyTransform != null) {
+                    distance = ExtraMathUtils.distance(
+                            transform.getCenteredX(), transform.getCenteredY(),
+                            enemyTransform.getCenteredX(), enemyTransform.getCenteredY());
+                    //Account for enemy hitbox
+                    distance = Math.max(0, distance-10);
+                }
+            }
+
+            if (distance >= 0 && NEAR > 0 && distance < NEAR) {
+                // NEAR zone: power curve (more aggressive than linear near enemy)
+                float t = distance / NEAR;
+                actionComp.distanceScale = (float) Math.pow(t, 1.5) * MULT;
+            } else if (distance >= 0 && FAR > 0 && distance > FAR) {
+                // FAR zone: linear scale up
+                actionComp.distanceScale = (distance / FAR) * MULT;
+            } else {
+                // Unaffected zone (or no lock-on)
+                actionComp.distanceScale = 1f;
+            }
         } else {
             // Default values if no combo state
             MAX_TIME = 0.5f;
             actionComp.peakSpeed = 0f;
             actionComp.accelerationProportion = 0f;
             actionComp.decelerationSpeed = 0f;
+            actionComp.distanceScale = 1f;
         }
 
         actionComp.currentSpeed = 0f;
@@ -86,7 +124,7 @@ public class PlayerAttackingAction extends AcceleratedMoveAction {
 
         // Apply movement toward/away from locked enemy based on MOVEMENT_CONFIG
         actionComp.currentSpeed = ExtraMathUtils.accDecLerp(routineListComponent.timeElapsedInCurrentAction, MAX_TIME,
-                actionComp.peakSpeed, actionComp.accelerationProportion, actionComp.decelerationSpeed);
+                actionComp.peakSpeed * actionComp.distanceScale, actionComp.accelerationProportion, actionComp.decelerationSpeed);
 
         // Apply velocity toward locked enemy, scaled by global entity speed
         float globalSpeed = transform.SPEED;
