@@ -5,16 +5,13 @@ import com.badlogic.ashley.core.ComponentMapper;
 
 /**
  * Component for tracking attack input state.
- * Handles hold time for determining attack duration (light/medium/heavy).
+ * Handles hold time for determining attack duration (light/heavy).
  */
 public class AttackInputComponent implements Component {
     public static final ComponentMapper<AttackInputComponent> MAPPER = ComponentMapper.getFor(AttackInputComponent.class);
 
-    /** Hold time threshold for light attacks */
-    public static final float LIGHT_THRESHOLD = 0.3f;
-
-    /** Hold time threshold for medium attacks */
-    public static final float MEDIUM_THRESHOLD = 0.6f;
+    /** Hold time threshold for heavy attacks (seconds) */
+    public static final float HEAVY_THRESHOLD = 0.2f;
 
     /** Whether the attack button is currently being held */
     public boolean isHolding;
@@ -31,6 +28,9 @@ public class AttackInputComponent implements Component {
     /** Whether the last attack was a light attack (for quick taps) */
     public boolean wasLightAttack;
 
+    /** Saved hold time from a queued attack press/release. Negative means no saved time. */
+    public float queuedHoldTime = -1f;
+
     /**
      * Resets the input state after an attack is executed or cancelled.
      */
@@ -39,6 +39,7 @@ public class AttackInputComponent implements Component {
         holdTimer = 0f;
         attackQueued = false;
         holdProjectileTimer = 0f;
+        queuedHoldTime = -1f;
     }
 
     /**

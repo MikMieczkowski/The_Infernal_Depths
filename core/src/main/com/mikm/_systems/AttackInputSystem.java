@@ -9,9 +9,9 @@ import com.mikm._components.LockOnComponent;
 import com.mikm._components.Transform;
 import com.mikm.entities.prefabLoader.attack.AttackFormattedData;
 import com.mikm.entities.prefabLoader.weapon.AttackDuration;
+import com.badlogic.gdx.Gdx;
 import com.mikm.input.GameInput;
 import com.mikm.rendering.screens.Application;
-import com.mikm.utils.DeltaTime;
 
 /**
  * System that handles attack input.
@@ -36,14 +36,14 @@ public class AttackInputSystem extends IteratingSystem {
         // Update attack button state tracking
         GameInput.updateAttackButtonState();
 
-        float dt = DeltaTime.deltaTimeMultiplier();
+        float dt = Gdx.graphics.getDeltaTime();
 
         // Handle attack button press
         if (GameInput.isAttackButtonJustPressed()) {
             onAttackButtonPressed(entity, input, combo);
         }
 
-        // Update hold timer while holding
+        // Update hold timer while holding (use actual deltaTime for seconds)
         if (input.isHolding && GameInput.isAttackButtonPressed()) {
             input.updateHold(dt);
 
@@ -72,7 +72,26 @@ public class AttackInputSystem extends IteratingSystem {
         // Don't start new attack if already attacking (queue instead)
         if (combo.isAttacking) {
             input.attackQueued = true;
+            input.startHold();
+
+            // Pressing during an active attack guarantees combo continuation
+            combo.comboQualified = true;
+
+            // Cache distance for combo evaluation
+            LockOnComponent lockOn = LockOnComponent.MAPPER.get(entity);
+            Transform transform = Transform.MAPPER.get(entity);
+            if (lockOn != null) {
+                LockOnSystem lockOnSystem = getEngine().getSystem(LockOnSystem.class);
+                if (lockOnSystem != null) {
+                    lockOnSystem.cacheDistanceForCombo(lockOn, transform);
+                }
+            }
             return;
+        }
+
+        // Lock in the combo if pressing within the combo window
+        if (combo.currentNode != null && combo.comboTimer < combo.comboTimeWindow) {
+            combo.comboQualified = true;
         }
 
         input.startHold();
@@ -86,13 +105,20 @@ public class AttackInputSystem extends IteratingSystem {
                 lockOnSystem.cacheDistanceForCombo(lockOn, transform);
             }
         }
-        // Note: PRESS projectiles are spawned in onAttackButtonReleased after attack selection
     }
 
     /**
      * Called when attack button is released.
      */
     private void onAttackButtonReleased(Entity entity, AttackInputComponent input, ComboStateComponent combo) {
+        // If queued (previous attack still playing), save hold time for later
+        if (input.attackQueued) {
+            input.queuedHoldTime = input.holdTimer;
+            input.isHolding = false;
+            input.holdTimer = 0f;
+            return;
+        }
+
         // Determine attack duration based on hold time
         AttackDuration duration = getAttackDuration(input.holdTimer);
         input.wasLightAttack = (duration == AttackDuration.LIGHT);
@@ -120,22 +146,38 @@ public class AttackInputSystem extends IteratingSystem {
      */
     private void onAttackEnded(Entity entity, ComboStateComponent combo) {
         AttackInputComponent input = AttackInputComponent.MAPPER.get(entity);
+        if (input == null || !input.attackQueued) {
+            return;
+        }
 
-        // If attack was queued, process it now
-        if (input != null && input.attackQueued) {
+        if (input.queuedHoldTime >= 0) {
+            // Button was pressed and released during the attack — execute with saved hold time
+            AttackDuration duration = getAttackDuration(input.queuedHoldTime);
+            input.wasLightAttack = (duration == AttackDuration.LIGHT);
+            float distance = getCachedDistance(entity);
+
+            ComboSystem comboSystem = getEngine().getSystem(ComboSystem.class);
+            if (comboSystem != null) {
+                comboSystem.executeAttack(entity, duration, distance);
+            }
+
+            handlePressProjectiles(entity, combo);
+            handleReleaseProjectiles(entity, combo);
+            input.reset();
+        } else {
+            // Button still held — let normal hold/release flow handle it
             input.attackQueued = false;
-            input.startHold();
         }
     }
 
     /**
      * Determines attack duration based on hold time.
+     * LIGHT: immediate (< HEAVY_THRESHOLD)
+     * HEAVY: >= HEAVY_THRESHOLD
      */
     private AttackDuration getAttackDuration(float holdTime) {
-        if (holdTime >= AttackInputComponent.MEDIUM_THRESHOLD) {
+        if (holdTime >= AttackInputComponent.HEAVY_THRESHOLD) {
             return AttackDuration.HEAVY;
-        } else if (holdTime >= AttackInputComponent.LIGHT_THRESHOLD) {
-            return AttackDuration.MEDIUM;
         } else {
             return AttackDuration.LIGHT;
         }

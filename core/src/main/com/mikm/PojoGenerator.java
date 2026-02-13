@@ -8,7 +8,7 @@ public class PojoGenerator {
     public static void main(String[] args) throws Exception {
         String assetsPath = "D:\\IntelliJprojects\\The_Infernal_Depths-master(1)\\The_Infernal_Depths-master\\assets\\";
         String packageName = "com.mikm";
-        new PojoGenerator().generate(assetsPath + "yaml\\combat\\weapon.yaml", packageName);
+        new PojoGenerator().generate(assetsPath + "yaml\\weapons\\weapon.yaml", packageName);
     }
 
     public void generate(String yamlPath, String packageName) throws Exception {

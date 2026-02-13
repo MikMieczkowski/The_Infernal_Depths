@@ -6,13 +6,18 @@ import java.util.Map;
 /**
  * A node in the combo tree representing a single attack.
  * Each node has a duration (light/medium/heavy), an attack name,
- * a distance condition, and branching maps for follow-up attacks.
+ * an optional distance condition, and branching maps for follow-up attacks.
+ *
+ * Valid node shapes:
+ *   Leaf:         ATTACK only, no children
+ *   Unconditional: ATTACK + THEN_NEXT (always follows thenNext)
+ *   Conditional:   ATTACK + IF_DISTANCE_IS + THAN + THEN_NEXT, optionally ELSE_NEXT
  */
 public class AttackNode {
     public final AttackDuration duration;
     public final String attackName;
 
-    // Distance condition for this node
+    // Distance condition for branching (null = no condition, always use thenNext)
     public final DistanceCondition condition;
     public final float distanceThreshold;
 
@@ -24,13 +29,12 @@ public class AttackNode {
      * Distance condition types for combo branching.
      */
     public enum DistanceCondition {
-        ANY,      // Always use thenNext
         GREATER,  // Use thenNext if distance > threshold, else elseNext
         LESS      // Use thenNext if distance < threshold, else elseNext
     }
 
     public AttackNode(AttackDuration duration, String attackName) {
-        this(duration, attackName, DistanceCondition.ANY, 0f);
+        this(duration, attackName, null, 0f);
     }
 
     public AttackNode(AttackDuration duration, String attackName, DistanceCondition condition, float distanceThreshold) {
@@ -42,34 +46,24 @@ public class AttackNode {
         this.elseNext = new EnumMap<>(AttackDuration.class);
     }
 
-    /**
-     * Adds a child to the thenNext branch (for when condition passes).
-     *
-     * @param child The child node to add
-     */
     public void addThenNext(AttackNode child) {
         thenNext.put(child.duration, child);
     }
 
-    /**
-     * Adds a child to the elseNext branch (for when condition fails).
-     *
-     * @param child The child node to add
-     */
     public void addElseNext(AttackNode child) {
         elseNext.put(child.duration, child);
     }
 
     /**
      * Gets the next attack node based on attack duration and distance to enemy.
-     *
-     * @param attackDuration The duration of the input attack
-     * @param distanceToEnemy The distance to the locked enemy
-     * @return The next attack node, or null if no matching branch exists
+     * If no condition is set, always uses thenNext.
      */
     public AttackNode getNextNode(AttackDuration attackDuration, float distanceToEnemy) {
-        boolean conditionPasses = evaluateCondition(distanceToEnemy);
+        if (condition == null) {
+            return thenNext.get(attackDuration);
+        }
 
+        boolean conditionPasses = evaluateCondition(distanceToEnemy);
         if (conditionPasses) {
             return thenNext.get(attackDuration);
         } else {
@@ -79,14 +73,13 @@ public class AttackNode {
 
     /**
      * Evaluates the distance condition.
-     *
-     * @param distance The distance to the enemy
-     * @return true if condition passes (use thenNext), false otherwise (use elseNext)
+     * Only meaningful when condition is non-null.
      */
     public boolean evaluateCondition(float distance) {
+        if (condition == null) {
+            return true;
+        }
         switch (condition) {
-            case ANY:
-                return true;
             case GREATER:
                 return distance > distanceThreshold;
             case LESS:
@@ -96,20 +89,10 @@ public class AttackNode {
         }
     }
 
-    /**
-     * Checks if this is a leaf node (no follow-up attacks in either branch).
-     *
-     * @return true if this node has no children in any branch
-     */
     public boolean isLeaf() {
         return thenNext.isEmpty() && elseNext.isEmpty();
     }
 
-    /**
-     * Gets the full key name as it appears in YAML (e.g., "light_swing1").
-     *
-     * @return The combined duration and attack name
-     */
     public String getKeyName() {
         return duration.name().toLowerCase() + "_" + attackName;
     }
@@ -117,8 +100,7 @@ public class AttackNode {
     @Override
     public String toString() {
         return "AttackNode{" + getKeyName() +
-                ", condition=" + condition +
-                (condition != DistanceCondition.ANY ? ", threshold=" + distanceThreshold : "") +
+                (condition != null ? ", condition=" + condition + ", threshold=" + distanceThreshold : "") +
                 ", thenNext=" + thenNext.size() +
                 ", elseNext=" + elseNext.size() + "}";
     }

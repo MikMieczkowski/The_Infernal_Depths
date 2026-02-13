@@ -45,14 +45,23 @@ public class ComboStateComponent implements Component {
     @CopyReference
     public Map<String, WeaponFormattedData.AttackConfigData> weaponConfig;
 
+    /** Whether the weapon points towards the locked enemy (false = always track mouse) */
+    public boolean pointsTowardsLocked = true;
+
     /** Whether currently in an attack animation */
     public boolean isAttacking;
+
+    /** Incremented each time a new attack starts. Used by weapon to detect back-to-back attacks. */
+    public int attackSequenceId;
 
     /** Time remaining in current attack */
     public float attackTimer;
 
     /** The combo time window (loaded from attack data) */
     public float comboTimeWindow = 0.6f;
+
+    /** True if attack button was pressed within the combo window, locking in the combo position */
+    public boolean comboQualified;
 
     /**
      * Resets combo state back to root.
@@ -63,6 +72,7 @@ public class ComboStateComponent implements Component {
         inAerialCombo = false;
         currentAttackName = null;
         currentAttackData = null;
+        comboQualified = false;
     }
 
     /**
@@ -76,8 +86,10 @@ public class ComboStateComponent implements Component {
         currentAttackName = node.attackName;
         currentAttackData = attackData;
         isAttacking = true;
+        attackSequenceId++;
         attackTimer = attackData.getAttackMaxTime();
-        comboTimeWindow = attackData.getComboTime();
+        comboTimeWindow = attackData.COMBO_TIME;
+        comboQualified = false;
     }
 
     /**
@@ -88,7 +100,7 @@ public class ComboStateComponent implements Component {
     public void updateComboTimer(float deltaTime) {
         if (!isAttacking && currentNode != null) {
             comboTimer += deltaTime;
-            if (comboTimer > comboTimeWindow) {
+            if (!comboQualified && comboTimer > comboTimeWindow) {
                 resetCombo();
             }
         }
@@ -118,7 +130,7 @@ public class ComboStateComponent implements Component {
      * @return true if within combo time window
      */
     public boolean isComboWindowOpen() {
-        return !isAttacking && (currentNode == null || comboTimer < comboTimeWindow);
+        return !isAttacking && (currentNode == null || comboQualified || comboTimer < comboTimeWindow);
     }
 
     /**

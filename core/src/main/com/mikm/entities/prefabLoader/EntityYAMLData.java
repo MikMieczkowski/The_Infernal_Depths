@@ -12,9 +12,10 @@ public class EntityYAMLData {
 
     public static class Config {
         public String NAME;
-        public int KNOCKBACK;
-        public int MAX_HP;
-        public int DAMAGE;
+        public Integer KNOCKBACK;
+        public Float KNOCKBACK_MULTIPLIER;
+        public Integer MAX_HP;
+        public Integer DAMAGE;
         public Float SPEED;
         public int ORIGIN_X;
         public int ORIGIN_Y;
@@ -67,7 +68,7 @@ public class EntityYAMLData {
             public String STARTS_WITH;
             public String IMAGE_NAME;
             public float FPS;
-            public boolean LOOP;
+            public Boolean LOOP;
         }
     }
 

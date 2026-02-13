@@ -19,6 +19,7 @@ public class CombatComponent implements Component {
     @Copyable public int MAX_HP;
     @Copyable public int DAMAGE;
     @Copyable public int KNOCKBACK;
+    @Copyable public float KNOCKBACK_MULTIPLIER = 1f;
     @CopyReference public SuperAnimation HURT_ANIMATION; //shallow copy?
     @Copyable public String HURT_SOUND_EFFECT;
     //Permanent invincibility
@@ -27,6 +28,7 @@ public class CombatComponent implements Component {
     public float invincibilityTimer;
     //Temporary invincibility
     public boolean inInvincibilityFrames = false;
+    public boolean inResidualKnockback = false;
 
     public int hp;
     public boolean dead = false;
@@ -87,11 +89,14 @@ public class CombatComponent implements Component {
         }
 
         //handle effects
-        effectsComponent.startSquish(DamagedAction.TOTAL_KNOCKBACK_TIME * .75f, 1.2f);
+        float hitstunTime = damageInformation.hitstunFrames > 0
+                ? damageInformation.hitstunFrames / 60.0f
+                : DamagedAction.TOTAL_KNOCKBACK_TIME;
+        effectsComponent.startSquish(hitstunTime * .75f, 1.2f);
         if (combatComponent.hp <= 0) {
-            effectsComponent.flash(Color.RED);
+            effectsComponent.startFlash(Color.RED);
         } else {
-            effectsComponent.flash(Color.WHITE);
+            effectsComponent.startFlash(Color.WHITE);
         }
         if (transform.ENTITY_NAME.equals("player")) {
             Application.getInstance().freezeTime();
@@ -108,5 +113,9 @@ public class CombatComponent implements Component {
 
     public void setAttackable(boolean b) {
         isAttackable = b;
+    }
+
+    public boolean isAttackable() {
+        return isAttackable;
     }
 }

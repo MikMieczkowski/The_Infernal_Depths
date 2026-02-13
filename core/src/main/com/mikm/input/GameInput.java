@@ -64,9 +64,6 @@ public class GameInput {
 
     private static Vector2 movementVector() {
         if (InputRaw.usingController) {
-            if (Application.getInstance().currentScreen == Application.getInstance().blacksmithScreen && BlacksmithScreen.showMenu) {
-                return Vector2.Zero;
-            }
             return new Vector2(InputRaw.controllerXAxis(), InputRaw.controllerYAxis());
         }
         return new Vector2(keyboardHorizontalAxisInt(), keyboardVerticalAxisInt());

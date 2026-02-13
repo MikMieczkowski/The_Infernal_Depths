@@ -50,6 +50,9 @@ public class EntityYAMLConfigReader {
         combatComponent.hp = combatComponent.MAX_HP;
         combatComponent.DAMAGE = varOrDef(config.DAMAGE, 10);
         combatComponent.KNOCKBACK = varOrDef(config.KNOCKBACK, 1);
+        if (config.KNOCKBACK_MULTIPLIER != null) {
+            combatComponent.KNOCKBACK_MULTIPLIER = config.KNOCKBACK_MULTIPLIER;
+        }
         transform.SPEED = config.SPEED != null ? config.SPEED : 1;
         combatComponent.setAttackable(!config.INVINCIBLE);
 
@@ -144,7 +147,7 @@ public class EntityYAMLConfigReader {
                         config.HURT_ANIMATION.ANIMATION.TYPE = "SINGLE_ANIMATION";
                         config.HURT_ANIMATION.ANIMATION.IMAGE_NAME = base.ANIMATION.IMAGE_NAME;
                         config.HURT_ANIMATION.ANIMATION.FPS = base.ANIMATION.FPS;
-                        config.HURT_ANIMATION.ANIMATION.LOOP = base.ANIMATION.LOOP;
+                        config.HURT_ANIMATION.ANIMATION.LOOP = (base.ANIMATION.LOOP == null) ? true : base.ANIMATION.LOOP;
                     } else if ("SINGLE_FRAME".equals(base.ANIMATION.TYPE) || looksSingleFrame) {
                         config.HURT_ANIMATION.ANIMATION.TYPE = "SINGLE_FRAME";
                         config.HURT_ANIMATION.ANIMATION.IMAGE_NAME = base.ANIMATION.IMAGE_NAME;
@@ -166,6 +169,13 @@ public class EntityYAMLConfigReader {
     void loadConfigPostRead(Map<String, Routine> nameToRoutine) {
         EntityYAMLData.Config config = data.CONFIG;
         transform.ENTITY_NAME = config.NAME;
+    }
+
+    private int varOrDef(Integer var, int def) {
+        if (var == null) {
+            return def;
+        }
+        return var;
     }
 
     private int varOrDef(int var, int def) {

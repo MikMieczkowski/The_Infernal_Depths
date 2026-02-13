@@ -3,8 +3,10 @@ package com.mikm.entities.actions;
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
+import com.mikm._components.CombatComponent;
 import com.mikm._components.CopyReference;
 import com.mikm._components.Copyable;
+import com.mikm._components.SpriteComponent;
 import com.mikm._components.Transform;
 import com.mikm._components.routine.RoutineListComponent;
 import com.mikm.entities.animation.SuperAnimation;
@@ -37,10 +39,20 @@ public abstract class Action {
     public void enter(Entity entity) {
         Transform transform = Transform.MAPPER.get(entity);
         RoutineListComponent routineListComponent = RoutineListComponent.MAPPER.get(entity);
+        SpriteComponent spriteComponent = SpriteComponent.MAPPER.get(entity);
 
         transform.height = 0;
         routineListComponent.CURRENT_ACTION_IS_DONE = false;
         routineListComponent.timeElapsedInCurrentAction = 0;
+        if (spriteComponent != null) {
+            spriteComponent.animationTime = 0;
+        }
+
+        // Clear residual knockback flag for actions that don't handle it
+        CombatComponent combatComponent = CombatComponent.MAPPER.get(entity);
+        if (combatComponent != null) {
+            combatComponent.inResidualKnockback = false;
+        }
 
         if (transform.ENTITY_NAME.equals("player")) {
             System.out.println(transform.ENTITY_NAME + " Entered " + name);

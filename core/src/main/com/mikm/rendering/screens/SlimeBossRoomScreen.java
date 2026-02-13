@@ -11,7 +11,6 @@ import com.mikm.utils.Assets;
 import com.mikm._components.CombatComponent;
 import com.mikm.entities.prefabLoader.PrefabInstantiator;
 import com.mikm.rendering.cave.RockType;
-import com.mikm.input.GameInput;
 
 public class SlimeBossRoomScreen extends GameScreen {
 
@@ -64,9 +63,7 @@ public class SlimeBossRoomScreen extends GameScreen {
 
     @Override
     protected void drawAssetsPostEntities() {
-        if (Application.getInstance().caveScreen.displayButtonIndicator) {
-            Application.batch.draw(GameInput.getTalkButtonImage(), Application.getInstance().caveScreen.buttonIndicatorPosition.x, Application.getInstance().caveScreen.buttonIndicatorPosition.y);
-        }
+        super.drawAssetsPostEntities();
         if (awarded) {
             Application.batch.draw(holeImg,48,112);
         }
@@ -78,6 +75,7 @@ public class SlimeBossRoomScreen extends GameScreen {
         song.play();
     }
 
+    @Override
     public boolean[][] getHolePositions() {
         return holePositions;
     }

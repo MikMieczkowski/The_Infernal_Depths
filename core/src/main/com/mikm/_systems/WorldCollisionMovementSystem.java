@@ -29,24 +29,27 @@ public class WorldCollisionMovementSystem extends IteratingSystem {
         if (!Application.getInstance().systemShouldTick()) {
             return;
         }
+        Transform transform = Transform.MAPPER.get(entity);
+        // Save input direction BEFORE collision resolution to avoid flickering
+        float inputXVel = transform.xVel;
+        float inputYVel = transform.yVel;
         if (NO_CLIP) {
-            Transform transform = Transform.MAPPER.get(entity);
             transform.x += transform.xVel * DeltaTime.deltaTimeMultiplier();
             transform.y += transform.yVel * DeltaTime.deltaTimeMultiplier();
-            updateDirection(Transform.MAPPER.get(entity));
+            updateDirection(transform, inputXVel, inputYVel);
             return;
         }
         moveWithCollisions(entity);
         if (inWall(entity)) {
             ejectFromWalls(entity);
         }
-        updateDirection(Transform.MAPPER.get(entity));
+        updateDirection(transform, inputXVel, inputYVel);
     }
 
-    private void updateDirection(Transform transform) {
-        if (!(transform.xVel == 0 && transform.yVel == 0)) {
-            //goes from xVel, yVel to one of eight directions
-            transform.direction = ExtraMathUtils.angleToVector2Int(MathUtils.atan2(transform.yVel, transform.xVel));
+    private void updateDirection(Transform transform, float inputXVel, float inputYVel) {
+        if (!(inputXVel == 0 && inputYVel == 0)) {
+            //goes from xVel, yVel to one of eight directions (using pre-collision input velocity)
+            transform.direction = ExtraMathUtils.angleToVector2Int(MathUtils.atan2(inputYVel, inputXVel));
         }
     }
 
@@ -221,14 +224,8 @@ public class WorldCollisionMovementSystem extends IteratingSystem {
         }
 
         if (!routineListComponent.inAction("Fall") && !routineListComponent.inAction("Dive")) {
-            boolean[][] holePositions;
-            if (Application.getInstance().currentScreen == Application.getInstance().caveScreen) {
-                holePositions = Application.getInstance().caveScreen.getHolePositionsToCheck();
-            } else if (Application.getInstance().currentScreen == Application.getInstance().townScreen) {
-                holePositions = Application.getInstance().townScreen.getHolePositions();
-            } else if (Application.getInstance().currentScreen == Application.getInstance().slimeBossRoomScreen) {
-                holePositions = Application.getInstance().slimeBossRoomScreen.getHolePositions();
-            } else {
+            boolean[][] holePositions = Application.getInstance().currentScreen.getHolePositions();
+            if (holePositions == null) {
                 return false;
             }
             ArrayList<Vector2Int> wallTilesToCheck = getWallTilePositionsToCheck(worldColliderComponent);

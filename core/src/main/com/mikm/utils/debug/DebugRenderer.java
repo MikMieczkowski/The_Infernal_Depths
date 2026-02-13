@@ -19,6 +19,10 @@ public class DebugRenderer {
     private final ShapeRenderer shapeRenderer;
     public static final Color DEBUG_BLUE = new Color(0, 0, 1, .5f);
     public static final Color DEBUG_RED = new Color(1, 0, 0, .5f);
+
+    /** Draws projectile hitbox circles via {@link com.mikm._systems.ProjectileHitboxDebugSystem}. */
+    //DrawHitboxes | DrawDebug
+    public static boolean DRAW_PROJECTILE_HITBOXES = false;
     private ArrayList<Method> toDrawRepeatedly = new ArrayList<>();
 
     private DebugRenderer() {
@@ -46,6 +50,8 @@ public class DebugRenderer {
         Application.batch.end();
         shapeRenderer.setAutoShapeType(true);
         shapeRenderer.setProjectionMatrix(Camera.orthographicCamera.combined);
+
+        Gdx.gl.glLineWidth(10f);
         shapeRenderer.setColor(Color.BLUE);
         shapeRenderer.begin();
         shapeRenderer.circle(hitbox.x, hitbox.y, hitbox.radius);

@@ -1,6 +1,7 @@
 package com.mikm.entities.prefabLoader;
 
 import com.mikm._components.Transform;
+import com.mikm.rendering.screens.Application;
 
 import java.util.*;
 import java.util.function.Function;
@@ -32,6 +33,10 @@ public class Blackboard {
                 .put(key, value);
     }
 
+    //Dummy method for when a variable is bound to any entity
+    public Object getVar(String key) {
+        return getVar(Application.getInstance().getPlayer(), key);
+    }
 
     public Object getVar(com.badlogic.ashley.core.Entity e, String key) {
         // check accessor first

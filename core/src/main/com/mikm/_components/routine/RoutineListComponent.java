@@ -123,10 +123,8 @@ public class RoutineListComponent implements Component {
         Routine routine;
 
         String POST_HIT_ROUTINE = currentRoutine.currentAction.POST_HIT_ROUTINE;
-        if (POST_HIT_ROUTINE == null) {
+        if (POST_HIT_ROUTINE == null || POST_HIT_ROUTINE.equals("NONE")) {
             routine = currentRoutine;
-        } else if (POST_HIT_ROUTINE.equals("NONE")) {
-            throw new RuntimeException("Shouldn't enter post hit routine if POST_HIT_ROUTINE == null on " + Transform.MAPPER.get(entity).ENTITY_NAME);
         } else {
             routine = getRoutine(POST_HIT_ROUTINE);
         }
@@ -195,5 +193,9 @@ public class RoutineListComponent implements Component {
 
     public SuperAnimation getCurrentActionsAnimation() {
         return currentRoutine.currentAction.animation;
+    }
+
+    public void setCurrentActionAnimation(SuperAnimation animation) {
+        currentRoutine.currentAction.animation = animation;
     }
 }

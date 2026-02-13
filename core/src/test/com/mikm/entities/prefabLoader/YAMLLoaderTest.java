@@ -75,8 +75,8 @@ public class YAMLLoaderTest {
 
         // Verify config exists
         assert rawWeapon.CONFIG != null : "CONFIG should not be null";
-        assert rawWeapon.CONFIG.containsKey("swing1") : "Config should have swing1";
-        assert rawWeapon.CONFIG.get("swing1").PROJECTILE_DAMAGE == null : "swing1 PROJECTILE_DAMAGE should be null from schema (no default list)";
+        assert rawWeapon.CONFIG.containsKey("swingRegular") : "Config should have swingRegular";
+        assert rawWeapon.CONFIG.get("swingRegular").PROJECTILE_DAMAGE == null : "swingRegular PROJECTILE_DAMAGE should be null from schema (no default list)";
 
         System.out.println("✓ Raw loading with schema defaults passed");
     }
@@ -102,7 +102,7 @@ public class YAMLLoaderTest {
         // Verify first attack node
         AttackNode firstAttack = formattedWeapon.COMBO_TREE.get(0);
         assert firstAttack.duration == AttackDuration.LIGHT : "First attack should be LIGHT";
-        assert firstAttack.attackName.equals("swing1") : "Attack name should be 'swing1'";
+        assert firstAttack.attackName.equals("swingRegular") : "Attack name should be 'swingRegular'";
 
         // Verify combo depth using thenNext
         assert !firstAttack.thenNext.isEmpty() : "Light swing should have thenNext children (follow-ups)";
@@ -133,13 +133,13 @@ public class YAMLLoaderTest {
         assert formattedWeapon.ORBIT.ORBIT_DISTANCE == 15f : "ORBIT.ORBIT_DISTANCE should match";
         assert formattedWeapon.ORBIT.ORBIT_TYPE.equals("SWAP") : "ORBIT.ORBIT_TYPE should match";
 
-        // Verify CONFIG was auto-copied (swing1 from schema, light_swing1 from instance)
+        // Verify CONFIG was auto-copied
         assert formattedWeapon.CONFIG != null : "CONFIG should be auto-copied";
-        assert formattedWeapon.CONFIG.containsKey("light_swing1") : "CONFIG should have light_swing1";
+        assert formattedWeapon.CONFIG.containsKey("swingRegular") : "CONFIG should have swingRegular";
 
-        WeaponFormattedData.AttackConfigData configData = formattedWeapon.CONFIG.get("light_swing1");
-        assert configData != null : "light_swing1 config should not be null";
-        assert configData.PROJECTILE_DAMAGE != null && configData.PROJECTILE_DAMAGE.get(0) == 10 : "light_swing1 PROJECTILE_DAMAGE should be auto-copied correctly";
+        WeaponFormattedData.AttackConfigData configData = formattedWeapon.CONFIG.get("swingRegular");
+        assert configData != null : "swingRegular config should not be null";
+        assert configData.PROJECTILE_DAMAGE != null && configData.PROJECTILE_DAMAGE.get(0) == 10 : "swingRegular PROJECTILE_DAMAGE should be auto-copied correctly";
 
         System.out.println("✓ Nested object auto-copy passed");
     }
@@ -158,19 +158,19 @@ public class YAMLLoaderTest {
                 WeaponFormattedData.class
         );
 
-        // First level: LIGHT with attack swing1
+        // First level: LIGHT with attack swingRegular
         List<AttackNode> comboTree = formattedWeapon.COMBO_TREE;
         assert comboTree.size() >= 1 : "Should have at least 1 root attack";
 
-        AttackNode root = findAttackByName(comboTree, "swing1");
-        assert root != null : "Should find swing1 root attack";
-        assert root.duration == AttackDuration.LIGHT : "swing1 should be LIGHT duration";
-        assert root.condition == AttackNode.DistanceCondition.ANY : "Root should have ANY condition";
-        assert !root.isLeaf() : "swing1 should have children in thenNext";
+        AttackNode root = findAttackByName(comboTree, "swingRegular");
+        assert root != null : "Should find swingRegular root attack";
+        assert root.duration == AttackDuration.LIGHT : "swingRegular should be LIGHT duration";
+        assert root.condition == null : "Root should have no condition (leaf/unconditional)";
+        assert !root.isLeaf() : "swingRegular should have children in thenNext";
 
-        // Second level: LIGHT -> swing1 via thenNext
+        // Second level: LIGHT -> swingRegular via thenNext
         AttackNode secondLevel = root.thenNext.get(AttackDuration.LIGHT);
-        assert secondLevel != null : "Should find second swing1 in combo";
+        assert secondLevel != null : "Should find second swingRegular in combo";
         assert secondLevel.duration == AttackDuration.LIGHT : "Second level should be LIGHT";
 
         System.out.println("✓ Combo tree transformation detail passed");
@@ -237,20 +237,20 @@ public class YAMLLoaderTest {
                         "\n" +
                         "COMBO_TREE:\n" +
                         "  LIGHT:\n" +
-                        "    ATTACK: swing1\n" +
+                        "    ATTACK: swingRegular\n" +
                         "    IF: ANY\n" +
                         "    THEN_NEXT:\n" +
                         "      LIGHT:\n" +
-                        "        ATTACK: swing1\n" +
+                        "        ATTACK: swingRegular\n" +
                         "        IF: ANY\n" +
                         "\n" +
                         "AERIAL_COMBO_TREE:\n" +
                         "  LIGHT:\n" +
-                        "    ATTACK: swing1\n" +
+                        "    ATTACK: swingRegular\n" +
                         "    IF: ANY\n" +
                         "\n" +
                         "CONFIG:\n" +
-                        "  swing1:\n" +
+                        "  swingRegular:\n" +
                         "    DAMAGE: 10\n"
         );
     }
@@ -262,15 +262,15 @@ public class YAMLLoaderTest {
                         "\n" +
                         "COMBO_TREE:\n" +
                         "  LIGHT:\n" +
-                        "    ATTACK: swing1\n" +
+                        "    ATTACK: swingRegular\n" +
                         "    IF: ANY\n" +
                         "    THEN_NEXT:\n" +
                         "      LIGHT:\n" +
-                        "        ATTACK: swing1\n" +
+                        "        ATTACK: swingRegular\n" +
                         "        IF: ANY\n" +
                         "\n" +
                         "CONFIG:\n" +
-                        "  swing1:\n" +
+                        "  swingRegular:\n" +
                         "    DAMAGE: 10\n"
         );
     }

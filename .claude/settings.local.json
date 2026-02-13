@@ -16,7 +16,9 @@
       "Bash(cmd /c:*)",
       "Bash(powershell:*)",
       "Bash(del \"D:\\\\IntelliJprojects\\\\The_Infernal_Depths-master\\(1\\)\\\\The_Infernal_Depths-master\\\\core\\\\src\\\\main\\\\com\\\\mikm\\\\entities\\\\actions\\\\SliceAction.java\")",
-      "Bash(curl -H \"Title: Claude\" -d \"Claude task completed\" https://ntfy.sh/claude-done-123)"
+      "Bash(curl -H \"Title: Claude\" -d \"Claude task completed\" https://ntfy.sh/claude-done-123)",
+      "Bash(cd:*)",
+      "Bash(wc:*)"
     ]
   }
 }

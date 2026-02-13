@@ -114,6 +114,24 @@ public class YAMLLoader {
                 Object instanceValue = f.get(instance);
                 Object schemaValue = f.get(schema);
 
+                // For Lists: merge each instance item with the schema's first item as defaults
+                if (instanceValue instanceof List && schemaValue instanceof List) {
+                    List<?> schemaList = (List<?>) schemaValue;
+                    List<?> instanceList = (List<?>) instanceValue;
+                    if (!schemaList.isEmpty() && !instanceList.isEmpty()) {
+                        f.set(result, mergeListItems(schemaList, instanceList));
+                        continue;
+                    }
+                }
+
+                // For nested custom objects: merge field-by-field so partial overrides keep schema defaults
+                if (instanceValue != null && schemaValue != null
+                        && isCustomClass(instanceValue.getClass()) && isCustomClass(schemaValue.getClass())
+                        && instanceValue.getClass().equals(schemaValue.getClass())) {
+                    f.set(result, mergeObject(schemaValue, instanceValue));
+                    continue;
+                }
+
                 // Instance value takes priority if non-null, otherwise use schema default
                 Object valueToSet = (instanceValue != null) ? instanceValue : schemaValue;
                 f.set(result, valueToSet);
@@ -122,6 +140,45 @@ public class YAMLLoader {
             return result;
         } catch (Exception e) {
             throw new RuntimeException("Failed to merge YAML objects of type " + clazz.getName(), e);
+        }
+    }
+
+    /**
+     * Merges each item in the instance list with the schema's first list item as defaults.
+     * For each instance item, any null field is filled from schema[0].
+     */
+    @SuppressWarnings("unchecked")
+    private static List<Object> mergeListItems(List<?> schemaList, List<?> instanceList) {
+        Object schemaDefault = schemaList.get(0);
+        List<Object> result = new ArrayList<>();
+
+        for (Object instanceItem : instanceList) {
+            if (instanceItem == null || schemaDefault == null
+                    || !instanceItem.getClass().equals(schemaDefault.getClass())) {
+                result.add(instanceItem);
+                continue;
+            }
+            result.add(mergeObject(schemaDefault, instanceItem));
+        }
+        return result;
+    }
+
+    /**
+     * Merges two objects of the same class: instance fields override schema fields.
+     */
+    private static Object mergeObject(Object schema, Object instance) {
+        Class<?> clazz = instance.getClass();
+        try {
+            Object merged = clazz.getDeclaredConstructor().newInstance();
+            for (Field f : clazz.getDeclaredFields()) {
+                f.setAccessible(true);
+                Object instanceVal = f.get(instance);
+                Object schemaVal = f.get(schema);
+                f.set(merged, instanceVal != null ? instanceVal : schemaVal);
+            }
+            return merged;
+        } catch (Exception e) {
+            return instance;
         }
     }
 

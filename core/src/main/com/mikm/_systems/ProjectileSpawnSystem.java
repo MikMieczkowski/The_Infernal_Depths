@@ -40,14 +40,22 @@ public class ProjectileSpawnSystem extends EntitySystem {
         // Look up PROJECTILE_DAMAGE from weapon CONFIG
         java.util.List<Integer> projectileDamages = getProjectileDamages(entity);
 
+        // Get index 0's damage for INHERITS_DAMAGE_FROM_ZERO
+        Integer indexZeroDamage = attackData.PROJECTILES.get(0).DAMAGE;
+
         for (int i = 0; i < attackData.PROJECTILES.size(); i++) {
             AttackFormattedData.ProjectileData projData = attackData.PROJECTILES.get(i);
             if (createOn.equals(projData.CREATE_ON)) {
+                // Resolve effective damage: CONFIG override > INHERITS_DAMAGE_FROM_ZERO > own DAMAGE
+                int effectiveDamage;
                 if (projectileDamages != null && i < projectileDamages.size()) {
-                    spawnProjectileWithDamage(entity, projData, projectileDamages.get(i));
+                    effectiveDamage = projectileDamages.get(i);
+                } else if (i > 0 && projData.INHERITS_DAMAGE_FROM_ZERO != null && projData.INHERITS_DAMAGE_FROM_ZERO && indexZeroDamage != null) {
+                    effectiveDamage = indexZeroDamage;
                 } else {
-                    spawnSingleProjectile(entity, projData);
+                    effectiveDamage = projData.DAMAGE;
                 }
+                spawnProjectileWithDamage(entity, projData, effectiveDamage);
             }
         }
     }
@@ -109,33 +117,47 @@ public class ProjectileSpawnSystem extends EntitySystem {
 
         ProjectileConfigComponent config = new ProjectileConfigComponent();
         config.createOn = projData.CREATE_ON;
-        config.damage = projData.DAMAGE != null ? projData.DAMAGE : 10;
-        config.lifetime = projData.LIFETIME != null ? projData.LIFETIME : 1.0f;
-        config.movementPattern = projData.MOVEMENT_PATTERN != null ? projData.MOVEMENT_PATTERN : "STRAIGHT";
-        config.speed = projData.SPEED != null ? projData.SPEED : 0f;
+        config.damage = projData.DAMAGE;
+        // Orbiting projectiles with no lifetime default to the attack duration
+        float lifetimeFrames = projData.LIFETIME_FRAMES != null ? projData.LIFETIME_FRAMES : 0;
+        if (lifetimeFrames <= 0) {
+            ComboStateComponent combo = ComboStateComponent.MAPPER.get(attacker);
+            if (combo != null && combo.currentAttackData != null && combo.currentAttackData.ATTACK_FRAMES != null) {
+                lifetimeFrames = combo.currentAttackData.ATTACK_FRAMES;
+            }
+        }
+        config.lifetime = lifetimeFrames / 60.0f;
+        config.movementPattern = projData.MOVEMENT_PATTERN;
+        config.speed = projData.SPEED;
         config.orbits = true;
-        config.fps = projData.FPS != null ? projData.FPS : 10f;
+        config.fps = projData.FPS;
         config.isPlayer = true;
-        config.hitboxStartDelay = projData.HITBOX_START_DELAY != null ? projData.HITBOX_START_DELAY : 0f;
-        config.hitboxActiveDuration = projData.HITBOX_ACTIVE_DURATION != null ? projData.HITBOX_ACTIVE_DURATION : 0f;
-        config.hitboxRadius = projData.HITBOX_RADIUS != null ? projData.HITBOX_RADIUS : 16f;
+        config.startupTime = projData.STARTUP_FRAMES / 60.0f;
+        config.activeTime = projData.ACTIVE_FRAMES / 60.0f;
+        float sliceWidthMultiplier = projData.WIDTH_MULTIPLIER;
+        config.hitboxRadius = projData.HITBOX_RADIUS * sliceWidthMultiplier;
         projectile.add(config);
+
+        float spawnDistance = projData.SPAWN_DISTANCE;
 
         RoutineListComponent routineListComponent = RoutineListComponent.MAPPER.get(projectile);
         if (routineListComponent != null) {
-            float orbitDistance = 15f;
             float linearSpeed = config.speed;
 
             OrbitPlayerAction action;
             if (linearSpeed > 0) {
-                action = OrbitPlayerAction.forMovingProjectile(angle, orbitDistance, linearSpeed, config.lifetime);
+                action = OrbitPlayerAction.forMovingProjectile(angle, spawnDistance, linearSpeed, config.lifetime);
             } else {
-                action = OrbitPlayerAction.forProjectile(angle, orbitDistance, config.lifetime);
+                action = OrbitPlayerAction.forProjectile(angle, spawnDistance, config.lifetime);
             }
 
-            String animName = projData.ANIMATION_NAME != null ? projData.ANIMATION_NAME : "swordSlice";
-
-            SuperAnimation anim = new SingleAnimation(animName, 32, 32, config.fps, Animation.PlayMode.NORMAL);
+            String animName = projData.ANIMATION_NAME;
+            SuperAnimation anim;
+            if (animName != null) {
+                anim = new SingleAnimation(animName, 32, 32, config.fps, Animation.PlayMode.NORMAL);
+            } else {
+                anim = new SingleFrame("swordSlice"); // placeholder, sprite hidden below
+            }
             routineListComponent.initRoutines(action, projectile, anim);
 
             // Update transform dimensions to match the animation frame size
@@ -146,18 +168,23 @@ public class ProjectileSpawnSystem extends EntitySystem {
             transform.ORIGIN_X = 16;
             transform.ORIGIN_Y = 16;
 
+            // Apply slice width multiplier to visual scale
+            transform.xScale = sliceWidthMultiplier;
+
             // Set initial rotation so the first frame renders correctly
             transform.rotation = angle * MathUtils.radDeg;
 
-            // Set initial position to the orbit location so the first frame is correct
-            float orbitX = x + orbitDistance * MathUtils.cos(angle);
-            float orbitY = y + orbitDistance * MathUtils.sin(angle);
+            // Set initial position using SPAWN_DISTANCE toward locked enemy/mouse
+            float orbitX = x + spawnDistance * MathUtils.cos(angle);
+            float orbitY = y + spawnDistance * MathUtils.sin(angle);
             transform.x = orbitX - transform.FULL_BOUNDS_DIMENSIONS.x / 2f;
             transform.y = orbitY - transform.FULL_BOUNDS_DIMENSIONS.y / 2f;
 
-            // Set initial sprite texture so it's visible immediately
             SpriteComponent sprite = SpriteComponent.MAPPER.get(projectile);
-            if (sprite != null && anim.getKeyFrame(0) != null) {
+            if (animName == null) {
+                // No animation — hitbox-only invisible projectile
+                if (sprite != null) sprite.visible = false;
+            } else if (sprite != null && anim.getKeyFrame(0) != null) {
                 sprite.textureRegion = anim.getKeyFrame(0);
             }
         }
@@ -170,11 +197,16 @@ public class ProjectileSpawnSystem extends EntitySystem {
      */
     private void spawnMovingProjectile(Entity attacker, AttackFormattedData.ProjectileData projData,
                                         float x, float y, float angle) {
+        // Offset spawn position using SPAWN_DISTANCE toward locked enemy/mouse
+        float spawnDistance = projData.SPAWN_DISTANCE;
+        float spawnX = x + spawnDistance * MathUtils.cos(angle);
+        float spawnY = y + spawnDistance * MathUtils.sin(angle);
+
         Entity projectile = PrefabInstantiator.instantiatePrefab("projectile",
-                Application.getInstance().currentScreen, x, y);
+                Application.getInstance().currentScreen, spawnX, spawnY);
 
         Transform transform = Transform.MAPPER.get(projectile);
-        float speed = projData.SPEED != null ? projData.SPEED : 100f;
+        float speed = projData.SPEED;
         transform.xVel = MathUtils.cos(angle) * speed;
         transform.yVel = MathUtils.sin(angle) * speed;
 
@@ -188,23 +220,24 @@ public class ProjectileSpawnSystem extends EntitySystem {
 
         ProjectileConfigComponent config = new ProjectileConfigComponent();
         config.createOn = projData.CREATE_ON;
-        config.damage = projData.DAMAGE != null ? projData.DAMAGE : 10;
-        config.lifetime = projData.LIFETIME != null ? projData.LIFETIME : 1.0f;
-        config.movementPattern = projData.MOVEMENT_PATTERN != null ? projData.MOVEMENT_PATTERN : "STRAIGHT";
+        config.damage = projData.DAMAGE;
+        config.lifetime = projData.LIFETIME_FRAMES / 60.0f;
+        config.movementPattern = projData.MOVEMENT_PATTERN;
         config.speed = speed;
         config.orbits = false;
-        config.fps = projData.FPS != null ? projData.FPS : 10f;
+        config.fps = projData.FPS;
         config.isPlayer = true;
-        config.hitboxStartDelay = projData.HITBOX_START_DELAY != null ? projData.HITBOX_START_DELAY : 0f;
-        config.hitboxActiveDuration = projData.HITBOX_ACTIVE_DURATION != null ? projData.HITBOX_ACTIVE_DURATION : 0f;
-        config.hitboxRadius = projData.HITBOX_RADIUS != null ? projData.HITBOX_RADIUS : 16f;
+        config.startupTime = projData.STARTUP_FRAMES / 60.0f;
+        config.activeTime = projData.ACTIVE_FRAMES / 60.0f;
+        float movingSliceWidth = projData.WIDTH_MULTIPLIER;
+        config.hitboxRadius = projData.HITBOX_RADIUS * movingSliceWidth;
         projectile.add(config);
 
         RoutineListComponent routineListComponent = RoutineListComponent.MAPPER.get(projectile);
         if (routineListComponent != null) {
-            ChargeAction action = ChargeAction.simpleMoveTowardsAngle(config.lifetime);
-            String animName = projData.ANIMATION_NAME != null ? projData.ANIMATION_NAME : "swordSlice";
-            SuperAnimation anim = new SingleFrame(animName);
+            ChargeAction action = ChargeAction.simpleMoveTowardsAngle(config.speed);
+            String animName = projData.ANIMATION_NAME;
+            SuperAnimation anim = new SingleFrame(animName != null ? animName : "swordSlice");
             routineListComponent.initRoutines(action, projectile, anim);
 
             // Update transform dimensions to match the animation frame size
@@ -215,12 +248,20 @@ public class ProjectileSpawnSystem extends EntitySystem {
             transform.ORIGIN_X = 16;
             transform.ORIGIN_Y = 16;
 
+            // Apply slice width multiplier to visual scale
+            transform.xScale = movingSliceWidth;
+
+            // Center the entity on the spawn point
+            transform.x = spawnX - transform.FULL_BOUNDS_DIMENSIONS.x / 2f;
+            transform.y = spawnY - transform.FULL_BOUNDS_DIMENSIONS.y / 2f;
+
             // Set initial rotation so the first frame renders correctly
             transform.rotation = angle * MathUtils.radDeg;
 
-            // Set initial sprite texture so it's visible immediately
             SpriteComponent sprite = SpriteComponent.MAPPER.get(projectile);
-            if (sprite != null && anim.getKeyFrame(0) != null) {
+            if (animName == null) {
+                if (sprite != null) sprite.visible = false;
+            } else if (sprite != null && anim.getKeyFrame(0) != null) {
                 sprite.textureRegion = anim.getKeyFrame(0);
             }
         }
@@ -240,11 +281,15 @@ public class ProjectileSpawnSystem extends EntitySystem {
         modifiedData.ORBITS = projData.ORBITS;
         modifiedData.SPEED = projData.SPEED;
         modifiedData.DAMAGE = overrideDamage;
-        modifiedData.LIFETIME = projData.LIFETIME;
+        modifiedData.LIFETIME_FRAMES = projData.LIFETIME_FRAMES;
         modifiedData.MOVEMENT_PATTERN = projData.MOVEMENT_PATTERN;
-        modifiedData.HITBOX_START_DELAY = projData.HITBOX_START_DELAY;
-        modifiedData.HITBOX_ACTIVE_DURATION = projData.HITBOX_ACTIVE_DURATION;
+        modifiedData.STARTUP_FRAMES = projData.STARTUP_FRAMES;
+        modifiedData.ACTIVE_FRAMES = projData.ACTIVE_FRAMES;
         modifiedData.HITBOX_RADIUS = projData.HITBOX_RADIUS;
+        modifiedData.WIDTH_MULTIPLIER = projData.WIDTH_MULTIPLIER;
+        modifiedData.SPAWN_POSITION = projData.SPAWN_POSITION;
+        modifiedData.SPAWN_DISTANCE = projData.SPAWN_DISTANCE;
+        modifiedData.INHERITS_DAMAGE_FROM_ZERO = projData.INHERITS_DAMAGE_FROM_ZERO;
 
         spawnSingleProjectile(entity, modifiedData);
     }

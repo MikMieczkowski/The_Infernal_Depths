@@ -89,17 +89,24 @@ public class ExtraMathUtils {
     }
 
     //piecewise parabolic curve going up from 0 to accProp (0-1) * timer, peak at peakValue, decSpeed controlling speed of descent. accProp controls speed of ascent.
+    //desmos: f\left(t\right)\ =\ \min(\max(\ \left\{t<ma:\frac{p}{\left(ma\right)^{2}}t^{2},t\ge ma:-d\cdot\operatorname{sign}\left(p\right)\cdot\left(t-ma\right)^{2}+p\right\},\min(0,p)),\max(0,p))
     public static float accDecLerp(float timer, float maxTime, float peakValue, float accProp, float decSpeed) {
-        float accSpeed = peakValue / accProp*accProp;
         float accTime = maxTime * accProp;
+
         float f = 0;
         if (timer < accTime) {
+            float accSpeed = peakValue / (accTime*accTime);
             f= accSpeed * timer*timer;
         } else {
             float tMinusAccTime = (timer - accTime);
-            f= -decSpeed * tMinusAccTime*tMinusAccTime + peakValue;
+            f= -decSpeed * sign(peakValue) * tMinusAccTime*tMinusAccTime + peakValue;
         }
-        return MathUtils.clamp(f, 0, peakValue);
+        return clampNoOrder(f, 0, peakValue);
+    }
+
+    //Clamp except it doesn't assume a<b, equivalent to sorting the two numbers first and then calling clamp.
+    public static float clampNoOrder(float x, float a, float b){
+        return Math.min(Math.max(x,Math.min(a,b)),Math.max(a,b));
     }
 
     /**

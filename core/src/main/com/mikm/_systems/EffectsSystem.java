@@ -32,15 +32,11 @@ public class EffectsSystem extends IteratingSystem {
     }
     private void handleFlash(EffectsComponent effectsComponent) {
         if (effectsComponent.shouldFlash) {
-            Application.getInstance().setFillColorShader(Application.batch, effectsComponent.flashColor);
-            effectsComponent.flashTimer += DeltaTime.deltaTimeMultiplier();
+            effectsComponent.flashTimer += Gdx.graphics.getDeltaTime();
             if (effectsComponent.flashTimer >= effectsComponent.MAX_FLASH_TIME) {
                 effectsComponent.shouldFlash = false;
-                Application.batch.setShader(null);
                 effectsComponent.flashTimer = 0;
             }
-        } else {
-            Application.batch.setShader(null);
         }
     }
     private void handleSquish(Entity entity) {

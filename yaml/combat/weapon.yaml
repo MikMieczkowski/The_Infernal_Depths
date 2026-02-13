@@ -7,13 +7,16 @@ ORBIT:
   ORBIT_ITEM_ANIMATION_TYPE: SWING
 
 COMBO_TREE:
-  light_swing1:
-    light_swing1:
-      light_swing1:
+  LIGHT:
+    ATTACK: swingRegular
+    THEN_NEXT:
+      LIGHT:
+        ATTACK: swingRegular
 
 AERIAL_COMBO_TREE:
-  light_swing1:
+  LIGHT:
+    ATTACK: swingRegular
 
 CONFIG:
-  light_swing1:
-    DAMAGE: 10
+  swingRegular:
+    PROJECTILE_DAMAGE:

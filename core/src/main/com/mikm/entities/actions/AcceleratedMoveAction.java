@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
+import com.mikm.rendering.screens.Application;
 import com.mikm.utils.DeltaTime;
 import com.mikm.utils.ExtraMathUtils;
 import com.mikm._components.Copyable;
