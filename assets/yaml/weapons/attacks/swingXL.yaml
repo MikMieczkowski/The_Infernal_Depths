@@ -1,0 +1,5 @@
+COPY: swingRegular.yaml
+
+PROJECTILES:
+  - COPY: 0
+    WIDTH_MULTIPLIER: 3

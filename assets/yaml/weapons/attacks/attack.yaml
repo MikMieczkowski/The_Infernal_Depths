@@ -4,9 +4,8 @@
 ATTACK_MAX_TIME: .5
 #COOLDOWN_TIME: time after exiting attack state that you can reenter attack state
 COOLDOWN_TIME: 0
-#COMBO_TIME: time after exiting attack state that if you attack it will continue the combo. Should be larger than COOLDOWN_TIME + time of hold for next attack in combo (usually .3 because thats how long light takes)
+#COMBO_TIME: time after exiting attack state that if you attack it will continue the combo. Should be larger than COOLDOWN_TIME + time of hold for next attack in combo (MED_TIME for med, HEAVY_TIME for heavy)
 COMBO_TIME: .6
-CAN_BREAK_ROCKS: false
 #TODO research
 HIT_STUN: 10
 # Triggers aerial state on hit
@@ -51,3 +50,9 @@ PROJECTILES:
     HITBOX_ACTIVE_DURATION: 0
     # Radius of the projectile's hitbox circle
     HITBOX_RADIUS: 16
+    # Multiplier for the projectile's width (affects both visual xScale and hitbox radius)
+    WIDTH_MULTIPLIER: 1.0
+    # Where to spawn the projectile relative to the player. TOWARDS_LOCKED = offset toward locked enemy/mouse direction
+    SPAWN_POSITION: TOWARDS_LOCKED
+    # Distance from player center to spawn at (only used with TOWARDS_LOCKED)
+    SPAWN_DISTANCE: 15

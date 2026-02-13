@@ -1,0 +1,31 @@
+CONFIG:
+  NAME: dummy
+  MAX_HP: 100000
+  DAMAGE: 0
+  SPEED: 0
+  POST_HIT_ROUTINE: hit
+BEHAVIOURS:
+  Idle:
+    ANIMATION:
+      TYPE: SINGLE_FRAME
+      IMAGE_NAME: "Dummy"
+  Hit:
+    ACTION: Idle
+    ANIMATION:
+      TYPE: SINGLE_ANIMATION
+      IMAGE_NAME: "Dummy"
+      FPS: 10
+      LOOP: false
+    CONFIG:
+      time_min: 1
+      time_max: 1
+ROUTINES:
+  start:
+    CYCLE:
+      - BEHAVIOUR: Idle
+    TRANSITIONS: []
+  hit:
+    CYCLE:
+      - BEHAVIOUR: Hit
+    TRANSITIONS:
+      - NO_REPEAT: start

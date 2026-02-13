@@ -12,26 +12,22 @@ ORBIT:
   #Only will have an effect if ORBIT_TYPE = SWAP. Only swing implemented for now.
   ORBIT_ITEM_ANIMATION_TYPE: SWING
 
-# New combo tree format with distance conditions
-# IF: ANY, GREATER, or LESS
-# THAN: distance threshold (only used with GREATER/LESS)
-# THEN_NEXT: branches when condition passes
-# ELSE_NEXT: branches when condition fails (optional)
+# Combo tree format:
+#   Leaf node:          ATTACK: name
+#   Unconditional next: ATTACK: name + THEN_NEXT: { LIGHT: ..., MEDIUM: ..., HEAVY: ... }
+#   Conditional next:   ATTACK: name + IF_DISTANCE_IS: GREATER/LESS + THAN: dist + THEN_NEXT: ... + optionally ELSE_NEXT: ...
 COMBO_TREE:
   LIGHT:
-    ATTACK: swing1
-    IF: ANY
+    ATTACK: swingRegular
     THEN_NEXT:
       LIGHT:
-        ATTACK: swing1
-        IF: ANY
+        ATTACK: swingRegular
 
 AERIAL_COMBO_TREE:
   LIGHT:
-    ATTACK: swing1
-    IF: ANY
+    ATTACK: swingRegular
 
 CONFIG:
-  swing1:
+  swingRegular:
     #A list of the damage corresponding to the swing's projectile list
     PROJECTILE_DAMAGE:

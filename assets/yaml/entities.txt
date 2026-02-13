@@ -1,0 +1,8 @@
+# Entity names for JAR distribution (dir.list() fallback)
+# Each line is an entity CONFIG NAME that has a corresponding .yaml file in yaml/
+player
+rat
+slime
+bat
+slimeBoss
+moti
